@@ -3,11 +3,15 @@ package it.uniba.dib.sms222334.Models;
 import android.media.Image;
 import android.provider.ContactsContract;
 
+import java.util.Date;
+
 public class Private extends Owner{
     private String name;
     private String surname;
     private String email;
     private String password;
+
+    private Date date;
     private int role;
     private String tax_id_code; //codice_fiscale
     private Image photo;
