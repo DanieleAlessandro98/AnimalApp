@@ -1,3 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="name">Nome</string>
+    <string name="surname">Cognome</string>
+    <string name="birth_date">Data nascita</string>
+    <string name="tax_id">Codice fiscale</string>
+    <string name="email_address">Indirizzo email</string>
+    <string name="password">password</string>
+    <string name="register">Registrati</string>
+    <string name="login">Accedi</string>
+    <string name="have_account_yet">"Non sei ancora registrato? "</string>
 </resources>
