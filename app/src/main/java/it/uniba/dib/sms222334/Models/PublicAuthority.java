@@ -1,16 +1,18 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.media.Image;
+
 public class PublicAuthority {
     private String email;
     private String password;
     private int role;
     private String company_name;  // denominazione sociale
     private String site;        // sede
-    private String logo;
+    private Image logo;
     private int Nbeds;  // posti letto
     private int telephone;
 
-    private PublicAuthority(String email, String password, int role, String company_name, String site, String logo, int nbeds, int telephone) {
+    private PublicAuthority(String email, String password, int role, String company_name, String site, Image logo, int nbeds, int telephone) {
         this.email = email;
         this.password = password;
         this.role = role;
@@ -27,7 +29,7 @@ public class PublicAuthority {
         private int brole;
         private String bcompany_name;  // denominazione sociale
         private String bsite;        // sede
-        private String blogo;
+        private Image blogo;
         private int bNbeds;  // posti letto
         private int btelephone;
 
@@ -65,7 +67,7 @@ public class PublicAuthority {
             return this;
         }
 
-        public Builder setLogo(final String blogo){
+        public Builder setLogo(final Image blogo){
             this.blogo=blogo;
             return this;
         }
