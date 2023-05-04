@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "251097108692",
+    "firebase_url": "https://animalapp-717fd-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "animalapp-717fd",
+    "storage_bucket": "animalapp-717fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251097108692:android:ffec7b2ae987dca982ab41",
+        "android_client_info": {
+          "package_name": "it.uniba.dib.sms222334"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "251097108692-0ekocspbbpktakqu66dpfobfve48deil.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaWW4X-Tg2il1ycVunsivBPUQF-4a7xHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "251097108692-0ekocspbbpktakqu66dpfobfve48deil.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
