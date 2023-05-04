@@ -13,6 +13,7 @@ public class Veterinarian {
 
     private int telephone;
 
+
     private Image logo;
 
     //array<visite>
