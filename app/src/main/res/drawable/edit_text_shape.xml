@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <corners android:radius="10dp"/>
@@ -8,7 +10,31 @@
         </shape>
     </item>
 
-    <item>
+    <item app:validate_input="valid_input">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="@color/cardview_light_background"/>
+            <stroke android:color="@color/green" android:width="2dp"/>
+        </shape>
+    </item>
+
+    <item app:validate_input="invalid_input">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="@color/cardview_light_background"/>
+            <stroke android:color="@color/red" android:width="2dp"/>
+        </shape>
+    </item>
+
+    <item app:validate_input="warning_input">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="@color/cardview_light_background"/>
+            <stroke android:color="@color/yellow" android:width="2dp"/>
+        </shape>
+    </item>
+
+    <item app:validate_input="no_input">
         <shape android:shape="rectangle">
             <corners android:radius="10dp"/>
             <solid android:color="@color/cardview_light_background"/>

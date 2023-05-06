@@ -9,4 +9,10 @@
     <string name="register">Registrati</string>
     <string name="login">Accedi</string>
     <string name="have_account_yet">"Non sei ancora registrato? "</string>
+    <string name="company_name">Denominazione sociale</string>
+    <string name="site">Sede</string>
+    <string name="phone_number">Numero telefonico</string>
+    <string name="home">Home</string>
+    <string name="search">Cerca</string>
+    <string name="profile">Profilo</string>
 </resources>

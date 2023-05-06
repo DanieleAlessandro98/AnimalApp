@@ -1,7 +1,7 @@
 package it.uniba.dib.sms222334.Models;
 
 
-public class Pathology {
+public class Pathology extends Document{
     private int animalID;
     private String name;
 

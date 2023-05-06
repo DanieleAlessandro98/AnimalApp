@@ -2,18 +2,17 @@ package it.uniba.dib.sms222334.Models;
 
 import android.media.Image;
 
-public class Veterinarian {
+import java.util.zip.CheckedOutputStream;
+
+public class Veterinarian extends Document {
+
+    public static int ROLE=2;
     private String email;
     private String password;
     private int role;
-
     private String companyName; //denominazione sociale
-
     private String legal_site; //sede
-
     private int telephone;
-
-
     private Image logo;
 
     //array<visite>

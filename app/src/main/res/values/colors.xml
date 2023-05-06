@@ -8,14 +8,20 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="green">#CC00FF00</color>
     <color name="red">#CC0000</color>
     <color name="soft_red">#55CC0000</color>
     <color name="yellow">#CCCC00</color>
     <color name="soft_yellow">#88CCCC00</color>
+    <color name="soft_black">#55000000</color>
 
     <!-- application color!-->
-    <color name="edit_text_focused">@color/yellow</color>
-    <color name="edit_text_normal">@color/soft_yellow</color>
+    <color name="edit_text_focused">@color/black</color>
+    <color name="edit_text_normal">@color/soft_black</color>
+    <color name="edit_text_invalid_input">@color/red</color>
+    <color name="edit_text_valid_input">@color/green</color>
+    <color name="edit_text_warning_input">@color/yellow</color>
     <color name="button_pressed">@color/yellow</color>
     <color name="button_normal">@color/soft_yellow</color>
+
 </resources>

@@ -1,8 +1,14 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.media.Image;
+import android.provider.MediaStore;
 
-public class Animal {
+import java.util.LinkedList;
+
+public class Animal extends Document {
+
+    //in carico, smarrito, adottato, assistico, randagio
+    public static enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
     private String name;
     private Owner owner;
     private int age;
@@ -10,6 +16,10 @@ public class Animal {
     private String species;
     private String race;
     private Image photo;
+
+    private LinkedList<String> images;
+
+    private LinkedList<String> videos;
     private String microchip;
 
     //arraylist<visite>
