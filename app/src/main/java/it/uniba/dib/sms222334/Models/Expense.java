@@ -1,6 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
-public class Expense {
+public class Expense extends Document{
     private String name;
     private Double price;
     private int category; //categorie per le spese

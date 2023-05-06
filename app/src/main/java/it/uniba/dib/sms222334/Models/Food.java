@@ -1,6 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
-public class Food {
+public class Food extends Document{
     private String name;
 
     private Food(String name) {

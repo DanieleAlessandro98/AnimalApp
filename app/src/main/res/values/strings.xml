@@ -9,4 +9,13 @@
     <string name="register">register</string>
     <string name="login">login</string>
     <string name="have_account_yet">"Don't have an account yet? "</string>
+<<<<<<< HEAD
+=======
+    <string name="company_name">Company name</string>
+    <string name="site">Site</string>
+    <string name="phone_number">Phone number</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="profile">Profile</string>
+>>>>>>> 54b31f7063d419d26bab3a7fae7532265ec58e37
 </resources>

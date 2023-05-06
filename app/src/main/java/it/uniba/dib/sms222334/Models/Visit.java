@@ -1,6 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
-public class Visit{
+public class Visit extends Document{
     private String name;
     private String state;   // stato
     private String Diagnosis;

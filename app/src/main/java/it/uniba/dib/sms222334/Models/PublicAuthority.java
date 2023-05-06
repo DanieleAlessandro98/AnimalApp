@@ -2,7 +2,13 @@ package it.uniba.dib.sms222334.Models;
 
 import android.media.Image;
 
+<<<<<<< HEAD
 public class PublicAuthority {
+=======
+public class PublicAuthority extends Owner{
+
+    public static int ROLE=1;
+>>>>>>> 54b31f7063d419d26bab3a7fae7532265ec58e37
     private String email;
     private String password;
     private int role;
