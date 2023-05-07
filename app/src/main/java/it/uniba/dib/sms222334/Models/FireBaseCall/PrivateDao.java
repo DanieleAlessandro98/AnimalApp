@@ -176,8 +176,39 @@ public final class PrivateDao {
                 });
     }
 
-    public void updatePrivate(Private Private){
+    public void updatePrivate(Private updatePrivate) {
+        //TODO:
+        // l'aggiunta/rimozione animale di un privato non la facciamo qui. creiamo dei metodi a parte in seguito
+            // qui gestiamo solo la modifica dei dati del profilo
 
+        // TODO:
+        //  la modifica della foto avviene solo a livello di database qui
+            // quando andremo ad implementare la funzionalità "cambia foto profilo" ricordarsi di gestire l'update del file
+
+        Map<String, Object> newPrivateData = new HashMap<>();
+        newPrivateData.put("name", updatePrivate.getName());
+        newPrivateData.put("surname", updatePrivate.getSurname());
+        newPrivateData.put("birthdate", new Timestamp(updatePrivate.getDate()));
+        newPrivateData.put("email", updatePrivate.getEmail());
+        newPrivateData.put("password", updatePrivate.getPassword());
+        newPrivateData.put("phone_number", updatePrivate.getPhoneNumber());
+        newPrivateData.put("photo", updatePrivate.getPhoto());
+        newPrivateData.put("tax_id_code", updatePrivate.getTax_id_code());
+
+        collectionPrivate.document(updatePrivate.getFirebaseID())
+                .update(newPrivateData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "update fatto");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "errore update");
+                    }
+                });
     }
 
     // TODO:
