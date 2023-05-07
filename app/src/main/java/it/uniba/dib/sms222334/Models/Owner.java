@@ -4,30 +4,36 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Owner extends Document{
-    private LinkedList<Animal> ListAnimal;
-    private LinkedList<Expense> ListExpense;
+    private LinkedList<Animal> listAnimal;
+    private LinkedList<Expense> listExpense;
 
+    //TODO:
+    // Aggiunto costruttore e richiamato in ogni sottoclasse. altrimenti quando richiamado "addAnimal" non avendo inizializzato, dava nullexception
+    public Owner() {
+        listAnimal = new LinkedList<>();
+        listExpense = new LinkedList<>();
+    }
 
     public void addAnimal(Animal animal){
-        this.ListAnimal.add(animal);
+        this.listAnimal.add(animal);
     }
 
     public void removeAnimal(Animal animal){
-        for(Animal a: ListAnimal){
+        for(Animal a: listAnimal){
             if(a.getFirebaseID().compareTo(animal.getFirebaseID())==0){
-                ListAnimal.remove(a);
+                listAnimal.remove(a);
             }
         }
     }
 
     public void addExpense(Expense Expense){
-        this.ListExpense.add(Expense);
+        this.listExpense.add(Expense);
     }
 
     public void removeExpense(Expense Expense){
-        for(Expense a: ListExpense){
+        for(Expense a: listExpense){
             if(a.getFirebaseID().compareTo(Expense.getFirebaseID())==0){
-                ListExpense.remove(a);
+                listExpense.remove(a);
             }
         }
     }

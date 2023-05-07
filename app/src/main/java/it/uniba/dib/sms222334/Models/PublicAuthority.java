@@ -10,11 +10,13 @@ public class PublicAuthority extends Owner{
     private int role;
     private String company_name;  // denominazione sociale
     private String site;        // sede
-    private Image logo;
+    private String logo;
     private int Nbeds;  // posti letto
     private int telephone;
 
-    private PublicAuthority(String email, String password, int role, String company_name, String site, Image logo, int nbeds, int telephone) {
+    private PublicAuthority(String email, String password, int role, String company_name, String site, String logo, int nbeds, int telephone) {
+        super();
+
         this.email = email;
         this.password = password;
         this.role = role;
@@ -31,7 +33,7 @@ public class PublicAuthority extends Owner{
         private int brole;
         private String bcompany_name;  // denominazione sociale
         private String bsite;        // sede
-        private Image blogo;
+        private String blogo;
         private int bNbeds;  // posti letto
         private int btelephone;
 
@@ -69,7 +71,7 @@ public class PublicAuthority extends Owner{
             return this;
         }
 
-        public Builder setLogo(final Image blogo){
+        public Builder setLogo(final String blogo){
             this.blogo=blogo;
             return this;
         }

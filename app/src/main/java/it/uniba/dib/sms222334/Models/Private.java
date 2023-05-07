@@ -19,46 +19,11 @@ public class Private extends Owner{
     private Date date;
     private int role;
     private String tax_id_code; //codice_fiscale
-    private Bitmap photo;
+    private String photo;
 
+    private Private(String name, String surname, String email, String password, Date date, int role, long phoneNumber, String tax_id_code, String photo) {
+        super();
 
-    public String getName() {
-        return name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public int getRole() {
-        return role;
-    }
-
-    public String getTax_id_code() {
-        return tax_id_code;
-    }
-
-    public Bitmap getPhoto() {
-        return photo;
-    }
-
-    private Private(String name, String surname, String email, String password, Date date, int role, long phoneNumber, String tax_id_code, Bitmap photo) {
         this.name = name;
         this.surname = surname;
         this.email = email;
@@ -81,7 +46,7 @@ public class Private extends Owner{
 
         private long bphoneNumber;
         private String btax_id_code; //codice_fiscale
-        private Bitmap bphoto;
+        private String bphoto;
         //ArrayList<Animali>
 
         private Builder(final String name, final String surname){
@@ -123,7 +88,7 @@ public class Private extends Owner{
             return this;
         }
 
-        public Builder setPhoto(final Bitmap photo){
+        public Builder setPhoto(final String photo){
             this.bphoto=photo;
             return this;
         }
@@ -131,5 +96,41 @@ public class Private extends Owner{
         public Private build(){
             return new Private(bname,bsurname,bemail,bpassword,bdate,ROLE,bphoneNumber,btax_id_code,bphoto);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public long getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public String getTax_id_code() {
+        return tax_id_code;
+    }
+
+    public String getPhoto() {
+        return photo;
     }
 }

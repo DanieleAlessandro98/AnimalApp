@@ -15,7 +15,7 @@ public class Animal extends Document {
     private int state;
     private String species;
     private String race;
-    private Image photo;
+    private String photo;
 
     private LinkedList<String> images;
 
@@ -30,7 +30,7 @@ public class Animal extends Document {
     //arraylist<spesa>
     //arraylist<relazioni>
 
-    private Animal(String name, Owner owner, int age, int state, String species, String race, Image photo, String microchip){
+    private Animal(String name, Owner owner, int age, int state, String species, String race, String photo, String microchip){
         this.name = name;
         this.owner = owner;
         this.age = age;
@@ -48,7 +48,7 @@ public class Animal extends Document {
         private int bstate;
         private String bspecies;
         private String brace;
-        private Image bphoto;
+        private String bphoto;
         private String bmicrochip;
 
         private Builder(final int state){
@@ -84,13 +84,58 @@ public class Animal extends Document {
             return this;
         }
 
-        public Animal.Builder setPhoto(final Image photo){
+        public Animal.Builder setPhoto(final String photo){
             this.bphoto=photo;
+            return this;
+        }
+
+        public Animal.Builder setRace(final String race){
+            this.brace=race;
             return this;
         }
 
         public Animal build(){
             return new Animal(bname,bowner,bage,bstate,bspecies,brace,bphoto,bmicrochip);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public String getSpecies() {
+        return species;
+    }
+
+    public String getRace() {
+        return race;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public LinkedList<String> getImages() {
+        return images;
+    }
+
+    public LinkedList<String> getVideos() {
+        return videos;
+    }
+
+    public String getMicrochip() {
+        return microchip;
     }
 }

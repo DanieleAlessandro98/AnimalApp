@@ -13,12 +13,14 @@ public class Veterinarian extends Document {
     private String companyName; //denominazione sociale
     private String legal_site; //sede
     private int telephone;
-    private Image logo;
+    private String logo;
 
     //array<visite>
 
 
-    private Veterinarian(String email, String password, int role, String companyName, String legal_site, int telephone, Image logo) {
+    private Veterinarian(String email, String password, int role, String companyName, String legal_site, int telephone, String logo) {
+        super();
+
         this.email = email;
         this.password = password;
         this.role = role;
@@ -40,7 +42,7 @@ public class Veterinarian extends Document {
         private int btelephone;
 
 
-        private Image blogo;
+        private String blogo;
 
         private Builder(final String email, final String password){
             this.bemail=email;
@@ -71,7 +73,7 @@ public class Veterinarian extends Document {
             return this;
         }
 
-        public Veterinarian.Builder setLogo(final Image logo){
+        public Veterinarian.Builder setLogo(final String logo){
             this.blogo=logo;
             return this;
         }

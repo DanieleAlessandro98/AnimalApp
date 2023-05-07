@@ -1,6 +1,8 @@
 package it.uniba.dib.sms222334.Activity;
 
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -9,7 +11,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
@@ -23,8 +24,6 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG="MainActivity";
 
     BottomNavigationView bottomNavigationView;
-
-    PrivateDao pdao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-
+        /*
         Calendar calendar=Calendar.getInstance();
         calendar.set(2000,12,2);
 
@@ -64,11 +63,48 @@ public class MainActivity extends AppCompatActivity {
                 .setDate(calendar.getTime())
                 .setTaxIdCode("iodhdfoisef").build();
 
-        //da eliminare
-        pdao=new PrivateDao(this);
-        //pdao.getPrivateByEmail("test@gmail.com");
+        //pdao.createPrivate(privat);
+*/
 
-        pdao.createPrivate(privat);
+
+        PrivateDao pdao = new PrivateDao();
+        GetPrivateByEmailResult listener = new GetPrivateByEmailResult() {
+            @Override
+            public void onPrivateRetrieved(Private resultPrivate) {
+                String log = "";
+                log += resultPrivate.getName() + " ";
+                log += resultPrivate.getSurname() + " ";
+                log += resultPrivate.getEmail() + " ";
+                log += resultPrivate.getPassword() + " ";
+                log += resultPrivate.getPhoneNumber() + " ";
+                log += resultPrivate.getDate() + " ";
+                log += resultPrivate.getRole() + " ";
+                log += resultPrivate.getTax_id_code() + " ";
+                log += resultPrivate.getPhoto() + " ";
+
+                Log.d("resultPrivateTest", log);
+            }
+
+            @Override
+            public void onPrivateNotFound() {
+                Log.d(TAG, "non esiste");
+            }
+
+            @Override
+            public void onPrivateQueryError(Exception e) {
+                Log.w(TAG, "errore query.");
+            }
+        };
+
+        pdao.getPrivateByEmail("test_owner@gmail.com", listener);
+    }
+
+    // TODO:
+        // Questa interfaccia la spostiamo da qua. dove la mettiamo però? Nel dao? classe a parte? nel presenter? ecc
+    public interface GetPrivateByEmailResult {
+        void onPrivateRetrieved(Private resultPrivate);
+        void onPrivateNotFound();
+        void onPrivateQueryError(Exception e);
     }
 
     private void replaceFragment(Fragment fragment){
