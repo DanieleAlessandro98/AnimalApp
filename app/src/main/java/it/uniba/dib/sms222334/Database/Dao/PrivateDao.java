@@ -1,4 +1,4 @@
-package it.uniba.dib.sms222334.Models.FireBaseCall;
+package it.uniba.dib.sms222334.Database.Dao;
 
 import android.util.Log;
 
@@ -21,12 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.AnimalDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Private;
 
 public final class PrivateDao {
     private final String TAG="PrivateDao";
-    final private CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection("Private");
+    final private CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Private.TABLE_NAME);
 
     //TODO:
     // Gestione foto:
@@ -45,7 +47,7 @@ public final class PrivateDao {
         // infine ho suddiviso getPrivateByEmail() per renderlo più leggibile
 
     public void getPrivateByEmail(String email, final MainActivity.GetPrivateByEmailResult listener) {
-        collectionPrivate.whereEqualTo("email",email).get()
+        collectionPrivate.whereEqualTo(AnimalAppDB.Private.COLUMN_NAME_EMAIL,email).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -73,13 +75,14 @@ public final class PrivateDao {
     }
 
     private Private findPrivate(DocumentSnapshot document) {
-        Private.Builder private_requested_builder=Private.Builder.create(document.getString("name"),document.getString("surname"))
-                .setPassword(document.getString("password"))
-                .setEmail(document.getString("email"))
-                .setDate(document.getDate("birthdate"))
-                .setPhoneNumber(document.getLong("phone_number"))
-                .setPhoto(document.getString("photo"))
-                .setTaxIdCode(document.getString("tax_id_code"));
+        Private.Builder private_requested_builder=Private.Builder.
+                create(document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
+                .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
+                .setEmail(document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
+                .setDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
+                .setPhoneNumber(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
+                .setPhoto(document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
+                .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
 
         Private resultPrivate = private_requested_builder.build();
         resultPrivate.setFirebaseID(document.getId());
@@ -91,7 +94,7 @@ public final class PrivateDao {
         AnimalDao animalDao = new AnimalDao();
         ArrayList<Animal> animalList = new ArrayList<>();
 
-        List<DocumentReference> animalRefs = (List<DocumentReference>) document.get("animalList");
+        List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.Private.COLUMN_NAME_ANIMALS);
 
         for (DocumentReference animalRef : animalRefs) {
             GetAnimalByReferenceResult animalListener = new GetAnimalByReferenceResult() {
@@ -133,16 +136,16 @@ public final class PrivateDao {
         List<DocumentReference> dr= new ArrayList<>();
 
         Map<String, Object> new_private = new HashMap<>();
-        new_private.put("name", Private.getName());
-        new_private.put("surname", Private.getSurname());
-        new_private.put("animalList", dr);
-        new_private.put("birthdate", new Timestamp(Private.getDate()));
-        new_private.put("email", Private.getEmail());
-        new_private.put("password", Private.getPassword());
-        new_private.put("phone_number", Private.getPhoneNumber());
-        new_private.put("photo", "/images/profiles/users/default.jpg");
-        new_private.put("role", Private.getRole());
-        new_private.put("tax_id_code", Private.getTax_id_code());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_NAME, Private.getName());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, Private.getSurname());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_ANIMALS, dr);
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(Private.getDate()));
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, Private.getEmail());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhoneNumber());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTax_id_code());
 
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -186,14 +189,14 @@ public final class PrivateDao {
             // quando andremo ad implementare la funzionalità "cambia foto profilo" ricordarsi di gestire l'update del file
 
         Map<String, Object> newPrivateData = new HashMap<>();
-        newPrivateData.put("name", updatePrivate.getName());
-        newPrivateData.put("surname", updatePrivate.getSurname());
-        newPrivateData.put("birthdate", new Timestamp(updatePrivate.getDate()));
-        newPrivateData.put("email", updatePrivate.getEmail());
-        newPrivateData.put("password", updatePrivate.getPassword());
-        newPrivateData.put("phone_number", updatePrivate.getPhoneNumber());
-        newPrivateData.put("photo", updatePrivate.getPhoto());
-        newPrivateData.put("tax_id_code", updatePrivate.getTax_id_code());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, updatePrivate.getSurname());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(updatePrivate.getDate()));
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhoneNumber());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhoto());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTax_id_code());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())
                 .update(newPrivateData)
