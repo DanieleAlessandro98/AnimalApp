@@ -41,7 +41,7 @@ public final class PrivateDao {
         this.context=context;
     }
 
-    //gestire lista animali
+    //TODO: gestire lista animali
     public Private getPrivateByEmail(String email){
         final Private[] requested_private = new Private[1];
 
