@@ -1,31 +1,119 @@
 package it.uniba.dib.sms222334.Models;
 
+import java.util.Date;
+import java.util.Objects;
+
 public class Visit extends Document{
+
+    public enum visitType{DEWORMING,VACCINATION,STERILIZATION,SURGERY,CONTROL}
+    public enum diagnosisType{POSITIVE,NEGATIVE,NULL}
+
+    public enum visitState{EXECUTED,NOT_EXECUTED,BE_REVIEWED}
     private String name;
-    private String state;   // stato
-    private String Diagnosis;
+
+    private visitType type;
+    private visitState state;   // stato
+
+    private String doctorName;
+    private Date date;
+    private diagnosisType Diagnosis;
     private String medicalNotes;
 
-    private Visit(String name, String state, String diagnosis, String medicalNotes) {
+    private Visit(String name,visitType type, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
         this.name = name;
         this.state = state;
+        this.type=type;
+        this.date=date;
+        this.doctorName=doctorName;
+        this.Diagnosis = diagnosis;
+        this.medicalNotes = medicalNotes;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public visitType getType() {
+        return type;
+    }
+
+    public String getDoctorName(){
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName){
+        this.doctorName=doctorName;
+    }
+
+    public void setType(visitType type) {
+        this.type = type;
+    }
+
+    public visitState getState() {
+        return state;
+    }
+
+    public void setState(visitState state) {
+        this.state = state;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public diagnosisType getDiagnosis() {
+        return Diagnosis;
+    }
+
+    public void setDiagnosis(diagnosisType diagnosis) {
         Diagnosis = diagnosis;
+    }
+
+    public String getMedicalNotes() {
+        return medicalNotes;
+    }
+
+    public void setMedicalNotes(String medicalNotes) {
         this.medicalNotes = medicalNotes;
     }
 
     public static class Builder{
         private String Bname;
-        private String Bstate;   // stato
-        private String BDiagnosis;
-        private String BmedicalNotes;
 
-        private Builder(final String name, final String state){
+        private visitType Btype;
+
+        private Date Bdate;
+        private visitState Bstate=visitState.NOT_EXECUTED;   // stato
+        private diagnosisType BDiagnosis=diagnosisType.NULL;
+
+        private String BdoctorName="";
+        private String BmedicalNotes="";
+
+        private Builder(final String name, final visitType type, final Date date){
             this.Bname=name;
-            this.Bstate=state;
+            this.Btype=type;
+            this.Bdate=date;
         }
 
-        public static Builder create(final String name, final String surname){
-            return new Builder(name,surname);
+        public static Builder create(final String name, final visitType type, final Date date){
+            return new Builder(name,type,date);
+        }
+
+        public static Builder createFrom(Visit visit){
+            return new Builder(visit.getName(),visit.getType(),visit.getDate())
+                    .setDoctorName(visit.getDoctorName())
+                    .setState(visit.getState())
+                    .setDiagnosis(visit.getDiagnosis())
+                    .setMedicalNotes(visit.getMedicalNotes());
         }
 
         public Builder setName(final String Name){
@@ -33,12 +121,27 @@ public class Visit extends Document{
             return this;
         }
 
-        public Builder setState(final String State){
+        public Builder setType(final visitType type){
+            this.Btype=type;
+            return this;
+        }
+
+        public Builder setDate(final Date date){
+            this.Bdate=date;
+            return this;
+        }
+
+        public Builder setDoctorName(final String doctorName){
+            this.BdoctorName=doctorName;
+            return this;
+        }
+
+        public Builder setState(final visitState State){
             this.Bstate=State;
             return this;
         }
 
-        public Builder setDiagnosis(String Diagnosis){
+        public Builder setDiagnosis(diagnosisType Diagnosis){
             this.BDiagnosis=Diagnosis;
             return this;
         }
@@ -49,7 +152,7 @@ public class Visit extends Document{
         }
 
         public Visit build(){
-            return new Visit(Bname,Bstate,BDiagnosis,BmedicalNotes);
+            return new Visit(Bname,Btype,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
 }

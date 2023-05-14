@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class Private extends Owner{
 
-    public static int ROLE=0;
+    public final static int ROLE=0;
     private String name;
     private String surname;
     private String email;

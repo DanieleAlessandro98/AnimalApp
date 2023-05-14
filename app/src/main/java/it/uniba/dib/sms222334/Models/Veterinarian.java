@@ -6,7 +6,7 @@ import java.util.zip.CheckedOutputStream;
 
 public class Veterinarian extends Document {
 
-    public static int ROLE=2;
+    public final static int ROLE=2;
     private String email;
     private String password;
     private int role;

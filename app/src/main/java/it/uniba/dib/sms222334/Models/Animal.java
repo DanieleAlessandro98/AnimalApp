@@ -8,11 +8,12 @@ import java.util.LinkedList;
 public class Animal extends Document {
 
     //in carico, smarrito, adottato, assistico, randagio
-    public static enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
+    public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
     private String name;
     private Owner owner;
     private int age;
-    private int state;
+    private stateList state;
+    private String microchip;
     private String species;
     private String race;
     private Image photo;
@@ -20,7 +21,6 @@ public class Animal extends Document {
     private LinkedList<String> images;
 
     private LinkedList<String> videos;
-    private String microchip;
 
     //arraylist<visite>
     //arraylist<patologia>
@@ -30,7 +30,7 @@ public class Animal extends Document {
     //arraylist<spesa>
     //arraylist<relazioni>
 
-    private Animal(String name, Owner owner, int age, int state, String species, String race, Image photo, String microchip){
+    private Animal(String name, Owner owner, int age, stateList state, String species, String race, Image photo, String microchip){
         this.name = name;
         this.owner = owner;
         this.age = age;
@@ -45,17 +45,17 @@ public class Animal extends Document {
         private String bname;
         private Owner bowner;
         private int bage;
-        private int bstate;
+        private stateList bstate;
         private String bspecies;
         private String brace;
         private Image bphoto;
         private String bmicrochip;
 
-        private Builder(final int state){
+        private Builder(final stateList state){
             this.bstate=state;
         }
 
-        public static Animal.Builder create(final int state){
+        public static Animal.Builder create(final stateList state){
             return new Animal.Builder(state);
         }
 
