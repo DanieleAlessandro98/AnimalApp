@@ -20,9 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Database.Dao.AnimalDao;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Private;
 
@@ -30,23 +29,7 @@ public final class PrivateDao {
     private final String TAG="PrivateDao";
     final private CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Private.TABLE_NAME);
 
-    //TODO:
-    // Gestione foto:
-        // foto profilo cambiata in string (path). più comodo. così la visualizzazione se ne occupa solo la view senza scaricarla nel model con flusso di byte
-        // la foto nel db non può essere vuota. altrimenti darà nullexception quando facciamo il get per prenderla. inserito immagine default togliendo context (così lo rendiamo indipendente dalla activty)
-
-    //TODO:
-    // Gestione problema addOnCompleteListener di Firestore
-        // la chiamata collectionPrivate.whereEqualTo è asincrona, quindi il valore di requested_private non è ancora stato impostato quando viene restituito (grazie chatgpt). di conseguenza da nullexception se usi il valore di ritorno in un'altra classe (es MainActivity)
-        // per risolvere ho usato i listener (non c'è più valore di ritorno, e il risultato lo imposti tramite chiamata al listener)
-
-    //TODO:
-    // Gestione lista animali
-        // per prima cosa ho dovuto aggiungere costruttore ad Owner. altrimenti non inizializzavamo le liste
-        // poi ho creato animaldao implementato il metodo per restituire gli animali del proprietario (ho dovuto usare listener)
-        // infine ho suddiviso getPrivateByEmail() per renderlo più leggibile
-
-    public void getPrivateByEmail(String email, final MainActivity.GetPrivateByEmailResult listener) {
+    public void getPrivateByEmail(String email, final DatabaseCallbackResult<Private> listener) {
         collectionPrivate.whereEqualTo(AnimalAppDB.Private.COLUMN_NAME_EMAIL,email).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -57,18 +40,14 @@ public final class PrivateDao {
                                 DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
                                 Private resultPrivate = findPrivate(document);
+                                findPrivateAnimals(document, resultPrivate);
 
-                                ArrayList<Animal> animalList = findPrivateAnimals(document);
-                                for (Animal animal : animalList) {
-                                    resultPrivate.addAnimal(animal);
-                                }
-
-                                listener.onPrivateRetrieved(resultPrivate);
+                                listener.onDataRetrieved(resultPrivate);
                             } else {
-                                listener.onPrivateNotFound();
+                                listener.onDataNotFound();
                             }
                         } else {
-                            listener.onPrivateQueryError(task.getException());
+                            listener.onDataQueryError(task.getException());
                         }
                     }
                 });
@@ -90,46 +69,42 @@ public final class PrivateDao {
         return resultPrivate;
     }
 
-    private ArrayList<Animal> findPrivateAnimals(final DocumentSnapshot document) {
+    private void findPrivateAnimals(final DocumentSnapshot document, Private resultPrivate) {
         AnimalDao animalDao = new AnimalDao();
-        ArrayList<Animal> animalList = new ArrayList<>();
-
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.Private.COLUMN_NAME_ANIMALS);
 
         for (DocumentReference animalRef : animalRefs) {
-            GetAnimalByReferenceResult animalListener = new GetAnimalByReferenceResult() {
+            DatabaseCallbackResult<Animal> animalListener = new DatabaseCallbackResult<Animal>() {
                 @Override
-                public void onAnimalRetrieved(Animal resultAnimal) {
-                    animalList.add(resultAnimal);
+                public void onDataRetrieved(Animal result) {
+                    resultPrivate.addAnimal(result);
 
                     String log = "";
-                    log += resultAnimal.getName() + " ";
-                    log += resultAnimal.getOwner() + " ";
-                    log += resultAnimal.getAge() + " ";
-                    log += resultAnimal.getState() + " ";
-                    log += resultAnimal.getSpecies() + " ";
-                    log += resultAnimal.getRace() + " ";
-                    log += resultAnimal.getPhoto() + " ";
-                    log += resultAnimal.getMicrochip() + " ";
+                    log += result.getName() + " ";
+                    log += result.getOwner().getFirebaseID() + " ";
+                    log += result.getAge() + " ";
+                    log += result.getState() + " ";
+                    log += result.getSpecies() + " ";
+                    log += result.getRace() + " ";
+                    log += result.getPhoto() + " ";
+                    log += result.getMicrochip() + " ";
 
                     Log.d("resultAnimalTest", log);
                 }
 
                 @Override
-                public void onAnimalNotFound() {
+                public void onDataNotFound() {
                     Log.d(TAG, "non esiste");
                 }
 
                 @Override
-                public void onAnimalQueryError(Exception e) {
+                public void onDataQueryError(Exception e) {
                     Log.w(TAG, "errore query.");
                 }
             };
 
-            animalDao.getAnimalByReference(animalRef, animalListener);
+            animalDao.getAnimalByReference(animalRef, resultPrivate, animalListener);
         }
-
-        return animalList;
     }
 
     public void createPrivate(Private Private){
@@ -180,14 +155,6 @@ public final class PrivateDao {
     }
 
     public void updatePrivate(Private updatePrivate) {
-        //TODO:
-        // l'aggiunta/rimozione animale di un privato non la facciamo qui. creiamo dei metodi a parte in seguito
-            // qui gestiamo solo la modifica dei dati del profilo
-
-        // TODO:
-        //  la modifica della foto avviene solo a livello di database qui
-            // quando andremo ad implementare la funzionalità "cambia foto profilo" ricordarsi di gestire l'update del file
-
         Map<String, Object> newPrivateData = new HashMap<>();
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, updatePrivate.getSurname());
@@ -213,14 +180,4 @@ public final class PrivateDao {
                     }
                 });
     }
-
-    // TODO:
-    // Stessa cosa di GetPrivateByEmailResult. Per ora messa qui.
-    public interface GetAnimalByReferenceResult {
-        void onAnimalRetrieved(Animal resultPrivate);
-        void onAnimalNotFound();
-        void onAnimalQueryError(Exception e);
-    }
-
-
 }

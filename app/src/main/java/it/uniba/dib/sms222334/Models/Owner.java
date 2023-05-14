@@ -7,8 +7,6 @@ public class Owner extends Document{
     private LinkedList<Animal> listAnimal;
     private LinkedList<Expense> listExpense;
 
-    //TODO:
-    // Aggiunto costruttore e richiamato in ogni sottoclasse. altrimenti quando richiamado "addAnimal" non avendo inizializzato, dava nullexception
     public Owner() {
         listAnimal = new LinkedList<>();
         listExpense = new LinkedList<>();
