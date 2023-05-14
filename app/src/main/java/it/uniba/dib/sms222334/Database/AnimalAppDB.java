@@ -57,6 +57,8 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_RACE = "race";
         public static final String COLUMN_NAME_PHOTO = "photo";
         public static final String COLUMN_NAME_MICROCHIP = "microchip";
+        public static final String COLUMN_NAME_IMAGES = "images";
+        public static final String COLUMN_NAME_VIDEOS = "videos";
     }
 
     public static class Visit implements BaseColumns {

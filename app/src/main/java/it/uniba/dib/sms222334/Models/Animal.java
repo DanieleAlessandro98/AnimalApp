@@ -39,6 +39,9 @@ public class Animal extends Document {
         this.race = race;
         this.photo = photo;
         this.microchip = microchip;
+
+        images = new LinkedList<>();
+        videos = new LinkedList<>();
     }
 
     public static class Builder{
@@ -137,5 +140,13 @@ public class Animal extends Document {
 
     public String getMicrochip() {
         return microchip;
+    }
+
+    public void addImage(String image) {
+        images.add(image);
+    }
+
+    public void addVideo(String video) {
+        videos.add(video);
     }
 }
