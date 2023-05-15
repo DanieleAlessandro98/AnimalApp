@@ -21,10 +21,9 @@ import it.uniba.dib.sms222334.R;
 public class LoginActivity extends AppCompatActivity {
 
     final static String TAG="LoginActivity";
-    TextView link_register;
 
     private ActivityResultLauncher<Intent> registerResultLauncher;
-
+    private TextView link_register;
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
@@ -39,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         initView();
         initPresenter();
         initListeners();
-        initRegisterActivity();
+        initActivity();
     }
 
     private void initView() {
@@ -71,32 +70,36 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void initRegisterActivity() {
+    private void initActivity() {
         registerResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            authSuccesfull(result.getData().getIntExtra("user-role",0));
+                            authSuccessful(result.getData().getIntExtra("user-role",0));
                         }
                     }
                 });
     }
 
-    public void showLoginSuccess() {
-        Toast.makeText(this, "Accesso effettuato con successo", Toast.LENGTH_SHORT).show();
-    }
-
-    public void showLoginError() {
-        Toast.makeText(this, "Errore nell'accesso", Toast.LENGTH_SHORT).show();
-    }
-
-    public void authSuccesfull(@IntRange(from = 0,to = 2) int Role){
+    public void authSuccessful(@IntRange(from = 0,to = 2) int Role){
         final Intent authIntent =new Intent();
         authIntent.putExtra("user-role",Role);
         setResult(RESULT_OK,authIntent);
         finish();
+    }
+
+    public void showInvalidEmail() {
+        emailEditText.setError("Email non valida");
+    }
+
+    public void showInvalidPassword() {
+        passwordEditText.setError("Password non valida");
+    }
+
+    public void showLoginError() {
+        Toast.makeText(this, "Errore nell'accesso", Toast.LENGTH_SHORT).show();
     }
 
     @Override

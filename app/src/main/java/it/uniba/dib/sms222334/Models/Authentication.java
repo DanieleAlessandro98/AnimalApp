@@ -1,16 +1,22 @@
 package it.uniba.dib.sms222334.Models;
 
 import com.google.firebase.auth.FirebaseUser;
+
+import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Database.Dao.AuthenticationDao;
 
-public class Authentication {
+public class Authentication implements AuthenticationCallbackResult.Login {
 
     private FirebaseUser user;   //TODO: Che ci memorizziamo in questa classe? per ora mi salvo l'utente loggato.
-    private AuthenticationDao authenticationDao;
+    private int userRole;
+    private final AuthenticationDao authenticationDao;
+    private final AuthenticationCallbackResult.LoginCompletedListener  listenerRole;
 
-    public Authentication() {
+    public Authentication(AuthenticationCallbackResult.LoginCompletedListener  listenerRole) {
         authenticationDao = new AuthenticationDao();
+        this.listenerRole = listenerRole;
         this.user = null;
+        this.userRole = -1;
     }
 
     public void setUser(FirebaseUser user) {
@@ -18,31 +24,32 @@ public class Authentication {
     }
 
     public boolean isLogged() {
-        return (user != null);
+        return (user != null && userRole != -1);
     }
 
-    public boolean login(String email, String password) {
-        LoginListenerResult listener = new LoginListenerResult() {
-            @Override
-            public void onLoginSuccessful(FirebaseUser user) {
-                setUser(user);
-            }
-
-            @Override
-            public void onLoginFailure() {
-                setUser(null);
-            }
-        };
-
-        authenticationDao.login(email, password, listener);
-        return isLogged();
+    public int getUserRole() {
+        return userRole;
     }
 
-    // TODO:
-    // Come al solito, serve per comunicare con i metodi asincroni di firebase.
-    // la spostiamo?. dove la mettiamo però? Nel dao? classe a parte? ecc
-    public interface LoginListenerResult {
-        void onLoginSuccessful(FirebaseUser user);
-        void onLoginFailure();
+    public void setUserRole(int userRole) {
+        this.userRole = userRole;
+    }
+
+    public void login(String email, String password) {
+        authenticationDao.login(email, password, this);
+    }
+
+    @Override
+    public void onLoginSuccessful(FirebaseUser user, int role) {
+        setUser(user);
+        setUserRole(role);
+        listenerRole.onLoginCompleted();
+    }
+
+    @Override
+    public void onLoginFailure() {
+        setUser(null);
+        setUserRole(-1);
+        listenerRole.onLoginCompleted();
     }
 }
