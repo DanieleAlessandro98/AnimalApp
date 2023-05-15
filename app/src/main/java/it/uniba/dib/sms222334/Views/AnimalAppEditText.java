@@ -32,7 +32,6 @@ public class AnimalAppEditText extends androidx.appcompat.widget.AppCompatEditTe
     }
 
     public void setInputValidate(Integer inputValidate) {
-        
         invalidate();
         requestLayout();
     }

@@ -4,7 +4,7 @@ import android.media.Image;
 
 public class PublicAuthority extends Owner{
 
-    public static int ROLE=1;
+    public final static int ROLE=1;
     private String email;
     private String password;
     private int role;

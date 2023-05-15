@@ -51,7 +51,10 @@ public class AnimalDao {
     }
 
     private Animal findAnimal(DocumentSnapshot document, final Owner resultPrivate) {
-        Animal.Builder animal_find = Animal.Builder.create(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue())
+        int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
+        Animal.stateList state = Animal.stateList.values()[stateInteger];
+
+        Animal.Builder animal_find = Animal.Builder.create(state)
                 .setAge(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_AGE).intValue())
                 .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
                 .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
