@@ -7,8 +7,8 @@ import it.uniba.dib.sms222334.Database.Dao.AuthenticationDao;
 
 public class Authentication implements AuthenticationCallbackResult.Login {
 
-    private FirebaseUser user;   //TODO: Che ci memorizziamo in questa classe? per ora mi salvo l'utente loggato.
-    private int userRole;
+    private static FirebaseUser user;   //TODO: Che ci memorizziamo in questa classe? per ora mi salvo l'utente loggato.
+    private static int userRole;
     private final AuthenticationDao authenticationDao;
     private final AuthenticationCallbackResult.LoginCompletedListener  listenerRole;
 
@@ -27,7 +27,7 @@ public class Authentication implements AuthenticationCallbackResult.Login {
         return (user != null && userRole != -1);
     }
 
-    public int getUserRole() {
+    public static int getUserRole() {
         return userRole;
     }
 

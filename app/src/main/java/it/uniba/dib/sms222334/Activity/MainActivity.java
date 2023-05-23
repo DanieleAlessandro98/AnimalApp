@@ -15,6 +15,7 @@ import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
 import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
+import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLogged() {
-        return true; //TODO insert here SharedPreferences' control to check if it's logged or not
+        return Authentication.getUserRole() == 1; //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
     private void changeTab(MainActivity.TabPosition tabType){

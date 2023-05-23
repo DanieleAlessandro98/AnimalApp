@@ -84,10 +84,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void authSuccessful(@IntRange(from = 0,to = 2) int Role){
-        final Intent authIntent =new Intent();
-        authIntent.putExtra("user-role",Role);
-        setResult(RESULT_OK,authIntent);
-        finish();
+         final Intent authIntent =new Intent();
+         authIntent.putExtra("user-role",Role);
+         setResult(RESULT_OK,authIntent);
+         finish();
     }
 
     public void showInvalidEmail() {
