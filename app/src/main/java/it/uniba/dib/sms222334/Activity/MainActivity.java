@@ -1,28 +1,16 @@
 package it.uniba.dib.sms222334.Activity;
 
-import android.app.Activity;
-import android.app.ActivityOptions;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.tabs.TabLayout;
-
-import java.util.Date;
-
-import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
@@ -32,6 +20,9 @@ import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
+import it.uniba.dib.sms222334.Models.Authentication;
+
 import it.uniba.dib.sms222334.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,14 +30,9 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG="MainActivity";
 
     private ActivityResultLauncher<Intent> authResultLauncher;
-
-    public enum TabPosition{HOME,SEARCH,PROFILE}
-
+    private enum TabPosition{HOME,SEARCH,PROFILE}
     private TabPosition previousTab;
-
-    BottomNavigationView bottomNavigationView;
-
-    //PrivateDao pdao;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +41,24 @@ public class MainActivity extends AppCompatActivity {
 
         changeTab(TabPosition.HOME);
 
-        bottomNavigationView=findViewById(R.id.bottomNavigationView);
+        initView();
+        initListeners();
+        initRegisterActivity();
+    }
 
+    private void initView() {
+        bottomNavigationView=findViewById(R.id.bottomNavigationView);
+    }
+
+    private void initListeners() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()){
                 case R.id.home:
-                        changeTab(TabPosition.HOME);
+                    changeTab(TabPosition.HOME);
                     break;
 
                 case R.id.search:
-                        changeTab(TabPosition.SEARCH);
+                    changeTab(TabPosition.SEARCH);
                     break;
 
                 case R.id.profile:
@@ -74,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+    }
 
-
+    private void initRegisterActivity() {
         this.authResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -89,28 +84,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        /*
-        Calendar calendar=Calendar.getInstance();
-        calendar.set(2000,12,2);
-
-        Private privat= Private.Builder.create("giuseppe","ciao123")
-                .setEmail("giuseppeapsakpsa")
-                .setPhoneNumber(123443)
-                .setPassword("ciao123")
-                .setDate(calendar.getTime())
-                .setTaxIdCode("iodhdfoisef").build();
-
-        //da eliminare
-        pdao=new PrivateDao(this);
-        //pdao.getPrivateByEmail("test@gmail.com");
-
-        pdao.createPrivate(privat);*/
-
     }
 
     private boolean isLogged() {
-        return true; //TODO insert here SharedPreferences' control to check if it's logged or not
+        return Authentication.getUserRole() == 1; //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
     private void changeTab(MainActivity.TabPosition tabType){

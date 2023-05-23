@@ -13,14 +13,11 @@ public class Veterinarian extends Document {
     private String companyName; //denominazione sociale
     private String legal_site; //sede
     private int telephone;
-
     private float latitude;
-
     private float longitude;
     private Bitmap logo;
 
     //array<visite>
-
 
     public String getEmail() {
         return email;
@@ -95,6 +92,7 @@ public class Veterinarian extends Document {
     }
 
     private Veterinarian(String email, String password, int role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
+        super();
         this.email = email;
         this.password = password;
         this.role = role;
@@ -120,7 +118,6 @@ public class Veterinarian extends Document {
         private float blatitude;
 
         private float blongitude;
-
 
         private Bitmap blogo;
 

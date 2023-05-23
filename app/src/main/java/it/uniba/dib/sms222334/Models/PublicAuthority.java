@@ -6,7 +6,6 @@ import android.media.Image;
 
 public class PublicAuthority extends Owner{
 
-
     public final static int ROLE=1;
     private String email;
     private String password;
@@ -102,6 +101,8 @@ public class PublicAuthority extends Owner{
     }
 
     private PublicAuthority(String email, String password, int role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
+        super();
+
         this.email = email;
         this.password = password;
         this.role = role;
@@ -110,6 +111,8 @@ public class PublicAuthority extends Owner{
         this.logo = logo;
         Nbeds = nbeds;
         this.telephone = telephone;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public static class Builder{

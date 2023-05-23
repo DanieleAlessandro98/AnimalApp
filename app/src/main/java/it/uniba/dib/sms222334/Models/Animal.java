@@ -1,7 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
-import android.provider.MediaStore;
 
 import java.util.LinkedList;
 
@@ -32,7 +31,6 @@ public class Animal extends Document {
     private LinkedList<Expense> expenses;
     
     //arraylist<relazioni>
-
 
     public String getName() {
         return name;
@@ -145,7 +143,7 @@ public class Animal extends Document {
     public void setExpenses(LinkedList<Expense> expenses) {
         this.expenses = expenses;
     }
-    
+
     public int getVisitNumber(){
         return this.getVisits().size();
     }
@@ -163,14 +161,12 @@ public class Animal extends Document {
         this.race = race;
         this.photo = photo;
         this.microchip = microchip;
-
         this.videos=new LinkedList<>();
         this.photos=new LinkedList<>();
         this.foods =new LinkedList<>();
         this.pathologies=new LinkedList<>();
         this.visits=new LinkedList<>();
         this.expenses=new LinkedList<>();
-
     }
 
     public static class Builder{
@@ -221,8 +217,21 @@ public class Animal extends Document {
             return this;
         }
 
+        public Animal.Builder setRace(final String race){
+            this.brace=race;
+            return this;
+        }
+
         public Animal build(){
             return new Animal(bname,bowner,bage,bstate,bspecies,brace,bphoto,bmicrochip);
         }
+    }
+
+    public void addImage(String image) {
+        photos.add(image);
+    }
+
+    public void addVideo(String video) {
+        videos.add(video);
     }
 }
