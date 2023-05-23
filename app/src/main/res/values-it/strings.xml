@@ -42,6 +42,10 @@
     <string name="add_request">NUOVA RICHIESTA</string>
     <string name="beds">Posti letto</string>
     <string name="description">Descrizione</string>
+    <string name="note">Note</string>
+    <string name="confirm_delete">CONFERMA ELIMINA</string>
+    <string name="this_element_will_be">Questo elemento verrà eliminato definitivamente</string>
+    <string name="cancel">Cancella</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
@@ -176,5 +180,17 @@
     <string-array name="authority_request_type">
         <item>Offro posti</item>
         <item>Offro animale</item>
+    </string-array>
+
+    <string-array name="segnalation_type">
+        <item>Perso</item>
+        <item>Trovato</item>
+        <item>In pericolo</item>
+    </string-array>
+
+    <string-array name="relation_type">
+        <item>Amici</item>
+        <item>Incompatibili</item>
+        <item>Conviventi</item>
     </string-array>
 </resources>

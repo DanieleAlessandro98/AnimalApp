@@ -43,6 +43,10 @@
     <string name="add_request">ADD REQUEST</string>
     <string name="beds">Beds</string>
     <string name="description">Description</string>
+    <string name="note">Note</string>
+    <string name="confirm_delete">CONFIRM DELETE</string>
+    <string name="this_element_will_be">This element will be deleted definitely</string>
+    <string name="cancel">Cancel</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>
@@ -164,7 +168,7 @@
         <item>Chronic Wasting Disease</item>
     </string-array>
 
-    <string-array name="accessory_categories">
+    <string-array name="expense_categories">
         <item>Accessory</item>
         <item>Food</item>
         <item>Health</item>
@@ -188,6 +192,12 @@
         <item>+966</item> <!-- Arabia Saudita -->
     </string-array>
 
+    <string-array name="accessory_categories">
+        <item>Accessory</item>
+        <item>Food</item>
+        <item>Health</item>
+    </string-array>
+
     <string-array name="private_request_type">
         <item>Look for animal</item>
         <item>Offer animal</item>
@@ -196,5 +206,17 @@
     <string-array name="authority_request_type">
         <item>Offer beds</item>
         <item>Offer animal</item>
+    </string-array>
+
+    <string-array name="segnalation_type">
+        <item>Losted</item>
+        <item>Find</item>
+        <item>In danger</item>
+    </string-array>
+
+    <string-array name="relation_type">
+        <item>Friend</item>
+        <item>Incompatible</item>
+        <item>Cohabitee</item>
     </string-array>
 </resources>

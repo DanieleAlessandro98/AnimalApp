@@ -18,6 +18,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_item"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:listitem="@android:layout/simple_list_item_1" />
+        android:layout_height="wrap_content"
+        tools:listitem="@android:layout/simple_list_item_1"
+        android:paddingVertical="10dp"/>
 </LinearLayout>

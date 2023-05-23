@@ -22,21 +22,27 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.tabs.TabLayout;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.R;
 
 public class AnimalFragment extends Fragment {
 
     final static String TAG="AnimalFragment";
 
-    Button editButton;
+    Button editButton,backButton;
     TabLayout tabLayout;
 
     ProfileFragment.Type profileType;
 
-    private ProfileFragment.TabPosition previousTab;
+    Animal animal;
 
-    public AnimalFragment(){
+    private ProfileFragment.Tab previousTab;
+
+    public AnimalFragment(Animal animal){
         this.profileType= ProfileFragment.Type.ANIMAL;
+        this.animal=animal;
+
+        this.previousTab=new ProfileFragment.Tab();
     }
 
     @Nullable
@@ -47,6 +53,10 @@ public class AnimalFragment extends Fragment {
         editButton=layout.findViewById(R.id.edit_button);
 
         editButton.setOnClickListener(v -> launchEditDialog());
+
+        backButton=layout.findViewById(R.id.back_button);
+
+        backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
 
 
@@ -101,10 +111,9 @@ public class AnimalFragment extends Fragment {
 
         switch (tabType){
             case RELATION:
-                if(previousTab!= ProfileFragment.TabPosition.RELATION) {
-                    Log.d(TAG,"relazione");
-                    fragment=new ListFragment(ProfileFragment.TabPosition.RELATION,this.profileType);
-                    previousTab= ProfileFragment.TabPosition.RELATION;
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
+                    previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
+                    fragment=new ListFragment(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -113,8 +122,8 @@ public class AnimalFragment extends Fragment {
                 }
                 break;
             case HEALTH:
-                if(previousTab!= ProfileFragment.TabPosition.HEALTH) {
-                    if (previousTab == ProfileFragment.TabPosition.RELATION) {
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.HEALTH) {
+                    if (previousTab.tabPosition == ProfileFragment.TabPosition.RELATION) {
                         enterAnimation=withAnimation?R.anim.slide_left_in:0;
                         exitAnimation=withAnimation?R.anim.slide_left_out:0;
                     }
@@ -122,18 +131,17 @@ public class AnimalFragment extends Fragment {
                         enterAnimation=withAnimation?R.anim.slide_right_in:0;
                         exitAnimation=withAnimation?R.anim.slide_right_out:0;
                     }
-                    Log.d(TAG,"saluteee");
 
-                    fragment=new ListFragment(ProfileFragment.TabPosition.HEALTH,this.profileType);
-                    previousTab= ProfileFragment.TabPosition.HEALTH;
+                    previousTab.tabPosition= ProfileFragment.TabPosition.HEALTH;
+                    fragment=new ListFragment(previousTab,this.profileType);
                 }
                 else{
                     return;
                 }
                 break;
             case FOOD:
-                if(previousTab!= ProfileFragment.TabPosition.FOOD) {
-                    if ((previousTab == ProfileFragment.TabPosition.RELATION) || (previousTab == ProfileFragment.TabPosition.HEALTH)) {
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.FOOD) {
+                    if ((previousTab.tabPosition == ProfileFragment.TabPosition.RELATION) || (previousTab.tabPosition == ProfileFragment.TabPosition.HEALTH)) {
                         enterAnimation=withAnimation?R.anim.slide_left_in:0;
                         exitAnimation=withAnimation?R.anim.slide_left_out:0;
                     }
@@ -142,18 +150,16 @@ public class AnimalFragment extends Fragment {
                         exitAnimation=withAnimation?R.anim.slide_right_out:0;
                     }
 
-                    Log.d(TAG,"foooodddo");
-
-                    fragment=new ListFragment(ProfileFragment.TabPosition.FOOD,this.profileType);
-                    previousTab= ProfileFragment.TabPosition.FOOD;
+                    previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
+                    fragment=new ListFragment(previousTab,this.profileType);
                 }
                 else{
                     return;
                 }
                 break;
             case VISIT:
-                if(previousTab!= ProfileFragment.TabPosition.VISIT) {
-                    if (previousTab != ProfileFragment.TabPosition.EXPENSE) {
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.VISIT) {
+                    if (previousTab.tabPosition != ProfileFragment.TabPosition.EXPENSE) {
                         enterAnimation=withAnimation?R.anim.slide_left_in:0;
                         exitAnimation=withAnimation?R.anim.slide_left_out:0;
                     }
@@ -162,23 +168,21 @@ public class AnimalFragment extends Fragment {
                         exitAnimation=withAnimation?R.anim.slide_right_out:0;
                     }
 
-                    Log.d(TAG,"visititii");
 
-                    fragment=new ListFragment(ProfileFragment.TabPosition.VISIT,this.profileType);
-                    previousTab= ProfileFragment.TabPosition.VISIT;
+                    previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
+                    fragment=new ListFragment(previousTab,this.profileType);
                 }
                 else {
                     return;
                 }
                 break;
             case EXPENSE:
-                if(previousTab!= ProfileFragment.TabPosition.EXPENSE) {
-                    fragment=new ListFragment(ProfileFragment.TabPosition.EXPENSE,this.profileType);
-                    previousTab= ProfileFragment.TabPosition.EXPENSE;
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
+                    previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
+                    fragment=new ListFragment(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
 
-                    Log.d(TAG,"spesaaaa");
                 }
                 else{
                     return;

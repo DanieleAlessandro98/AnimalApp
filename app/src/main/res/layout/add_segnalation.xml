@@ -35,72 +35,114 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingVertical="20dp"
-        android:layout_centerInParent="true">
+        android:layout_height="match_parent"
+        android:background="@drawable/edged_container_shape"
+        android:scrollbars="none">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="20dp"
+            android:layout_centerInParent="true">
 
-            <ImageView
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_centerInParent="true"
-                android:layout_margin="20dp"
-                android:background="@drawable/rounded_container_shape"
-                android:elevation="5dp"/>
+                android:layout_height="wrap_content">
 
-            <ImageButton
-                android:layout_width="50dp"
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/rounded_container_shape"
+                    android:elevation="5dp"/>
+
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:padding="10dp"
+                    android:background="@drawable/button_shape"
+                    app:tint="?attr/colorPrimaryVariant"
+                    android:src="@drawable/baseline_photo_camera_24"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp"/>
+            </RelativeLayout>
+
+            <Spinner
+                android:id="@+id/segnalation_spinner"
+                android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:padding="10dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/check_button_shape"
+                android:textSize="16sp" />
+
+            <Spinner
+                android:id="@+id/species_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/edit_text_shape"
+                android:textSize="16sp" />
+
+            <it.uniba.dib.sms222334.Views.AnimalAppEditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edit_text_shape"
+                android:layout_marginHorizontal="20dp"
+                android:hint="@string/name"
+                android:inputType="textPersonName"
+                android:padding="16dp"
+                android:textColorHint="#A3A3A3"
+                android:textSize="16sp" />
+
+            <it.uniba.dib.sms222334.Views.AnimalAppEditText
+                android:id="@+id/ageEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edit_text_shape"
+                android:layout_marginHorizontal="20dp"
+                android:hint="@string/age"
+                android:inputType="number"
+                android:padding="16dp"
+                android:textColorHint="#A3A3A3"
+                android:textSize="16sp" />
+
+            <it.uniba.dib.sms222334.Views.AnimalAppEditText
+                android:id="@+id/doctor_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/edit_text_shape"
+                android:hint="@string/description"
+                android:padding="16dp"
+                android:maxLength="188"
+                android:textColorHint="#A3A3A3"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="254dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/button_shape"
-                app:tint="?attr/colorPrimaryVariant"
-                android:src="@drawable/baseline_photo_camera_24"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"/>
-        </RelativeLayout>
+                app:backgroundTint="?attr/errorShown"
+                android:paddingHorizontal="10dp"
+                android:text="@string/create"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp" />
 
-        <Spinner
-            android:id="@+id/segnalation_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/check_button_shape"
-            android:textSize="16sp" />
-
-        <it.uniba.dib.sms222334.Views.AnimalAppEditText
-            android:id="@+id/doctor_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/edit_text_shape"
-            android:hint="@string/description"
-            android:padding="16dp"
-            android:textColorHint="#A3A3A3"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="254dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/button_shape"
-            app:backgroundTint="?attr/errorShown"
-            android:paddingHorizontal="10dp"
-            android:text="@string/create"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="18sp" />
-
-    </LinearLayout>
-
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

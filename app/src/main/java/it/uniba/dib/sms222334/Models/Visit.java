@@ -19,7 +19,9 @@ public class Visit extends Document{
     private diagnosisType Diagnosis;
     private String medicalNotes;
 
-    private Visit(String name,visitType type, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
+    private Animal animal;
+
+    private Visit(String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
         this.name = name;
         this.state = state;
         this.type=type;
@@ -27,6 +29,7 @@ public class Visit extends Document{
         this.doctorName=doctorName;
         this.Diagnosis = diagnosis;
         this.medicalNotes = medicalNotes;
+        this.animal=animal;
     }
 
 
@@ -86,6 +89,14 @@ public class Visit extends Document{
         this.medicalNotes = medicalNotes;
     }
 
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
+    }
+
     public static class Builder{
         private String Bname;
 
@@ -97,6 +108,8 @@ public class Visit extends Document{
 
         private String BdoctorName="";
         private String BmedicalNotes="";
+
+        private Animal banimal;
 
         private Builder(final String name, final visitType type, final Date date){
             this.Bname=name;
@@ -131,6 +144,11 @@ public class Visit extends Document{
             return this;
         }
 
+        public Builder setAnimal(final Animal animal){
+            this.banimal=animal;
+            return this;
+        }
+
         public Builder setDoctorName(final String doctorName){
             this.BdoctorName=doctorName;
             return this;
@@ -152,7 +170,7 @@ public class Visit extends Document{
         }
 
         public Visit build(){
-            return new Visit(Bname,Btype,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
+            return new Visit(Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
 }

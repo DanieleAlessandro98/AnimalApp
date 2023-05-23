@@ -1,6 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
-import android.media.Image;
+import android.graphics.Bitmap;
 
 import java.util.zip.CheckedOutputStream;
 
@@ -13,12 +13,88 @@ public class Veterinarian extends Document {
     private String companyName; //denominazione sociale
     private String legal_site; //sede
     private int telephone;
-    private Image logo;
+
+    private float latitude;
+
+    private float longitude;
+    private Bitmap logo;
 
     //array<visite>
 
 
-    private Veterinarian(String email, String password, int role, String companyName, String legal_site, int telephone, Image logo) {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getLegal_site() {
+        return legal_site;
+    }
+
+    public void setLegal_site(String legal_site) {
+        this.legal_site = legal_site;
+    }
+
+    public int getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(int telephone) {
+        this.telephone = telephone;
+    }
+
+    public Float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Float latitude) {
+        this.latitude = latitude;
+    }
+
+    public Float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Float longitude) {
+        this.longitude = longitude;
+    }
+
+    public Bitmap getLogo() {
+        return logo;
+    }
+
+    public void setLogo(Bitmap logo) {
+        this.logo = logo;
+    }
+
+    private Veterinarian(String email, String password, int role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
         this.email = email;
         this.password = password;
         this.role = role;
@@ -26,6 +102,8 @@ public class Veterinarian extends Document {
         this.legal_site = legal_site;
         this.telephone = telephone;
         this.logo = logo;
+        this.latitude=latitude;
+        this.longitude=longitude;
     }
 
     public static class Builder{
@@ -39,8 +117,12 @@ public class Veterinarian extends Document {
 
         private int btelephone;
 
+        private float blatitude;
 
-        private Image blogo;
+        private float blongitude;
+
+
+        private Bitmap blogo;
 
         private Builder(final String email, final String password){
             this.bemail=email;
@@ -61,6 +143,16 @@ public class Veterinarian extends Document {
             return this;
         }
 
+        public Veterinarian.Builder setLatitude(final float latitude){
+            this.blatitude=latitude;
+            return this;
+        }
+
+        public Veterinarian.Builder setLongitude(final float longitude){
+            this.blongitude=longitude;
+            return this;
+        }
+
         public Veterinarian.Builder setLegalSite(final String legalSite){
             this.blegal_site=legalSite;
             return this;
@@ -71,13 +163,13 @@ public class Veterinarian extends Document {
             return this;
         }
 
-        public Veterinarian.Builder setLogo(final Image logo){
+        public Veterinarian.Builder setLogo(final Bitmap logo){
             this.blogo=logo;
             return this;
         }
 
         public Veterinarian build(){
-            return new Veterinarian(bemail,bpassword,brole,bcompanyName,blegal_site,btelephone,blogo);
+            return new Veterinarian(bemail,bpassword,brole,bcompanyName,blegal_site,blatitude,blongitude,btelephone,blogo);
         }
     }
 }

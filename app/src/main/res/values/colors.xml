@@ -9,7 +9,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#CC00FF00</color>
-    <color name="red">#CC0000</color>
+    <color name="red">#cd4c51</color>
     <color name="soft_red">#880000</color>
     <color name="soft_red_200">#33FF0000</color>
     <color name="yellow">#CCCC00</color>
@@ -23,6 +23,7 @@
     <color name="main_green">#4CAF50</color>
     <color name="dark_main_green">#388E3C</color>
     <color name="light_main_green">#C8E6C9</color>
+    <color name="purple_red">#674466</color>
 
     <!-- application color!-->
     <color name="dark_on_application_color">@color/soft_black_200</color>

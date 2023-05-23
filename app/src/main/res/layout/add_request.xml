@@ -58,6 +58,16 @@
             android:layout_marginTop="16dp"
             android:layout_marginHorizontal="20dp"
             android:background="@drawable/check_button_shape"
+            android:visibility="gone"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/species_chooser"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/check_button_shape"
             android:textSize="16sp" />
 
         <it.uniba.dib.sms222334.Views.AnimalAppEditText
@@ -69,6 +79,7 @@
             android:background="@drawable/edit_text_shape"
             android:hint="@string/beds"
             android:padding="16dp"
+            android:visibility="gone"
             android:textColorHint="#A3A3A3"
             android:textSize="16sp" />
 

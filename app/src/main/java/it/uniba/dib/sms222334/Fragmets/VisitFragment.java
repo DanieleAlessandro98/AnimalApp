@@ -30,7 +30,7 @@ import it.uniba.dib.sms222334.R;
 
 public class VisitFragment extends Fragment {
 
-    Button editButton,deleteButton;
+    Button editButton,deleteButton,backButton;
     TextView visitState,visitName,date,examType,diagnosisType,medicalNote,doctorName;
 
     ProfileFragment.Type profileType;
@@ -49,6 +49,10 @@ public class VisitFragment extends Fragment {
         final View layout= inflater.inflate(R.layout.visit_fragment,container,false);
 
         //TODO passare il bundle del profyleType durante la rotazione del dispositivo(causa crash)
+
+        backButton=layout.findViewById(R.id.back_button);
+
+        backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         if(this.profileType== ProfileFragment.Type.VETERINARIAN){
             editButton = layout.findViewById(R.id.edit_button);

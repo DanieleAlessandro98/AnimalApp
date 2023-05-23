@@ -15,7 +15,7 @@
         <!-- Status bar color -->
         <item name="android:statusBarColor">?attr/colorAccent</item>
         <!-- Error color -->
-        <item name="errorShown">@color/soft_red</item>
+        <item name="errorShown">@color/red</item>
         <!-- Correct color -->
     </style>
 

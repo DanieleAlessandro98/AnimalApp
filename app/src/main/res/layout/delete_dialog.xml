@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/rounded_container_shape"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/top_rounded_container_shape"
+        android:backgroundTint="?attr/errorShown"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm_delete"
+            android:textSize="25dp"
+            android:textColor="?attr/colorPrimary"
+            android:layout_centerInParent="true"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="20dp"
+        android:layout_centerInParent="true">
+
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp">
+
+            <TextView
+                android:id="@+id/confirm_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:textAlignment="center"
+                android:text="@string/this_element_will_be"
+                android:layout_gravity="center"
+                android:textStyle="bold"
+                android:textSize="17sp"/>
+
+            <Button
+                android:layout_below="@+id/confirm_text"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/undo_button"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/button_shape"
+                android:paddingHorizontal="10dp"
+                android:text="@string/cancel"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp"
+                android:backgroundTint="?attr/colorOnPrimary" />
+
+            <Button
+                android:layout_below="@+id/confirm_text"
+                android:layout_alignParentRight="true"
+                android:id="@+id/delete_button"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/button_shape"
+                android:paddingHorizontal="10dp"
+                android:text="@string/delete"
+                android:backgroundTint="?attr/errorShown"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+    </LinearLayout>
+</LinearLayout>

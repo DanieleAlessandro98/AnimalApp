@@ -27,6 +27,7 @@ import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
 import it.uniba.dib.sms222334.Fragmets.VisitFragment;
+import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -149,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
             case PROFILE:
                 if(previousTab!=TabPosition.PROFILE){
                     if(isLogged()){
-                        //fragment=new ProfileFragment(getLoggedTypeUser());
-                        fragment=new AnimalFragment();
+                        fragment=new ProfileFragment(getLoggedUser());
+                        //fragment=new AnimalFragment();
                         //Visit visit=Visit.Builder.create("Visita di controllo totò", Visit.visitType.CONTROL,new Date(10,3,2024)).build();
                         //fragment=new VisitFragment(visit, ProfileFragment.Type.VETERINARIAN);
                         previousTab=TabPosition.PROFILE;
@@ -177,8 +178,26 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_for_fragment,fragment).commit();
     }
 
-    private ProfileFragment.Type getLoggedTypeUser() {
-        return ProfileFragment.Type.PUBLIC_AUTHORITY; //TODO check the type of the user logged
+    private Document getLoggedUser() {
+        return Private.Builder.create("giuseppe","liace")
+                .setEmail("g.liace1@studenti.uniba.it").build(); //TODO grab the user logged
+    }
+
+    private ProfileFragment.Type getLoggedTypeUser(){
+        Document profile=getLoggedUser();
+
+        if(profile instanceof Private){
+            return ProfileFragment.Type.PRIVATE;
+
+        } else if (profile instanceof Veterinarian) {
+            return ProfileFragment.Type.VETERINARIAN;
+
+        } else if (profile instanceof PublicAuthority) {
+            return ProfileFragment.Type.PUBLIC_AUTHORITY;
+        }
+        else{
+            throw new IllegalArgumentException("This type of User is not accepted here!");
+        }
     }
 
     private void forceLogin(){

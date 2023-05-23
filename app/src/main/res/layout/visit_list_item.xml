@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:cardCornerRadius="12dp"
+    android:background="@drawable/rounded_container_shape"
+    app:cardElevation="3dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:id="@+id/bus_stop_item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="15dp">
+
+        <TextView
+            android:id="@+id/animal_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="20dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="Nome Animale"
+            android:layout_weight="0"/>
+        <TextView
+            android:layout_below="@+id/animal_name"
+            android:id="@+id/visit_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:textStyle="bold"
+            android:text="Vaccino"
+            android:layout_weight="0" />
+
+        <TextView
+            android:layout_below="@+id/animal_name"
+            android:layout_toRightOf="@+id/visit_type"
+            android:id="@+id/visit_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textStyle="italic"
+            android:text="10/03/2020"
+            android:layout_weight="0" />
+        <TextView
+            android:id="@+id/visit_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/rounded_container_shape"
+            android:backgroundTint="@color/green"
+            android:paddingHorizontal="30dp"
+            android:paddingVertical="10dp"
+            android:textColor="@color/white"
+            android:text="COMPLETATO" />
+
+
+
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

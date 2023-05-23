@@ -23,16 +23,24 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Models.Document;
+import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
+import kotlin.jvm.Throws;
 
 public class ProfileFragment extends Fragment {
 
     final static String TAG="ProfileFragment";
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN,ANIMAL}
-
     public enum TabPosition{ANIMAL,VISIT,EXPENSE,RELATION,HEALTH,FOOD}
 
-    private TabPosition previousTab;
+    public static class Tab{
+        public TabPosition tabPosition;
+    }
+
+    private Tab previousTab;
 
     Button editButton;
     TabLayout tabLayout;
@@ -40,9 +48,24 @@ public class ProfileFragment extends Fragment {
     private final int inflatedLayout;
     Type profileType;
 
-    public ProfileFragment(Type profileType){
+    Document profile;
 
-        this.profileType=profileType;
+    public ProfileFragment(Document profile){
+
+        this.profile=profile;
+
+        if(profile instanceof Private){
+            this.profileType=Type.PRIVATE;
+
+        } else if (profile instanceof Veterinarian) {
+            this.profileType=Type.VETERINARIAN;
+
+        } else if (profile instanceof PublicAuthority) {
+            this.profileType=Type.PUBLIC_AUTHORITY;
+        }
+        else{
+            throw new IllegalArgumentException("This type of User is not accepted here!");
+        }
 
         if(this.profileType==Type.VETERINARIAN){
             inflatedLayout=R.layout.veterinarian_profile_fragment;
@@ -50,6 +73,8 @@ public class ProfileFragment extends Fragment {
         else{
             inflatedLayout=R.layout.owner_profile_fragment;
         }
+
+        this.previousTab=new Tab();
 
     }
 
@@ -95,9 +120,16 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        Log.d(TAG,"qui teoricamente");
+
         changeTab(TabPosition.ANIMAL,false);
 
         return layout;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     private void launchEditDialog() {
@@ -146,9 +178,9 @@ public class ProfileFragment extends Fragment {
 
         switch (tabType){
             case ANIMAL:
-                if(previousTab!= TabPosition.ANIMAL) {
-                    fragment=new ListFragment(TabPosition.ANIMAL,this.profileType);
-                    previousTab= TabPosition.ANIMAL;
+                if(previousTab.tabPosition!= TabPosition.ANIMAL) {
+                    previousTab.tabPosition= TabPosition.ANIMAL;
+                    fragment=new ListFragment(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -157,8 +189,8 @@ public class ProfileFragment extends Fragment {
                 }
                 break;
             case VISIT:
-                if(previousTab!= TabPosition.VISIT) {
-                    if (previousTab == TabPosition.ANIMAL) {
+                if(previousTab.tabPosition!= TabPosition.VISIT) {
+                    if (previousTab.tabPosition == TabPosition.ANIMAL) {
                         enterAnimation=withAnimation?R.anim.slide_left_in:0;
                         exitAnimation=withAnimation?R.anim.slide_left_out:0;
                     }
@@ -167,17 +199,17 @@ public class ProfileFragment extends Fragment {
                         exitAnimation=withAnimation?R.anim.slide_right_out:0;
                     }
 
-                    fragment=new ListFragment(TabPosition.VISIT,this.profileType);
-                    previousTab= TabPosition.VISIT;
+                    previousTab.tabPosition= TabPosition.VISIT;
+                    fragment=new ListFragment(previousTab,this.profileType);
                 }
                 else{
                     return;
                 }
                 break;
             case EXPENSE:
-                if(previousTab!= TabPosition.EXPENSE){
-                    fragment=new ListFragment(TabPosition.EXPENSE,this.profileType);
-                    previousTab= TabPosition.EXPENSE;
+                if(previousTab.tabPosition!= TabPosition.EXPENSE){
+                    previousTab.tabPosition= TabPosition.EXPENSE;
+                    fragment=new ListFragment(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
                 }

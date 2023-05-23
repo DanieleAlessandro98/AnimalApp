@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:cardCornerRadius="12dp"
+    android:background="@drawable/rounded_container_shape"
+    app:cardElevation="3dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:id="@+id/bus_stop_item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="15dp">
+
+        <ImageView
+            android:id="@+id/animal_photo"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/profile_image"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="10dp" />
+
+        <LinearLayout
+            android:layout_toRightOf="@id/animal_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerInParent="true">
+            <TextView
+                android:id="@+id/animal_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:text="Nome"
+                android:layout_weight="0"/>
+            <TextView
+                android:id="@+id/species_age_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Species, Age"
+                android:layout_weight="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true">
+            <ImageView
+                android:id="@+id/warning_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="15dp"
+                app:backgroundTint="?attr/errorShown"
+                android:background="@drawable/baseline_warning_24"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/visit_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="0" />
+
+            <ImageView
+                android:id="@+id/visit_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="15dp"
+                app:backgroundTint="?attr/colorAccent"
+                android:background="@drawable/visit"/>
+
+            <TextView
+                android:id="@+id/pathologies_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="0" />
+
+            <ImageView
+                android:id="@+id/pathologies_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="15dp"
+                android:backgroundTint="@color/soft_black"
+                android:background="@drawable/health"/>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
