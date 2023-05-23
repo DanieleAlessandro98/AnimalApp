@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">AnimalApp</string>
     <string name="name">Name</string>
@@ -6,16 +7,216 @@
     <string name="tax_id">Tax id code</string>
     <string name="email_address">Email address</string>
     <string name="password">password</string>
-    <string name="register">register</string>
+    <string name="register">Register</string>
+    <string name="register_underlined"><u>Register</u></string>
     <string name="login">login</string>
     <string name="have_account_yet">"Don't have an account yet? "</string>
-<<<<<<< HEAD
-=======
     <string name="company_name">Company name</string>
     <string name="site">Site</string>
     <string name="phone_number">Phone number</string>
     <string name="home">Home</string>
     <string name="search">Search</string>
     <string name="profile">Profile</string>
->>>>>>> 54b31f7063d419d26bab3a7fae7532265ec58e37
+    <string name="public_authority">Public Authority</string>
+    <string name="veterinarian">Veterinarian</string>
+    <string name="visit_date">Visit date</string>
+    <string name="medical_note">Medical note</string>
+    <string name="doctor_name">Doctor name</string>
+    <string name="save">Save</string>
+    <string name="edit_visit">EDIT VISIT</string>
+    <string name="create_visit">CREATE VISIT</string>
+    <string name="create">Create</string>
+    <string name="create_relation">CREATE RELATION</string>
+    <string name="create_expense">CREATE EXPENSE</string>
+    <string name="expense">Expense</string>
+    <string name="edit_profile">EDIT PROFILE</string>
+    <string name="edit">Edit</string>
+    <string name="add_animal">ADD ANIMAL</string>
+    <string name="add">ADD</string>
+    <string name="age">Age</string>
+    <string name="microchip">Microchip</string>
+    <string name="edit_animal">EDIT ANIMAL</string>
+    <string name="add_pathology">ADD PATHOLOGY</string>
+    <string name="add_food">ADD FOOD</string>
+    <string name="delete">Delete</string>
+    <string name="add_warning">ADD WARNING</string>
+    <string name="add_request">ADD REQUEST</string>
+    <string name="beds">Beds</string>
+    <string name="description">Description</string>
+    <string name="note">Note</string>
+    <string name="confirm_delete">CONFIRM DELETE</string>
+    <string name="this_element_will_be">This element will be deleted definitely</string>
+    <string name="cancel">Cancel</string>
+
+    <string-array name="diagnosis_type">
+        <item>Positive</item>
+        <item>Negative</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="visit_state">
+        <item>Executed</item>
+        <item>Not executed</item>
+        <item>To be reviewed</item>
+    </string-array>
+
+    <string-array name="exam_type">
+        <item>Deworming</item>
+        <item>Vaccination</item>
+        <item>Sterilization</item>
+        <item>Surgery</item>
+        <item>Control</item>
+    </string-array>
+
+    <string-array name="animal_species">
+        <item>Dog</item>
+        <item>Cat</item>
+        <item>Fish</item>
+        <item>Bird</item>
+        <item>Rabbit</item>
+    </string-array>
+
+
+    <string-array name="dog_breeds">
+        <item>Labrador Retriever</item>
+        <item>Golden Retriever</item>
+        <item>French Bulldog</item>
+        <item>English Bulldog</item>
+        <item>Chihuahua</item>
+        <item>Beagle</item>
+        <item>Boxer</item>
+        <item>German Shepherd</item>
+        <item>Yorkshire Terrier</item>
+        <item>Poodle</item>
+        <item>Dalmatian</item>
+        <item>Jack Russell Terrier</item>
+        <item>Dachshund</item>
+        <item>Border Collie</item>
+        <item>Shih Tzu</item>
+    </string-array>
+
+    <string-array name="cat_breeds">
+        <item>Maine Coon</item>
+        <item>Persian</item>
+        <item>British Shorthair</item>
+        <item>Sphynx</item>
+        <item>Siamese</item>
+        <item>Bengal</item>
+        <item>Ragdoll</item>
+        <item>Scottish Fold</item>
+        <item>Burmese</item>
+        <item>Siberian</item>
+        <item>Abyssinian</item>
+        <item>Cornish Rex</item>
+        <item>Norwegian Forest</item>
+        <item>Balinese</item>
+        <item>Somali</item>
+    </string-array>
+
+    <string-array name="fish_breeds">
+        <item>Goldfish</item>
+        <item>Guppy</item>
+        <item>Neon Tetra</item>
+        <item>Danios</item>
+        <item>Discus</item>
+        <item>Marine Aquarium</item>
+        <item>Betta Fish</item>
+        <item>Catfish</item>
+        <item>Cichlids</item>
+        <item>Clownfish</item>
+        <item>Parrotfish</item>
+    </string-array>
+
+    <string-array name="bird_breeds">
+        <item>Canary</item>
+        <item>African Grey Parrot</item>
+        <item>Amazon Parrot</item>
+        <item>Cockatoo</item>
+        <item>Senegal Parrot</item>
+        <item>Budgerigar</item>
+        <item>Macaw</item>
+        <item>Rosella</item>
+        <item>Kakariki</item>
+    </string-array>
+
+    <string-array name="rabbit_breeds">
+        <item>Dwarf Rabbit</item>
+        <item>Lionhead Rabbit</item>
+        <item>Himalayan Rabbit</item>
+        <item>Dutch Rabbit</item>
+        <item>Mini Lop Rabbit</item>
+        <item>Rex Rabbit</item>
+        <item>Californian Rabbit</item>
+        <item>Mini Rex Rabbit</item>
+    </string-array>
+
+    <string-array name="animal_pathologies">
+        <item>Anthrax</item>
+        <item>Avian Influenza</item>
+        <item>Bovine Spongiform Encephalopathy</item>
+        <item>Canine Parvovirus</item>
+        <item>Feline Leukemia Virus</item>
+        <item>Equine Infectious Anemia</item>
+        <item>Rabies</item>
+        <item>Newcastle Disease</item>
+        <item>Foot-and-Mouth Disease</item>
+        <item>Tuberculosis</item>
+        <item>Brucellosis</item>
+        <item>Porcine Epidemic Diarrhea Virus</item>
+        <item>Feline Immunodeficiency Virus</item>
+        <item>West Nile Virus</item>
+        <item>Chronic Wasting Disease</item>
+    </string-array>
+
+    <string-array name="expense_categories">
+        <item>Accessory</item>
+        <item>Food</item>
+        <item>Health</item>
+    </string-array>
+
+    <string-array name="phone_prefixes">
+        <item>+39</item> <!-- Italia -->
+        <item>+1</item> <!-- Stati Uniti -->
+        <item>+44</item> <!-- Regno Unito -->
+        <item>+33</item> <!-- Francia -->
+        <item>+49</item> <!-- Germania -->
+        <item>+34</item> <!-- Spagna -->
+        <item>+86</item> <!-- Cina -->
+        <item>+81</item> <!-- Giappone -->
+        <item>+7</item> <!-- Russia -->
+        <item>+55</item> <!-- Brasile -->
+        <item>+91</item> <!-- India -->
+        <item>+61</item> <!-- Australia -->
+        <item>+27</item> <!-- Sudafrica -->
+        <item>+971</item> <!-- Emirati Arabi Uniti -->
+        <item>+966</item> <!-- Arabia Saudita -->
+    </string-array>
+
+    <string-array name="accessory_categories">
+        <item>Accessory</item>
+        <item>Food</item>
+        <item>Health</item>
+    </string-array>
+
+    <string-array name="private_request_type">
+        <item>Look for animal</item>
+        <item>Offer animal</item>
+    </string-array>
+
+    <string-array name="authority_request_type">
+        <item>Offer beds</item>
+        <item>Offer animal</item>
+    </string-array>
+
+    <string-array name="segnalation_type">
+        <item>Losted</item>
+        <item>Find</item>
+        <item>In danger</item>
+    </string-array>
+
+    <string-array name="relation_type">
+        <item>Friend</item>
+        <item>Incompatible</item>
+        <item>Cohabitee</item>
+    </string-array>
 </resources>

@@ -7,15 +7,190 @@
     <string name="email_address">Indirizzo email</string>
     <string name="password">password</string>
     <string name="register">Registrati</string>
+    <string name="register_underlined"><u>Registrati</u></string>
     <string name="login">Accedi</string>
     <string name="have_account_yet">"Non sei ancora registrato? "</string>
-<<<<<<< HEAD
-=======
     <string name="company_name">Denominazione sociale</string>
     <string name="site">Sede</string>
     <string name="phone_number">Numero telefonico</string>
     <string name="home">Home</string>
     <string name="search">Cerca</string>
     <string name="profile">Profilo</string>
->>>>>>> 54b31f7063d419d26bab3a7fae7532265ec58e37
+    <string name="public_authority">Ente pubblico</string>
+    <string name="veterinarian">Veterinario</string>
+    <string name="visit_date">Data visita</string>
+    <string name="medical_note">Note mediche</string>
+    <string name="doctor_name">Nome dottore</string>
+    <string name="save">Salva</string>
+    <string name="edit_visit">MODIFICA VISITA</string>
+    <string name="create_visit">CREA VISITA</string>
+    <string name="create">Crea</string>
+    <string name="create_relation">CREA RELAZIONE</string>
+    <string name="create_expense">CREA SPESA</string>
+    <string name="expense">Spesa</string>
+    <string name="edit_profile">MODIFICA PROFILO</string>
+    <string name="edit">Modifica</string>
+    <string name="add_animal">AGGIUNGI ANIMALE</string>
+    <string name="add">AGGIUNGI</string>
+    <string name="age">Età</string>
+    <string name="microchip">Microchip</string>
+    <string name="edit_animal">MODIFICA ANIMALE</string>
+    <string name="add_pathology">AGGIUNGI PATOLOGIA</string>
+    <string name="add_food">AGGIUNGI CIBO</string>
+    <string name="delete">Elimina</string>
+    <string name="add_warning">NUOVA SEGNALAZIONE</string>
+    <string name="add_request">NUOVA RICHIESTA</string>
+    <string name="beds">Posti letto</string>
+    <string name="description">Descrizione</string>
+    <string name="note">Note</string>
+    <string name="confirm_delete">CONFERMA ELIMINA</string>
+    <string name="this_element_will_be">Questo elemento verrà eliminato definitivamente</string>
+    <string name="cancel">Cancella</string>
+
+    <string-array name="diagnosis_type">
+        <item>Positivo</item>
+        <item>Negativo</item>
+        <item>Nessuno</item>
+    </string-array>
+
+    <string-array name="exam_type">
+        <item>Sverminazione</item>
+        <item>Vaccinazione</item>
+        <item>Sterilizzazione</item>
+        <item>Intervento</item>
+        <item>Controllo</item>
+    </string-array>
+
+    <string-array name="visit_state">
+        <item>Eseguito</item>
+        <item>Non eseguito</item>
+        <item>Da rivedere</item>
+    </string-array>
+
+    <string-array name="animal_species">
+        <item>Cane</item>
+        <item>Gatto</item>
+        <item>Pesce</item>
+        <item>Uccello</item>
+        <item>Coniglio</item>
+    </string-array>
+
+    <string-array name="dog_breeds">
+        <item>Labrador Retriever</item>
+        <item>Golden Retriever</item>
+        <item>Bulldog Francese</item>
+        <item>Bulldog Inglese</item>
+        <item>Chihuahua</item>
+        <item>Beagle</item>
+        <item>Boxer</item>
+        <item>Pastore Tedesco</item>
+        <item>Yorkshire Terrier</item>
+        <item>Barboncino</item>
+        <item>Dalmata</item>
+        <item>Jack Russell Terrier</item>
+        <item>Bassotto</item>
+        <item>Border Collie</item>
+        <item>Shih Tzu</item>
+    </string-array>
+
+    <string-array name="cat_breeds">
+        <item>Maine Coon</item>
+        <item>Persiano</item>
+        <item>British Shorthair</item>
+        <item>Sphynx</item>
+        <item>Siamese</item>
+        <item>Bengala</item>
+        <item>Ragdoll</item>
+        <item>Scottish Fold</item>
+        <item>Burmese</item>
+        <item>Siberiano</item>
+        <item>Abissino</item>
+        <item>Cornish Rex</item>
+        <item>Norvegese delle Foreste</item>
+        <item>Balinese</item>
+        <item>Somali</item>
+    </string-array>
+
+    <string-array name="fish_breeds">
+        <item>Pesci Rossi</item>
+        <item>Guppy</item>
+        <item>Neon Tetra</item>
+        <item>Danzatori</item>
+        <item>Discus</item>
+        <item>Acquario marino</item>
+        <item>Betta Splendens</item>
+        <item>Pesci Gatto</item>
+        <item>Pesci Ciclidi</item>
+        <item>Pesci Pagliaccio</item>
+        <item>Pesci Parrot</item>
+    </string-array>
+
+    <string-array name="bird_breeds">
+        <item>Canarino</item>
+        <item>Pappagallo Grigio Africano</item>
+        <item>Pappagallo Amazzone</item>
+        <item>Cacatua</item>
+        <item>Pappagallo Senegal</item>
+        <item>Pappagallo Cenerino</item>
+        <item>Pappagallo Ara</item>
+        <item>Pappagallo Rosella</item>
+        <item>Pappagallo Kakariki</item>
+    </string-array>
+
+    <string-array name="rabbit_breeds">
+        <item>Coniglio Nano</item>
+        <item>Coniglio Testa di Leone</item>
+        <item>Coniglio Himalayano</item>
+        <item>Coniglio Olandese</item>
+        <item>Coniglio Mini Lop</item>
+        <item>Coniglio Rex</item>
+        <item>Coniglio Californiano</item>
+        <item>Coniglio Mini Rex</item>
+    </string-array>
+
+    <string-array name="animal_pathologies">
+        <item>Carbonchio</item>
+        <item>Influenza aviaria</item>
+        <item>Encefalopatia spongiforme bovina</item>
+        <item>Parvovirus canino</item>
+        <item>Virus della leucemia felina</item>
+        <item>Anemia infettiva equina</item>
+        <item>Rabbia</item>
+        <item>Malattia di Newcastle</item>
+        <item>Morbo della bocca, della mano e del piede</item>
+        <item>Tubercolosi</item>
+        <item>Brucellosi</item>
+        <item>Virus della diarrea epidemica suina</item>
+        <item>Virus dell\'immunodeficienza felina</item>
+        <item>Virus del Nilo occidentale</item>
+        <item>Malattia cronica del deperimento</item>
+    </string-array>
+
+    <string-array name="accessory_categories">
+        <item>Accessori</item>
+        <item>Cibo</item>
+        <item>Salute</item>
+    </string-array>
+
+    <string-array name="private_request_type">
+        <item>Cerco animale</item>
+        <item>Offro animale</item>
+    </string-array>
+
+    <string-array name="authority_request_type">
+        <item>Offro posti</item>
+        <item>Offro animale</item>
+    </string-array>
+
+    <string-array name="segnalation_type">
+        <item>Perso</item>
+        <item>Trovato</item>
+        <item>In pericolo</item>
+    </string-array>
+
+    <string-array name="relation_type">
+        <item>Amici</item>
+        <item>Incompatibili</item>
+        <item>Conviventi</item>
+    </string-array>
 </resources>
