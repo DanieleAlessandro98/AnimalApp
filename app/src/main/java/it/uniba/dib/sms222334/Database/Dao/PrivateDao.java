@@ -54,7 +54,7 @@ public final class PrivateDao {
                 });
     }
 
-    private Private findPrivate(DocumentSnapshot document) {
+    public Private findPrivate(DocumentSnapshot document) {
         Private.Builder private_requested_builder=Private.Builder.
                 create(
                         document.getId(),

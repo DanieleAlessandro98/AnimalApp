@@ -18,6 +18,7 @@ import it.uniba.dib.sms222334.Fragmets.VisitFragment;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLogged() {
-        return Authentication.getUserRole() == UserRole.PRIVATE; //TODO insert here SharedPreferences' control to check if it's logged or not
+        return SessionManager.getInstance().getRole() == UserRole.PRIVATE; //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
     private void changeTab(MainActivity.TabPosition tabType){
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Document getLoggedUser() {
-        return null;    //TODO grab the user logged
+        return Private.Builder.create("id", "name", "email", "password", 123, null).build(); //TODO grab the user logged
     }
 
     private ProfileFragment.Type getLoggedTypeUser(){
