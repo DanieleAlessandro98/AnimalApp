@@ -91,7 +91,9 @@ public class Request extends Document{
         this.requestPhoto = requestPhoto;
     }
 
-    private Request(String animalName, String species, String age, String creatorName, String description, requestType type, Float latitude, Float longitude, Bitmap creatorPhoto, Bitmap requestPhoto) {
+    private Request(String id, String animalName, String species, String age, String creatorName, String description, requestType type, Float latitude, Float longitude, Bitmap creatorPhoto, Bitmap requestPhoto) {
+        super(id);
+
         this.AnimalName = animalName;
         this.Species = species;
         this.Age=age;
@@ -105,20 +107,22 @@ public class Request extends Document{
     }
 
     public static class Builder{
+        private String bID;
         String bAnimalName, bSpecies,bAge, bCreatorName, bDescription;
         requestType btype;
         public Float blatitude;
         public Float blongitude;
         Bitmap bcreatorPhoto, brequestPhoto;
 
-        private Builder(final requestType type,Float latitude, Float longitude){
+        private Builder(final String id, final requestType type,Float latitude, Float longitude){
+            this.bID = id;
             this.blatitude=latitude;
             this.blongitude=longitude;
             this.btype=type;
         }
 
-        public static Builder create(final requestType type,Float latitude, Float longitude){
-            return new Builder(type,latitude,longitude);
+        public static Builder create(final String id, final requestType type,Float latitude, Float longitude){
+            return new Builder(id,type,latitude,longitude);
         }
 
         public Builder setAnimalName(String AnimalName) {
@@ -172,7 +176,7 @@ public class Request extends Document{
         }
 
         public Request build(){
-            return new Request(bAnimalName,bSpecies,bAge,bCreatorName,bDescription,btype,blatitude,blongitude,bcreatorPhoto,brequestPhoto);
+            return new Request(bID,bAnimalName,bSpecies,bAge,bCreatorName,bDescription,btype,blatitude,blongitude,bcreatorPhoto,brequestPhoto);
         }
     }
 }

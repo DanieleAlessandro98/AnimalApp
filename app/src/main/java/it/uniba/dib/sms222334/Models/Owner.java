@@ -1,13 +1,14 @@
 package it.uniba.dib.sms222334.Models;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Owner extends Document{
     private LinkedList<Animal> listAnimal;
     private LinkedList<Expense> listExpense;
 
-    public Owner() {
+    public Owner(String id) {
+        super(id);
+
         listAnimal = new LinkedList<>();
         listExpense = new LinkedList<>();
     }

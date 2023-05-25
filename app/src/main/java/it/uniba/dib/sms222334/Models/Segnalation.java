@@ -90,7 +90,9 @@ public class Segnalation extends Document{
         this.segnalationPhoto = segnalationPhoto;
     }
 
-    private Segnalation(String animalName, String species, String age, String creatorName, String description, segnalationType type, Float latitude, Float longitude, Bitmap creatorPhoto, Bitmap segnalationPhoto) {
+    private Segnalation(String id, String animalName, String species, String age, String creatorName, String description, segnalationType type, Float latitude, Float longitude, Bitmap creatorPhoto, Bitmap segnalationPhoto) {
+        super(id);
+
         this.AnimalName = animalName;
         this.Species = species;
         this.Age=age;
@@ -104,20 +106,22 @@ public class Segnalation extends Document{
     }
 
     public static class Builder{
+        private String bID;
         String bAnimalName, bSpecies,bAge, bCreatorName, bDescription;
         segnalationType btype;
         public Float blatitude;
         public Float blongitude;
         Bitmap bcreatorPhoto, bsegnalationPhoto;
 
-        private Builder(final segnalationType type,Float latitude, Float longitude,Bitmap segnalationPhoto){
+        private Builder(final String id, final segnalationType type,Float latitude, Float longitude,Bitmap segnalationPhoto){
+            this.bID = id;
             this.blatitude=latitude;
             this.blongitude=longitude;
             this.btype=type;
         }
 
-        public static Builder create(final segnalationType type,Float latitude, Float longitude,Bitmap segnalationPhoto){
-            return new Builder(type,latitude,longitude,segnalationPhoto);
+        public static Builder create(final String id, final segnalationType type,Float latitude, Float longitude,Bitmap segnalationPhoto){
+            return new Builder(id,type,latitude,longitude,segnalationPhoto);
         }
 
         public  Builder setAnimalName(String AnimalName) {
@@ -171,7 +175,7 @@ public class Segnalation extends Document{
         }
 
         public Segnalation build(){
-            return new Segnalation(bAnimalName,bSpecies,bAge,bCreatorName,bDescription,btype,blatitude,blongitude,bcreatorPhoto,bsegnalationPhoto);
+            return new Segnalation(bID,bAnimalName,bSpecies,bAge,bCreatorName,bDescription,btype,blatitude,blongitude,bcreatorPhoto,bsegnalationPhoto);
         }
     }
 }

@@ -21,8 +21,8 @@ public class Private extends Owner{
     private String tax_id_code; //codice_fiscale
     private String photo;
 
-    private Private(String name, String surname, String email, String password, Date date, int role, long phoneNumber, String tax_id_code, String photo) {
-        super();
+    private Private(String id, String name, String surname, String email, String password, Date date, int role, long phoneNumber, String tax_id_code, String photo) {
+        super(id);
 
         this.name = name;
         this.surname = surname;
@@ -36,6 +36,7 @@ public class Private extends Owner{
     }
 
     public static class Builder{
+        private String bID;
         private String bname;
         private String bsurname;
         private String bemail;
@@ -49,13 +50,14 @@ public class Private extends Owner{
         private String bphoto;
         //ArrayList<Animali>
 
-        private Builder(final String name, final String surname){
+        private Builder(final String id, final String name, final String surname){
+            this.bID = id;
             this.bname=name;
             this.bsurname=surname;
         }
 
-        public static Builder create(final String name, final String surname){
-            return new Builder(name,surname);
+        public static Builder create(final String id, final String name, final String surname){
+            return new Builder(id,name,surname);
         }
 
         public Builder setEmail(final String email){
@@ -94,7 +96,7 @@ public class Private extends Owner{
         }
 
         public Private build(){
-            return new Private(bname,bsurname,bemail,bpassword,bdate,ROLE,bphoneNumber,btax_id_code,bphoto);
+            return new Private(bID,bname,bsurname,bemail,bpassword,bdate,ROLE,bphoneNumber,btax_id_code,bphoto);
         }
     }
 

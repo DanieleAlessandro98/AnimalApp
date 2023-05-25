@@ -55,7 +55,7 @@ public final class PrivateDao {
 
     private Private findPrivate(DocumentSnapshot document) {
         Private.Builder private_requested_builder=Private.Builder.
-                create(document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
+                create(document.getId(), document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                 .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
                 .setEmail(document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
                 .setDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
@@ -63,10 +63,7 @@ public final class PrivateDao {
                 .setPhoto(document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
                 .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
 
-        Private resultPrivate = private_requested_builder.build();
-        resultPrivate.setFirebaseID(document.getId());
-
-        return resultPrivate;
+        return private_requested_builder.build();
     }
 
     private void findPrivateAnimals(final DocumentSnapshot document, Private resultPrivate) {

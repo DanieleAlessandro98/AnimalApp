@@ -91,8 +91,9 @@ public class Veterinarian extends Document {
         this.logo = logo;
     }
 
-    private Veterinarian(String email, String password, int role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
-        super();
+    private Veterinarian(String id, String email, String password, int role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
+        super(id);
+
         this.email = email;
         this.password = password;
         this.role = role;
@@ -105,6 +106,7 @@ public class Veterinarian extends Document {
     }
 
     public static class Builder{
+        private String bID;
         private String bemail;
         private String bpassword;
         private int brole;
@@ -121,13 +123,14 @@ public class Veterinarian extends Document {
 
         private Bitmap blogo;
 
-        private Builder(final String email, final String password){
+        private Builder(final String id, final String email, final String password){
+            this.bID = id;
             this.bemail=email;
             this.bpassword=password;
         }
 
-        public static Veterinarian.Builder create(final String email, final String password){
-            return new Veterinarian.Builder(email,password);
+        public static Veterinarian.Builder create(final String id, final String email, final String password){
+            return new Veterinarian.Builder(id,email,password);
         }
 
         public Veterinarian.Builder setRole(int role){
@@ -166,7 +169,7 @@ public class Veterinarian extends Document {
         }
 
         public Veterinarian build(){
-            return new Veterinarian(bemail,bpassword,brole,bcompanyName,blegal_site,blatitude,blongitude,btelephone,blogo);
+            return new Veterinarian(bID,bemail,bpassword,brole,bcompanyName,blegal_site,blatitude,blongitude,btelephone,blogo);
         }
     }
 }

@@ -53,7 +53,7 @@ public class HomeFragment extends Fragment {
         recyclerView = layout.findViewById(R.id.list_item);
 
         ArrayList<Document> listaProva=new ArrayList<>();
-        Request r1=Request.Builder.create(Request.requestType.FIND_ANIMAL, 130.0F,13.0F)
+        Request r1=Request.Builder.create("TestID", Request.requestType.FIND_ANIMAL, 130.0F,13.0F)
                 .setCreatorName("Giuseppe")
                 .setSpecies("Cane")
                 .setDescription("Cerco cane bellissimo ciao")

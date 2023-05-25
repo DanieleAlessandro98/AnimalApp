@@ -152,7 +152,9 @@ public class Animal extends Document {
         return this.getPathologies().size();
     }
 
-    private Animal(String name, Owner owner, int age, stateList state, String species, String race, Bitmap photo, String microchip){
+    private Animal(String id, String name, Owner owner, int age, stateList state, String species, String race, Bitmap photo, String microchip){
+        super(id);
+
         this.name = name;
         this.owner = owner;
         this.age = age;
@@ -170,6 +172,7 @@ public class Animal extends Document {
     }
 
     public static class Builder{
+        private String bID;
         private String bname;
         private Owner bowner;
         private int bage;
@@ -179,12 +182,13 @@ public class Animal extends Document {
         private Bitmap bphoto;
         private String bmicrochip;
 
-        private Builder(final stateList state){
+        private Builder(final String id, final stateList state){
+            this.bID = id;
             this.bstate=state;
         }
 
-        public static Animal.Builder create(final stateList state){
-            return new Animal.Builder(state);
+        public static Animal.Builder create(final String id, final stateList state){
+            return new Animal.Builder(id, state);
         }
 
         public Animal.Builder setName(final String name){
@@ -223,7 +227,7 @@ public class Animal extends Document {
         }
 
         public Animal build(){
-            return new Animal(bname,bowner,bage,bstate,bspecies,brace,bphoto,bmicrochip);
+            return new Animal(bID,bname,bowner,bage,bstate,bspecies,brace,bphoto,bmicrochip);
         }
     }
 

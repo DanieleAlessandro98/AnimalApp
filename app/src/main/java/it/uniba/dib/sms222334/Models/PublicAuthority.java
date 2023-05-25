@@ -100,8 +100,8 @@ public class PublicAuthority extends Owner{
         this.telephone = telephone;
     }
 
-    private PublicAuthority(String email, String password, int role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
-        super();
+    private PublicAuthority(String id, String email, String password, int role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
+        super(id);
 
         this.email = email;
         this.password = password;
@@ -116,6 +116,7 @@ public class PublicAuthority extends Owner{
     }
 
     public static class Builder{
+        private String bID;
         private String bemail;
         private String bpassword;
         private int brole;
@@ -129,13 +130,14 @@ public class PublicAuthority extends Owner{
 
         private float blongitude;
 
-        private Builder(final String email, final String password){
+        private Builder(final String id, final String email, final String password){
+            this.bID = id;
             this.bemail=email;
             this.bpassword=password;
         }
 
-        public static Builder create(final String name, final String surname){
-            return new Builder(name,surname);
+        public static Builder create(final String id, final String name, final String surname){
+            return new Builder(id,name,surname);
         }
 
         public Builder setEmail(final String email){
@@ -189,7 +191,7 @@ public class PublicAuthority extends Owner{
         }
 
         public PublicAuthority build(){
-            return new PublicAuthority(bemail,bpassword,brole,bcompany_name,bsite,blogo,blatitude,blongitude,bNbeds,btelephone);
+            return new PublicAuthority(bID,bemail,bpassword,brole,bcompany_name,bsite,blogo,blatitude,blongitude,bNbeds,btelephone);
         }
     }
 }

@@ -21,7 +21,9 @@ public class Visit extends Document{
 
     private Animal animal;
 
-    private Visit(String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
+    private Visit(String id, String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
+        super(id);
+
         this.name = name;
         this.state = state;
         this.type=type;
@@ -98,6 +100,7 @@ public class Visit extends Document{
     }
 
     public static class Builder{
+        private String bID;
         private String Bname;
 
         private visitType Btype;
@@ -111,18 +114,19 @@ public class Visit extends Document{
 
         private Animal banimal;
 
-        private Builder(final String name, final visitType type, final Date date){
+        private Builder(final String id, final String name, final visitType type, final Date date){
+            this.bID = id;
             this.Bname=name;
             this.Btype=type;
             this.Bdate=date;
         }
 
-        public static Builder create(final String name, final visitType type, final Date date){
-            return new Builder(name,type,date);
+        public static Builder create(final String id, final String name, final visitType type, final Date date){
+            return new Builder(id, name,type,date);
         }
 
         public static Builder createFrom(Visit visit){
-            return new Builder(visit.getName(),visit.getType(),visit.getDate())
+            return new Builder(visit.getFirebaseID(), visit.getName(),visit.getType(),visit.getDate())
                     .setDoctorName(visit.getDoctorName())
                     .setState(visit.getState())
                     .setDiagnosis(visit.getDiagnosis())
@@ -170,7 +174,7 @@ public class Visit extends Document{
         }
 
         public Visit build(){
-            return new Visit(Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
+            return new Visit(bID,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
 }

@@ -7,7 +7,9 @@ public class Food extends Document{
     private Animal animal;
     private String name;
 
-    private Food(String name, Animal animal) {
+    private Food(String id, String name, Animal animal) {
+        super(id);
+
         this.name = name;
         this.animal=animal;
     }
@@ -29,11 +31,13 @@ public class Food extends Document{
     }
 
     public static class Builder {
+        private String bID;
         private String bName;
 
         private Animal bAnimal;
 
-        private Builder( final String name, final Animal animal){
+        private Builder(final String id, final String name, final Animal animal){
+            this.bID = id;
             this.bName=name;
             this.bAnimal=animal;
         }
@@ -48,12 +52,12 @@ public class Food extends Document{
             return this;
         }
 
-        public static Builder create(final String name, final Animal animal){
-            return new Builder(name, animal);
+        public static Builder create(final String id, final String name, final Animal animal){
+            return new Builder(id, name, animal);
         }
 
         public Food build(){
-            return new Food(bName, bAnimal);
+            return new Food(bID, bName, bAnimal);
         }
     }
 }

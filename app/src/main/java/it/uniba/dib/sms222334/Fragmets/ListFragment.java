@@ -72,7 +72,7 @@ public class ListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
-        Animal a1=Animal.Builder.create(Animal.stateList.ADOPTED)
+        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
                 .setAge(3)
                 .setSpecies("Dog")
                 .setName("Alberto")
@@ -117,7 +117,7 @@ public class ListFragment extends Fragment {
                 ArrayList<Visit> visitList=new ArrayList<>();
                 Calendar calendar=Calendar.getInstance();
 
-                Visit v1=Visit.Builder.create("Test", Visit.visitType.CONTROL, calendar.getTime())
+                Visit v1=Visit.Builder.create("TestID", "Test", Visit.visitType.CONTROL, calendar.getTime())
                                 .setState(Visit.visitState.NOT_EXECUTED)
                                 .setAnimal(a1)
                                 .build();
@@ -185,7 +185,7 @@ public class ListFragment extends Fragment {
                 
                 ArrayList<Expense> expenseList=new ArrayList<>();
 
-                Expense e1=Expense.Builder.create(14.94)
+                Expense e1=Expense.Builder.create("TestID", 14.94)
                                 .setCategory(Expense.expenseType.ACCESSORY)
                                         .setnote("Tennis ball").build();
 
@@ -292,7 +292,7 @@ public class ListFragment extends Fragment {
 
                 ArrayList<Pathology> pathologyList=new ArrayList<>();
 
-                Pathology p1=Pathology.Builder.create(a1,"Scogliosi").build();
+                Pathology p1=Pathology.Builder.create("TestID", a1,"Scogliosi").build();
                 pathologyList.add(p1);
                 pathologyList.add(p1);
                 pathologyList.add(p1);
@@ -344,7 +344,7 @@ public class ListFragment extends Fragment {
 
                 ArrayList<Food> foodList=new ArrayList<>();
 
-                Food f1=Food.Builder.create("Riso patate e cozze",a1).build();
+                Food f1=Food.Builder.create("TestID", "Riso patate e cozze",a1).build();
                 foodList.add(f1);
                 foodList.add(f1);
                 foodList.add(f1);

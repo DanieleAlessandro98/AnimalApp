@@ -54,7 +54,7 @@ public class AnimalDao {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
         Animal.stateList state = Animal.stateList.values()[stateInteger];
 
-        Animal.Builder animal_find = Animal.Builder.create(state)
+        Animal.Builder animal_find = Animal.Builder.create(document.getId(), state)
                 .setAge(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_AGE).intValue())
                 .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
                 .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
@@ -63,10 +63,7 @@ public class AnimalDao {
                 .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
                 .setOwner(resultPrivate);
 
-        Animal resultAnimal = animal_find.build();
-        resultAnimal.setFirebaseID(document.getId());
-
-        return resultAnimal;
+        return animal_find.build();
     }
 
 }

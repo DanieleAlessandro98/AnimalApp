@@ -1,13 +1,13 @@
 package it.uniba.dib.sms222334.Models;
 
 public class Document {
-    private String FirebaseID;
+    private final String firebaseID;
 
-    public void setFirebaseID(String firebaseID) {
-        FirebaseID = firebaseID;
+    public Document(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public String getFirebaseID() {
-        return FirebaseID;
+        return firebaseID;
     }
 }

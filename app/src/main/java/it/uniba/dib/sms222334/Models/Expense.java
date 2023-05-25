@@ -7,7 +7,9 @@ public class Expense extends Document{
     private Double price;
     private expenseType category; //categorie per le spese
 
-    private Expense(String note, Double price, expenseType category) {
+    private Expense(String id, String note, Double price, expenseType category) {
+        super(id);
+
         this.note = note;
         this.price = price;
         this.category = category;
@@ -38,17 +40,19 @@ public class Expense extends Document{
     }
 
     public static class Builder {
+        private String bID;
         private String bnote;
         private Double bprice;
         private expenseType bcategory;
 
-        private Builder(final Double price){
+        private Builder(final String id, final Double price){
+            this.bID = id;
             this.bprice=price;
         }
 
 
-        public static Builder create(final Double price){
-            return new Builder(price);
+        public static Builder create(final String id, final Double price){
+            return new Builder(id, price);
         }
 
 
@@ -64,7 +68,7 @@ public class Expense extends Document{
 
 
         public Expense build(){
-            return new Expense(bnote,bprice,bcategory);
+            return new Expense(bID, bnote,bprice,bcategory);
         }
     }
 }

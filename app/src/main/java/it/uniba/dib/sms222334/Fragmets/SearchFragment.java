@@ -36,10 +36,10 @@ public class SearchFragment extends Fragment {
         recyclerView = layout.findViewById(R.id.list_item);
 
         ArrayList<Document> listaProva=new ArrayList<>();
-        Veterinarian v1=Veterinarian.Builder.create("giuseppeblabla","ciao").
+        Veterinarian v1=Veterinarian.Builder.create("TestID", "giuseppeblabla","ciao").
                 setCompanyName("PethMed")
                         .setLegalSite("Francavilla Fontana").build();
-        PublicAuthority p1=PublicAuthority.Builder.create("giuseppeblabla","ciao").
+        PublicAuthority p1=PublicAuthority.Builder.create("TestID", "giuseppeblabla","ciao").
                 setCompany_name("Canile Via Appia")
                 .setSite("Brindisi").build();
 

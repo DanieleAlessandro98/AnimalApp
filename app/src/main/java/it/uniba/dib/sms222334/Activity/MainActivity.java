@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Document getLoggedUser() {
-        return Private.Builder.create("giuseppe","liace")
+        return Private.Builder.create("testID", "giuseppe","liace")
                 .setEmail("g.liace1@studenti.uniba.it").build(); //TODO grab the user logged
     }
 

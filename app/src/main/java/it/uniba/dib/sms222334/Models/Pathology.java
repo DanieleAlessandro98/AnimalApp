@@ -5,7 +5,9 @@ public class Pathology extends Document{
     private Animal animal;
     private String name;
 
-    private Pathology(Animal animal, String name) {
+    private Pathology(String id, Animal animal, String name) {
+        super(id);
+
         this.animal = animal;
         this.name = name;
     }
@@ -27,16 +29,18 @@ public class Pathology extends Document{
     }
 
     public static class Builder {
+        private String bID;
         private Animal bAnimal;
         private String bName;
 
-        private Builder(final Animal Animal, final String name){
+        private Builder(final String id, final Animal Animal, final String name){
+            this.bID = id;
             this.bAnimal=Animal;
             this.bName=name;
         }
 
-        public static Builder create(final Animal Animal, final String name){
-            return new Builder(Animal,name);
+        public static Builder create(final String id, final Animal Animal, final String name){
+            return new Builder(id, Animal,name);
         }
 
         public Builder setName(final String name){
@@ -50,7 +54,7 @@ public class Pathology extends Document{
         }
 
         public Pathology build(){
-            return new Pathology(bAnimal, bName);
+            return new Pathology(bID, bAnimal, bName);
         }
     }
 }
