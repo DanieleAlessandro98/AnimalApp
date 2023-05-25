@@ -1,138 +1,119 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
-import android.provider.ContactsContract;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Private extends Owner{
-    private String name;
+public class Private extends User implements Owner {
     private String surname;
-    private String email;
-    private String password;
+    private Date birthDate;
+    private String taxIDCode; //codice_fiscale
 
-    private long phoneNumber;
+    private LinkedList<Animal> listAnimal;
+    private LinkedList<Expense> listExpense;
 
-    private Date date;
-    private UserRole role;
-    private String tax_id_code; //codice_fiscale
-    private String photo;
+    public Private(String id, String name, String email, String password, int phone, Bitmap photo, String surname, Date birthDate, String taxIDCode) {
+        super(id, name, email, password, phone, photo);
 
-    private Private(String id, String name, String surname, String email, String password, Date date, UserRole role, long phoneNumber, String tax_id_code, String photo) {
-        super(id);
-
-        this.name = name;
         this.surname = surname;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.date=date;
-        this.phoneNumber=phoneNumber;
-        this.tax_id_code = tax_id_code;
-        this.photo = photo;
+        this.birthDate = birthDate;
+        this.taxIDCode = taxIDCode;
+
+        listAnimal = new LinkedList<>();
+        listExpense = new LinkedList<>();
     }
 
-    public static class Builder{
+    public static class Builder {
         private String bID;
-        private String bname;
-        private String bsurname;
-        private String bemail;
-        private String bpassword;
+        private String bName;
+        private String bEmail;
+        private String bPassword;
+        private int bPhone;
+        private Bitmap bPhoto;
 
-        private Date bdate;
-        private UserRole brole;
-
-        private long bphoneNumber;
-        private String btax_id_code; //codice_fiscale
-        private String bphoto;
+        private String bSurname;
+        private Date bBirthDate;
+        private String bTaxID;
         //ArrayList<Animali>
 
-        private Builder(final String id, final String name, final String surname){
+        private Builder(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
             this.bID = id;
-            this.bname=name;
-            this.bsurname=surname;
+            this.bName = name;
+            this.bEmail = email;
+            this.bPassword = password;
+            this.bPhone = phone;
+            this.bPhoto = photo;
         }
 
-        public static Builder create(final String id, final String name, final String surname){
-            return new Builder(id,name,surname);
+        public static Builder create(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+            return new Builder(id, name, email, password, phone, photo);
         }
 
-        public Builder setEmail(final String email){
-            this.bemail=email;
+        public Builder setSurname(final String surname) {
+            this.bSurname = surname;
             return this;
         }
 
-        public Builder setPassword(final String password){
-            this.bpassword=password;
+        public Builder setBirthDate(final Date birthDate) {
+            this.bBirthDate = birthDate;
             return this;
         }
 
-        public Builder setSurname(final String surname){
-            this.bsurname=surname;
+        public Builder setTaxIdCode(final String taxIDCode) {
+            this.bTaxID = taxIDCode;
             return this;
         }
 
-        public Builder setDate(final Date date){
-            this.bdate=date;
-            return this;
+        public Private build() {
+            return new Private(bID, bName, bEmail, bPassword, bPhone, bPhoto, bSurname, bBirthDate, bTaxID);
         }
-
-        public Builder setPhoneNumber(long phoneNumber){
-            this.bphoneNumber=phoneNumber;
-            return this;
-        }
-
-        public Builder setTaxIdCode(final String tax_id_code){
-            this.btax_id_code=tax_id_code;
-            return this;
-        }
-
-        public Builder setPhoto(final String photo){
-            this.bphoto=photo;
-            return this;
-        }
-
-        public Private build(){
-            return new Private(bID,bname,bsurname,bemail,bpassword,bdate, UserRole.PRIVATE,bphoneNumber,btax_id_code,bphoto);
-        }
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getSurname() {
         return surname;
     }
 
-    public String getEmail() {
-        return email;
+    public Date getBirthDate() {
+        return birthDate;
     }
 
-    public String getPassword() {
-        return password;
+    public String getTaxIDCode() {
+        return taxIDCode;
     }
 
-    public long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
+    @Override
     public UserRole getRole() {
-        return role;
+        return UserRole.PRIVATE;
     }
 
-    public String getTax_id_code() {
-        return tax_id_code;
+    @Override
+    public void addAnimal(Animal animal) {
+        this.listAnimal.add(animal);
     }
 
-    public String getPhoto() {
-        return photo;
+    @Override
+    public void removeAnimal(Animal animal) {
+        for (Animal a : listAnimal) {
+            if (a.getFirebaseID().compareTo(animal.getFirebaseID()) == 0) {
+                listAnimal.remove(a);
+            }
+        }
+    }
+
+    @Override
+    public void addExpense(Expense Expense) {
+        this.listExpense.add(Expense);
+    }
+
+    @Override
+    public void removeExpense(Expense Expense) {
+        for (Expense a : listExpense) {
+            if (a.getFirebaseID().compareTo(Expense.getFirebaseID()) == 0) {
+                listExpense.remove(a);
+            }
+        }
     }
 }

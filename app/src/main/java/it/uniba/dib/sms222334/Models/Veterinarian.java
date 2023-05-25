@@ -2,174 +2,81 @@ package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
 
-import java.util.zip.CheckedOutputStream;
-
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Veterinarian extends Document {
-    private String email;
-    private String password;
-    private UserRole role;
-    private String companyName; //denominazione sociale
-    private String legal_site; //sede
-    private int telephone;
+public class Veterinarian extends User {
+    private String legalSite; //sede
     private float latitude;
     private float longitude;
-    private Bitmap logo;
-
     //array<visite>
 
-    public String getEmail() {
-        return email;
-    }
+    public Veterinarian(String id, String name, String email, String password, int phone, Bitmap photo, String legalSite, float latitude, float longitude) {
+        super(id, name, email, password, phone, photo);
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public String getLegal_site() {
-        return legal_site;
-    }
-
-    public void setLegal_site(String legal_site) {
-        this.legal_site = legal_site;
-    }
-
-    public int getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(int telephone) {
-        this.telephone = telephone;
-    }
-
-    public Float getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Float latitude) {
+        this.legalSite = legalSite;
         this.latitude = latitude;
-    }
-
-    public Float getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 
-    public Bitmap getLogo() {
-        return logo;
-    }
-
-    public void setLogo(Bitmap logo) {
-        this.logo = logo;
-    }
-
-    private Veterinarian(String id, String email, String password, UserRole role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
-        super(id);
-
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.companyName = companyName;
-        this.legal_site = legal_site;
-        this.telephone = telephone;
-        this.logo = logo;
-        this.latitude=latitude;
-        this.longitude=longitude;
-    }
-
-    public static class Builder{
+    public static class Builder {
         private String bID;
-        private String bemail;
-        private String bpassword;
-        private UserRole brole;
+        private String bName;
+        private String bEmail;
+        private String bPassword;
+        private int bPhone;
+        private Bitmap bPhoto;
 
-        private String bcompanyName;
+        private String bLegalSite;
+        private float bLatitude;
+        private float bLongitude;
 
-        private String blegal_site;
-
-        private int btelephone;
-
-        private float blatitude;
-
-        private float blongitude;
-
-        private Bitmap blogo;
-
-        private Builder(final String id, final String email, final String password){
+        private Builder(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
             this.bID = id;
-            this.bemail=email;
-            this.bpassword=password;
+            this.bName = name;
+            this.bEmail = email;
+            this.bPassword = password;
+            this.bPhone = phone;
+            this.bPhoto = photo;
         }
 
-        public static Veterinarian.Builder create(final String id, final String email, final String password){
-            return new Veterinarian.Builder(id,email,password);
+        public static Builder create(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+            return new Builder(id, name, email, password, phone, photo);
         }
 
-        public Veterinarian.Builder setRole(UserRole role){
-            this.brole=role;
+        public Builder setLegalSite(final String legalSite) {
+            this.bLegalSite = legalSite;
             return this;
         }
 
-        public Veterinarian.Builder setCompanyName(final String companyName){
-            this.bcompanyName=companyName;
+        public Builder setLatitude(final float latitude) {
+            this.bLatitude = latitude;
             return this;
         }
 
-        public Veterinarian.Builder setLatitude(final float latitude){
-            this.blatitude=latitude;
+        public Builder setLongitude(final float longitude) {
+            this.bLongitude = longitude;
             return this;
         }
 
-        public Veterinarian.Builder setLongitude(final float longitude){
-            this.blongitude=longitude;
-            return this;
+        public Veterinarian build() {
+            return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite, bLatitude, bLongitude);
         }
+    }
 
-        public Veterinarian.Builder setLegalSite(final String legalSite){
-            this.blegal_site=legalSite;
-            return this;
-        }
+    public String getLegalSite() {
+        return legalSite;
+    }
 
-        public Veterinarian.Builder setTelephone(final int telephone){
-            this.btelephone=telephone;
-            return this;
-        }
+    public float getLatitude() {
+        return latitude;
+    }
 
-        public Veterinarian.Builder setLogo(final Bitmap logo){
-            this.blogo=logo;
-            return this;
-        }
+    public float getLongitude() {
+        return longitude;
+    }
 
-        public Veterinarian build(){
-            return new Veterinarian(bID,bemail,bpassword,brole,bcompanyName,blegal_site,blatitude,blongitude,btelephone,blogo);
-        }
+    @Override
+    public UserRole getRole() {
+        return UserRole.VETERINARIAN;
     }
 }

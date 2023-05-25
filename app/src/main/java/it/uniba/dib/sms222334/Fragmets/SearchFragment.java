@@ -35,41 +35,43 @@ public class SearchFragment extends Fragment {
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        ArrayList<Document> listaProva=new ArrayList<>();
-        Veterinarian v1=Veterinarian.Builder.create("TestID", "giuseppeblabla","ciao").
-                setCompanyName("PethMed")
-                        .setLegalSite("Francavilla Fontana").build();
-        PublicAuthority p1=PublicAuthority.Builder.create("TestID", "giuseppeblabla","ciao").
-                setCompany_name("Canile Via Appia")
-                .setSite("Brindisi").build();
+        /**
+         ArrayList<Document> listaProva=new ArrayList<>();
+         Veterinarian v1=Veterinarian.Builder.create("TestID", "giuseppeblabla","ciao").
+         setCompanyName("PethMed")
+         .setLegalSite("Francavilla Fontana").build();
+         PublicAuthority p1=PublicAuthority.Builder.create("TestID", "giuseppeblabla","ciao").
+         setCompany_name("Canile Via Appia")
+         .setSite("Brindisi").build();
 
-        listaProva.add(v1);
-        listaProva.add(p1);
-        listaProva.add(p1);
-        listaProva.add(v1);
-        listaProva.add(p1);
-        listaProva.add(v1);
-        listaProva.add(p1);
-        listaProva.add(v1);
+         listaProva.add(v1);
+         listaProva.add(p1);
+         listaProva.add(p1);
+         listaProva.add(v1);
+         listaProva.add(p1);
+         listaProva.add(v1);
+         listaProva.add(p1);
+         listaProva.add(v1);
 
 
 
-        VeterinarianAuthoritiesAdapter adapter=new VeterinarianAuthoritiesAdapter(listaProva,getContext());
+         VeterinarianAuthoritiesAdapter adapter=new VeterinarianAuthoritiesAdapter(listaProva,getContext());
 
-        adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
-            @Override
-            public void OnProfileClicked(Document profile) {
-                FragmentManager fragmentManager=getParentFragmentManager();
+         adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
+        @Override
+        public void OnProfileClicked(Document profile) {
+        FragmentManager fragmentManager=getParentFragmentManager();
 
-                FragmentTransaction transaction= fragmentManager.beginTransaction();
-                transaction.addToBackStack(null);
-                transaction.replace(R.id.frame_for_fragment,new ProfileFragment(profile)).commit();
-            }
+        FragmentTransaction transaction= fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.frame_for_fragment,new ProfileFragment(profile)).commit();
+        }
         });
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new ItemDecorator(0));
+         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+         recyclerView.setAdapter(adapter);
+         recyclerView.addItemDecoration(new ItemDecorator(0));
+         */
 
         return layout;
     }

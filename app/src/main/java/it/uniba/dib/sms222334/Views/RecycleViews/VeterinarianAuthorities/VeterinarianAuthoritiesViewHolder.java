@@ -57,15 +57,15 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         public void bind(Veterinarian veterinarian){
              this.latidute=veterinarian.getLatitude();
              this.longitude=veterinarian.getLongitude();
-             this.companyName.setText(veterinarian.getCompanyName());
-             this.legalSite.setText(veterinarian.getLegal_site());
+             this.companyName.setText(veterinarian.getName());
+             this.legalSite.setText(veterinarian.getLegalSite());
 
-            Bitmap logo=veterinarian.getLogo();
+            Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
                 this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.baseline_profile_24));
             }
             else{
-                this.profilePhoto.setImageBitmap(veterinarian.getLogo());
+                this.profilePhoto.setImageBitmap(veterinarian.getPhoto());
             }
 
              this.profileType.setImageDrawable(context.getDrawable(R.drawable.health));
@@ -76,15 +76,15 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         public void bind(PublicAuthority publicAuthority){
             this.latidute=publicAuthority.getLatitude();
             this.longitude=publicAuthority.getLongitude();
-            this.companyName.setText(publicAuthority.getCompany_name());
-            this.legalSite.setText(publicAuthority.getlegalSite());
+            this.companyName.setText(publicAuthority.getName());
+            this.legalSite.setText(publicAuthority.getLegalSite());
 
-            Bitmap logo=publicAuthority.getLogo();
+            Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){
                 this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.baseline_profile_24));
             }
             else{
-                this.profilePhoto.setImageBitmap(publicAuthority.getLogo());
+                this.profilePhoto.setImageBitmap(publicAuthority.getPhoto());
             }
 
             this.profileType.setImageDrawable(context.getDrawable(R.drawable.paw));

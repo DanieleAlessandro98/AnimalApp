@@ -23,6 +23,7 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
 
 public final class PrivateDao {
@@ -55,18 +56,21 @@ public final class PrivateDao {
 
     private Private findPrivate(DocumentSnapshot document) {
         Private.Builder private_requested_builder=Private.Builder.
-                create(document.getId(), document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
-                .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
-                .setEmail(document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
-                .setDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
-                .setPhoneNumber(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
-                .setPhoto(document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
+                create(
+                        document.getId(),
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL),
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD),
+                        document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER).intValue(),
+                        null)  //TODO: document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
+                .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
+                .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
                 .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
 
         return private_requested_builder.build();
     }
 
-    private void findPrivateAnimals(final DocumentSnapshot document, Private resultPrivate) {
+    private void findPrivateAnimals(final DocumentSnapshot document, Owner resultPrivate) {
         AnimalDao animalDao = new AnimalDao();
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.Private.COLUMN_NAME_ANIMALS);
 
@@ -78,7 +82,6 @@ public final class PrivateDao {
 
                     String log = "";
                     log += result.getName() + " ";
-                    log += result.getOwner().getFirebaseID() + " ";
                     log += result.getAge() + " ";
                     log += result.getState() + " ";
                     log += result.getSpecies() + " ";
@@ -111,13 +114,13 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_NAME, Private.getName());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, Private.getSurname());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ANIMALS, dr);
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(Private.getDate()));
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(Private.getBirthDate()));
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, Private.getEmail());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhoneNumber());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhone());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTax_id_code());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
 
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -155,12 +158,12 @@ public final class PrivateDao {
         Map<String, Object> newPrivateData = new HashMap<>();
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, updatePrivate.getSurname());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(updatePrivate.getDate()));
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(updatePrivate.getBirthDate()));
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhoneNumber());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhoto());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTax_id_code());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())
                 .update(newPrivateData)

@@ -1,197 +1,129 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
-import android.media.Image;
+
+import java.util.LinkedList;
 
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-
-public class PublicAuthority extends Owner{
-    private String email;
-    private String password;
-    private UserRole role;
-    private String company_name;  // denominazione sociale
+public class PublicAuthority extends User implements Owner {
     private String legalSite;        // sede
-    private Bitmap logo;
-
     private float latitude;
-
     private float longitude;
-    private int Nbeds;  // posti letto
-    private int telephone;
+    private int NBeds;  // posti letto
 
-    public String getEmail() {
-        return email;
+    private LinkedList<Animal> listAnimal;
+    private LinkedList<Expense> listExpense;
+
+    public PublicAuthority(String id, String name, String email, String password, int phone, Bitmap photo, String legalSite, float latitude, float longitude, int nBeds) {
+        super(id, name, email, password, phone, photo);
+
+        this.legalSite = legalSite;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.NBeds = nBeds;
+
+        listAnimal = new LinkedList<>();
+        listExpense = new LinkedList<>();
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public static class Builder {
+        private String bID;
+        private String bName;
+        private String bEmail;
+        private String bPassword;
+        private int bPhone;
+        private Bitmap bPhoto;
+
+        private String bLegalSite;
+        private float bLatitude;
+        private float bLongitude;
+        private int bNBeds;
+
+        private Builder(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+            this.bID = id;
+            this.bName = name;
+            this.bEmail = email;
+            this.bPassword = password;
+            this.bPhone = phone;
+            this.bPhoto = photo;
+        }
+
+        public static Builder create(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+            return new Builder(id, name, email, password, phone, photo);
+        }
+
+        public Builder setLegalSite(final String legalSite) {
+            this.bLegalSite = legalSite;
+            return this;
+        }
+
+        public Builder setLatitude(final float latitude) {
+            this.bLatitude = latitude;
+            return this;
+        }
+
+        public Builder setLongitude(final float longitude) {
+            this.bLongitude = longitude;
+            return this;
+        }
+
+        public Builder setNBeds(final int bNBeds) {
+            this.bNBeds = bNBeds;
+            return this;
+        }
+
+        public PublicAuthority build() {
+            return new PublicAuthority(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite, bLatitude, bLongitude, bNBeds);
+        }
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public String getCompany_name() {
-        return company_name;
-    }
-
-    public void setCompany_name(String company_name) {
-        this.company_name = company_name;
-    }
-
-    public String getlegalSite() {
+    public String getLegalSite() {
         return legalSite;
-    }
-
-    public void setlegalSite(String site) {
-        this.legalSite = site;
-    }
-
-    public Bitmap getLogo() {
-        return logo;
-    }
-
-    public void setLogo(Bitmap logo) {
-        this.logo = logo;
     }
 
     public float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
-        this.latitude = latitude;
-    }
-
     public float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
-        this.longitude = longitude;
+    public int getNBeds() {
+        return NBeds;
     }
 
-    public int getNbeds() {
-        return Nbeds;
+    @Override
+    public UserRole getRole() {
+        return UserRole.PUBLIC_AUTHORITY;
     }
 
-    public void setNbeds(int nbeds) {
-        Nbeds = nbeds;
+    @Override
+    public void addAnimal(Animal animal) {
+        this.listAnimal.add(animal);
     }
 
-    public int getTelephone() {
-        return telephone;
+    @Override
+    public void removeAnimal(Animal animal) {
+        for (Animal a : listAnimal) {
+            if (a.getFirebaseID().compareTo(animal.getFirebaseID()) == 0) {
+                listAnimal.remove(a);
+            }
+        }
     }
 
-    public void setTelephone(int telephone) {
-        this.telephone = telephone;
+    @Override
+    public void addExpense(Expense Expense) {
+        this.listExpense.add(Expense);
     }
 
-    private PublicAuthority(String id, String email, String password, UserRole role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
-        super(id);
-
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.company_name = company_name;
-        this.legalSite = site;
-        this.logo = logo;
-        Nbeds = nbeds;
-        this.telephone = telephone;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public static class Builder{
-        private String bID;
-        private String bemail;
-        private String bpassword;
-        private UserRole brole;
-        private String bcompany_name;  // denominazione sociale
-        private String bsite;        // sede
-        private Bitmap blogo;
-        private int bNbeds;  // posti letto
-        private int btelephone;
-
-        private float blatitude;
-
-        private float blongitude;
-
-        private Builder(final String id, final String email, final String password){
-            this.bID = id;
-            this.bemail=email;
-            this.bpassword=password;
-        }
-
-        public static Builder create(final String id, final String name, final String surname){
-            return new Builder(id,name,surname);
-        }
-
-        public Builder setEmail(final String email){
-            this.bemail=email;
-            return this;
-        }
-
-        public Builder setPassword(final String password){
-            this.bpassword=password;
-            return this;
-        }
-
-        public Builder setRole(UserRole role){
-            this.brole=role;
-            return this;
-        }
-
-        public Builder setCompany_name(final String bcompany_name){
-            this.bcompany_name=bcompany_name;
-            return this;
-        }
-
-        public Builder setLatitude(final float latitude){
-            this.blatitude=latitude;
-            return this;
-        }
-
-        public Builder setLongitude(final float longitude){
-            this.blongitude=longitude;
-            return this;
-        }
-
-        public Builder setSite(final String bsite){
-            this.bsite=bsite;
-            return this;
-        }
-
-        public Builder setLogo(final Bitmap blogo){
-            this.blogo=blogo;
-            return this;
-        }
-
-        public Builder setNbeds(final int bNbeds){
-            this.bNbeds=bNbeds;
-            return this;
-        }
-
-        public Builder setTelephone(final int btelephone){
-            this.btelephone=btelephone;
-            return this;
-        }
-
-        public PublicAuthority build(){
-            return new PublicAuthority(bID,bemail,bpassword,brole,bcompany_name,bsite,blogo,blatitude,blongitude,bNbeds,btelephone);
+    @Override
+    public void removeExpense(Expense Expense) {
+        for (Expense a : listExpense) {
+            if (a.getFirebaseID().compareTo(Expense.getFirebaseID()) == 0) {
+                listExpense.remove(a);
+            }
         }
     }
 }

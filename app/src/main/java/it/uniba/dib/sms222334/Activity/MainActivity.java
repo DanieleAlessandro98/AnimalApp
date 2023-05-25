@@ -157,8 +157,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Document getLoggedUser() {
-        return Private.Builder.create("testID", "giuseppe","liace")
-                .setEmail("g.liace1@studenti.uniba.it").build(); //TODO grab the user logged
+        return null;    //TODO grab the user logged
     }
 
     private ProfileFragment.Type getLoggedTypeUser(){
