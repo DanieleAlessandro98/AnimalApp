@@ -6,9 +6,9 @@ import android.provider.ContactsContract;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Private extends Owner{
+import it.uniba.dib.sms222334.Utils.UserRole;
 
-    public final static int ROLE=0;
+public class Private extends Owner{
     private String name;
     private String surname;
     private String email;
@@ -17,11 +17,11 @@ public class Private extends Owner{
     private long phoneNumber;
 
     private Date date;
-    private int role;
+    private UserRole role;
     private String tax_id_code; //codice_fiscale
     private String photo;
 
-    private Private(String id, String name, String surname, String email, String password, Date date, int role, long phoneNumber, String tax_id_code, String photo) {
+    private Private(String id, String name, String surname, String email, String password, Date date, UserRole role, long phoneNumber, String tax_id_code, String photo) {
         super(id);
 
         this.name = name;
@@ -43,7 +43,7 @@ public class Private extends Owner{
         private String bpassword;
 
         private Date bdate;
-        private int brole;
+        private UserRole brole;
 
         private long bphoneNumber;
         private String btax_id_code; //codice_fiscale
@@ -96,7 +96,7 @@ public class Private extends Owner{
         }
 
         public Private build(){
-            return new Private(bID,bname,bsurname,bemail,bpassword,bdate,ROLE,bphoneNumber,btax_id_code,bphoto);
+            return new Private(bID,bname,bsurname,bemail,bpassword,bdate, UserRole.PRIVATE,bphoneNumber,btax_id_code,bphoto);
         }
     }
 
@@ -124,7 +124,7 @@ public class Private extends Owner{
         return date;
     }
 
-    public int getRole() {
+    public UserRole getRole() {
         return role;
     }
 

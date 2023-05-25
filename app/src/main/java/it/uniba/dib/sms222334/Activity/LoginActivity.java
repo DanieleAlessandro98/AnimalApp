@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import it.uniba.dib.sms222334.Presenters.LoginPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -82,13 +83,14 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            authSuccessful(result.getData().getIntExtra("user-role",0));
+                            UserRole userRole = (UserRole) result.getData().getSerializableExtra("user-role");
+                            authSuccessful(userRole);
                         }
                     }
                 });
     }
 
-    public void authSuccessful(@IntRange(from = 0,to = 2) int Role){
+    public void authSuccessful(UserRole Role){
          final Intent authIntent =new Intent();
          authIntent.putExtra("user-role",Role);
          setResult(RESULT_OK,authIntent);

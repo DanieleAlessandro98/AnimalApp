@@ -3,13 +3,13 @@ package it.uniba.dib.sms222334.Models;
 import android.graphics.Bitmap;
 import android.media.Image;
 
+import it.uniba.dib.sms222334.Utils.UserRole;
+
 
 public class PublicAuthority extends Owner{
-
-    public final static int ROLE=1;
     private String email;
     private String password;
-    private int role;
+    private UserRole role;
     private String company_name;  // denominazione sociale
     private String legalSite;        // sede
     private Bitmap logo;
@@ -36,11 +36,11 @@ public class PublicAuthority extends Owner{
         this.password = password;
     }
 
-    public int getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
@@ -100,7 +100,7 @@ public class PublicAuthority extends Owner{
         this.telephone = telephone;
     }
 
-    private PublicAuthority(String id, String email, String password, int role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
+    private PublicAuthority(String id, String email, String password, UserRole role, String company_name, String site, Bitmap logo, float latitude, float longitude, int nbeds, int telephone) {
         super(id);
 
         this.email = email;
@@ -119,7 +119,7 @@ public class PublicAuthority extends Owner{
         private String bID;
         private String bemail;
         private String bpassword;
-        private int brole;
+        private UserRole brole;
         private String bcompany_name;  // denominazione sociale
         private String bsite;        // sede
         private Bitmap blogo;
@@ -150,7 +150,7 @@ public class PublicAuthority extends Owner{
             return this;
         }
 
-        public Builder setRole(int role){
+        public Builder setRole(UserRole role){
             this.brole=role;
             return this;
         }

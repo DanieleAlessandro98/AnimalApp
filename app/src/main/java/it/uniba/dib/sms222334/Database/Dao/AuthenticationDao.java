@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AuthenticationDao {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -22,7 +23,7 @@ public class AuthenticationDao {
 
                             findRole(email, new FindRoleListenerResult() {
                                 @Override
-                                public void onRoleFound(int role) {
+                                public void onRoleFound(UserRole role) {
                                     listener.onLoginSuccessful(user, role);
                                 }
                             });
@@ -45,7 +46,7 @@ public class AuthenticationDao {
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            listener.onRoleFound(1);
+                            listener.onRoleFound(UserRole.PRIVATE);
                         } else {
                             findPublicAuthorityRole(db, email, listener);
                         }
@@ -59,7 +60,7 @@ public class AuthenticationDao {
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            listener.onRoleFound(2);
+                            listener.onRoleFound(UserRole.PUBLIC_AUTHORITY);
                         } else {
                             findVeterinarianRole(db, email, listener);
                         }
@@ -73,9 +74,9 @@ public class AuthenticationDao {
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            listener.onRoleFound(3);
+                            listener.onRoleFound(UserRole.VETERINARIAN);
                         } else {
-                            listener.onRoleFound(-1);
+                            listener.onRoleFound(UserRole.NULL);
                         }
                     }
                 });
@@ -83,6 +84,6 @@ public class AuthenticationDao {
 
 
     public interface FindRoleListenerResult {
-        void onRoleFound(int role);
+        void onRoleFound(UserRole role);
     }
 }

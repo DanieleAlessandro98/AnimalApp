@@ -24,6 +24,7 @@ import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
 import it.uniba.dib.sms222334.Models.Authentication;
 
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            result.getData().getIntExtra("user-role",0); //TODO save this on sharedPreferences
+                            result.getData().getSerializableExtra("user-role"); //TODO save this on sharedPreferences
                             changeTab(TabPosition.PROFILE);
                         } else {
                             bottomNavigationView.setSelectedItemId(R.id.home);
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLogged() {
-        return Authentication.getUserRole() == 1; //TODO insert here SharedPreferences' control to check if it's logged or not
+        return Authentication.getUserRole() == UserRole.PRIVATE; //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
     private void changeTab(MainActivity.TabPosition tabType){

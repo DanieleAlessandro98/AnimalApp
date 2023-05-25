@@ -4,12 +4,12 @@ import android.graphics.Bitmap;
 
 import java.util.zip.CheckedOutputStream;
 
-public class Veterinarian extends Document {
+import it.uniba.dib.sms222334.Utils.UserRole;
 
-    public final static int ROLE=2;
+public class Veterinarian extends Document {
     private String email;
     private String password;
-    private int role;
+    private UserRole role;
     private String companyName; //denominazione sociale
     private String legal_site; //sede
     private int telephone;
@@ -35,11 +35,11 @@ public class Veterinarian extends Document {
         this.password = password;
     }
 
-    public int getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
@@ -91,7 +91,7 @@ public class Veterinarian extends Document {
         this.logo = logo;
     }
 
-    private Veterinarian(String id, String email, String password, int role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
+    private Veterinarian(String id, String email, String password, UserRole role, String companyName, String legal_site,float latitude,float longitude, int telephone, Bitmap logo) {
         super(id);
 
         this.email = email;
@@ -109,7 +109,7 @@ public class Veterinarian extends Document {
         private String bID;
         private String bemail;
         private String bpassword;
-        private int brole;
+        private UserRole brole;
 
         private String bcompanyName;
 
@@ -133,7 +133,7 @@ public class Veterinarian extends Document {
             return new Veterinarian.Builder(id,email,password);
         }
 
-        public Veterinarian.Builder setRole(int role){
+        public Veterinarian.Builder setRole(UserRole role){
             this.brole=role;
             return this;
         }

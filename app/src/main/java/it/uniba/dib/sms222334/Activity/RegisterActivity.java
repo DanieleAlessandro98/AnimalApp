@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -40,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    public void registerSuccesfull(@IntRange(from = 0,to = 2) int Role){
+    public void registerSuccesfull(UserRole Role){
         final Intent authIntent =new Intent();
         authIntent.putExtra("user-role",Role);
         setResult(RESULT_OK,authIntent);
