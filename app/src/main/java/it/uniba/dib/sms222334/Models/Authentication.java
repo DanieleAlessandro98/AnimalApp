@@ -25,12 +25,12 @@ public class Authentication implements AuthenticationCallbackResult.Login {
     }
 
     public UserRole getUserRole() {
-        return SessionManager.getInstance().getRole();
+        return SessionManager.getInstance().getCurrentUser().getRole();
     }
 
     @Override
-    public void onLoginSuccessful(User user, UserRole role) {
-        SessionManager.getInstance().loginUser(user, role);
+    public void onLoginSuccessful(User user) {
+        SessionManager.getInstance().loginUser(user);
         listenerRole.onLoginCompleted();
     }
 

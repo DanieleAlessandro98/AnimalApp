@@ -2,6 +2,8 @@ package it.uniba.dib.sms222334.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -19,6 +21,7 @@ import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
@@ -41,11 +44,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
-        changeTab(TabPosition.HOME);
-
         initView();
         initListeners();
         initRegisterActivity();
+
+        changeTab(TabPosition.HOME);
     }
 
     private void initView() {
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLogged() {
-        return SessionManager.getInstance().getRole() == UserRole.PRIVATE; //TODO insert here SharedPreferences' control to check if it's logged or not
+        return SessionManager.getInstance().isLogged(); //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
     private void changeTab(MainActivity.TabPosition tabType){
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         switch (tabType){
             case HOME:
                 if(previousTab!=TabPosition.HOME) {
-                    fragment=new HomeFragment(getLoggedTypeUser());
+                    fragment= isLogged() ? new HomeFragment(getLoggedTypeUser()) : new HomeFragment();
                     previousTab=TabPosition.HOME;
                     enterAnimation=R.anim.slide_right_in;
                     exitAnimation=R.anim.slide_right_out;
@@ -158,7 +161,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Document getLoggedUser() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user.getRole() == UserRole.PRIVATE) {
+            String username = ((Private) user).getSurname();
+            Log.d("blabla1qqqq", username);
+        }
+
         return Private.Builder.create("id", "name", "email", "password", 123, null).build(); //TODO grab the user logged
+
     }
 
     private ProfileFragment.Type getLoggedTypeUser(){

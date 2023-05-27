@@ -5,6 +5,9 @@ import android.util.Patterns;
 import it.uniba.dib.sms222334.Activity.LoginActivity;
 import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Models.Authentication;
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class LoginPresenter implements AuthenticationCallbackResult.LoginCompletedListener  {
 

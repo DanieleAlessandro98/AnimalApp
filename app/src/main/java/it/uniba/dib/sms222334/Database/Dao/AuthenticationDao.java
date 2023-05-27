@@ -21,12 +21,10 @@ public class AuthenticationDao {
                     @Override
                     public void onComplete(Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
                             findUser(email, new FindUserListenerResult() {
                                 @Override
-                                public void onUserFound(User user, UserRole role) {
-                                    listener.onLoginSuccessful(user, role);
+                                public void onUserFound(User user) {
+                                    listener.onLoginSuccessful(user);
                                 }
                             });
                         } else {
@@ -52,7 +50,7 @@ public class AuthenticationDao {
                             PrivateDao privateDao = new PrivateDao();
                             User user = privateDao.findPrivate(document);
 
-                            listener.onUserFound(user, UserRole.PRIVATE);
+                            listener.onUserFound(user);
                         } else {
                             findPublicAuthorityUser(db, email, listener);
                         }
@@ -71,7 +69,7 @@ public class AuthenticationDao {
                             PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
                             User user = publicAuthorityDao.findPublicAuthority(document);
 
-                            listener.onUserFound(user, UserRole.PUBLIC_AUTHORITY);
+                            listener.onUserFound(user);
                         } else {
                             findVeterinarianUser(db, email, listener);
                         }
@@ -90,9 +88,9 @@ public class AuthenticationDao {
                             VeterinarianDao veterinarianDao = new VeterinarianDao();
                             User user = veterinarianDao.findVeterinarian(document);
 
-                            listener.onUserFound(user, UserRole.VETERINARIAN);
+                            listener.onUserFound(user);
                         } else {
-                            listener.onUserFound(null, UserRole.NULL);
+                            listener.onUserFound(null);
                         }
                     }
                 });
@@ -100,6 +98,6 @@ public class AuthenticationDao {
 
 
     public interface FindUserListenerResult {
-        void onUserFound(User user, UserRole role);
+        void onUserFound(User user);
     }
 }

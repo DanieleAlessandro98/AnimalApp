@@ -7,7 +7,7 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 
 public interface AuthenticationCallbackResult {
     interface Login {
-        void onLoginSuccessful(User user, UserRole role);
+        void onLoginSuccessful(User user);
         void onLoginFailure();
     }
 

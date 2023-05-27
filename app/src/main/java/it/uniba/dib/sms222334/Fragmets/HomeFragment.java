@@ -41,6 +41,11 @@ public class HomeFragment extends Fragment {
     ImageButton warningButton;
 
     RecyclerView recyclerView;
+
+    public HomeFragment() {
+        this.profileType=null;  // TODO: Gestire questo profileType null
+    }
+
     public HomeFragment(ProfileFragment.Type profileType){
         this.profileType=profileType;
     }
