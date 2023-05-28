@@ -26,12 +26,14 @@ import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import kotlin.jvm.Throws;
 
 public class ProfileFragment extends Fragment {
-
     final static String TAG="ProfileFragment";
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN,ANIMAL}
     public enum TabPosition{ANIMAL,VISIT,EXPENSE,RELATION,HEALTH,FOOD}
@@ -41,33 +43,33 @@ public class ProfileFragment extends Fragment {
     }
 
     private Tab previousTab;
+    
+    private ProfileFragment.Type profileType;
 
     Button editButton;
     TabLayout tabLayout;
 
     private final int inflatedLayout;
-    Type profileType;
 
-    Document profile;
+    UserRole role;
 
-    public ProfileFragment(Document profile){
+    public ProfileFragment(){
 
-        this.profile=profile;
+        this.role= SessionManager.getInstance().getCurrentUser().getRole();
 
-        if(profile instanceof Private){
-            this.profileType=Type.PRIVATE;
-
-        } else if (profile instanceof Veterinarian) {
-            this.profileType=Type.VETERINARIAN;
-
-        } else if (profile instanceof PublicAuthority) {
-            this.profileType=Type.PUBLIC_AUTHORITY;
-        }
-        else{
-            throw new IllegalArgumentException("This type of User is not accepted here!");
+        switch (this.role){
+            case PRIVATE:
+                profileType=Type.PRIVATE;
+                break;
+            case PUBLIC_AUTHORITY:
+                profileType=Type.PUBLIC_AUTHORITY;
+                break;
+            case VETERINARIAN:
+                profileType=Type.VETERINARIAN;
+                break;
         }
 
-        if(this.profileType==Type.VETERINARIAN){
+        if(this.role==UserRole.VETERINARIAN){
             inflatedLayout=R.layout.veterinarian_profile_fragment;
         }
         else{
@@ -76,6 +78,32 @@ public class ProfileFragment extends Fragment {
 
         this.previousTab=new Tab();
 
+    }
+
+    public ProfileFragment(User profile){
+
+        this.role=profile.getRole();
+
+        switch (this.role){
+            case PRIVATE:
+                profileType=Type.PRIVATE;
+                break;
+            case PUBLIC_AUTHORITY:
+                profileType=Type.PUBLIC_AUTHORITY;
+                break;
+            case VETERINARIAN:
+                profileType=Type.VETERINARIAN;
+                break;
+        }
+
+        if(this.role==UserRole.VETERINARIAN){
+            inflatedLayout=R.layout.veterinarian_profile_fragment;
+        }
+        else{
+            inflatedLayout=R.layout.owner_profile_fragment;
+        }
+
+        this.previousTab=new Tab();
     }
 
     @Nullable
@@ -137,7 +165,7 @@ public class ProfileFragment extends Fragment {
         final Dialog editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        switch (this.profileType){
+        switch (this.role){
             case PRIVATE:
                 editDialog.setContentView(R.layout.private_profile_edit);
                 break;

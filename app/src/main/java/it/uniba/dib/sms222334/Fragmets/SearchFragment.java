@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
@@ -31,47 +32,42 @@ public class SearchFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View layout= inflater.inflate(R.layout.search_fragment,container,false);
+        final View layout = inflater.inflate(R.layout.search_fragment, container, false);
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        /**
-         ArrayList<Document> listaProva=new ArrayList<>();
-         Veterinarian v1=Veterinarian.Builder.create("TestID", "giuseppeblabla","ciao").
-         setCompanyName("PethMed")
-         .setLegalSite("Francavilla Fontana").build();
-         PublicAuthority p1=PublicAuthority.Builder.create("TestID", "giuseppeblabla","ciao").
-         setCompany_name("Canile Via Appia")
-         .setSite("Brindisi").build();
+        ArrayList<User> listaProva = new ArrayList<>();
+        Veterinarian v1 = Veterinarian.Builder.create("TestID", "giuseppeblabla", "ciao")
+                .setLegalSite("Francavilla Fontana").build();
+        PublicAuthority p1 = PublicAuthority.Builder.create("TestID", "giuseppeblabla", "ciao").
+        setLegalSite("Brindisi").build();
 
-         listaProva.add(v1);
-         listaProva.add(p1);
-         listaProva.add(p1);
-         listaProva.add(v1);
-         listaProva.add(p1);
-         listaProva.add(v1);
-         listaProva.add(p1);
-         listaProva.add(v1);
+        listaProva.add(v1);
+        listaProva.add(p1);
+        listaProva.add(p1);
+        listaProva.add(v1);
+        listaProva.add(p1);
+        listaProva.add(v1);
+        listaProva.add(p1);
+        listaProva.add(v1);
 
 
+        VeterinarianAuthoritiesAdapter adapter = new VeterinarianAuthoritiesAdapter(listaProva, getContext());
 
-         VeterinarianAuthoritiesAdapter adapter=new VeterinarianAuthoritiesAdapter(listaProva,getContext());
+        adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
+            @Override
+            public void OnProfileClicked(User profile) {
+                FragmentManager fragmentManager = getParentFragmentManager();
 
-         adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
-        @Override
-        public void OnProfileClicked(Document profile) {
-        FragmentManager fragmentManager=getParentFragmentManager();
-
-        FragmentTransaction transaction= fragmentManager.beginTransaction();
-        transaction.addToBackStack(null);
-        transaction.replace(R.id.frame_for_fragment,new ProfileFragment(profile)).commit();
-        }
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.addToBackStack(null);
+                transaction.replace(R.id.frame_for_fragment, new ProfileFragment(profile)).commit();
+            }
         });
 
-         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-         recyclerView.setAdapter(adapter);
-         recyclerView.addItemDecoration(new ItemDecorator(0));
-         */
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemDecorator(0));
 
         return layout;
     }

@@ -16,11 +16,10 @@ public class VeterinarianDao {
                 create(
                         document.getId(),
                         document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
-                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL),
-                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD),
-                        document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER).intValue(),
-                        null)  //TODO: document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PHOTO))
+                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PHOTO))
                 .setLegalSite(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
+                .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER).intValue())
                 //.setLatitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
                 //.setLongitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude
                 ;

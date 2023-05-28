@@ -10,7 +10,7 @@ public class Veterinarian extends User {
     private float longitude;
     //array<visite>
 
-    public Veterinarian(String id, String name, String email, String password, int phone, Bitmap photo, String legalSite, float latitude, float longitude) {
+    public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, String legalSite, float latitude, float longitude) {
         super(id, name, email, password, phone, photo);
 
         this.legalSite = legalSite;
@@ -23,24 +23,46 @@ public class Veterinarian extends User {
         private String bName;
         private String bEmail;
         private String bPassword;
-        private int bPhone;
+        private long bPhone;
         private Bitmap bPhoto;
 
         private String bLegalSite;
         private float bLatitude;
         private float bLongitude;
 
-        private Builder(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+        private Builder(final String id, final String name, final String email) {
             this.bID = id;
             this.bName = name;
             this.bEmail = email;
-            this.bPassword = password;
-            this.bPhone = phone;
-            this.bPhoto = photo;
         }
 
-        public static Builder create(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
-            return new Builder(id, name, email, password, phone, photo);
+        public static Builder create(final String id, final String name, final String email) {
+            return new Builder(id, name, email);
+        }
+
+        public Builder setName(final String name){
+            this.bName=name;
+            return this;
+        }
+
+        public Builder setEmail(final String email){
+            this.bEmail=email;
+            return this;
+        }
+
+        public Builder setPassword(final String password){
+            this.bPassword=password;
+            return this;
+        }
+
+        public Builder setPhone(final long phone){
+            this.bPhone=phone;
+            return this;
+        }
+
+        public Builder setPhoto(final Bitmap photo){
+            this.bPhoto=photo;
+            return this;
         }
 
         public Builder setLegalSite(final String legalSite) {

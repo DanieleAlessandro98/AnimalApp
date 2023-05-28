@@ -24,9 +24,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
 import it.uniba.dib.sms222334.Views.RecycleViews.NoScrolLayoutManager;
@@ -36,18 +39,23 @@ public class HomeFragment extends Fragment {
 
     final static String TAG="HomeFragment";
 
-    ProfileFragment.Type profileType;
+    UserRole role;
     Button requestButton;
     ImageButton warningButton;
 
     RecyclerView recyclerView;
 
-    public HomeFragment() {
-        this.profileType=null;  // TODO: Gestire questo profileType null
-    }
+    Boolean isLogged;
 
-    public HomeFragment(ProfileFragment.Type profileType){
-        this.profileType=profileType;
+    MainActivity activity;
+
+    public HomeFragment(MainActivity activity) {
+        this.activity=activity;
+
+        this.isLogged=SessionManager.getInstance().isLogged();
+
+        if(isLogged)
+            this.role=SessionManager.getInstance().getCurrentUser().getRole();
     }
 
     @Nullable
@@ -79,13 +87,23 @@ public class HomeFragment extends Fragment {
 
         requestButton = layout.findViewById(R.id.add_request);
         warningButton = layout.findViewById(R.id.add_warning);
-        warningButton.setOnClickListener(v -> launchWarningDialog());
+        warningButton.setOnClickListener(v -> {
+            if(isLogged)
+                launchWarningDialog();
+            else
+                activity.forceLogin();
+        });
 
-        if(profileType== ProfileFragment.Type.VETERINARIAN){
+        if(role == UserRole.VETERINARIAN){
             requestButton.setVisibility(View.GONE);
         }
         else{
-            requestButton.setOnClickListener(v -> launchRequestDialog());
+            requestButton.setOnClickListener(v -> {
+                if(isLogged)
+                    launchRequestDialog();
+                else
+                    activity.forceLogin();
+            });
         }
 
 
@@ -144,7 +162,7 @@ public class HomeFragment extends Fragment {
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
 
-        if(profileType== ProfileFragment.Type.PRIVATE){
+        if(role== UserRole.PRIVATE){
             requestAdapter= ArrayAdapter.createFromResource(getContext(),
                     R.array.private_request_type,
                     android.R.layout.simple_list_item_1);

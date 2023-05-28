@@ -15,17 +15,18 @@ import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Segnalation;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
 
 public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<VeterinarianAuthoritiesViewHolder> implements VeterinarianAuthoritiesViewHolder.OnItemClickListener{
 
-    ArrayList<Document>  veterinarianAuthoritiesList;
+    ArrayList<User>  veterinarianAuthoritiesList;
     Context context;
 
     public interface OnProfileClicked{
-        void OnProfileClicked(Document profile);
+        void OnProfileClicked(User profile);
     }
 
     private OnProfileClicked onProfileClicked;
@@ -35,7 +36,7 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
     }
 
 
-    public VeterinarianAuthoritiesAdapter(ArrayList<Document> mModel,Context context){
+    public VeterinarianAuthoritiesAdapter(ArrayList<User> mModel,Context context){
         this. veterinarianAuthoritiesList = mModel;
         this.context=context;
     }

@@ -9,10 +9,10 @@ public abstract class User extends Document {
     private String name;
     private String email;
     private String password;
-    private int phone;
+    private long phone;
     private Bitmap photo;
 
-    public User(String id, String name, String email, String password, int phone, Bitmap photo) {
+    public User(String id, String name, String email, String password, long phone, Bitmap photo) {
         super(id);
         this.name = name;
         this.email = email;
@@ -33,7 +33,7 @@ public abstract class User extends Document {
         return password;
     }
 
-    public int getPhone() {
+    public long getPhone() {
         return phone;
     }
 

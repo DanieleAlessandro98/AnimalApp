@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         switch (tabType){
             case HOME:
                 if(previousTab!=TabPosition.HOME) {
-                    fragment= isLogged() ? new HomeFragment(getLoggedTypeUser()) : new HomeFragment();
+                    fragment= new HomeFragment(this);
                     previousTab=TabPosition.HOME;
                     enterAnimation=R.anim.slide_right_in;
                     exitAnimation=R.anim.slide_right_out;
@@ -132,10 +132,7 @@ public class MainActivity extends AppCompatActivity {
             case PROFILE:
                 if(previousTab!=TabPosition.PROFILE){
                     if(isLogged()){
-                        fragment=new ProfileFragment(getLoggedUser());
-                        //fragment=new AnimalFragment();
-                        //Visit visit=Visit.Builder.create("Visita di controllo totò", Visit.visitType.CONTROL,new Date(10,3,2024)).build();
-                        //fragment=new VisitFragment(visit, ProfileFragment.Type.VETERINARIAN);
+                        fragment=new ProfileFragment();
                         previousTab=TabPosition.PROFILE;
                         enterAnimation=R.anim.slide_left_in;
                         exitAnimation=R.anim.slide_left_out;
@@ -160,35 +157,7 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_for_fragment,fragment).commit();
     }
 
-    private Document getLoggedUser() {
-        User user = SessionManager.getInstance().getCurrentUser();
-        if (user.getRole() == UserRole.PRIVATE) {
-            String username = ((Private) user).getSurname();
-            Log.d("blabla1qqqq", username);
-        }
-
-        return Private.Builder.create("id", "name", "email", "password", 123, null).build(); //TODO grab the user logged
-
-    }
-
-    private ProfileFragment.Type getLoggedTypeUser(){
-        Document profile=getLoggedUser();
-
-        if(profile instanceof Private){
-            return ProfileFragment.Type.PRIVATE;
-
-        } else if (profile instanceof Veterinarian) {
-            return ProfileFragment.Type.VETERINARIAN;
-
-        } else if (profile instanceof PublicAuthority) {
-            return ProfileFragment.Type.PUBLIC_AUTHORITY;
-        }
-        else{
-            throw new IllegalArgumentException("This type of User is not accepted here!");
-        }
-    }
-
-    private void forceLogin(){
+    public void forceLogin(){
         Intent loginIntent= new Intent(this,LoginActivity.class);
         this.authResultLauncher.launch(loginIntent);
         overridePendingTransition(R.anim.slide_up_in,R.anim.slide_up_out);

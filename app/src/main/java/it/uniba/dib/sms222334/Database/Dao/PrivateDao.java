@@ -59,10 +59,9 @@ public final class PrivateDao {
                 create(
                         document.getId(),
                         document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
-                        document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL),
-                        document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD),
-                        document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER).intValue(),
-                        null)  //TODO: document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL)) //TODO: document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
+                .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER).intValue())
                 .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                 .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
                 .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));

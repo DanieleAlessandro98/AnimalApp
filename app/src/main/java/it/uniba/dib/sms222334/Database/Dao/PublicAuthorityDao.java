@@ -16,10 +16,9 @@ public class PublicAuthorityDao {
                 create(
                         document.getId(),
                         document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
-                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL),
-                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD),
-                        document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER).intValue(),
-                        null)  //TODO: document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHOTO))
+                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHOTO))
+                .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER).intValue())
                 .setLegalSite(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
                 //.setLatitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
                 //.setLongitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude

@@ -15,7 +15,7 @@ public class PublicAuthority extends User implements Owner {
     private LinkedList<Animal> listAnimal;
     private LinkedList<Expense> listExpense;
 
-    public PublicAuthority(String id, String name, String email, String password, int phone, Bitmap photo, String legalSite, float latitude, float longitude, int nBeds) {
+    public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, String legalSite, float latitude, float longitude, int nBeds) {
         super(id, name, email, password, phone, photo);
 
         this.legalSite = legalSite;
@@ -32,7 +32,7 @@ public class PublicAuthority extends User implements Owner {
         private String bName;
         private String bEmail;
         private String bPassword;
-        private int bPhone;
+        private long bPhone;
         private Bitmap bPhoto;
 
         private String bLegalSite;
@@ -40,17 +40,39 @@ public class PublicAuthority extends User implements Owner {
         private float bLongitude;
         private int bNBeds;
 
-        private Builder(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
+        private Builder(final String id, final String name, final String email) {
             this.bID = id;
             this.bName = name;
             this.bEmail = email;
-            this.bPassword = password;
-            this.bPhone = phone;
-            this.bPhoto = photo;
         }
 
-        public static Builder create(final String id, final String name, final String email, final String password, final int phone, final Bitmap photo) {
-            return new Builder(id, name, email, password, phone, photo);
+        public static Builder create(final String id, final String name, final String email) {
+            return new Builder(id, name, email);
+        }
+
+        public Builder setName(final String name){
+            this.bName=name;
+            return this;
+        }
+
+        public Builder setEmail(final String email){
+            this.bEmail=email;
+            return this;
+        }
+
+        public Builder setPassword(final String password){
+            this.bPassword=password;
+            return this;
+        }
+
+        public Builder setPhone(final long phone){
+            this.bPhone=phone;
+            return this;
+        }
+
+        public Builder setPhoto(final Bitmap photo){
+            this.bPhoto=photo;
+            return this;
         }
 
         public Builder setLegalSite(final String legalSite) {
