@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import java.util.Date;
 import java.util.LinkedList;
 
+import it.uniba.dib.sms222334.Database.Dao.PrivateDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Private extends User implements Owner {
@@ -109,6 +110,12 @@ public class Private extends User implements Owner {
     @Override
     public UserRole getRole() {
         return UserRole.PRIVATE;
+    }
+
+    @Override
+    public void updateProfile() {
+        PrivateDao privateDao = new PrivateDao();
+        privateDao.updatePrivate(this);
     }
 
     @Override

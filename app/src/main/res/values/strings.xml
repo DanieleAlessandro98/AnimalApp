@@ -47,6 +47,12 @@
     <string name="confirm_delete">CONFIRM DELETE</string>
     <string name="this_element_will_be">This element will be deleted definitely</string>
     <string name="cancel">Cancel</string>
+    <string name="invalid_user_name">Invalid name. Only characters</string>
+    <string name="invalid_user_surname">Invalid surname. Only characters</string>
+    <string name="invalid_user_birthdate">Invalid date of birth</string>
+    <string name="invalid_user_email">Invalid email</string>
+    <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
+
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

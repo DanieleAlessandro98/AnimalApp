@@ -46,6 +46,11 @@
     <string name="confirm_delete">CONFERMA ELIMINA</string>
     <string name="this_element_will_be">Questo elemento verrà eliminato definitivamente</string>
     <string name="cancel">Cancella</string>
+    <string name="invalid_user_name">Nome non valido. Solo caratteri</string>
+    <string name="invalid_user_surname">Cognome non valido. Solo caratteri</string>
+    <string name="invalid_user_birthdate">Data di nascita non valida</string>
+    <string name="invalid_user_email">Email non valida</string>
+    <string name="invalid_user_password">Password non valida. Minimo 6 caratteri</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

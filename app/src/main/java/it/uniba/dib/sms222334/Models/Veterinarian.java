@@ -101,4 +101,9 @@ public class Veterinarian extends User {
     public UserRole getRole() {
         return UserRole.VETERINARIAN;
     }
+
+    @Override
+    public void updateProfile() {
+
+    }
 }
