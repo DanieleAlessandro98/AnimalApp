@@ -98,15 +98,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void showInvalidEmail() {
-        emailEditText.setError("Email non valida");
+        emailEditText.setError(this.getString(R.string.invalid_user_email));
     }
 
     public void showInvalidPassword() {
-        passwordEditText.setError("Password non valida");
+        passwordEditText.setError(this.getString(R.string.invalid_user_password));
     }
 
     public void showLoginError() {
-        Toast.makeText(this, "Errore nell'accesso", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, this.getString(R.string.login_error), Toast.LENGTH_SHORT).show();
     }
 
     @Override

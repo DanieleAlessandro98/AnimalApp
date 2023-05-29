@@ -352,7 +352,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void showUpdateSuccessful() {
-        Toast.makeText(requireContext(), "Profilo aggiornato con successo.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
     }
 
 }

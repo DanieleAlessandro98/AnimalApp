@@ -1,17 +1,13 @@
 package it.uniba.dib.sms222334.Presenters;
 
-import android.util.Patterns;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Utils.Validations;
 
 public class UserPresenter {
 
@@ -39,23 +35,23 @@ public class UserPresenter {
     }
 
     public void updateProfile(String name, String surname, Date birthDate, String taxID, long phone, String email, String password) {
-        if (!isValidName(name)) {
+        if (!Validations.isValidName(name)) {
             profileView.showInvalidInput(1);
             return;
         }
-        if (!isValidSurname(surname)) {
+        if (!Validations.isValidSurname(surname)) {
             profileView.showInvalidInput(2);
             return;
         }
-        if (!isValidDateBirth(birthDate)) {
+        if (!Validations.isValidDateBirth(birthDate)) {
             profileView.showInvalidInput(3);
             return;
         }
-        if (!isValidEmail(email)) {
+        if (!Validations.isValidEmail(email)) {
             profileView.showInvalidInput(4);
             return;
         }
-        if (!isValidPassword(password)) {
+        if (!Validations.isValidPassword(password)) {
             profileView.showInvalidInput(5);
             return;
         }
@@ -89,37 +85,4 @@ public class UserPresenter {
         profileView.showUpdateSuccessful();
     }
 
-    private boolean isValidName(String name) {
-        return name.matches("[a-zA-Z]+");
-    }
-
-    private boolean isValidSurname(String surname) {
-        return surname.matches("[a-zA-Z]+");
-    }
-
-    private boolean isValidEmail(String email) {
-        return (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches());
-    }
-
-    private boolean isValidPassword(String password) {
-        return (password.length() >= 6);
-    }
-
-    private boolean isValidDateBirth(Date dateBirth) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        dateFormat.setLenient(false);
-
-        try {
-            Date minDate = dateFormat.parse("01/01/1900");
-            Date maxDate = new Date();
-
-            if (dateBirth.before(minDate) || dateBirth.after(maxDate)) {
-                return false;
-            }
-
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-    }
 }

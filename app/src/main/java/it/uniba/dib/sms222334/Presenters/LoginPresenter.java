@@ -8,6 +8,7 @@ import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Utils.Validations;
 
 public class LoginPresenter implements AuthenticationCallbackResult.LoginCompletedListener  {
 
@@ -20,11 +21,11 @@ public class LoginPresenter implements AuthenticationCallbackResult.LoginComplet
     }
 
     public void onLogin(String email, String password) {
-        if (!isValidEmail(email)) {
+        if (!Validations.isValidEmail(email)) {
             loginActivity.showInvalidEmail();
             return;
         }
-        if (!isValidPassword(password)) {
+        if (!Validations.isValidPassword(password)) {
             loginActivity.showInvalidPassword();
             return;
         }
@@ -39,13 +40,5 @@ public class LoginPresenter implements AuthenticationCallbackResult.LoginComplet
         } else {
             loginActivity.showLoginError();
         }
-    }
-
-    private boolean isValidEmail(String email) {
-        return (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches());
-    }
-
-    private boolean isValidPassword(String password) {
-        return (password.length() >= 6);
     }
 }
