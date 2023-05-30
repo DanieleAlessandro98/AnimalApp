@@ -1,8 +1,8 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
-
 import java.util.LinkedList;
+import it.uniba.dib.sms222334.Database.Dao.AnimalDao;
 
 public class Animal extends Document {
 
@@ -237,5 +237,29 @@ public class Animal extends Document {
 
     public void addVideo(String video) {
         videos.add(video);
+    }
+
+    public void delete() {
+        for (Visit visit : visits) {
+            visit.delete();
+        }
+
+        for (Pathology pathology : pathologies) {
+            pathology.delete();
+        }
+
+        for (Food food : foods) {
+            food.delete();
+        }
+
+        for (Expense expense : expenses) {
+            expense.delete();
+        }
+
+        // TODO: Cancellare relazioni
+        // TODO: Cancellare foto e video (dal repo di firebase)
+
+        AnimalDao animalDao = new AnimalDao();
+        animalDao.deleteAnimal(this);
     }
 }

@@ -1,5 +1,11 @@
 package it.uniba.dib.sms222334.Database.Dao;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -14,7 +20,7 @@ import it.uniba.dib.sms222334.Models.Owner;
 
 public class AnimalDao {
     private final String TAG="AnimalDao";
-    final private CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
+    final private CollectionReference collectionAnimal = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
 
     public void getAnimalByReference(DocumentReference animalRef, final Owner resultPrivate, final DatabaseCallbackResult<Animal> listener) {
         animalRef.get().addOnCompleteListener(task -> {
@@ -64,6 +70,23 @@ public class AnimalDao {
                 .setOwner(resultPrivate);
 
         return animal_find.build();
+    }
+
+    public void deleteAnimal(Animal animal){
+        collectionAnimal.document(animal.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
     }
 
 }

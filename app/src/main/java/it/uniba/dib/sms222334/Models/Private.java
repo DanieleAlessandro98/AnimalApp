@@ -14,7 +14,6 @@ public class Private extends User implements Owner {
     private String taxIDCode; //codice_fiscale
 
     private LinkedList<Animal> listAnimal;
-    private LinkedList<Expense> listExpense;
 
     public Private(String id, String name, String email, String password, long phone, Bitmap photo, String surname, Date birthDate, String taxIDCode) {
         super(id, name, email, password, phone, photo);
@@ -24,7 +23,6 @@ public class Private extends User implements Owner {
         this.taxIDCode = taxIDCode;
 
         listAnimal = new LinkedList<>();
-        listExpense = new LinkedList<>();
     }
 
     public static class Builder {
@@ -119,6 +117,16 @@ public class Private extends User implements Owner {
     }
 
     @Override
+    public void deleteProfile() {
+        for (Animal animal : listAnimal) {
+            animal.delete();
+        }
+
+        PrivateDao privateDao = new PrivateDao();
+        privateDao.deletePrivate(this);
+    }
+
+    @Override
     public void addAnimal(Animal animal) {
         this.listAnimal.add(animal);
     }
@@ -128,20 +136,6 @@ public class Private extends User implements Owner {
         for (Animal a : listAnimal) {
             if (a.getFirebaseID().compareTo(animal.getFirebaseID()) == 0) {
                 listAnimal.remove(a);
-            }
-        }
-    }
-
-    @Override
-    public void addExpense(Expense Expense) {
-        this.listExpense.add(Expense);
-    }
-
-    @Override
-    public void removeExpense(Expense Expense) {
-        for (Expense a : listExpense) {
-            if (a.getFirebaseID().compareTo(Expense.getFirebaseID()) == 0) {
-                listExpense.remove(a);
             }
         }
     }

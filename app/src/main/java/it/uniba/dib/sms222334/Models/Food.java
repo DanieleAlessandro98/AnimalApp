@@ -1,6 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
-import android.view.animation.AnimationUtils;
+import it.uniba.dib.sms222334.Database.Dao.FoodDao;
 
 public class Food extends Document{
 
@@ -60,4 +60,10 @@ public class Food extends Document{
             return new Food(bID, bName, bAnimal);
         }
     }
+
+    public void delete() {
+        FoodDao foodDao = new FoodDao();
+        foodDao.deleteFood(this);
+    }
+
 }

@@ -54,6 +54,12 @@
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
     <string name="login_error">"Access error"</string>
     <string name="profile_update_successful">"Profile successfully updated"</string>
+    <string name="profile_delete_alert_title">"Account deletion"</string>
+    <string name="profile_delete_alert_mex1">"Are you sure you want to delete the account?"</string>
+    <string name="profile_delete_alert_confirm">"Confirm"</string>
+    <string name="profile_delete_alert_cancel">"Cancel"</string>
+    <string name="profile_delete_successful">"Account successfully deleted"</string>
+    <string name="profile_delete_failed">"Account deletion error"</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

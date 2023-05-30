@@ -43,4 +43,5 @@ public abstract class User extends Document {
 
     public abstract UserRole getRole();
     public abstract void updateProfile();
+    public abstract void deleteProfile();
 }

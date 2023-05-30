@@ -106,4 +106,9 @@ public class Veterinarian extends User {
     public void updateProfile() {
 
     }
+
+    @Override
+    public void deleteProfile() {
+
+    }
 }

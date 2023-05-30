@@ -1,6 +1,8 @@
 package it.uniba.dib.sms222334.Models;
 
 
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
+
 public class Pathology extends Document{
     private Animal animal;
     private String name;
@@ -56,5 +58,10 @@ public class Pathology extends Document{
         public Pathology build(){
             return new Pathology(bID, bAnimal, bName);
         }
+    }
+
+    public void delete() {
+        PathologyDao pathologyDao = new PathologyDao();
+        pathologyDao.deletePathology(this);
     }
 }

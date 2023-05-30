@@ -127,6 +127,11 @@ public class PublicAuthority extends User implements Owner {
     }
 
     @Override
+    public void deleteProfile() {
+
+    }
+
+    @Override
     public void addAnimal(Animal animal) {
         this.listAnimal.add(animal);
     }
@@ -140,17 +145,4 @@ public class PublicAuthority extends User implements Owner {
         }
     }
 
-    @Override
-    public void addExpense(Expense Expense) {
-        this.listExpense.add(Expense);
-    }
-
-    @Override
-    public void removeExpense(Expense Expense) {
-        for (Expense a : listExpense) {
-            if (a.getFirebaseID().compareTo(Expense.getFirebaseID()) == 0) {
-                listExpense.remove(a);
-            }
-        }
-    }
 }

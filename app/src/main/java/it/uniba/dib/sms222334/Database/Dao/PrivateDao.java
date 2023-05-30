@@ -68,7 +68,10 @@ public final class PrivateDao {
                 .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
                 .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
 
-        return private_requested_builder.build();
+        Private resultPrivate = private_requested_builder.build();
+        findPrivateAnimals(document, resultPrivate);
+
+        return resultPrivate;
     }
 
     private void findPrivateAnimals(final DocumentSnapshot document, Owner resultPrivate) {

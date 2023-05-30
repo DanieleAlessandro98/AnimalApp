@@ -1,6 +1,9 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -70,6 +73,7 @@ public class ProfileFragment extends Fragment {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button saveButton;
+    private Button deleteButton;
 
     private UserPresenter userPresenter;
 
@@ -209,6 +213,7 @@ public class ProfileFragment extends Fragment {
         }
 
         saveButton = editDialog.findViewById(R.id.save_button);
+        deleteButton = editDialog.findViewById(R.id.delete_button);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -229,6 +234,13 @@ public class ProfileFragment extends Fragment {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteConfirm();
             }
         });
 
@@ -353,6 +365,34 @@ public class ProfileFragment extends Fragment {
 
     public void showUpdateSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showDeleteConfirm() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(this.getString(R.string.profile_delete_alert_title));
+        builder.setMessage(this.getString(R.string.profile_delete_alert_mex1));
+        builder.setPositiveButton(this.getString(R.string.profile_delete_alert_confirm), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                userPresenter.deleteProfile();
+            }
+        });
+        builder.setNegativeButton(this.getString(R.string.profile_delete_alert_cancel), null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showLoginSuccessful() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        startActivity(intent);
+        getActivity().finish();
+    }
+
+    public void showLogoutError() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_failed), Toast.LENGTH_SHORT).show();
     }
 
 }

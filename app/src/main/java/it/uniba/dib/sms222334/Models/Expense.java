@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Models;
 
+import it.uniba.dib.sms222334.Database.Dao.ExpenseDao;
+
 public class Expense extends Document{
 
     public enum expenseType{ACCESSORY,FOOD,HEALTH}
@@ -70,6 +72,11 @@ public class Expense extends Document{
         public Expense build(){
             return new Expense(bID, bnote,bprice,bcategory);
         }
+    }
+
+    public void delete() {
+        ExpenseDao expenseDao = new ExpenseDao();
+        expenseDao.deleteExpense(this);
     }
 }
 

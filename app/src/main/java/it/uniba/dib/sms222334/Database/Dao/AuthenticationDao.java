@@ -10,7 +10,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Models.User;
-import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AuthenticationDao {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -96,6 +95,22 @@ public class AuthenticationDao {
                 });
     }
 
+    public void delete(AuthenticationCallbackResult.Logout listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            user.delete()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                listener.onLogoutSuccessful();
+                            } else {
+                                listener.onLogoutFailure();
+                            }
+                        }
+                    });
+        }
+    }
 
     public interface FindUserListenerResult {
         void onUserFound(User user);

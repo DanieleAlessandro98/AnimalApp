@@ -20,6 +20,11 @@ public class SessionManager {
         this.currentUser = user;
     }
 
+    public void logoutUser() {
+        this.currentUser = null;
+    }
+
+
     public User getCurrentUser() {
         return currentUser;
     }

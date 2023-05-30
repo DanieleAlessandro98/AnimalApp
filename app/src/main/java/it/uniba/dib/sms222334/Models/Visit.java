@@ -3,6 +3,9 @@ package it.uniba.dib.sms222334.Models;
 import java.util.Date;
 import java.util.Objects;
 
+import it.uniba.dib.sms222334.Database.Dao.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+
 public class Visit extends Document{
 
     public enum visitType{DEWORMING,VACCINATION,STERILIZATION,SURGERY,CONTROL}
@@ -177,5 +180,11 @@ public class Visit extends Document{
             return new Visit(bID,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
+
+    public void delete() {
+        VisitDao visitDao = new VisitDao();
+        visitDao.deleteVisit(this);
+    }
+
 }
 

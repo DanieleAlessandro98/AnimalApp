@@ -2,14 +2,16 @@ package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
+import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Utils.Validations;
 
-public class UserPresenter {
+public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogoutCompletedListener {
 
     private ProfileFragment profileView;
     private User profileModel;
@@ -85,4 +87,21 @@ public class UserPresenter {
         profileView.showUpdateSuccessful();
     }
 
+    public void deleteProfile() {
+        if ((!SessionManager.getInstance().isLogged()) || profileModel == null)
+            return;
+
+        Authentication authentication = new Authentication(this);
+        authentication.delete();
+    }
+
+    @Override
+    public void onLoginOrLogoutCompleted(boolean isSuccessful) {
+        if (isSuccessful) {
+            profileModel.deleteProfile();
+            profileView.showLoginSuccessful();
+        } else {
+            profileView.showLogoutError();
+        }
+    }
 }
