@@ -9,6 +9,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.User;
 
 public class AuthenticationDao {
@@ -47,9 +48,18 @@ public class AuthenticationDao {
 
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                             PrivateDao privateDao = new PrivateDao();
-                            User user = privateDao.findPrivate(document);
 
-                            listener.onUserFound(user);
+                            privateDao.findPrivate(document, new PrivateDao.PrivateCallback() {
+                                @Override
+                                public void onPrivateFound(Private resultPrivate) {
+                                    listener.onUserFound(resultPrivate);
+                                }
+
+                                @Override
+                                public void onPrivateFindFailed(Exception exception) {
+
+                                }
+                            });
                         } else {
                             findPublicAuthorityUser(db, email, listener);
                         }

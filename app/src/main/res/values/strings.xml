@@ -60,6 +60,7 @@
     <string name="profile_delete_alert_cancel">"Cancel"</string>
     <string name="profile_delete_successful">"Account successfully deleted"</string>
     <string name="profile_delete_failed">"Account deletion error"</string>
+    <string name="photo_update_failed">"Photo update error"</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

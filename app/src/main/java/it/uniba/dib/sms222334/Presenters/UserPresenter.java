@@ -1,13 +1,19 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
+import java.io.IOException;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Utils.Validations;
 
@@ -22,6 +28,8 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
     }
 
     public void initUserData() {
+        this.profileModel = SessionManager.getInstance().getCurrentUser();
+
         UserRole userRole = profileModel.getRole();
 
         switch (userRole) {
@@ -66,16 +74,37 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
                         create(
                                 profileModel.getFirebaseID(),
                                 name,
-                                email) //TODO: photo
+                                email)
                         .setPassword(password)
                         .setPhone(phone)
                         .setSurname(surname)
                         .setBirthDate(birthDate)
                         .setTaxIdCode(taxID);
 
-                SessionManager.getInstance().updateCurrentUser(updatedPrivate.build());
-                this.profileModel = SessionManager.getInstance().getCurrentUser();
-                this.profileModel.updateProfile();
+                if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
+                    MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                        @Override
+                        public void onPhotoUploaded() {
+                            profileModel.setPhoto(profileView.getPhotoPicked());
+                            updatedPrivate.setPhoto(profileView.getPhotoPicked());
+
+                            User updatedUser = updatedPrivate.build();
+
+                            SessionManager.getInstance().updateCurrentUser(updatedUser);
+                            updatedUser.updateProfile();
+
+                            profileView.showUpdateSuccessful();
+                        }
+
+                        @Override
+                        public void onPhotoUploadFailed(Exception exception) {
+                            profileView.showPhotoUpdateError();
+                        }
+                    };
+
+                    MediaDao mediaDao = new MediaDao();
+                    mediaDao.uploadPhoto(profileModel.getPhoto(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+                }
                 break;
 
             case PUBLIC_AUTHORITY:
@@ -83,8 +112,6 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
                 // ...
                 break;
         }
-
-        profileView.showUpdateSuccessful();
     }
 
     public void deleteProfile() {
@@ -93,6 +120,35 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
 
         Authentication authentication = new Authentication(this);
         authentication.delete();
+    }
+
+    public void editPhoto() {
+        if (!profileView.isPhotoPickerAvailable()) {
+            profileView.showPhotoPickerNotAvailable();
+            return;
+        }
+
+        if (!profileView.isPhotoPermissionGranted()) {
+            if (profileView.shouldShowRequestPhotoPermission()) {
+                profileView.showRequestPhotoPermission();
+            } else {
+                profileView.requestPhotoPermission();
+            }
+
+            return;
+        }
+
+        profileView.onLaunchPhotoPicker();
+    }
+
+    public void pickPhoto(Uri uri) {
+        try {
+            Bitmap bitmap = Media.getBitmapFromUri(uri, profileView.getContext());
+            profileView.setPhotoPicked(bitmap);
+        } catch (IOException e) {
+            profileView.showPhotoUpdateError();
+            e.printStackTrace();
+        }
     }
 
     @Override

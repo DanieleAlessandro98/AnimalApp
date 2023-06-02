@@ -41,6 +41,10 @@ public abstract class User extends Document {
         return photo;
     }
 
+    public void setPhoto(Bitmap photo) {
+        this.photo = photo;
+    }
+
     public abstract UserRole getRole();
     public abstract void updateProfile();
     public abstract void deleteProfile();

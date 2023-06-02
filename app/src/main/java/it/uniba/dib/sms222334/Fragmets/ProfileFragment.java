@@ -1,12 +1,19 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.ext.SdkExtensions;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,12 +23,16 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -41,8 +52,9 @@ import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AndroidPermission;
 import it.uniba.dib.sms222334.Utils.UserRole;
-import kotlin.jvm.Throws;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
@@ -65,6 +77,8 @@ public class ProfileFragment extends Fragment {
 
     UserRole role;
 
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+
     private EditText nameEditText;
     private EditText surnameEditText;
     private TextView dateTextView;
@@ -72,8 +86,10 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
+    private ImageView photoImageView;
     private Button saveButton;
     private Button deleteButton;
+    private Button editPhotoButton;
 
     private UserPresenter userPresenter;
 
@@ -174,6 +190,8 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        pickMedia = registerForActivityResult(new PickVisualMedia(), this::onPickPhoto);
+
         Log.d(TAG,"qui teoricamente");
 
         changeTab(TabPosition.ANIMAL,false);
@@ -195,6 +213,7 @@ public class ProfileFragment extends Fragment {
             case PRIVATE:
                 editDialog.setContentView(R.layout.private_profile_edit);
 
+                photoImageView = editDialog.findViewById(R.id.profile_picture);
                 nameEditText = editDialog.findViewById(R.id.nameEditText);
                 surnameEditText = editDialog.findViewById(R.id.surnameEditText);
                 dateTextView = editDialog.findViewById(R.id.date_text_view);
@@ -214,6 +233,7 @@ public class ProfileFragment extends Fragment {
 
         saveButton = editDialog.findViewById(R.id.save_button);
         deleteButton = editDialog.findViewById(R.id.delete_button);
+        editPhotoButton = editDialog.findViewById(R.id.edit_button);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -244,8 +264,14 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        userPresenter.initUserData();
+        editPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userPresenter.editPhoto();
+            }
+        });
 
+        userPresenter.initUserData();
 
         Spinner prefixSpinner= editDialog.findViewById(R.id.prefix_spinner);
         ArrayAdapter<CharSequence> prefixAdapter= ArrayAdapter.createFromResource(getContext(),R.array.phone_prefixes,
@@ -337,6 +363,7 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(String.valueOf(userPrivate.getPhone()));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
+        photoImageView.setImageBitmap(userPrivate.getPhoto());
     }
 
     public void showInvalidInput(int inputType) {
@@ -393,6 +420,94 @@ public class ProfileFragment extends Fragment {
 
     public void showLogoutError() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_delete_failed), Toast.LENGTH_SHORT).show();
+    }
+
+    public boolean isPhotoPickerAvailable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            return true;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R) >= 2;
+
+        return false;
+    }
+
+    public void showPhotoPickerNotAvailable() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Non hai i requisiti per utilizzare questa funzionalità.");
+        builder.setMessage("Considera un aggiornamento del device.");
+        builder.show();
+    }
+
+    public boolean isPhotoPermissionGranted() {
+        return (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public boolean shouldShowRequestPhotoPermission() {
+        return (shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES));
+    }
+
+    public void showRequestPhotoPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Permesso necessario");
+        builder.setMessage("Per continuare, è necessario concedere l'autorizzazione per accedere alla galleria e selezionare la foto.");
+        builder.setPositiveButton("Concedi", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                requestPhotoPermission();
+            }
+        });
+        builder.setNegativeButton("Annulla", null);
+        builder.show();
+    }
+
+    public void requestPhotoPermission() {
+        // TODO: requestPermissions per i fragments è stato deprecato, trovare alternativa
+        requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                AndroidPermission.READ_MEDIA_IMAGES.ordinal());
+    }
+
+    // TODO: onRequestPermissionsResult per i fragments è stato deprecato, trovare alternativa
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        AndroidPermission code = AndroidPermission.values()[requestCode];
+        switch (code) {
+            case READ_MEDIA_IMAGES:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onLaunchPhotoPicker();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Non avendo dato il concenso per accedere alla galleria");
+                    builder.setMessage("non potrai modificare l'immagine del profilo.");
+                    builder.show();
+                }
+                break;
+        }
+    }
+
+    public void onLaunchPhotoPicker() {
+        pickMedia.launch(
+                new PickVisualMediaRequest.Builder()
+                        .setMediaType(PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+    }
+
+    private void onPickPhoto(Uri uri) {
+        if (uri != null) {
+            userPresenter.pickPhoto(uri);
+        }
+    }
+
+    public void setPhotoPicked(Bitmap bitmap) {
+        photoImageView.setImageBitmap(bitmap);
+    }
+
+    public Bitmap getPhotoPicked() {
+        return ((BitmapDrawable)photoImageView.getDrawable()).getBitmap();
+    }
+
+    public void showPhotoUpdateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.photo_update_failed), Toast.LENGTH_SHORT).show();
     }
 
 }

@@ -59,6 +59,7 @@
     <string name="profile_delete_alert_cancel">"Annulla"</string>
     <string name="profile_delete_successful">"Account cancellato con successo"</string>
     <string name="profile_delete_failed">"Errore cancellazione account"</string>
+    <string name="photo_update_failed">"Errore caricamento foto"</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
