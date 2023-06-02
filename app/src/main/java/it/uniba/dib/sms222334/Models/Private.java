@@ -105,6 +105,18 @@ public class Private extends User implements Owner {
         return taxIDCode;
     }
 
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setTaxIDCode(String taxIDCode) {
+        this.taxIDCode = taxIDCode;
+    }
+
     @Override
     public UserRole getRole() {
         return UserRole.PRIVATE;

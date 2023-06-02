@@ -1,7 +1,5 @@
 package it.uniba.dib.sms222334.Models;
 
-import it.uniba.dib.sms222334.Utils.UserRole;
-
 public class SessionManager {
     private static SessionManager instance;
     private User currentUser;
@@ -31,9 +29,5 @@ public class SessionManager {
 
     public boolean isLogged() {
         return currentUser != null;
-    }
-
-    public void updateCurrentUser(User user) {
-        loginUser(user);
     }
 }

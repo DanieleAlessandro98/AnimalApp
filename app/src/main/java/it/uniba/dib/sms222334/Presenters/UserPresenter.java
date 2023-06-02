@@ -28,8 +28,6 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
     }
 
     public void initUserData() {
-        this.profileModel = SessionManager.getInstance().getCurrentUser();
-
         UserRole userRole = profileModel.getRole();
 
         switch (userRole) {
@@ -66,51 +64,45 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
             return;
         }
 
-        UserRole userRole = profileModel.getRole();
+        profileModel.setName(name);
+        profileModel.setEmail(email);
+        profileModel.setPassword(password);
+        profileModel.setPhone(phone);
 
-        switch (userRole) {
+        switch (profileModel.getRole()) {
             case PRIVATE:
-                Private.Builder updatedPrivate=Private.Builder.
-                        create(
-                                profileModel.getFirebaseID(),
-                                name,
-                                email)
-                        .setPassword(password)
-                        .setPhone(phone)
-                        .setSurname(surname)
-                        .setBirthDate(birthDate)
-                        .setTaxIdCode(taxID);
-
-                if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
-                    MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
-                        @Override
-                        public void onPhotoUploaded() {
-                            profileModel.setPhoto(profileView.getPhotoPicked());
-                            updatedPrivate.setPhoto(profileView.getPhotoPicked());
-
-                            User updatedUser = updatedPrivate.build();
-
-                            SessionManager.getInstance().updateCurrentUser(updatedUser);
-                            updatedUser.updateProfile();
-
-                            profileView.showUpdateSuccessful();
-                        }
-
-                        @Override
-                        public void onPhotoUploadFailed(Exception exception) {
-                            profileView.showPhotoUpdateError();
-                        }
-                    };
-
-                    MediaDao mediaDao = new MediaDao();
-                    mediaDao.uploadPhoto(profileModel.getPhoto(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
-                }
+                ((Private)profileModel).setSurname(surname);
+                ((Private)profileModel).setBirthDate(birthDate);
+                ((Private)profileModel).setTaxIDCode(taxID);
                 break;
 
             case PUBLIC_AUTHORITY:
             case VETERINARIAN:
                 // ...
                 break;
+        }
+
+        if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
+            MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                @Override
+                public void onPhotoUploaded() {
+                    profileModel.setPhoto(profileView.getPhotoPicked());
+                    profileModel.updateProfile();
+                    profileView.showUpdateSuccessful();
+                }
+
+                @Override
+                public void onPhotoUploadFailed(Exception exception) {
+                    profileView.showPhotoUpdateError();
+                }
+            };
+
+            MediaDao mediaDao = new MediaDao();
+            mediaDao.uploadPhoto(profileModel.getPhoto(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+        }
+        else {
+            profileModel.updateProfile();
+            profileView.showUpdateSuccessful();
         }
     }
 

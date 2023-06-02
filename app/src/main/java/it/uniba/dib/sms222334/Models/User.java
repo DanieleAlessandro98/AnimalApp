@@ -41,6 +41,22 @@ public abstract class User extends Document {
         return photo;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setPhone(long phone) {
+        this.phone = phone;
+    }
+
     public void setPhoto(Bitmap photo) {
         this.photo = photo;
     }
