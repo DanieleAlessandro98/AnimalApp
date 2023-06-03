@@ -47,6 +47,13 @@
     <string name="confirm_delete">CONFIRM DELETE</string>
     <string name="this_element_will_be">This element will be deleted definitely</string>
     <string name="cancel">Cancel</string>
+    <string name="year">Year</string>
+    <string name="years">Years</string>
+    <string name="month">Month</string>
+    <string name="months">Months</string>
+    <string name="day">Day</string>
+    <string name="days">Days</string>
+    <string name="born_today">born today!</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

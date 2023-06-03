@@ -13,21 +13,36 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
 import it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation.RequestSegnalationAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.VeterinarianAuthorities.VeterinarianAuthoritiesAdapter;
 
 public class SearchFragment extends Fragment {
 
+    private boolean isLogged;
+    private UserRole role;
     RecyclerView recyclerView;
+
+
+    public SearchFragment() {
+        this.isLogged = SessionManager.getInstance().isLogged();
+
+        if (isLogged)
+            this.role = SessionManager.getInstance().getCurrentUser().getRole();
+    }
 
     @Nullable
     @Override
@@ -38,9 +53,9 @@ public class SearchFragment extends Fragment {
 
         ArrayList<User> listaProva = new ArrayList<>();
         Veterinarian v1 = Veterinarian.Builder.create("TestID", "giuseppeblabla", "ciao")
-                .setLegalSite("Francavilla Fontana").build();
-        PublicAuthority p1 = PublicAuthority.Builder.create("TestID", "giuseppeblabla", "ciao").
-        setLegalSite("Brindisi").build();
+                .setLegalSite(new GeoPoint(34,32)).build();
+        PublicAuthority p1 = PublicAuthority.Builder.create("TestID", "giuseppeblabla", "ciao")
+                .setLegalSite(new GeoPoint(34,32)).build();
 
         listaProva.add(v1);
         listaProva.add(p1);
@@ -57,11 +72,15 @@ public class SearchFragment extends Fragment {
         adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
             @Override
             public void OnProfileClicked(User profile) {
-                FragmentManager fragmentManager = getParentFragmentManager();
+                if(isLogged){
+                    FragmentManager fragmentManager = getParentFragmentManager();
 
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.addToBackStack(null);
-                transaction.replace(R.id.frame_for_fragment, new ProfileFragment(profile)).commit();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
+                }
+                else
+                    ((MainActivity)getActivity()).forceLogin();
             }
         });
 

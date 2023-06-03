@@ -116,7 +116,7 @@
                 android:textSize="16sp" />
 
             <it.uniba.dib.sms222334.Views.AnimalAppEditText
-                android:id="@+id/doctor_name"
+                android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -124,7 +124,7 @@
                 android:background="@drawable/edit_text_shape"
                 android:hint="@string/description"
                 android:padding="16dp"
-                android:maxLength="188"
+                android:maxLength="182"
                 android:textColorHint="#A3A3A3"
                 android:textSize="16sp" />
 

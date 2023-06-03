@@ -15,13 +15,18 @@
         android:layout_height="wrap_content"
         android:paddingVertical="15dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/animal_photo"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/profile_image"
+            android:src="@drawable/default_profile_image"
+            android:background="@android:color/darker_gray"
             android:layout_alignParentLeft="true"
-            android:layout_margin="10dp" />
+            android:padding="5dp"
+            app:strokeWidth="3dp"
+            app:strokeColor="?attr/colorAccent"
+            app:shapeAppearanceOverlay="@style/circular"
+            android:scaleType="centerCrop"/>
 
         <LinearLayout
             android:layout_toRightOf="@id/animal_photo"

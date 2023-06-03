@@ -21,15 +21,20 @@
             android:layout_centerInParent="true">
         </ImageView>
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profile_picture"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/profile_image"
+            android:src="@drawable/default_profile_image"
+            android:background="@android:color/darker_gray"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:elevation="10dp"/>
+            android:layout_marginTop="16dp"
+            android:elevation="5dp"
+            android:padding="5dp"
+            app:strokeWidth="3dp"
+            app:strokeColor="?attr/colorAccent"
+            app:shapeAppearanceOverlay="@style/circular"
+            android:scaleType="centerCrop"/>
 
         <Button
             android:id="@+id/edit_button"

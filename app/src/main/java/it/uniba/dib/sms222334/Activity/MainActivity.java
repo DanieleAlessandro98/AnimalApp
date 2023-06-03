@@ -2,12 +2,14 @@ package it.uniba.dib.sms222334.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> authResultLauncher;
     private enum TabPosition{HOME,SEARCH,PROFILE}
-    private TabPosition previousTab;
+    private TabPosition previousTab,attempingTab;
     private BottomNavigationView bottomNavigationView;
 
     @Override
@@ -48,7 +50,14 @@ public class MainActivity extends AppCompatActivity {
         initListeners();
         initRegisterActivity();
 
-        changeTab(TabPosition.HOME);
+        changeTab(savedInstanceState==null?TabPosition.HOME:TabPosition.values()[savedInstanceState.getInt("tab_position")]);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("tab_position",this.previousTab.ordinal());
     }
 
     private void initView() {
@@ -82,10 +91,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            result.getData().getSerializableExtra("user-role"); //TODO save this on sharedPreferences
-                            changeTab(TabPosition.PROFILE);
+                            changeTab(attempingTab);
+                            //TODO save user on sharedPreferences
                         } else {
-                            bottomNavigationView.setSelectedItemId(R.id.home);
+                            changeTab(TabPosition.HOME);
                         }
                     }
                 });
@@ -102,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
         switch (tabType){
             case HOME:
                 if(previousTab!=TabPosition.HOME) {
-                    fragment= new HomeFragment(this);
+                    fragment= new HomeFragment();
+                    attempingTab=TabPosition.HOME;
                     previousTab=TabPosition.HOME;
                     enterAnimation=R.anim.slide_right_in;
                     exitAnimation=R.anim.slide_right_out;
@@ -123,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     fragment=new SearchFragment();
+                    attempingTab=TabPosition.SEARCH;
                     previousTab=TabPosition.SEARCH;
                 }
                 else{
@@ -132,11 +143,12 @@ public class MainActivity extends AppCompatActivity {
             case PROFILE:
                 if(previousTab!=TabPosition.PROFILE){
                     if(isLogged()){
-                        fragment=new ProfileFragment();
+                        fragment=ProfileFragment.newInstance(SessionManager.getInstance().getCurrentUser());
                         previousTab=TabPosition.PROFILE;
                         enterAnimation=R.anim.slide_left_in;
                         exitAnimation=R.anim.slide_left_out;
                     }else{
+                        attempingTab=TabPosition.PROFILE;
                         forceLogin();
                         return;
                     }

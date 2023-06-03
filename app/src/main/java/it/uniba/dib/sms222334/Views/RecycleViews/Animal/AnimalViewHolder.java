@@ -2,7 +2,6 @@ package it.uniba.dib.sms222334.Views.RecycleViews.Animal;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,15 +10,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Request;
-import it.uniba.dib.sms222334.Models.Segnalation;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Views.CoordinateUtilities;
+import it.uniba.dib.sms222334.Utils.DateUtilities;
 
 public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private static final String TAG="RequestSegnalationViewHolder";
+        private static final String TAG="AnimalViewHolder";
 
         TextView animalName,SpeciesAge,visitNumber,pathologiesNumber;
         ImageView animalPhoto,visitIcon,pathologiesIcon,dangerIcon;
@@ -55,7 +53,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
 
         public void bind(Animal animal){
              this.animalName.setText(animal.getName());
-             this.SpeciesAge.setText(animal.getSpecies()+", "+animal.getAge());
+             this.SpeciesAge.setText(animal.getSpecies()+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
 
              if(animal.getVisitNumber()==0){
                  this.visitNumber.setText("");
@@ -75,7 +73,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
 
              Bitmap animalPhoto=animal.getPhoto();
              if(animalPhoto==null){
-                 this.animalPhoto.setImageDrawable(context.getDrawable(R.drawable.baseline_photo_camera_24));
+                 this.animalPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
              }
              else{
                  this.animalPhoto.setImageBitmap(animal.getPhoto());

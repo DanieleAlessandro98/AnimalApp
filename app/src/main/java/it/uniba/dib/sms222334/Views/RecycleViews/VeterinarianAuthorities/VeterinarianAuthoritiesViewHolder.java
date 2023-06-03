@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,11 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import it.uniba.dib.sms222334.Models.PublicAuthority;
-import it.uniba.dib.sms222334.Models.Request;
-import it.uniba.dib.sms222334.Models.Segnalation;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Views.CoordinateUtilities;
+import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 
 public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="VeterinarianAuthoritiesViewHolder";
@@ -26,7 +23,7 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         TextView companyName,legalSite,distance;
         ImageView profilePhoto,profileType;
 
-        Float latidute,longitude;
+        double latidute,longitude;
 
         Context context;
 
@@ -55,14 +52,14 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         }
 
         public void bind(Veterinarian veterinarian){
-             this.latidute=veterinarian.getLatitude();
-             this.longitude=veterinarian.getLongitude();
+             this.latidute=veterinarian.getLegalSite().getLatitude();
+             this.longitude=veterinarian.getLegalSite().getLongitude();
              this.companyName.setText(veterinarian.getName());
-             this.legalSite.setText(veterinarian.getLegalSite());
+             this.legalSite.setText(veterinarian.getLegalSite().toString());
 
             Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
-                this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.baseline_profile_24));
+                this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
             }
             else{
                 this.profilePhoto.setImageBitmap(veterinarian.getPhoto());
@@ -74,14 +71,14 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
 
         @SuppressLint("ResourceAsColor")
         public void bind(PublicAuthority publicAuthority){
-            this.latidute=publicAuthority.getLatitude();
-            this.longitude=publicAuthority.getLongitude();
+            this.latidute=publicAuthority.getLegalSite().getLatitude();
+            this.longitude=publicAuthority.getLegalSite().getLongitude();
             this.companyName.setText(publicAuthority.getName());
-            this.legalSite.setText(publicAuthority.getLegalSite());
+            this.legalSite.setText(publicAuthority.getLegalSite().toString());
 
             Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){
-                this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.baseline_profile_24));
+                this.profilePhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
             }
             else{
                 this.profilePhoto.setImageBitmap(publicAuthority.getPhoto());

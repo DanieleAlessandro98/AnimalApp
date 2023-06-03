@@ -15,19 +15,25 @@
         android:layout_height="wrap_content"
         android:paddingVertical="15dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profile_photo"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/profile_image"
+            android:src="@drawable/default_profile_image"
+            android:background="@android:color/darker_gray"
             android:layout_alignParentLeft="true"
-            android:layout_margin="10dp" />
+            android:padding="5dp"
+            app:strokeWidth="3dp"
+            app:strokeColor="?attr/colorAccent"
+            app:shapeAppearanceOverlay="@style/circular"
+            android:scaleType="centerCrop"/>
 
         <ImageView
             android:id="@+id/profile_type"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:backgroundTint="?attr/colorAccent"
+            android:layout_alignTop="@+id/profile_photo"
             android:layout_alignParentLeft="true"
             android:elevation="2dp"
             android:layout_margin="5dp" />

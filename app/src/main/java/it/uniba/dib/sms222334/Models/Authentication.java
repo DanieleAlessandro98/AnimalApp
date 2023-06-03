@@ -1,9 +1,7 @@
 package it.uniba.dib.sms222334.Models;
 
-import com.google.firebase.auth.FirebaseUser;
-
-import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
-import it.uniba.dib.sms222334.Database.Dao.AuthenticationDao;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Authentication implements AuthenticationCallbackResult.Login {

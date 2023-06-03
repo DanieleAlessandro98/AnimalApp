@@ -1,9 +1,10 @@
 package it.uniba.dib.sms222334.Models;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class Visit extends Document{
+public class Visit extends Document implements Serializable {
 
     public enum visitType{DEWORMING,VACCINATION,STERILIZATION,SURGERY,CONTROL}
     public enum diagnosisType{POSITIVE,NEGATIVE,NULL}

@@ -2,21 +2,18 @@ package it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Segnalation;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Views.CoordinateUtilities;
-import it.uniba.dib.sms222334.Views.AnimalAppEditText;
+import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 
 public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="RequestSegnalationViewHolder";
@@ -71,7 +68,13 @@ public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implem
                  this.image.setImageBitmap(request.getRequestPhoto());
              }
 
-             this.creatorPhoto.setImageBitmap(request.getCreatorPhoto());
+             Bitmap creator= request.getCreatorPhoto();
+             if(creator==null){
+                 this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
+             }
+             else{
+                 this.creatorPhoto.setImageBitmap(creator);
+             }
         }
 
         public void bind(Segnalation segnalation){
@@ -83,7 +86,14 @@ public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implem
             this.CreatorName.setText(segnalation.getCreatorName());
             this.Description.setText(segnalation.getDescription());
             this.image.setImageBitmap(segnalation.getsegnalationPhoto());
-            this.creatorPhoto.setImageBitmap(segnalation.getCreatorPhoto());
+
+            Bitmap creator= segnalation.getCreatorPhoto();
+            if(creator==null){
+                this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
+            }
+            else{
+                this.creatorPhoto.setImageBitmap(creator);
+            }
         }
 
         public void setDistance(Location devicePosition) {

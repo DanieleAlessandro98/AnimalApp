@@ -22,9 +22,6 @@ import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class LoginActivity extends AppCompatActivity {
-
-
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     final static String TAG="LoginActivity";
 
     private ActivityResultLauncher<Intent> registerResultLauncher;

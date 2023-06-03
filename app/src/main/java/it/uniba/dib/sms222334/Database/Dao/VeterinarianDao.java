@@ -17,7 +17,7 @@ public class VeterinarianDao {
                         document.getId(),
                         document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
                         document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PHOTO))
-                .setLegalSite(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
+                .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
                 .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
                 .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER).intValue())
                 //.setLatitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude

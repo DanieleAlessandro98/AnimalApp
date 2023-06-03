@@ -2,7 +2,13 @@ package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
+
+import it.uniba.dib.sms222334.Database.AnimalAppDB;
 
 public class Animal extends Document {
 
@@ -10,7 +16,7 @@ public class Animal extends Document {
     public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
     private String name;
     private Owner owner;
-    private int age;
+    private Date birthDate;
     private stateList state;
     private String microchip;
     private String species;
@@ -48,12 +54,12 @@ public class Animal extends Document {
         this.owner = owner;
     }
 
-    public int getAge() {
-        return age;
+    public Date getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public stateList getState() {
@@ -152,12 +158,12 @@ public class Animal extends Document {
         return this.getPathologies().size();
     }
 
-    private Animal(String id, String name, Owner owner, int age, stateList state, String species, String race, Bitmap photo, String microchip){
+    private Animal(String id, String name, Owner owner, Date birthDate, stateList state, String species, String race, Bitmap photo, String microchip){
         super(id);
 
         this.name = name;
         this.owner = owner;
-        this.age = age;
+        this.birthDate = birthDate;
         this.state = state;
         this.species = species;
         this.race = race;
@@ -175,7 +181,8 @@ public class Animal extends Document {
         private String bID;
         private String bname;
         private Owner bowner;
-        private int bage;
+
+        private Date bbirthDate;
         private stateList bstate;
         private String bspecies;
         private String brace;
@@ -187,47 +194,67 @@ public class Animal extends Document {
             this.bstate=state;
         }
 
-        public static Animal.Builder create(final String id, final stateList state){
-            return new Animal.Builder(id, state);
+        public static Builder create(final String id, final stateList state){
+            return new Builder(id, state);
         }
 
-        public Animal.Builder setName(final String name){
+        public static Builder fromDocumentSnapshot(DocumentSnapshot document) {
+            return Builder.
+                    create(document.getId(), stateList.values()[Math.toIntExact(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE))])
+                    .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
+                    .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
+                    .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
+                    .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
+                    .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE));
+        }
+
+        public Builder setId(final String id){
+            this.bID=id;
+            return this;
+        }
+
+        public Builder setState(final stateList state){
+            this.bstate=state;
+            return this;
+        }
+
+        public Builder setName(final String name){
             this.bname=name;
             return this;
         }
 
-        public Animal.Builder setOwner(final Owner owner){
+        public Builder setOwner(final Owner owner){
             this.bowner=owner;
             return this;
         }
 
-        public Animal.Builder setAge(int age){
-            this.bage=age;
+        public Builder setBirthDate(Date birthDate){
+            this.bbirthDate=birthDate;
             return this;
         }
 
-        public Animal.Builder setSpecies(final String species){
+        public Builder setSpecies(final String species){
             this.bspecies=species;
             return this;
         }
 
-        public Animal.Builder setMicrochip(final String microchip){
+        public Builder setMicrochip(final String microchip){
             this.bmicrochip=microchip;
             return this;
         }
 
-        public Animal.Builder setPhoto(final Bitmap photo){
+        public Builder setPhoto(final Bitmap photo){
             this.bphoto=photo;
             return this;
         }
 
-        public Animal.Builder setRace(final String race){
+        public Builder setRace(final String race){
             this.brace=race;
             return this;
         }
 
         public Animal build(){
-            return new Animal(bID,bname,bowner,bage,bstate,bspecies,brace,bphoto,bmicrochip);
+            return new Animal(bID,bname,bowner,bbirthDate,bstate,bspecies,brace,bphoto,bmicrochip);
         }
     }
 

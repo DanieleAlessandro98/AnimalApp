@@ -1,25 +1,36 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.google.android.gms.common.util.ArrayUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public abstract class User extends Document {
+public abstract class User extends Document{
 
     private String name;
     private String email;
     private String password;
-    private long phone;
+    private Long phone;
     private Bitmap photo;
 
-    public User(String id, String name, String email, String password, long phone, Bitmap photo) {
+    public User(String id, String name, String email, String password, Long phone, Bitmap photo) {
         super(id);
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
-        this.photo = photo;
+
+        if(photo!=null)
+            this.photo = photo;
     }
+
 
     public String getName() {
         return name;
@@ -33,12 +44,12 @@ public abstract class User extends Document {
         return password;
     }
 
-    public long getPhone() {
+    public Long getPhone() {
         return phone;
     }
 
     public Bitmap getPhoto() {
-        return photo;
+        return this.photo;
     }
 
     public abstract UserRole getRole();

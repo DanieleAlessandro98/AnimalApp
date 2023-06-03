@@ -46,6 +46,13 @@
     <string name="confirm_delete">CONFERMA ELIMINA</string>
     <string name="this_element_will_be">Questo elemento verrà eliminato definitivamente</string>
     <string name="cancel">Cancella</string>
+    <string name="year">Anno</string>
+    <string name="years">Anni</string>
+    <string name="month">Mese</string>
+    <string name="months">Mesi</string>
+    <string name="day">Giorno</string>
+    <string name="days">Giorni</string>
+    <string name="born_today">nato oggi!</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

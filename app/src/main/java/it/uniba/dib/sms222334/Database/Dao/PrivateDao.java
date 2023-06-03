@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Owner;
@@ -61,7 +62,7 @@ public final class PrivateDao {
                         document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
                         document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL)) //TODO: document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
                 .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER).intValue())
+                .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
                 .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                 .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
                 .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
@@ -69,7 +70,7 @@ public final class PrivateDao {
         return private_requested_builder.build();
     }
 
-    private void findPrivateAnimals(final DocumentSnapshot document, Owner resultPrivate) {
+    public void findPrivateAnimals(final DocumentSnapshot document, Owner resultPrivate) {
         AnimalDao animalDao = new AnimalDao();
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.Private.COLUMN_NAME_ANIMALS);
 
@@ -81,7 +82,7 @@ public final class PrivateDao {
 
                     String log = "";
                     log += result.getName() + " ";
-                    log += result.getAge() + " ";
+                    log += result.getBirthDate() + " ";
                     log += result.getState() + " ";
                     log += result.getSpecies() + " ";
                     log += result.getRace() + " ";

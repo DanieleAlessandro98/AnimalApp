@@ -49,67 +49,65 @@ public class ProfileFragment extends Fragment {
     Button editButton;
     TabLayout tabLayout;
 
-    private final int inflatedLayout;
+    private int inflatedLayout;
 
     UserRole role;
 
     public ProfileFragment(){
 
-        this.role= SessionManager.getInstance().getCurrentUser().getRole();
-
-        switch (this.role){
-            case PRIVATE:
-                profileType=Type.PRIVATE;
-                break;
-            case PUBLIC_AUTHORITY:
-                profileType=Type.PUBLIC_AUTHORITY;
-                break;
-            case VETERINARIAN:
-                profileType=Type.VETERINARIAN;
-                break;
-        }
-
-        if(this.role==UserRole.VETERINARIAN){
-            inflatedLayout=R.layout.veterinarian_profile_fragment;
-        }
-        else{
-            inflatedLayout=R.layout.owner_profile_fragment;
-        }
-
-        this.previousTab=new Tab();
-
     }
 
-    public ProfileFragment(User profile){
+    public static ProfileFragment newInstance(User profile) {
+        ProfileFragment myFragment = new ProfileFragment();
 
-        this.role=profile.getRole();
+        Bundle args = new Bundle();
 
-        switch (this.role){
+        switch (profile.getRole()){
+            case VETERINARIAN:
+                args.putParcelable("profile", (Veterinarian)profile);
+                break;
             case PRIVATE:
-                profileType=Type.PRIVATE;
+                args.putParcelable("profile", (Private)profile);
                 break;
             case PUBLIC_AUTHORITY:
-                profileType=Type.PUBLIC_AUTHORITY;
-                break;
-            case VETERINARIAN:
-                profileType=Type.VETERINARIAN;
+                args.putParcelable("profile", (PublicAuthority)profile);
                 break;
         }
 
-        if(this.role==UserRole.VETERINARIAN){
-            inflatedLayout=R.layout.veterinarian_profile_fragment;
-        }
-        else{
-            inflatedLayout=R.layout.owner_profile_fragment;
-        }
+        myFragment.setArguments(args);
 
-        this.previousTab=new Tab();
+        return myFragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        this.role=((User)getArguments().getParcelable("profile")).getRole();
+
+        Log.d(TAG,"ruolo-> "+this.role.name());
+
+        switch (this.role){
+            case PRIVATE:
+                profileType=Type.PRIVATE;
+                break;
+            case PUBLIC_AUTHORITY:
+                profileType=Type.PUBLIC_AUTHORITY;
+                break;
+            case VETERINARIAN:
+                profileType=Type.VETERINARIAN;
+                break;
+        }
+
+        if(this.role==UserRole.VETERINARIAN){
+            inflatedLayout=R.layout.veterinarian_profile_fragment;
+        }
+        else{
+            inflatedLayout=R.layout.owner_profile_fragment;
+        }
+
         final View layout= inflater.inflate(inflatedLayout,container,false);
+
+        this.previousTab=new Tab();
 
         editButton=layout.findViewById(R.id.edit_button);
 
@@ -208,7 +206,7 @@ public class ProfileFragment extends Fragment {
             case ANIMAL:
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
                     previousTab.tabPosition= TabPosition.ANIMAL;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -228,7 +226,7 @@ public class ProfileFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= TabPosition.VISIT;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                 }
                 else{
                     return;
@@ -237,7 +235,7 @@ public class ProfileFragment extends Fragment {
             case EXPENSE:
                 if(previousTab.tabPosition!= TabPosition.EXPENSE){
                     previousTab.tabPosition= TabPosition.EXPENSE;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
                 }

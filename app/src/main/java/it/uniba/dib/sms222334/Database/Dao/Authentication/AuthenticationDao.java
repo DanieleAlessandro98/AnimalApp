@@ -1,18 +1,24 @@
-package it.uniba.dib.sms222334.Database.Dao;
+package it.uniba.dib.sms222334.Database.Dao.Authentication;
+
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.PrivateDao;
+import it.uniba.dib.sms222334.Database.Dao.PublicAuthorityDao;
+import it.uniba.dib.sms222334.Database.Dao.VeterinarianDao;
+import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
-import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AuthenticationDao {
+    final static String TAG="AuthenticationDao";
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
 
     public void login(String email, String password, AuthenticationCallbackResult.Login listener) {
@@ -48,7 +54,11 @@ public class AuthenticationDao {
 
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                             PrivateDao privateDao = new PrivateDao();
-                            User user = privateDao.findPrivate(document);
+                            Private privateFound=privateDao.findPrivate(document);
+
+                            privateDao.findPrivateAnimals(document,privateFound);
+
+                            User user = privateFound;
 
                             listener.onUserFound(user);
                         } else {
@@ -67,7 +77,11 @@ public class AuthenticationDao {
 
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                             PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
-                            User user = publicAuthorityDao.findPublicAuthority(document);
+                            PublicAuthority authorityFound = publicAuthorityDao.findPublicAuthority(document);
+
+                            publicAuthorityDao.findPublicAuthorityAnimals(document,authorityFound);
+
+                            User user = authorityFound;
 
                             listener.onUserFound(user);
                         } else {

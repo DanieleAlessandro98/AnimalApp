@@ -47,15 +47,11 @@ public class HomeFragment extends Fragment {
 
     Boolean isLogged;
 
-    MainActivity activity;
+    public HomeFragment() {
+        this.isLogged = SessionManager.getInstance().isLogged();
 
-    public HomeFragment(MainActivity activity) {
-        this.activity=activity;
-
-        this.isLogged=SessionManager.getInstance().isLogged();
-
-        if(isLogged)
-            this.role=SessionManager.getInstance().getCurrentUser().getRole();
+        if (isLogged)
+            this.role = SessionManager.getInstance().getCurrentUser().getRole();
     }
 
     @Nullable
@@ -91,7 +87,7 @@ public class HomeFragment extends Fragment {
             if(isLogged)
                 launchWarningDialog();
             else
-                activity.forceLogin();
+                ((MainActivity)getActivity()).forceLogin();
         });
 
         if(role == UserRole.VETERINARIAN){
@@ -102,7 +98,7 @@ public class HomeFragment extends Fragment {
                 if(isLogged)
                     launchRequestDialog();
                 else
-                    activity.forceLogin();
+                    ((MainActivity)getActivity()).forceLogin();
             });
         }
 

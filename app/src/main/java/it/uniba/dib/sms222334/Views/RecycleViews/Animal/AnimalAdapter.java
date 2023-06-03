@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
@@ -18,7 +18,7 @@ import it.uniba.dib.sms222334.R;
 
 public class AnimalAdapter extends RecyclerView.Adapter<AnimalViewHolder> implements  AnimalViewHolder.OnItemClickListener{
 
-    ArrayList<Animal> animalList;
+    LinkedList<Animal> animalList;
     Context context;
 
     public interface OnAnimalClicked{
@@ -31,7 +31,7 @@ public class AnimalAdapter extends RecyclerView.Adapter<AnimalViewHolder> implem
         this.onAnimalClicked=listener;
     }
 
-    public AnimalAdapter(ArrayList<Animal> mModel,Context context){
+    public AnimalAdapter(LinkedList<Animal> mModel,Context context){
         this.animalList = mModel;
         this.context=context;
     }

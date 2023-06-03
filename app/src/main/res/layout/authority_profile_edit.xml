@@ -55,12 +55,18 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="26dp">
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profile_picture"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:background="@drawable/profile_image"
-                    android:layout_centerHorizontal="true" />
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/default_profile_image"
+                    android:background="@android:color/darker_gray"
+                    android:layout_centerHorizontal="true"
+                    android:padding="5dp"
+                    app:strokeWidth="3dp"
+                    app:strokeColor="?attr/colorAccent"
+                    app:shapeAppearanceOverlay="@style/circular"
+                    android:scaleType="centerCrop"/>
                 <Button
                     android:id="@+id/edit_button"
                     android:layout_width="80dp"

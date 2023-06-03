@@ -113,7 +113,7 @@ public class AnimalFragment extends Fragment {
             case RELATION:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -133,7 +133,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.HEALTH;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                 }
                 else{
                     return;
@@ -151,7 +151,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                 }
                 else{
                     return;
@@ -170,7 +170,7 @@ public class AnimalFragment extends Fragment {
 
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                 }
                 else {
                     return;
@@ -179,7 +179,7 @@ public class AnimalFragment extends Fragment {
             case EXPENSE:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
-                    fragment=new ListFragment(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
 

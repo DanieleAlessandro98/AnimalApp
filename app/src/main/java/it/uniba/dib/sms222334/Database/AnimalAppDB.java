@@ -51,7 +51,7 @@ public class AnimalAppDB {
 
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_OWNER = "ownerID";
-        public static final String COLUMN_NAME_AGE = "age";
+        public static final String COLUMN_NAME_BIRTH_DATE = "birthdate";
         public static final String COLUMN_NAME_STATE = "state";
         public static final String COLUMN_NAME_SPECIES = "species";
         public static final String COLUMN_NAME_RACE = "race";

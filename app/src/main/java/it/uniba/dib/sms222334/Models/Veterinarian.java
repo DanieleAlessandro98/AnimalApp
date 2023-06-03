@@ -1,21 +1,23 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.firebase.firestore.GeoPoint;
+
+import java.util.Date;
 
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Veterinarian extends User {
-    private String legalSite; //sede
-    private float latitude;
-    private float longitude;
+public class Veterinarian extends User implements Parcelable{
+    private GeoPoint legalSite; //sede
     //array<visite>
 
-    public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, String legalSite, float latitude, float longitude) {
+    public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {
         super(id, name, email, password, phone, photo);
 
         this.legalSite = legalSite;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
     public static class Builder {
@@ -26,9 +28,7 @@ public class Veterinarian extends User {
         private long bPhone;
         private Bitmap bPhoto;
 
-        private String bLegalSite;
-        private float bLatitude;
-        private float bLongitude;
+        private GeoPoint bLegalSite;
 
         private Builder(final String id, final String name, final String email) {
             this.bID = id;
@@ -65,40 +65,59 @@ public class Veterinarian extends User {
             return this;
         }
 
-        public Builder setLegalSite(final String legalSite) {
+        public Builder setLegalSite(final GeoPoint legalSite) {
             this.bLegalSite = legalSite;
             return this;
         }
 
-        public Builder setLatitude(final float latitude) {
-            this.bLatitude = latitude;
-            return this;
-        }
-
-        public Builder setLongitude(final float longitude) {
-            this.bLongitude = longitude;
-            return this;
-        }
-
         public Veterinarian build() {
-            return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite, bLatitude, bLongitude);
+            return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite);
         }
     }
 
-    public String getLegalSite() {
+    public void setLegalSite(GeoPoint legalSite) {
+        this.legalSite = legalSite;
+    }
+
+    public GeoPoint getLegalSite() {
         return legalSite;
-    }
-
-    public float getLatitude() {
-        return latitude;
-    }
-
-    public float getLongitude() {
-        return longitude;
     }
 
     @Override
     public UserRole getRole() {
         return UserRole.VETERINARIAN;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getFirebaseID());
+        dest.writeString(getName());
+        dest.writeString(getEmail());
+        dest.writeString(getPassword());
+        dest.writeLong(getPhone());
+        dest.writeParcelable(getPhoto(),flags);
+        //dest.writeString(legalSite); resolve parcelable on GeoPoint
+    }
+
+    protected Veterinarian(Parcel in) {
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
+        //in.readInt(legalSite); resolve parcelable on GeoPoint
+    }
+
+    public static final Creator<Private> CREATOR = new Creator<Private>() {
+        @Override
+        public Private createFromParcel(Parcel in) {
+            return new Private(in);
+        }
+
+        @Override
+        public Private[] newArray(int size) {
+            return new Private[size];
+        }
+    };
 }

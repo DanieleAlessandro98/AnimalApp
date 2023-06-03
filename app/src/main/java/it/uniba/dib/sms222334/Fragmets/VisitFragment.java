@@ -25,21 +25,33 @@ import androidx.fragment.app.Fragment;
 import java.util.Calendar;
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class VisitFragment extends Fragment {
 
     Button editButton,deleteButton,backButton;
     TextView visitState,visitName,date,examType,diagnosisType,medicalNote,doctorName;
 
-    ProfileFragment.Type profileType;
+    UserRole userRole;
 
     Visit visit;
 
-    public VisitFragment(Visit visit,ProfileFragment.Type profileType){
-        this.visit=visit;
-        this.profileType=profileType;
+    public VisitFragment(){
+
+    }
+
+    public static VisitFragment newInstance(Visit visit) {
+        VisitFragment myFragment = new VisitFragment();
+
+        Bundle args = new Bundle();
+        args.putSerializable("visit", visit);
+        myFragment.setArguments(args);
+
+        return myFragment;
     }
 
 
@@ -48,13 +60,14 @@ public class VisitFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View layout= inflater.inflate(R.layout.visit_fragment,container,false);
 
-        //TODO passare il bundle del profyleType durante la rotazione del dispositivo(causa crash)
+        this.visit = ((Visit)getArguments().getSerializable("visit"));
+        this.userRole = SessionManager.getInstance().getCurrentUser().getRole();
 
         backButton=layout.findViewById(R.id.back_button);
 
         backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
-        if(this.profileType== ProfileFragment.Type.VETERINARIAN){
+        if(this.userRole== UserRole.VETERINARIAN){
             editButton = layout.findViewById(R.id.edit_button);
             editButton.setOnClickListener(v -> launchEditDialogForVeterinarian());
             editButton.setVisibility(View.VISIBLE);
