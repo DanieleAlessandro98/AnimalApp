@@ -111,6 +111,11 @@ public class PublicAuthority extends User implements Owner, Parcelable {
     }
 
     @Override
+    public void updateProfile() {
+
+    }
+
+    @Override
     public void addAnimal(Animal animal) {
         this.listAnimal.add(animal);
     }

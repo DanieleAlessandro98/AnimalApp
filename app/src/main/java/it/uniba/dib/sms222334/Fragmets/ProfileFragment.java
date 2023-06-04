@@ -12,7 +12,10 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +25,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.tabs.TabLayout;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
@@ -29,12 +36,14 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
+import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import kotlin.jvm.Throws;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
+
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN,ANIMAL}
     public enum TabPosition{ANIMAL,VISIT,EXPENSE,RELATION,HEALTH,FOOD}
 
@@ -52,6 +61,17 @@ public class ProfileFragment extends Fragment {
     private int inflatedLayout;
 
     UserRole role;
+
+    private EditText nameEditText;
+    private EditText surnameEditText;
+    private TextView dateTextView;
+    private EditText taxIDEditText;
+    private EditText phoneEditText;
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private Button saveButton;
+
+    private UserPresenter userPresenter;
 
     public ProfileFragment(){
 
@@ -111,6 +131,8 @@ public class ProfileFragment extends Fragment {
 
         editButton=layout.findViewById(R.id.edit_button);
 
+        userPresenter = new UserPresenter(this);
+
         editButton.setOnClickListener(v -> launchEditDialog());
 
 
@@ -166,6 +188,15 @@ public class ProfileFragment extends Fragment {
         switch (this.role){
             case PRIVATE:
                 editDialog.setContentView(R.layout.private_profile_edit);
+
+                nameEditText = editDialog.findViewById(R.id.nameEditText);
+                surnameEditText = editDialog.findViewById(R.id.surnameEditText);
+                dateTextView = editDialog.findViewById(R.id.date_text_view);
+                taxIDEditText = editDialog.findViewById(R.id.tax_id_EditText);
+                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = editDialog.findViewById(R.id.emailEditText);
+                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+
                 break;
             case VETERINARIAN:
                 editDialog.setContentView(R.layout.veterinarian_profile_edit);
@@ -174,6 +205,32 @@ public class ProfileFragment extends Fragment {
                 editDialog.setContentView(R.layout.authority_profile_edit);
                 break;
         }
+
+        saveButton = editDialog.findViewById(R.id.save_button);
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    String name = nameEditText.getText().toString();
+                    String surname = surnameEditText.getText().toString();
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    Date birthDate = dateFormat.parse(dateTextView.getText().toString());
+
+                    String taxID = taxIDEditText.getText().toString();
+                    long phone = Long.parseLong(phoneEditText.getText().toString());
+                    String email = emailEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+
+                    userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password);
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        userPresenter.initUserData();
 
 
         Spinner prefixSpinner= editDialog.findViewById(R.id.prefix_spinner);
@@ -253,4 +310,47 @@ public class ProfileFragment extends Fragment {
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
         transaction.replace(R.id.recycle_container,fragment).commit();
     }
+
+    public void onInitPrivateData(Private userPrivate) {
+        nameEditText.setText(userPrivate.getName());
+        surnameEditText .setText(userPrivate.getSurname());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");   // TODO: Spostare in utils
+        String dateString = dateFormat.format(userPrivate.getBirthDate());
+        dateTextView.setText(dateString);
+
+        taxIDEditText.setText(userPrivate.getTaxIDCode());
+        phoneEditText.setText(String.valueOf(userPrivate.getPhone()));
+        emailEditText.setText(userPrivate.getEmail());
+        passwordEditText.setText(userPrivate.getPassword());
+    }
+
+    public void showInvalidInput(int inputType) {
+        switch (inputType) {
+            case 1:
+                nameEditText.setError(this.getString(R.string.invalid_user_name));
+                break;
+
+            case 2:
+                surnameEditText.setError(this.getString(R.string.invalid_user_surname));
+                break;
+
+            case 3:
+                dateTextView.setError(this.getString(R.string.invalid_user_birthdate));
+                break;
+
+            case 4:
+                emailEditText.setError(this.getString(R.string.invalid_user_email));
+                break;
+
+            case 5:
+                passwordEditText.setError(this.getString(R.string.invalid_user_password));
+                break;
+        }
+    }
+
+    public void showUpdateSuccessful() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
+    }
+
 }

@@ -53,6 +53,13 @@
     <string name="day">Giorno</string>
     <string name="days">Giorni</string>
     <string name="born_today">nato oggi!</string>
+    <string name="invalid_user_name">Nome non valido. Solo caratteri</string>
+    <string name="invalid_user_surname">Cognome non valido. Solo caratteri</string>
+    <string name="invalid_user_birthdate">Data di nascita non valida</string>
+    <string name="invalid_user_email">Email non valida</string>
+    <string name="invalid_user_password">Password non valida. Minimo 6 caratteri</string>
+    <string name="login_error">"Errore nell'accesso"</string>
+    <string name="profile_update_successful">"Profilo aggiornato con successo"</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

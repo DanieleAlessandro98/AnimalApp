@@ -120,4 +120,8 @@ public class Veterinarian extends User implements Parcelable{
             return new Private[size];
         }
     };
+
+    public void updateProfile() {
+
+    }
 }

@@ -27,4 +27,8 @@ public class SessionManager {
     public boolean isLogged() {
         return currentUser != null;
     }
+
+    public void updateCurrentUser(User user) {
+        loginUser(user);
+    }
 }
