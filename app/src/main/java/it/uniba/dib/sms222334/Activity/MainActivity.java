@@ -1,6 +1,7 @@
 package it.uniba.dib.sms222334.Activity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -58,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
         outState.putInt("tab_position",this.previousTab.ordinal());
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+
+        super.onConfigurationChanged(newConfig);
     }
 
     private void initView() {

@@ -4,19 +4,23 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class PublicAuthority extends User implements Owner, Parcelable {
     private GeoPoint legalSite;        // sede
     private Integer NBeds;  // posti letto
 
-    private LinkedList<Animal> listAnimal;
-    private LinkedList<Expense> listExpense;
+    private ArrayList<Animal> listAnimal;
+    private ArrayList<Expense> listExpense;
+
 
     public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite, Integer nBeds) {
         super(id, name, email, password, phone, photo);
@@ -24,8 +28,8 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         this.legalSite = legalSite;
         this.NBeds = nBeds;
 
-        listAnimal = new LinkedList<>();
-        listExpense = new LinkedList<>();
+        listAnimal = new ArrayList<>();
+        listExpense = new ArrayList<>();
     }
 
     public void setLegalSite(GeoPoint legalSite) {
@@ -144,8 +148,13 @@ public class PublicAuthority extends User implements Owner, Parcelable {
     }
 
     @Override
-    public LinkedList<Animal> getAnimalList() {
+    public ArrayList<Animal> getAnimalList() {
         return this.listAnimal;
+    }
+
+    @Override
+    public ArrayList<Expense> getExpenseList() {
+        return this.listExpense;
     }
 
     @Override
@@ -161,16 +170,23 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
         dest.writeParcelable(getPhoto(),flags);
-        //dest.writeString(legalSite); resolve parcelable on GeoPoint
+        dest.writeDouble(legalSite.getLatitude());
+        dest.writeDouble(legalSite.getLongitude());
         dest.writeInt(this.NBeds);
-        //TODO to with animal list and expense list
+        dest.writeList(getAnimalList());
+        dest.writeList(getExpenseList());
     }
 
     protected PublicAuthority(Parcel in) {
         super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
-        //in.readInt(legalSite); resolve parcelable on GeoPoint
+
+        double latitude=in.readDouble();
+        double longitude=in.readDouble();
+        this.legalSite=new GeoPoint(latitude,longitude);
+
         this.NBeds = in.readInt();
-        //TODO to with animal list and expense list
+        in.readArrayList(Animal.class.getClassLoader());
+        in.readArrayList(Expense.class.getClassLoader());
     }
 
     public static final Creator<Private> CREATOR = new Creator<Private>() {

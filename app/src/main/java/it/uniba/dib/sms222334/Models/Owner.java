@@ -11,5 +11,7 @@ public interface Owner {
     void addExpense(Expense Expense);
     void removeExpense(Expense Expense);
 
-    LinkedList<Animal> getAnimalList();
+    ArrayList<Animal> getAnimalList();
+
+    ArrayList<Expense> getExpenseList();
 }
