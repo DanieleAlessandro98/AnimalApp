@@ -13,8 +13,11 @@ public interface AuthenticationCallbackResult {
         void onLogoutFailure();
     }
 
-    interface LoginOrLogoutCompletedListener {
-        void onLoginOrLogoutCompleted(boolean isSuccessful);
+    interface LoginCompletedListener {
+        void onLoginCompleted(boolean isSuccessful);
     }
 
+    interface LogoutCompletedListener {
+        void onLogoutCompleted(boolean isSuccessful);
+    }
 }

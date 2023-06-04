@@ -7,11 +7,17 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 public class Authentication implements AuthenticationCallbackResult.Login, AuthenticationCallbackResult.Logout {
 
     private final AuthenticationDao authenticationDao;
-    private final AuthenticationCallbackResult.LoginOrLogoutCompletedListener listenerRole;
+    private AuthenticationCallbackResult.LoginCompletedListener listenerLogin;
+    private AuthenticationCallbackResult.LogoutCompletedListener listenerLogout;
 
-    public Authentication(AuthenticationCallbackResult.LoginOrLogoutCompletedListener listenerRole) {
+    public Authentication(AuthenticationCallbackResult.LoginCompletedListener listenerLogin) {
         authenticationDao = new AuthenticationDao();
-        this.listenerRole = listenerRole;
+        this.listenerLogin = listenerLogin;
+    }
+
+    public Authentication(AuthenticationCallbackResult.LogoutCompletedListener listenerLogout) {
+        authenticationDao = new AuthenticationDao();
+        this.listenerLogout = listenerLogout;
     }
 
     public void login(String email, String password) {
@@ -33,22 +39,22 @@ public class Authentication implements AuthenticationCallbackResult.Login, Authe
     @Override
     public void onLoginSuccessful(User user) {
         SessionManager.getInstance().loginUser(user);
-        listenerRole.onLoginOrLogoutCompleted(true);
+        listenerLogin.onLoginCompleted(true);
     }
 
     @Override
     public void onLoginFailure() {
-        listenerRole.onLoginOrLogoutCompleted(false);
+        listenerLogin.onLoginCompleted(false);
     }
 
     @Override
     public void onLogoutSuccessful() {
         SessionManager.getInstance().logoutUser();
-        listenerRole.onLoginOrLogoutCompleted(true);
+        listenerLogout.onLogoutCompleted(true);
     }
 
     @Override
     public void onLogoutFailure() {
-        listenerRole.onLoginOrLogoutCompleted(false);
+        listenerLogout.onLogoutCompleted(false);
     }
 }

@@ -5,7 +5,7 @@ import it.uniba.dib.sms222334.Database.Dao.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Utils.Validations;
 
-public class LoginPresenter implements AuthenticationCallbackResult.LoginOrLogoutCompletedListener {
+public class LoginPresenter implements AuthenticationCallbackResult.LoginCompletedListener {
 
     private final LoginActivity loginActivity;
     private final Authentication loginModel;
@@ -29,7 +29,7 @@ public class LoginPresenter implements AuthenticationCallbackResult.LoginOrLogou
     }
 
     @Override
-    public void onLoginOrLogoutCompleted(boolean isSuccessful) {
+    public void onLoginCompleted(boolean isSuccessful) {
         if (isSuccessful && loginModel.isLogged()) {
             loginActivity.authSuccessful(loginModel.getUserRole());
         } else {

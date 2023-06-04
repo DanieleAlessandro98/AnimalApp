@@ -17,7 +17,7 @@ import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Utils.Validations;
 
-public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogoutCompletedListener {
+public class UserPresenter implements AuthenticationCallbackResult.LogoutCompletedListener {
 
     private ProfileFragment profileView;
     private User profileModel;
@@ -98,7 +98,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
             };
 
             MediaDao mediaDao = new MediaDao();
-            mediaDao.uploadPhoto(profileModel.getPhoto(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+            mediaDao.uploadPhoto(profileView.getPhotoPicked(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
         }
         else {
             profileModel.updateProfile();
@@ -114,25 +114,6 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
         authentication.delete();
     }
 
-    public void editPhoto() {
-        if (!profileView.isPhotoPickerAvailable()) {
-            profileView.showPhotoPickerNotAvailable();
-            return;
-        }
-
-        if (!profileView.isPhotoPermissionGranted()) {
-            if (profileView.shouldShowRequestPhotoPermission()) {
-                profileView.showRequestPhotoPermission();
-            } else {
-                profileView.requestPhotoPermission();
-            }
-
-            return;
-        }
-
-        profileView.onLaunchPhotoPicker();
-    }
-
     public void pickPhoto(Uri uri) {
         try {
             Bitmap bitmap = Media.getBitmapFromUri(uri, profileView.getContext());
@@ -144,10 +125,10 @@ public class UserPresenter implements AuthenticationCallbackResult.LoginOrLogout
     }
 
     @Override
-    public void onLoginOrLogoutCompleted(boolean isSuccessful) {
+    public void onLogoutCompleted(boolean isSuccessful) {
         if (isSuccessful) {
             profileModel.deleteProfile();
-            profileView.showLoginSuccessful();
+            profileView.showLogoutSuccessful();
         } else {
             profileView.showLogoutError();
         }

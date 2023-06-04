@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ext.SdkExtensions;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,6 +33,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -44,15 +48,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
-import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
-import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
-import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Utils.AndroidPermission;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia;
 
@@ -77,7 +77,7 @@ public class ProfileFragment extends Fragment {
 
     UserRole role;
 
-    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
     private EditText nameEditText;
     private EditText surnameEditText;
@@ -92,6 +92,8 @@ public class ProfileFragment extends Fragment {
     private Button editPhotoButton;
 
     private UserPresenter userPresenter;
+
+    private Dialog editDialog;
 
     public ProfileFragment(){
 
@@ -190,7 +192,14 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        pickMedia = registerForActivityResult(new PickVisualMedia(), this::onPickPhoto);
+        this.photoPickerResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        userPresenter.pickPhoto(selectedImage);
+                    }
+                });
 
         Log.d(TAG,"qui teoricamente");
 
@@ -206,7 +215,7 @@ public class ProfileFragment extends Fragment {
 
     private void launchEditDialog() {
 
-        final Dialog editDialog=new Dialog(getContext());
+        editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         switch (this.role){
@@ -267,7 +276,8 @@ public class ProfileFragment extends Fragment {
         editPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userPresenter.editPhoto();
+                Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                photoPickerResultLauncher.launch(photoIntent);
             }
         });
 
@@ -410,92 +420,15 @@ public class ProfileFragment extends Fragment {
         dialog.show();
     }
 
-    public void showLoginSuccessful() {
+    public void showLogoutSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
 
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        startActivity(intent);
-        getActivity().finish();
+        ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);
+        editDialog.cancel();
     }
 
     public void showLogoutError() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_delete_failed), Toast.LENGTH_SHORT).show();
-    }
-
-    public boolean isPhotoPickerAvailable() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            return true;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R) >= 2;
-
-        return false;
-    }
-
-    public void showPhotoPickerNotAvailable() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Non hai i requisiti per utilizzare questa funzionalità.");
-        builder.setMessage("Considera un aggiornamento del device.");
-        builder.show();
-    }
-
-    public boolean isPhotoPermissionGranted() {
-        return (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED);
-    }
-
-    public boolean shouldShowRequestPhotoPermission() {
-        return (shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES));
-    }
-
-    public void showRequestPhotoPermission() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Permesso necessario");
-        builder.setMessage("Per continuare, è necessario concedere l'autorizzazione per accedere alla galleria e selezionare la foto.");
-        builder.setPositiveButton("Concedi", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                requestPhotoPermission();
-            }
-        });
-        builder.setNegativeButton("Annulla", null);
-        builder.show();
-    }
-
-    public void requestPhotoPermission() {
-        // TODO: requestPermissions per i fragments è stato deprecato, trovare alternativa
-        requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                AndroidPermission.READ_MEDIA_IMAGES.ordinal());
-    }
-
-    // TODO: onRequestPermissionsResult per i fragments è stato deprecato, trovare alternativa
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        AndroidPermission code = AndroidPermission.values()[requestCode];
-        switch (code) {
-            case READ_MEDIA_IMAGES:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onLaunchPhotoPicker();
-                } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage("Non avendo dato il concenso per accedere alla galleria");
-                    builder.setMessage("non potrai modificare l'immagine del profilo.");
-                    builder.show();
-                }
-                break;
-        }
-    }
-
-    public void onLaunchPhotoPicker() {
-        pickMedia.launch(
-                new PickVisualMediaRequest.Builder()
-                        .setMediaType(PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-    }
-
-    private void onPickPhoto(Uri uri) {
-        if (uri != null) {
-            userPresenter.pickPhoto(uri);
-        }
     }
 
     public void setPhotoPicked(Bitmap bitmap) {

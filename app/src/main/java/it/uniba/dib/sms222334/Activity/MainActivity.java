@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG="MainActivity";
 
     private ActivityResultLauncher<Intent> authResultLauncher;
-    private enum TabPosition{HOME,SEARCH,PROFILE}
+    public enum TabPosition{HOME,SEARCH,PROFILE}
     private TabPosition previousTab;
     private BottomNavigationView bottomNavigationView;
 
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         return SessionManager.getInstance().isLogged(); //TODO insert here SharedPreferences' control to check if it's logged or not
     }
 
-    private void changeTab(MainActivity.TabPosition tabType){
+    public void changeTab(MainActivity.TabPosition tabType){
         Fragment fragment=null;
         int enterAnimation=0,exitAnimation=0;
 
