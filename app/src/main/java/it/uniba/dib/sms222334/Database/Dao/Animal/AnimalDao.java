@@ -17,13 +17,13 @@ public class AnimalDao {
     private final String TAG="AnimalDao";
     final private CollectionReference collectionAnimal = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
 
-    public void getAnimalByReference(DocumentReference animalRef, final Owner resultPrivate, final DatabaseCallbackResult<Animal> listener) {
+    public void getAnimalByReference(DocumentReference animalRef, final String resultPrivateReference, final DatabaseCallbackResult<Animal> listener) {
         animalRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
 
-                    Animal resultAnimal = findAnimal(document, resultPrivate);
+                    Animal resultAnimal = findAnimal(document, resultPrivateReference);
                     findAnimalImages(document, resultAnimal);
                     findAnimalVideos(document, resultAnimal);
 
@@ -65,7 +65,7 @@ public class AnimalDao {
         }
     }
 
-    private Animal findAnimal(DocumentSnapshot document, final Owner resultPrivate) {
+    private Animal findAnimal(DocumentSnapshot document, final String resultPrivateRefernce) {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
         Animal.stateList state = Animal.stateList.values()[stateInteger];
 
@@ -76,7 +76,7 @@ public class AnimalDao {
                 //.setPhoto(document.getString(AnimalAppDB.Animal.COLUMN_NAME_PHOTO))   TODO: Da finire
                 .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE))
                 .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
-                .setOwner(resultPrivate);
+                .setOwner(resultPrivateRefernce);
 
         return animal_find.build();
     }

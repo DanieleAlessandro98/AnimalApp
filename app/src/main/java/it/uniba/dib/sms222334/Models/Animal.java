@@ -1,42 +1,44 @@
 package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 
-public class Animal extends Document {
+public class Animal extends Document implements Parcelable {
 
     //in carico, smarrito, adottato, assistico, randagio
     public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
     private String name;
-    private Owner owner;
+
+    private String ownerReference;
     private Date birthDate;
     private stateList state;
     private String microchip;
     private String species;
     private String race;
     private Bitmap photo;
+    private ArrayList<String> videos;
 
+    private ArrayList<String> photos;
 
-    private LinkedList<String> videos;
+    private ArrayList<Visit> visits;
 
-    private LinkedList<String> photos;
+    private ArrayList<Pathology> pathologies;
 
-    private LinkedList<Visit> visits;
+    private ArrayList<Food> foods;
 
-    private LinkedList<Pathology> pathologies;
+    private ArrayList<Expense> expenses;
 
-    private LinkedList<Food> foods;
-
-    private LinkedList<Expense> expenses;
-    
-    //arraylist<relazioni>
+    private ArrayList<Relation> relations;
 
     public String getName() {
         return name;
@@ -46,12 +48,12 @@ public class Animal extends Document {
         this.name = name;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public String getOwnerReference() {
+        return ownerReference;
     }
 
-    public void setOwner(Owner owner) {
-        this.owner = owner;
+    public void setOwnerReference(String owner) {
+        this.ownerReference = owner;
     }
 
     public Date getBirthDate() {
@@ -102,52 +104,60 @@ public class Animal extends Document {
         this.photo = photo;
     }
 
-    public LinkedList<String> getPhotos() {
+    public ArrayList<String> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(LinkedList<String> photos) {
+    public void setPhotos(ArrayList<String> photos) {
         this.photos = photos;
     }
 
-    public LinkedList<String> getVideos() {
+    public ArrayList<String> getVideos() {
         return videos;
     }
 
-    public void setVideos(LinkedList<String> videos) {
+    public void setVideos(ArrayList<String> videos) {
         this.videos = videos;
     }
 
-    public LinkedList<Visit> getVisits() {
+    public ArrayList<Visit> getVisits() {
         return visits;
     }
 
-    public void setVisits(LinkedList<Visit> visits) {
+    public void setVisits(ArrayList<Visit> visits) {
         this.visits = visits;
     }
 
-    public LinkedList<Pathology> getPathologies() {
+    public ArrayList<Pathology> getPathologies() {
         return pathologies;
     }
 
-    public void setPathologies(LinkedList<Pathology> pathologies) {
+    public void setPathologies(ArrayList<Pathology> pathologies) {
         this.pathologies = pathologies;
     }
 
-    public LinkedList<Food> getFoods() {
+    public ArrayList<Food> getFoods() {
         return foods;
     }
 
-    public void setFoods(LinkedList<Food> foods) {
+    public void setFoods(ArrayList<Food> foods) {
         this.foods = foods;
     }
 
-    public LinkedList<Expense> getExpenses() {
+    public ArrayList<Expense> getExpenses() {
         return expenses;
     }
 
-    public void setExpenses(LinkedList<Expense> expenses) {
+    public void setExpenses(ArrayList<Expense> expenses) {
         this.expenses = expenses;
+    }
+
+    public ArrayList<Relation> getRelations() {
+        return relations;
+    }
+
+    public void setRelations(ArrayList<Relation> relations) {
+        this.relations = relations;
     }
 
     public int getVisitNumber(){
@@ -158,29 +168,30 @@ public class Animal extends Document {
         return this.getPathologies().size();
     }
 
-    private Animal(String id, String name, Owner owner, Date birthDate, stateList state, String species, String race, Bitmap photo, String microchip){
+    private Animal(String id, String name, String ownerReference, Date birthDate, stateList state, String species, String race, Bitmap photo, String microchip){
         super(id);
 
         this.name = name;
-        this.owner = owner;
+        this.ownerReference = ownerReference;
         this.birthDate = birthDate;
         this.state = state;
         this.species = species;
         this.race = race;
         this.photo = photo;
         this.microchip = microchip;
-        this.videos=new LinkedList<>();
-        this.photos=new LinkedList<>();
-        this.foods =new LinkedList<>();
-        this.pathologies=new LinkedList<>();
-        this.visits=new LinkedList<>();
-        this.expenses=new LinkedList<>();
+        this.videos=new ArrayList<>();
+        this.photos=new ArrayList<>();
+        this.foods =new ArrayList<>();
+        this.pathologies=new ArrayList<>();
+        this.visits=new ArrayList<>();
+        this.expenses=new ArrayList<>();
+        this.relations=new ArrayList<>();
     }
 
     public static class Builder{
         private String bID;
         private String bname;
-        private Owner bowner;
+        private String bownerReference;
 
         private Date bbirthDate;
         private stateList bstate;
@@ -223,8 +234,8 @@ public class Animal extends Document {
             return this;
         }
 
-        public Builder setOwner(final Owner owner){
-            this.bowner=owner;
+        public Builder setOwner(final String ownerReference){
+            this.bownerReference=ownerReference;
             return this;
         }
 
@@ -254,7 +265,7 @@ public class Animal extends Document {
         }
 
         public Animal build(){
-            return new Animal(bID,bname,bowner,bbirthDate,bstate,bspecies,brace,bphoto,bmicrochip);
+            return new Animal(bID,bname,bownerReference,bbirthDate,bstate,bspecies,brace,bphoto,bmicrochip);
         }
     }
 
@@ -265,4 +276,65 @@ public class Animal extends Document {
     public void addVideo(String video) {
         videos.add(video);
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getFirebaseID());
+        dest.writeString(getName());
+
+
+
+        dest.writeString(getOwnerReference());
+        dest.writeSerializable(birthDate);
+        dest.writeInt(getState().ordinal());
+        dest.writeString(getSpecies());
+        dest.writeString(getRace());
+        dest.writeParcelable(getPhoto(),flags);
+        dest.writeString(getMicrochip());
+        dest.writeStringList(getVideos());
+        dest.writeStringList(getPhotos());
+        dest.writeList(getFoods());
+        dest.writeList(getPathologies());
+        dest.writeList(getVisits());
+        dest.writeList(getExpenses());
+        dest.writeList(getRelations());
+    }
+
+    protected Animal(Parcel in) {
+        super(in.readString());
+
+        this.name = in.readString();
+        this.ownerReference = in.readString();
+        this.birthDate = (Date)in.readSerializable();
+        this.state = stateList.values()[in.readInt()];
+        this.species = in.readString();
+        this.race = in.readString();
+        this.photo = in.readParcelable(Bitmap.class.getClassLoader());
+        this.microchip = in.readString();
+        in.readStringList(this.videos);
+        in.readStringList(this.photos);
+        this.foods =in.readArrayList(Food.class.getClassLoader());
+        this.pathologies=in.readArrayList(Pathology.class.getClassLoader());
+        this.visits=in.readArrayList(Visit.class.getClassLoader());
+        this.expenses=in.readArrayList(Expense.class.getClassLoader());
+        this.relations=in.readArrayList(Relation.class.getClassLoader());
+    }
+
+    public static final Creator<Animal> CREATOR = new Creator<Animal>() {
+        @Override
+        public Animal createFromParcel(Parcel in) {
+            return new Animal(in);
+        }
+
+        @Override
+        public Animal[] newArray(int size) {
+            return new Animal[size];
+        }
+    };
 }

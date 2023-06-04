@@ -1,7 +1,5 @@
 package it.uniba.dib.sms222334.Database.Dao.Authentication;
 
-import android.util.Log;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -10,9 +8,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Database.Dao.PrivateDao;
-import it.uniba.dib.sms222334.Database.Dao.PublicAuthorityDao;
-import it.uniba.dib.sms222334.Database.Dao.VeterinarianDao;
+import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
+import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
+import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
@@ -56,7 +54,7 @@ public class AuthenticationDao {
                             PrivateDao privateDao = new PrivateDao();
                             Private privateFound=privateDao.findPrivate(document);
 
-                            privateDao.findPrivateAnimals(document,privateFound);
+                            privateDao.loadPrivateAnimals(document,privateFound);
 
                             User user = privateFound;
 

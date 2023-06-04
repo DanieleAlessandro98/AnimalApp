@@ -1,23 +1,27 @@
 package it.uniba.dib.sms222334.Models;
 
-public class Relation {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Relation extends Document implements Parcelable{
 
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
 
-    relationType relationType;
+    relationType category;
     Animal animal;
 
-    private Relation(Animal animal,relationType relationType){
+    private Relation(String id,Animal animal,relationType relationType){
+        super(id);
         this.animal=animal;
-        this.relationType= relationType;
+        this.category= relationType;
     }
 
     public Relation.relationType getRelationType() {
-        return relationType;
+        return category;
     }
 
     public void setRelationType(Relation.relationType relationType) {
-        this.relationType = relationType;
+        this.category = relationType;
     }
 
     public Animal getAnimal() {
@@ -29,16 +33,18 @@ public class Relation {
     }
 
     public static class Builder{
-        relationType brelationType;
-        Animal banimal;
+        private String bID;
+        private relationType bcategory;
+        private Animal banimal;
 
-        private Builder(final relationType type, Animal animal){
+        private Builder(String id,final relationType type, Animal animal){
+            this.bID=id;
             this.banimal=animal;
-            this.brelationType=type;
+            this.bcategory=type;
         }
 
-        public static Builder create(final relationType type, Animal animal){
-            return new Builder(type,animal);
+        public static Builder create(String id,final relationType type, Animal animal){
+            return new Builder(id,type,animal);
         }
 
         public Builder setAnimal(Animal animal){
@@ -47,14 +53,43 @@ public class Relation {
         }
 
         public Builder setRelationType(relationType type){
-            this.brelationType=type;
+            this.bcategory=type;
             return this;
         }
 
         public Relation build(){
-            return new Relation(banimal,brelationType);
+            return new Relation(bID,banimal,bcategory);
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getFirebaseID());
+        dest.writeInt(getRelationType().ordinal());
+        dest.writeParcelable(getAnimal(),flags);
+    }
+
+    protected Relation(Parcel in) {
+        super(in.readString());
+
+        this.category = relationType.values()[in.readInt()];
+        this.animal=in.readParcelable(Animal.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Relation> CREATOR = new Parcelable.Creator<Relation>() {
+        @Override
+        public Relation createFromParcel(Parcel in) {
+            return new Relation(in);
+        }
+
+        @Override
+        public Relation[] newArray(int size) {
+            return new Relation[size];
+        }
+    };
 }

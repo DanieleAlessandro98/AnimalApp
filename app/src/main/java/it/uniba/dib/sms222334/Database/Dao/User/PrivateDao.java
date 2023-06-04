@@ -1,4 +1,4 @@
-package it.uniba.dib.sms222334.Database.Dao;
+package it.uniba.dib.sms222334.Database.Dao.User;
 
 import android.util.Log;
 
@@ -42,7 +42,7 @@ public final class PrivateDao {
                                 DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
                                 Private resultPrivate = findPrivate(document);
-                                findPrivateAnimals(document, resultPrivate);
+                                loadPrivateAnimals(document, resultPrivate);
 
                                 listener.onDataRetrieved(resultPrivate);
                             } else {
@@ -70,7 +70,7 @@ public final class PrivateDao {
         return private_requested_builder.build();
     }
 
-    public void findPrivateAnimals(final DocumentSnapshot document, Owner resultPrivate) {
+    public void loadPrivateAnimals(final DocumentSnapshot document, Private resultPrivate) {
         AnimalDao animalDao = new AnimalDao();
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.Private.COLUMN_NAME_ANIMALS);
 
@@ -79,17 +79,7 @@ public final class PrivateDao {
                 @Override
                 public void onDataRetrieved(Animal result) {
                     resultPrivate.addAnimal(result);
-
-                    String log = "";
-                    log += result.getName() + " ";
-                    log += result.getBirthDate() + " ";
-                    log += result.getState() + " ";
-                    log += result.getSpecies() + " ";
-                    log += result.getRace() + " ";
-                    log += result.getPhoto() + " ";
-                    log += result.getMicrochip() + " ";
-
-                    Log.d("resultAnimalTest", log);
+                    resultPrivate.notifyItemLoaded();
                 }
 
                 @Override
@@ -103,7 +93,7 @@ public final class PrivateDao {
                 }
             };
 
-            animalDao.getAnimalByReference(animalRef, resultPrivate, animalListener);
+            animalDao.getAnimalByReference(animalRef, resultPrivate.getFirebaseID(), animalListener);
         }
     }
 

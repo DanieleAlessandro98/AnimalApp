@@ -6,18 +6,38 @@ import android.os.Parcelable;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Veterinarian extends User implements Parcelable{
     private GeoPoint legalSite; //sede
-    //array<visite>
+
+    ArrayList<Visit> visitList;
+
+    public void setLegalSite(GeoPoint legalSite) {
+        this.legalSite = legalSite;
+    }
+
+    public GeoPoint getLegalSite() {
+        return legalSite;
+    }
+
+    public ArrayList<Visit> getVisitList() {
+        return visitList;
+    }
+
+    public void setVisitList(ArrayList<Visit> visitList) {
+        this.visitList = visitList;
+    }
 
     public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {
         super(id, name, email, password, phone, photo);
 
         this.legalSite = legalSite;
+        this.visitList=new ArrayList<>();
     }
 
     public static class Builder {
@@ -75,14 +95,6 @@ public class Veterinarian extends User implements Parcelable{
         }
     }
 
-    public void setLegalSite(GeoPoint legalSite) {
-        this.legalSite = legalSite;
-    }
-
-    public GeoPoint getLegalSite() {
-        return legalSite;
-    }
-
     @Override
     public UserRole getRole() {
         return UserRole.VETERINARIAN;
@@ -101,12 +113,16 @@ public class Veterinarian extends User implements Parcelable{
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
         dest.writeParcelable(getPhoto(),flags);
-        //dest.writeString(legalSite); resolve parcelable on GeoPoint
+        dest.writeDouble(legalSite.getLatitude());
+        dest.writeDouble(legalSite.getLongitude());
     }
 
     protected Veterinarian(Parcel in) {
         super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
-        //in.readInt(legalSite); resolve parcelable on GeoPoint
+        double latitude=in.readDouble();
+        double longitude=in.readDouble();
+
+        this.legalSite=new GeoPoint(latitude,longitude);
     }
 
     public static final Creator<Private> CREATOR = new Creator<Private>() {

@@ -25,16 +25,35 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Calendar;
 
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
 
 public class RegisterFragment extends Fragment {
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN}
 
-    private final int inflatedLayout;
+    private int inflatedLayout;
 
-    public RegisterFragment(Type profileType){
-        switch (profileType){
+    public RegisterFragment() {
+
+    }
+
+    public static RegisterFragment newInstance(Type profileType) {
+        RegisterFragment myFragment = new RegisterFragment();
+
+        Bundle args = new Bundle();
+        args.putInt("profile_type", profileType.ordinal());
+        myFragment.setArguments(args);
+
+        return myFragment;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        final View layout= inflater.inflate(inflatedLayout,container,false);
+
+        switch (Type.values()[getArguments().getInt("profile_type")]){
             case PRIVATE:
                 inflatedLayout=R.layout.private_register;
                 break;
@@ -47,12 +66,6 @@ public class RegisterFragment extends Fragment {
             default:
                 throw new IllegalArgumentException("Invalid registerType");
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View layout= inflater.inflate(inflatedLayout,container,false);
 
         if(inflatedLayout==R.layout.private_register){
             ImageButton datePickerButton=layout.findViewById(R.id.date_picker_button);

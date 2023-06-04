@@ -84,16 +84,17 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         this.role=((User)getArguments().getParcelable("profile")).getRole();
 
-        Log.d(TAG,"ruolo-> "+this.role.name());
-
         switch (this.role){
             case PRIVATE:
+                Log.d(TAG,"sono nel profilo di un privato");
                 profileType=Type.PRIVATE;
                 break;
             case PUBLIC_AUTHORITY:
+                Log.d(TAG,"sono nel profilo di un ente");
                 profileType=Type.PUBLIC_AUTHORITY;
                 break;
             case VETERINARIAN:
+                Log.d(TAG,"sono nel profilo di un veterinario");
                 profileType=Type.VETERINARIAN;
                 break;
         }
@@ -145,8 +146,6 @@ public class ProfileFragment extends Fragment {
 
             }
         });
-
-        Log.d(TAG,"qui teoricamente");
 
         changeTab(TabPosition.ANIMAL,false);
 
@@ -200,8 +199,6 @@ public class ProfileFragment extends Fragment {
         Fragment fragment=null;
         int enterAnimation=0,exitAnimation=0;
 
-        Log.d(TAG,tabType+"");
-
         switch (tabType){
             case ANIMAL:
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
@@ -248,6 +245,8 @@ public class ProfileFragment extends Fragment {
                 return;
         }
         FragmentManager fragmentManager=getParentFragmentManager();
+
+        Log.d(TAG,"poco prima di lanciare il fragment");
 
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);

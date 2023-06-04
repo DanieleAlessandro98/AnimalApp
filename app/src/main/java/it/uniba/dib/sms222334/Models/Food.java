@@ -1,25 +1,18 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.animation.AnimationUtils;
 
-public class Food extends Document{
+import java.util.LinkedList;
 
-    private Animal animal;
+public class Food extends Document implements Parcelable {
     private String name;
 
-    private Food(String id, String name, Animal animal) {
+    private Food(String id, String name) {
         super(id);
 
         this.name = name;
-        this.animal=animal;
-    }
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
     }
 
     public String getName() {
@@ -34,12 +27,9 @@ public class Food extends Document{
         private String bID;
         private String bName;
 
-        private Animal bAnimal;
-
-        private Builder(final String id, final String name, final Animal animal){
+        private Builder(final String id, final String name){
             this.bID = id;
             this.bName=name;
-            this.bAnimal=animal;
         }
 
         public Builder setName(final String name){
@@ -47,17 +37,41 @@ public class Food extends Document{
             return this;
         }
 
-        public Builder setAnimal(final Animal animal){
-            this.bAnimal=animal;
-            return this;
-        }
-
-        public static Builder create(final String id, final String name, final Animal animal){
-            return new Builder(id, name, animal);
+        public static Builder create(final String id, final String name){
+            return new Builder(id, name);
         }
 
         public Food build(){
-            return new Food(bID, bName, bAnimal);
+            return new Food(bID, bName);
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getFirebaseID());
+        dest.writeString(getName());
+    }
+
+    protected Food(Parcel in) {
+        super(in.readString());
+
+        this.name = in.readString();
+    }
+
+    public static final Creator<Food> CREATOR = new Creator<Food>() {
+        @Override
+        public Food createFromParcel(Parcel in) {
+            return new Food(in);
+        }
+
+        @Override
+        public Food[] newArray(int size) {
+            return new Food[size];
+        }
+    };
 }

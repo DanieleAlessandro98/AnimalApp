@@ -46,6 +46,7 @@ import java.util.List;
 import it.uniba.dib.sms222334.Activity.LoginActivity;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
@@ -79,17 +80,18 @@ public class ListFragment extends Fragment{
 
 
     ProfileFragment.TabPosition tabPosition;
-    ProfileFragment.Type profileType;
+    ProfileFragment.Type profileType; //profile type that you're actually seeing(it can be animal profile)
 
     AnimalPresenter animalPresenter;
 
-    User currentUser;
+    User currentUser; //profile of the user logged
     UserRole currentUserRole;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
     public ListFragment() {
         currentUser=SessionManager.getInstance().getCurrentUser();
+
         currentUserRole=currentUser.getRole();
     }
 
@@ -286,7 +288,7 @@ public class ListFragment extends Fragment{
                             .setRace(raceSpinner.getSelectedItem().toString())
                             .setSpecies(speciesSpinner.getSelectedItem().toString())
                             .setName(name.getText().toString())
-                            .setOwner((Owner) SessionManager.getInstance().getCurrentUser())
+                            .setOwner(SessionManager.getInstance().getCurrentUser().getFirebaseID())
                             .setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap())
                             .setMicrochip(microChip.getText().toString())
                             .build()));
@@ -346,7 +348,7 @@ public class ListFragment extends Fragment{
 
         animalPresenter= new AnimalPresenter(this);
 
-        LinkedList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new LinkedList<>();
+        ArrayList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
 
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
@@ -371,14 +373,34 @@ public class ListFragment extends Fragment{
 
 
         AnimalAdapter adapter=new AnimalAdapter(animalList,getContext());
+
         adapter.setOnAnimalClickListener(animal -> {
             FragmentManager fragmentManager=getParentFragmentManager();
 
             FragmentTransaction transaction= fragmentManager.beginTransaction();
             transaction.addToBackStack(null);
-            transaction.replace(R.id.frame_for_fragment,new AnimalFragment(animal)).commit();
+            transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal)).commit();
             tabPosition=null;
         });
+
+
+        this.currentUser.setUserLoadingCallBack(new UserCallback.UserStateListener() {
+            @Override
+            public void notifyItemLoaded() {
+                adapter.notifyItemInserted(0);
+            }
+
+            @Override
+            public void notifyItemUpdated() {
+
+            }
+
+            @Override
+            public void notifyItemRemoved() {
+
+            }
+        });
+
         recyclerView.setAdapter(adapter);
     }
 
@@ -530,7 +552,7 @@ public class ListFragment extends Fragment{
                 .setName("Alberto")
                 .build();
 
-        Relation r1=Relation.Builder.create(Relation.relationType.INCOMPATIBLE,a1).build();
+        Relation r1=Relation.Builder.create("ueue",Relation.relationType.INCOMPATIBLE,a1).build();
 
         relationList.add(r1);
         relationList.add(r1);
@@ -584,15 +606,7 @@ public class ListFragment extends Fragment{
 
         ArrayList<Pathology> pathologyList=new ArrayList<>();
 
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
-
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-        Pathology p1=Pathology.Builder.create("TestID", a1,"Scogliosi").build();
+        Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
         pathologyList.add(p1);
         pathologyList.add(p1);
         pathologyList.add(p1);
@@ -645,16 +659,8 @@ public class ListFragment extends Fragment{
 
         ArrayList<Food> foodList=new ArrayList<>();
 
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
 
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-
-        Food f1=Food.Builder.create("TestID", "Riso patate e cozze",a1).build();
+        Food f1=Food.Builder.create("TestID", "Riso patate e cozze").build();
         foodList.add(f1);
         foodList.add(f1);
         foodList.add(f1);

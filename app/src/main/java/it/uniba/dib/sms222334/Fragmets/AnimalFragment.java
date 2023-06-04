@@ -23,6 +23,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
 
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 
 public class AnimalFragment extends Fragment {
@@ -38,17 +42,32 @@ public class AnimalFragment extends Fragment {
 
     private ProfileFragment.Tab previousTab;
 
-    public AnimalFragment(Animal animal){
-        this.profileType= ProfileFragment.Type.ANIMAL;
-        this.animal=animal;
+    public AnimalFragment(){
 
-        this.previousTab=new ProfileFragment.Tab();
+    }
+
+    public static AnimalFragment newInstance(Animal animal) {
+        AnimalFragment myFragment = new AnimalFragment();
+
+        Bundle args = new Bundle();
+
+        args.putParcelable("animal", animal);
+
+        myFragment.setArguments(args);
+
+        return myFragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View layout= inflater.inflate(R.layout.animal_fragment,container,false);
+
+
+        this.profileType= ProfileFragment.Type.ANIMAL;
+        this.animal=getArguments().getParcelable("animal");
+        this.previousTab=new ProfileFragment.Tab();
+
 
         editButton=layout.findViewById(R.id.edit_button);
 

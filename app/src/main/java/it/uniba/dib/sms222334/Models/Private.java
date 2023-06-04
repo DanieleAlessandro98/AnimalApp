@@ -9,8 +9,9 @@ import com.google.common.primitives.Bytes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Private extends User implements Owner, Parcelable {
@@ -18,8 +19,8 @@ public class Private extends User implements Owner, Parcelable {
     private Date birthDate;
     private String taxIDCode; //codice_fiscale
 
-    private LinkedList<Animal> listAnimal;
-    private LinkedList<Expense> listExpense;
+    private ArrayList<Animal> listAnimal;
+    private ArrayList<Expense> listExpense;
 
     public Private(String id, String name, String email, String password, Long phone, Bitmap photo, String surname, Date birthDate, String taxIDCode) {
         super(id, name, email, password, phone, photo);
@@ -28,9 +29,10 @@ public class Private extends User implements Owner, Parcelable {
         this.birthDate = birthDate;
         this.taxIDCode = taxIDCode;
 
-        listAnimal = new LinkedList<>();
-        listExpense = new LinkedList<>();
+        listAnimal = new ArrayList<>();
+        listExpense = new ArrayList<>();
     }
+
 
     public static class Builder{
         private String bID;
@@ -146,8 +148,13 @@ public class Private extends User implements Owner, Parcelable {
     }
 
     @Override
-    public LinkedList<Animal> getAnimalList() {
+    public ArrayList<Animal> getAnimalList() {
         return this.listAnimal;
+    }
+
+    @Override
+    public ArrayList<Expense> getExpenseList() {
+        return this.listExpense;
     }
 
     @Override
@@ -166,7 +173,8 @@ public class Private extends User implements Owner, Parcelable {
         dest.writeString(surname);
         dest.writeSerializable(birthDate);
         dest.writeString(taxIDCode);
-        //TODO to with animal list and expense list
+        dest.writeList(getAnimalList());
+        dest.writeList(getExpenseList());
     }
 
     protected Private(Parcel in) {
@@ -174,7 +182,8 @@ public class Private extends User implements Owner, Parcelable {
         surname = in.readString();
         birthDate = (Date) in.readSerializable();
         taxIDCode = in.readString();
-        //TODO to with animal list and expense list
+        in.readArrayList(Animal.class.getClassLoader());
+        in.readArrayList(Expense.class.getClassLoader());
     }
 
     public static final Creator<Private> CREATOR = new Creator<Private>() {
