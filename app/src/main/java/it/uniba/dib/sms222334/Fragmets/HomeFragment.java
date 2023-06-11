@@ -48,10 +48,35 @@ public class HomeFragment extends Fragment {
     Boolean isLogged;
 
     public HomeFragment() {
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         this.isLogged = SessionManager.getInstance().isLogged();
 
         if (isLogged)
             this.role = SessionManager.getInstance().getCurrentUser().getRole();
+
+        warningButton.setOnClickListener(v -> {
+            if(isLogged)
+                launchWarningDialog();
+            else
+                ((MainActivity)getActivity()).forceLogin();
+        });
+
+        if(role == UserRole.VETERINARIAN){
+            requestButton.setVisibility(View.GONE);
+        }
+        else{
+            requestButton.setOnClickListener(v -> {
+                if(isLogged)
+                    launchRequestDialog();
+                else
+                    ((MainActivity)getActivity()).forceLogin();
+            });
+        }
     }
 
     @Nullable
@@ -83,26 +108,6 @@ public class HomeFragment extends Fragment {
 
         requestButton = layout.findViewById(R.id.add_request);
         warningButton = layout.findViewById(R.id.add_warning);
-        warningButton.setOnClickListener(v -> {
-            if(isLogged)
-                launchWarningDialog();
-            else
-                ((MainActivity)getActivity()).forceLogin();
-        });
-
-        if(role == UserRole.VETERINARIAN){
-            requestButton.setVisibility(View.GONE);
-        }
-        else{
-            requestButton.setOnClickListener(v -> {
-                if(isLogged)
-                    launchRequestDialog();
-                else
-                    ((MainActivity)getActivity()).forceLogin();
-            });
-        }
-
-
 
         return layout;
     }

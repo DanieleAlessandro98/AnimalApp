@@ -36,7 +36,7 @@ public class PublicAuthorityDao {
         return public_authority_requested_builder.build();
     }
 
-    public void findPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority) {
+    public void loadPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority) {
         AnimalDao animalDao = new AnimalDao();
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS);
 
@@ -45,17 +45,7 @@ public class PublicAuthorityDao {
                 @Override
                 public void onDataRetrieved(Animal result) {
                     resultPublicAuthority.addAnimal(result);
-
-                    String log = "";
-                    log += result.getName() + " ";
-                    log += result.getBirthDate() + " ";
-                    log += result.getState() + " ";
-                    log += result.getSpecies() + " ";
-                    log += result.getRace() + " ";
-                    log += result.getPhoto() + " ";
-                    log += result.getMicrochip() + " ";
-
-                    Log.d("resultAnimalTest", log);
+                    resultPublicAuthority.notifyItemLoaded();
                 }
 
                 @Override
