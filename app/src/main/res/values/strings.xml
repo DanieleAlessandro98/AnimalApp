@@ -61,6 +61,7 @@
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
     <string name="login_error">"Access error"</string>
     <string name="profile_update_successful">"Profile successfully updated"</string>
+    <string name="book_visit">Book visit</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

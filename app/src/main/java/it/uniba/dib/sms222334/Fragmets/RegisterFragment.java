@@ -29,7 +29,7 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
 
-public class RegisterFragment extends Fragment {
+public class RegisterFragment extends Fragment{
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN}
 
     private int inflatedLayout;
@@ -51,7 +51,6 @@ public class RegisterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View layout= inflater.inflate(inflatedLayout,container,false);
 
         switch (Type.values()[getArguments().getInt("profile_type")]){
             case PRIVATE:
@@ -66,6 +65,8 @@ public class RegisterFragment extends Fragment {
             default:
                 throw new IllegalArgumentException("Invalid registerType");
         }
+
+        final View layout= inflater.inflate(inflatedLayout,container,false);
 
         if(inflatedLayout==R.layout.private_register){
             ImageButton datePickerButton=layout.findViewById(R.id.date_picker_button);
