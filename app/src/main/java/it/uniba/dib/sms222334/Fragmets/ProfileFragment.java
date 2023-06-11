@@ -46,7 +46,7 @@ public class ProfileFragment extends Fragment {
     
     private ProfileFragment.Type profileType;
 
-    Button editButton;
+    Button editButton,addVisitButton;
     TabLayout tabLayout;
 
     private int inflatedLayout;
@@ -108,6 +108,18 @@ public class ProfileFragment extends Fragment {
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
 
+        if(this.role==UserRole.VETERINARIAN){
+            this.addVisitButton=layout.findViewById(R.id.create_visit);
+
+            this.addVisitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    launchAddVisit();
+                }
+            });
+        }
+
+
         this.previousTab=new Tab();
 
         editButton=layout.findViewById(R.id.edit_button);
@@ -156,6 +168,30 @@ public class ProfileFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
+    private void launchAddVisit(){
+        final Dialog editDialog=new Dialog(getContext());
+        editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        editDialog.setContentView(R.layout.create_visit);
+
+        Spinner visitTypeSpinner= editDialog.findViewById(R.id.visit_type);
+        ArrayAdapter<CharSequence> visitTypeAdapter= ArrayAdapter.createFromResource(getContext(),R.array.exam_type,
+                android.R.layout.simple_list_item_1);
+        visitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        visitTypeSpinner.setAdapter(visitTypeAdapter);
+
+        Button backButton= editDialog.findViewById(R.id.back_button);
+
+        backButton.setOnClickListener(v -> editDialog.cancel());
+
+        editDialog.show();
+        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        editDialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
 
     private void launchEditDialog() {
 

@@ -36,12 +36,36 @@ public class SearchFragment extends Fragment {
     private UserRole role;
     RecyclerView recyclerView;
 
+    VeterinarianAuthoritiesAdapter adapter;
+
 
     public SearchFragment() {
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         this.isLogged = SessionManager.getInstance().isLogged();
 
         if (isLogged)
             this.role = SessionManager.getInstance().getCurrentUser().getRole();
+
+        adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
+            @Override
+            public void OnProfileClicked(User profile) {
+                if(isLogged){
+                    FragmentManager fragmentManager = getParentFragmentManager();
+
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
+                }
+                else
+                    ((MainActivity)getActivity()).forceLogin();
+            }
+        });
     }
 
     @Nullable
@@ -67,22 +91,7 @@ public class SearchFragment extends Fragment {
         listaProva.add(v1);
 
 
-        VeterinarianAuthoritiesAdapter adapter = new VeterinarianAuthoritiesAdapter(listaProva, getContext());
-
-        adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
-            @Override
-            public void OnProfileClicked(User profile) {
-                if(isLogged){
-                    FragmentManager fragmentManager = getParentFragmentManager();
-
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.addToBackStack(null);
-                    transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
-                }
-                else
-                    ((MainActivity)getActivity()).forceLogin();
-            }
-        });
+        this.adapter = new VeterinarianAuthoritiesAdapter(listaProva, getContext());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);

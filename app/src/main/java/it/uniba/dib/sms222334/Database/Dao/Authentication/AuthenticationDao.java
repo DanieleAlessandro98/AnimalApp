@@ -77,7 +77,7 @@ public class AuthenticationDao {
                             PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
                             PublicAuthority authorityFound = publicAuthorityDao.findPublicAuthority(document);
 
-                            publicAuthorityDao.findPublicAuthorityAnimals(document,authorityFound);
+                            publicAuthorityDao.loadPublicAuthorityAnimals(document,authorityFound);
 
                             User user = authorityFound;
 

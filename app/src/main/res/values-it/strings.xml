@@ -53,6 +53,7 @@
     <string name="day">Giorno</string>
     <string name="days">Giorni</string>
     <string name="born_today">nato oggi!</string>
+    <string name="book_visit">Prenota visita</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
