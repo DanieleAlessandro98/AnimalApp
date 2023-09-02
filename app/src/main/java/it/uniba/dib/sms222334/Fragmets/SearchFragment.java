@@ -16,8 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
@@ -26,6 +29,7 @@ import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
 import it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation.RequestSegnalationAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.VeterinarianAuthorities.VeterinarianAuthoritiesAdapter;
@@ -52,19 +56,16 @@ public class SearchFragment extends Fragment {
         if (isLogged)
             this.role = SessionManager.getInstance().getCurrentUser().getRole();
 
-        adapter.setOnProfileClickListener(new VeterinarianAuthoritiesAdapter.OnProfileClicked() {
-            @Override
-            public void OnProfileClicked(User profile) {
-                if(isLogged){
-                    FragmentManager fragmentManager = getParentFragmentManager();
+        adapter.setOnProfileClickListener(profile -> {
+            if(isLogged){
+                FragmentManager fragmentManager = getParentFragmentManager();
 
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.addToBackStack(null);
-                    transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
-                }
-                else
-                    ((MainActivity)getActivity()).forceLogin();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.addToBackStack("itemPage");
+                transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile,getContext())).commit();
             }
+            else
+                ((MainActivity)getActivity()).forceLogin();
         });
     }
 
@@ -77,9 +78,9 @@ public class SearchFragment extends Fragment {
 
         ArrayList<User> listaProva = new ArrayList<>();
         Veterinarian v1 = Veterinarian.Builder.create("TestID", "giuseppeblabla", "ciao")
-                .setLegalSite(new GeoPoint(34,32)).build();
+                .setLegalSite(new GeoPoint(40.52943978714336,17.58860651778748)).build();
         PublicAuthority p1 = PublicAuthority.Builder.create("TestID", "giuseppeblabla", "ciao")
-                .setLegalSite(new GeoPoint(34,32)).build();
+                .setLegalSite(new GeoPoint(40.88685094399862,17.16984022995251)).build();
 
         listaProva.add(v1);
         listaProva.add(p1);
@@ -89,7 +90,6 @@ public class SearchFragment extends Fragment {
         listaProva.add(v1);
         listaProva.add(p1);
         listaProva.add(v1);
-
 
         this.adapter = new VeterinarianAuthoritiesAdapter(listaProva, getContext());
 

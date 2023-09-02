@@ -4,13 +4,20 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -52,10 +59,11 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         }
 
         public void bind(Veterinarian veterinarian){
-             this.latidute=veterinarian.getLegalSite().getLatitude();
-             this.longitude=veterinarian.getLegalSite().getLongitude();
-             this.companyName.setText(veterinarian.getName());
-             this.legalSite.setText(veterinarian.getLegalSite().toString());
+            this.latidute=veterinarian.getLegalSite().getLatitude();
+            this.longitude=veterinarian.getLegalSite().getLongitude();
+            this.companyName.setText(veterinarian.getName());
+
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLegalSite()));
 
             Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
@@ -65,8 +73,8 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
                 this.profilePhoto.setImageBitmap(veterinarian.getPhoto());
             }
 
-             this.profileType.setImageDrawable(context.getDrawable(R.drawable.health));
-             this.profileType.setColorFilter(context.getResources().getColor(R.color.main_green,null), PorterDuff.Mode.SRC_ATOP);
+            this.profileType.setImageDrawable(context.getDrawable(R.drawable.health));
+            this.profileType.setColorFilter(context.getResources().getColor(R.color.main_green,null), PorterDuff.Mode.SRC_ATOP);
         }
 
         @SuppressLint("ResourceAsColor")
@@ -75,6 +83,8 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
             this.longitude=publicAuthority.getLegalSite().getLongitude();
             this.companyName.setText(publicAuthority.getName());
             this.legalSite.setText(publicAuthority.getLegalSite().toString());
+
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLegalSite()));
 
             Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){

@@ -32,7 +32,6 @@ import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
-import it.uniba.dib.sms222334.Views.RecycleViews.NoScrolLayoutManager;
 import it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation.RequestSegnalationAdapter;
 
 public class HomeFragment extends Fragment {

@@ -1,6 +1,16 @@
 package it.uniba.dib.sms222334.Utils;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
+
+import com.google.firebase.firestore.GeoPoint;
+import com.google.type.LatLng;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public final class CoordinateUtilities {
 
@@ -40,7 +50,24 @@ public final class CoordinateUtilities {
         else{
             throw new IllegalArgumentException("Inserted mode is not known");
         }
+    }
 
+    public static String getAddressFromLatLng(Context context, GeoPoint location) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        String address = "";
 
+        try {
+            List<Address> addresses = geocoder.getFromLocation(
+                    location.getLatitude(), location.getLongitude(), 1);
+
+            if (addresses != null && addresses.size() > 0) {
+                Address fetchedAddress = addresses.get(0);
+                address = fetchedAddress.getLocality();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return address;
     }
 }

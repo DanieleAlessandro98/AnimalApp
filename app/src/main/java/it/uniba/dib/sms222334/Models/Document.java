@@ -1,7 +1,7 @@
 package it.uniba.dib.sms222334.Models;
 
 public class Document {
-    private final String firebaseID;
+    private String firebaseID;
 
     public Document(String firebaseID) {
         this.firebaseID = firebaseID;
@@ -9,5 +9,9 @@ public class Document {
 
     public String getFirebaseID() {
         return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID=firebaseID;
     }
 }

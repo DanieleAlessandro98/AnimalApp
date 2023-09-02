@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -15,8 +17,11 @@ import it.uniba.dib.sms222334.Database.AnimalAppDB;
 
 public class Animal extends Document implements Parcelable {
 
+
     //in carico, smarrito, adottato, assistico, randagio
     public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
+
+    public final static String PHOTO_PATH="/images/profiles/animals/";
     private String name;
 
     private String ownerReference;
@@ -177,7 +182,11 @@ public class Animal extends Document implements Parcelable {
         this.state = state;
         this.species = species;
         this.race = race;
-        this.photo = photo;
+
+        if(photo!=null){
+            this.photo = photo;
+        }
+
         this.microchip = microchip;
         this.videos=new ArrayList<>();
         this.photos=new ArrayList<>();
@@ -186,6 +195,35 @@ public class Animal extends Document implements Parcelable {
         this.visits=new ArrayList<>();
         this.expenses=new ArrayList<>();
         this.relations=new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(this==obj) return true;
+
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        return this.getFirebaseID().compareTo(((Animal)obj).getFirebaseID())==0;
+    }
+
+    public void assign(Animal animal, boolean profilePictureFlag){
+        setName(animal.getName());
+        setMicrochip(animal.getMicrochip());
+        setBirthDate(animal.getBirthDate());
+        setFirebaseID(animal.getFirebaseID());
+        setExpenses(animal.getExpenses());
+        setFoods(animal.getFoods());
+        setOwnerReference(animal.getOwnerReference());
+        setPathologies(animal.getPathologies());
+        if(profilePictureFlag)//ho inserito questo check perchè causa Fatal signal 4 (SIGILL) quando la foto è la stessa
+            setPhoto(animal.getPhoto());
+        setPhotos(animal.getPhotos());
+        setRace(animal.getRace());
+        setRelations(animal.getRelations());
+        setState(animal.getState());
+        setSpecies(animal.getSpecies());
+        setVideos(animal.getVideos());
+        setVisits(animal.getVisits());
     }
 
     public static class Builder{

@@ -79,7 +79,7 @@ public final class DateUtilities {
 
         age=(int)Math.floor(age/365);
 
-        return age<minimunAgeYear?false:true;
+        return age >= minimunAgeYear;
 
     }
 }

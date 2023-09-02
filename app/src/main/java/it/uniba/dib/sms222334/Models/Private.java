@@ -3,7 +3,9 @@ package it.uniba.dib.sms222334.Models;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -118,21 +120,31 @@ public class Private extends User implements Owner, Parcelable {
     @Override
     public void updateProfile() {
         PrivateDao privateDao = new PrivateDao();
-        privateDao.updatePrivate(this);
+        privateDao.updatePrivate(this,null);
     }
 
     @Override
     public void addAnimal(Animal animal) {
-        this.listAnimal.add(animal);
+        this.listAnimal.add(0,animal);
+        notifyItemLoaded();
     }
 
     @Override
     public void removeAnimal(Animal animal) {
-        for (Animal a : listAnimal) {
-            if (a.getFirebaseID().compareTo(animal.getFirebaseID()) == 0) {
-                listAnimal.remove(a);
-            }
-        }
+        final int index=listAnimal.indexOf(animal);
+        listAnimal.remove(animal);
+        notifyItemRemoved(index);
+    }
+
+    @Override
+    public void updateAnimal(Animal animal, boolean profilePictureFlag) {
+        final int index=listAnimal.indexOf(animal);
+
+        Animal animalToReplace=this.listAnimal.get(index);
+
+        animalToReplace.assign(animal,profilePictureFlag);
+
+        notifyItemUpdated(index);
     }
 
     @Override

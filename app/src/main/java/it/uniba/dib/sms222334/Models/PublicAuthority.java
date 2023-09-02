@@ -121,16 +121,26 @@ public class PublicAuthority extends User implements Owner, Parcelable {
 
     @Override
     public void addAnimal(Animal animal) {
-        this.listAnimal.add(animal);
+        this.listAnimal.add(0,animal);
+        notifyItemLoaded();
     }
 
     @Override
     public void removeAnimal(Animal animal) {
-        for (Animal a : listAnimal) {
-            if (a.getFirebaseID().compareTo(animal.getFirebaseID()) == 0) {
-                listAnimal.remove(a);
-            }
-        }
+        final int index=listAnimal.indexOf(animal);
+        listAnimal.remove(animal);
+        notifyItemRemoved(index);
+    }
+
+    @Override
+    public void updateAnimal(Animal animal, boolean profilePictureFlag) {
+        final int index=listAnimal.indexOf(animal);
+
+        Animal animalToReplace=this.listAnimal.get(index);
+
+        animalToReplace.assign(animal,profilePictureFlag);
+
+        notifyItemUpdated(index);
     }
 
     @Override

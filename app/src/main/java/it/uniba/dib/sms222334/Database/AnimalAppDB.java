@@ -1,9 +1,13 @@
 package it.uniba.dib.sms222334.Database;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class AnimalAppDB {
     public static final String DATABASE_NAME = "AnimalApp";
+
+    public static final String AUTHORITY="it.uniba.dib.sms222334";
 
     public static class Private implements BaseColumns {
         public static final String TABLE_NAME = "Private";
@@ -21,11 +25,17 @@ public class AnimalAppDB {
     }
 
     public static class PublicAuthority implements BaseColumns {
-        public static final String TABLE_NAME = "PublicAuthority";
+        public static final String PATH="public_authority";
 
+        public static final Uri CONTENT_URI=Uri.parse(ContentResolver.SCHEME_CONTENT+"://"
+                +AUTHORITY+"/"+PATH);
+
+        public static final String MIME_TYPE_DIR=ContentResolver.CURSOR_DIR_BASE_TYPE+"/vnd."+PATH;
+
+        public static final String MIME_TYPE_ITEM=ContentResolver.CURSOR_ITEM_BASE_TYPE+"/vnd."+PATH;
+        public static final String TABLE_NAME = "PublicAuthority";
         public static final String COLUMN_NAME_EMAIL = "email";
         public static final String COLUMN_NAME_PASSWORD = "password";
-        public static final String COLUMN_NAME_ROLE = "role";
         public static final String COLUMN_NAME_COMPANY_NAME = "company_name";
         public static final String COLUMN_NAME_SITE = "site";
         public static final String COLUMN_NAME_LOGO = "logo";
@@ -35,11 +45,18 @@ public class AnimalAppDB {
     }
 
     public static class Veterinarian implements BaseColumns {
+        public static final String PATH="veterinarian";
+
+        public static final Uri CONTENT_URI=Uri.parse(ContentResolver.SCHEME_CONTENT+"://"
+        +AUTHORITY+"/"+PATH);
+
+        public static final String MIME_TYPE_DIR=ContentResolver.CURSOR_DIR_BASE_TYPE+"/vnd."+PATH;
+
+        public static final String MIME_TYPE_ITEM=ContentResolver.CURSOR_ITEM_BASE_TYPE+"/vnd."+PATH;
         public static final String TABLE_NAME = "Veterinarian";
 
         public static final String COLUMN_NAME_EMAIL = "email";
         public static final String COLUMN_NAME_PASSWORD = "password";
-        public static final String COLUMN_NAME_ROLE = "role";
         public static final String COLUMN_NAME_COMPANY_NAME = "company_name";
         public static final String COLUMN_NAME_SITE = "site";
         public static final String COLUMN_NAME_LOGO = "logo";

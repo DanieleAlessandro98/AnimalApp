@@ -20,14 +20,11 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -40,11 +37,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 
-import it.uniba.dib.sms222334.Activity.LoginActivity;
-import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Models.Animal;
@@ -56,7 +50,7 @@ import it.uniba.dib.sms222334.Models.Relation;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Visit;
-import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
+import it.uniba.dib.sms222334.Database.Dao.User.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
@@ -116,6 +110,7 @@ public class ListFragment extends Fragment{
         this.tabPosition = ProfileFragment.TabPosition.values()[getArguments().getInt("tab_position")];
         this.profileType = ProfileFragment.Type.values()[getArguments().getInt("profile_type")];
 
+        getArguments().clear();
 
         addButton=layout.findViewById(R.id.add_button);
         recyclerView=layout.findViewById(R.id.list_item);
@@ -211,35 +206,26 @@ public class ListFragment extends Fragment{
 
 
 
-                    addPhotoButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent photoIntent= new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            photoPickerResultLauncher.launch(photoIntent);
-                        }
+                    addPhotoButton.setOnClickListener(v -> {
+                        Intent photoIntent= new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        photoPickerResultLauncher.launch(photoIntent);
                     });
 
-                    datePickerButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int year = c.get(Calendar.YEAR);
-                            int month = c.get(Calendar.MONTH);
-                            int day = c.get(Calendar.DAY_OF_MONTH);
+                    datePickerButton.setOnClickListener(v -> {
+                        int year = c.get(Calendar.YEAR);
+                        int month = c.get(Calendar.MONTH);
+                        int day = c.get(Calendar.DAY_OF_MONTH);
 
-                            DatePickerDialog datePickerDialog = new DatePickerDialog(
-                                    getContext(),
-                                    new DatePickerDialog.OnDateSetListener() {
-                                        @Override
-                                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                            birthDate.setText(dayOfMonth + "/" + (month+1) + "/" + year);
-                                            birthDate.setError(null);
-                                            c.set(year,month,dayOfMonth);
-                                            dateIsSetted[0]=true;
-                                        }
-                                    }, year, month, day);
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                                getContext(),
+                                (view, year1, month1, dayOfMonth) -> {
+                                    birthDate.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
+                                    birthDate.setError(null);
+                                    c.set(year1, month1,dayOfMonth);
+                                    dateIsSetted[0]=true;
+                                }, year, month, day);
 
-                            datePickerDialog.show();
-                        }
+                        datePickerDialog.show();
                     });
 
                     speciesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -283,7 +269,8 @@ public class ListFragment extends Fragment{
                         }
                     });
 
-                    saveButton.setOnClickListener(v -> animalPresenter.addAnimal(Animal.Builder.create("", Animal.stateList.ADOPTED)
+                    saveButton.setOnClickListener(v -> {
+                        animalPresenter.addAnimal(Animal.Builder.create("", Animal.stateList.ADOPTED)
                             .setBirthDate(dateIsSetted[0]?c.getTime():null)
                             .setRace(raceSpinner.getSelectedItem().toString())
                             .setSpecies(speciesSpinner.getSelectedItem().toString())
@@ -291,7 +278,9 @@ public class ListFragment extends Fragment{
                             .setOwner(SessionManager.getInstance().getCurrentUser().getFirebaseID())
                             .setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap())
                             .setMicrochip(microChip.getText().toString())
-                            .build()));
+                            .build());
+                    });
+
             }
             else{
                 throw new IllegalArgumentException("This tab position is invalid for add on list in private");
@@ -346,9 +335,11 @@ public class ListFragment extends Fragment{
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,0);
 
-        animalPresenter= new AnimalPresenter(this);
+        animalPresenter= new AnimalPresenter();
 
         ArrayList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
+
+
 
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
@@ -360,13 +351,10 @@ public class ListFragment extends Fragment{
 
         this.photoPickerResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK && result.getData()!=null) {
-                            Uri selectedImage = result.getData().getData();
-                            profilePicture.setImageURI(selectedImage);
-                        }
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData()!=null) {
+                        Uri selectedImage = result.getData().getData();
+                        profilePicture.setImageURI(selectedImage);
                     }
                 });
 
@@ -378,8 +366,8 @@ public class ListFragment extends Fragment{
             FragmentManager fragmentManager=getParentFragmentManager();
 
             FragmentTransaction transaction= fragmentManager.beginTransaction();
-            transaction.addToBackStack(null);
-            transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal)).commit();
+            transaction.addToBackStack("itemPage");
+            transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal,getContext())).commit();
             tabPosition=null;
         });
 
@@ -391,13 +379,11 @@ public class ListFragment extends Fragment{
             }
 
             @Override
-            public void notifyItemUpdated() {
-
-            }
+            public void notifyItemUpdated(int position) {adapter.notifyItemChanged(position);}
 
             @Override
-            public void notifyItemRemoved() {
-
+            public void notifyItemRemoved(int position) {
+                adapter.notifyItemRemoved(position);
             }
         });
 
@@ -436,7 +422,7 @@ public class ListFragment extends Fragment{
             FragmentManager fragmentManager=getParentFragmentManager();
 
             FragmentTransaction transaction= fragmentManager.beginTransaction();
-            transaction.addToBackStack(null);
+            transaction.addToBackStack("itemPage");
             transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
         });
 
