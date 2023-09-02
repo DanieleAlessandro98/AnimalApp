@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -26,12 +28,13 @@ import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.ContentProvider.OwnerSuggestContentProvider;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
 
 public final class PrivateDao {
     private final String TAG="PrivateDao";
-    final private CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Private.TABLE_NAME);
+    public static final CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Private.TABLE_NAME);
 
     public void getPrivateByEmail(String email, final DatabaseCallbackResult<Private> listener) {
         collectionPrivate.whereEqualTo(AnimalAppDB.Private.COLUMN_NAME_EMAIL,email).get()
@@ -53,6 +56,27 @@ public final class PrivateDao {
                         } else {
                             listener.onDataQueryError(task.getException());
                         }
+                    }
+                });
+    }
+
+    public void getPrivatesByEmail(String emailText,final DatabaseCallbackResult<Owner> listener){
+        Log.d(TAG,emailText);
+
+        collectionPrivate.whereGreaterThanOrEqualTo("email", emailText)
+                .whereLessThanOrEqualTo("email", emailText + "\uf8ff")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        ArrayList<Owner> resultList = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Private privateFound = findPrivate(document);
+                            resultList.add(privateFound);
+
+                            Log.d(TAG,privateFound.getFirebaseID()+" found!");
+                        }
+
+                        listener.onDataRetrieved(resultList);
                     }
                 });
     }
@@ -81,7 +105,11 @@ public final class PrivateDao {
                 @Override
                 public void onDataRetrieved(Animal result) {
                     resultPrivate.addAnimal(result);
-                    resultPrivate.notifyItemLoaded();
+                }
+
+                @Override
+                public void onDataRetrieved(ArrayList<Animal> results) {
+
                 }
 
                 @Override
@@ -100,7 +128,9 @@ public final class PrivateDao {
     }
 
     public void createPrivate(Private Private){
+
         List<DocumentReference> dr= new ArrayList<>();
+
 
         Map<String, Object> new_private = new HashMap<>();
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_NAME, Private.getName());
@@ -110,7 +140,7 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, Private.getEmail());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhone());
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
 
@@ -146,8 +176,16 @@ public final class PrivateDao {
                 });
     }
 
-    public void updatePrivate(Private updatePrivate) {
+    public void updatePrivate(Private updatePrivate,UserCallback.UserUpdateCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        List<DocumentReference> dr= new ArrayList<>();
+
+        for(Animal a: updatePrivate.getAnimalList()){
+            Log.d(TAG,a.getName());
+            DocumentReference documentReference = AnimalDao.collectionAnimal.document(a.getFirebaseID());
+            dr.add(documentReference);
+        }
 
         user.updateEmail(updatePrivate.getEmail())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -159,10 +197,11 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, updatePrivate.getSurname());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE, new Timestamp(updatePrivate.getBirthDate()));
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_ANIMALS, dr);
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhoto());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhotoPath());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())
@@ -170,12 +209,14 @@ public final class PrivateDao {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        callback.notifyUpdateSuccesfull();
                         Log.d(TAG, "update fatto");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        callback.notifyUpdateFailed();
                         Log.d(TAG, "errore update");
                     }
                 });

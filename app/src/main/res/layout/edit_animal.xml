@@ -35,7 +35,7 @@
 
     </RelativeLayout>
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/edged_container_shape"
@@ -67,25 +67,45 @@
                     app:strokeColor="?attr/colorAccent"
                     app:shapeAppearanceOverlay="@style/circular"
                     android:scaleType="centerCrop"/>
+
                 <Button
-                    android:id="@+id/edit_button"
+                    android:id="@+id/edit_foto_button"
                     android:layout_width="80dp"
                     android:layout_height="30dp"
+                    android:layout_centerInParent="true"
                     android:background="@drawable/button_shape"
                     android:paddingHorizontal="10dp"
                     android:text="@string/edit"
                     android:textColor="?attr/colorPrimary"
-                    android:layout_centerInParent="true"
                     android:textSize="10sp" />
             </RelativeLayout>
 
-            <Spinner
-                android:id="@+id/owner_chooser"
+            <LinearLayout
+                android:id="@+id/edit_owner"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/check_button_shape"
-                android:textSize="16sp" />
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/owner_chooser"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="5dp"
+                    android:hint="@string/owner"
+                    android:background="@drawable/check_button_shape"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/edit_owner_button"
+                    android:layout_width="80dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/baseline_edit_24"
+                    app:tint="?attr/colorPrimary" />
+            </LinearLayout>
 
             <it.uniba.dib.sms222334.Views.AnimalAppEditText
                 android:id="@+id/nameEditText"
@@ -129,13 +149,14 @@
             </LinearLayout>
 
             <it.uniba.dib.sms222334.Views.AnimalAppEditText
-                android:id="@+id/phoneNumberEditText"
+                android:id="@+id/micro_chipEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/edit_text_shape"
                 android:hint="@string/microchip"
-                android:inputType="phone"
+                android:inputType="textCapCharacters"
+                android:maxLength="15"
                 android:padding="16dp"
                 android:textColorHint="#A3A3A3"
                 android:textSize="16sp" />

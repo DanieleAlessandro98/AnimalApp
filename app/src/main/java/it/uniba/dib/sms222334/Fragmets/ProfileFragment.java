@@ -1,10 +1,12 @@
 package it.uniba.dib.sms222334.Fragmets;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,22 +26,21 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import it.uniba.dib.sms222334.Activity.MainActivity;
-import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
-import it.uniba.dib.sms222334.Presenters.UserPresenter;
+import it.uniba.dib.sms222334.Database.Dao.User.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
-import kotlin.jvm.Throws;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
@@ -69,52 +70,56 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
-    private Button saveButton;
 
     private UserPresenter userPresenter;
+
+    public SharedPreferences.Editor editor;
+    private static SharedPreferences preferences;
+
+    private User profile;
 
     public ProfileFragment(){
 
     }
 
-    public static ProfileFragment newInstance(User profile) {
+    public static ProfileFragment newInstance(User profile, Context context) {
         ProfileFragment myFragment = new ProfileFragment();
 
-        Bundle args = new Bundle();
-
-        switch (profile.getRole()){
-            case VETERINARIAN:
-                args.putParcelable("profile", (Veterinarian)profile);
-                break;
-            case PRIVATE:
-                args.putParcelable("profile", (Private)profile);
-                break;
-            case PUBLIC_AUTHORITY:
-                args.putParcelable("profile", (PublicAuthority)profile);
-                break;
-        }
-
-        myFragment.setArguments(args);
+        preferences=PreferenceManager.getDefaultSharedPreferences(context);
+        myFragment.editor= preferences.edit();
+        myFragment.editor.putString("profileData", new Gson().toJson(profile));
+        myFragment.editor.putInt("profileRole", profile.getRole().ordinal());
+        myFragment.editor.commit();
 
         return myFragment;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        changeTab(TabPosition.ANIMAL,false);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        this.role=((User)getArguments().getParcelable("profile")).getRole();
+
+        this.role=UserRole.values()[preferences.getInt("profileRole", 0)];
+
+        String user = preferences.getString("profileData", "");
 
         switch (this.role){
             case PRIVATE:
-                Log.d(TAG,"sono nel profilo di un privato");
+                this.profile = new Gson().fromJson(user, new TypeToken<Private>() {}.getType());
                 profileType=Type.PRIVATE;
                 break;
             case PUBLIC_AUTHORITY:
-                Log.d(TAG,"sono nel profilo di un ente");
+                this.profile = new Gson().fromJson(user, new TypeToken<PublicAuthority>() {}.getType());
                 profileType=Type.PUBLIC_AUTHORITY;
                 break;
             case VETERINARIAN:
-                Log.d(TAG,"sono nel profilo di un veterinario");
+                this.profile = new Gson().fromJson(user, new TypeToken<Veterinarian>() {}.getType());
                 profileType=Type.VETERINARIAN;
                 break;
         }
@@ -143,6 +148,9 @@ public class ProfileFragment extends Fragment {
         this.previousTab=new Tab();
 
         editButton=layout.findViewById(R.id.edit_button);
+
+        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
+            editButton.setVisibility(View.INVISIBLE);
 
         userPresenter = new UserPresenter(this);
 
@@ -180,8 +188,6 @@ public class ProfileFragment extends Fragment {
 
             }
         });
-
-        changeTab(TabPosition.ANIMAL,false);
 
         return layout;
     }
@@ -241,7 +247,7 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
-        saveButton = editDialog.findViewById(R.id.save_button);
+        Button saveButton = editDialog.findViewById(R.id.save_button);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -337,10 +343,10 @@ public class ProfileFragment extends Fragment {
                 changeTab(TabPosition.ANIMAL,true);
                 return;
         }
+
+
+
         FragmentManager fragmentManager=getParentFragmentManager();
-
-        Log.d(TAG,"poco prima di lanciare il fragment");
-
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
         transaction.replace(R.id.recycle_container,fragment).commit();

@@ -21,6 +21,8 @@ public abstract class User extends Document implements UserCallback.UserStateLis
     private Long phone;
     private Bitmap photo;
 
+    private String photoPath;
+
     private UserCallback.UserStateListener userCallback;
 
     public User(String id, String name, String email, String password, Long phone, Bitmap photo) {
@@ -30,8 +32,11 @@ public abstract class User extends Document implements UserCallback.UserStateLis
         this.password = password;
         this.phone = phone;
 
-        if(photo!=null)
+        if(photo!=null){
             this.photo = photo;
+            this.photoPath="/images/profiles/users/"+id+".jpg";
+        }
+
     }
 
     public void setUserLoadingCallBack(UserCallback.UserStateListener callBack){
@@ -46,15 +51,15 @@ public abstract class User extends Document implements UserCallback.UserStateLis
     }
 
     @Override
-    public void notifyItemUpdated() {
+    public void notifyItemUpdated(int position) {
         if(this.userCallback!=null)
-            this.userCallback.notifyItemUpdated();
+            this.userCallback.notifyItemUpdated(position);
     }
 
     @Override
-    public void notifyItemRemoved() {
+    public void notifyItemRemoved(int position) {
         if(this.userCallback!=null)
-            this.userCallback.notifyItemRemoved();
+            this.userCallback.notifyItemRemoved(position);
     }
 
 
@@ -80,4 +85,8 @@ public abstract class User extends Document implements UserCallback.UserStateLis
 
     public abstract UserRole getRole();
     public abstract void updateProfile();
+
+    public String getPhotoPath() {
+        return this.photoPath;
+    }
 }

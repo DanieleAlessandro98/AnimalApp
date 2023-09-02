@@ -1,6 +1,7 @@
 package it.uniba.dib.sms222334.Views.RecycleViews.Animal;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import it.uniba.dib.sms222334.Models.Segnalation;
 import it.uniba.dib.sms222334.R;
 
 public class AnimalAdapter extends RecyclerView.Adapter<AnimalViewHolder> implements  AnimalViewHolder.OnItemClickListener{
-
+    public static final String TAG="AnimalAdapter";
     ArrayList<Animal> animalList;
     Context context;
 
@@ -32,10 +33,11 @@ public class AnimalAdapter extends RecyclerView.Adapter<AnimalViewHolder> implem
         this.onAnimalClicked=listener;
     }
 
-    public AnimalAdapter(ArrayList<Animal> mModel,Context context){
+    public AnimalAdapter(ArrayList<Animal> mModel,Context context) {
         this.animalList = mModel;
-        this.context=context;
+        this.context = context;
     }
+
 
     @NonNull
     @Override

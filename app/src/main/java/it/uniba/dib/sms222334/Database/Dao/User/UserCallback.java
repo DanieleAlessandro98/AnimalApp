@@ -6,7 +6,12 @@ public final class UserCallback {
 
     public interface UserStateListener{
         void notifyItemLoaded();
-        void notifyItemUpdated();
-        void notifyItemRemoved();
+        void notifyItemUpdated(int position);
+        void notifyItemRemoved(int position);
+    }
+
+    public interface UserUpdateCallback{
+        void notifyUpdateSuccesfull();
+        void notifyUpdateFailed();
     }
 }

@@ -30,6 +30,8 @@
     <color name="dark_application_color">@color/soft_black_100</color>
     <color name="on_application_color">@color/soft_white_100</color>
     <color name="application_color">@color/white</color>
+
+
     <color name="edit_text_focused">@color/black</color>
     <color name="edit_text_normal">@color/soft_black</color>
     <color name="edit_text_invalid_input">@color/red</color>
