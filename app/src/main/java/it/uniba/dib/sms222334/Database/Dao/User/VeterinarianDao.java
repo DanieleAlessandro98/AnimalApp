@@ -26,4 +26,23 @@ public class VeterinarianDao {
 
         return veterinarian_requested_builder.build();
     }
+
+    // TODO: createVeterinarian metodo
+    //TODO: Creare Autentication
+
+    //Callback per far tornare dalla pagina di registrazione a quella di login (DA INSERIRE NEL METODO createVeterinarian)
+    /*                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        @Override
+        public void onSuccess(DocumentReference documentReference) {
+            Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+            callback.onRegisterSuccess();
+        }
+    })
+            .addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception e) {
+            Log.w(TAG, "Error adding document", e);
+            callback.onRegisterFail();
+        }
+    });*/
 }

@@ -2,6 +2,10 @@ package it.uniba.dib.sms222334.Database.Dao.User;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -72,4 +76,25 @@ public class PublicAuthorityDao {
             animalDao.getAnimalByReference(animalRef, resultPublicAuthority.getFirebaseID(), animalListener);
         }
     }
+
+    // TODO: createPublicAuthority metodo
+    //TODO: Creare Autentication
+
+    //Callback per far tornare dalla pagina di registrazione a quella di login (DA INSERIRE NEL METODO createPublicAuthority)
+    /*                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        @Override
+        public void onSuccess(DocumentReference documentReference) {
+            Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+            callback.onRegisterSuccess();
+        }
+    })
+            .addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception e) {
+            Log.w(TAG, "Error adding document", e);
+            callback.onRegisterFail();
+        }
+    });*/
+
+
 }

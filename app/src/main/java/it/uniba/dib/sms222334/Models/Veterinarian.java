@@ -9,6 +9,7 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -138,6 +139,16 @@ public class Veterinarian extends User implements Parcelable{
     };
 
     public void updateProfile() {
+
+    }
+    // TODO: Da ultimare bisogna controllare il metodo da creare nel Dao dell'authority
+    public void registerVeterinarian(String companyName, String emailB, String passwordB, Long phoneB, GeoPoint TEST /*UserCallback.UserRegisterCallback callback*/) {
+
+        // Crea un'istanza di PublicAuthorityDao
+        PublicAuthorityDao VeterinarianDao = new PublicAuthorityDao();
+
+        // Chiamata al metodo di creazione di VeterinarianDao per salvare il Veterinarian nel database
+        // TODO:VeterinarianDao.createVeterinarian(this, callback);
 
     }
 }
