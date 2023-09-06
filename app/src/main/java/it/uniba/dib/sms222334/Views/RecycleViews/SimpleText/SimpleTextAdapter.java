@@ -15,7 +15,7 @@ import it.uniba.dib.sms222334.R;
 
 public class SimpleTextAdapter<T> extends RecyclerView.Adapter<SimpleTextViewHolder<T>>{
 
-    ArrayList<T> simpleItemList;
+    public ArrayList<T> simpleItemList;
 
     public SimpleTextAdapter(ArrayList<T> mModel){
         this.simpleItemList = mModel;

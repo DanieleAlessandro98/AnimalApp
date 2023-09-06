@@ -53,6 +53,7 @@
     <string name="day">Giorno</string>
     <string name="days">Giorni</string>
     <string name="born_today">nato oggi!</string>
+
     <string name="invalid_user_name">Nome non valido. Solo caratteri</string>
     <string name="invalid_user_surname">Cognome non valido. Solo caratteri</string>
     <string name="invalid_user_birthdate">Data di nascita non valida</string>

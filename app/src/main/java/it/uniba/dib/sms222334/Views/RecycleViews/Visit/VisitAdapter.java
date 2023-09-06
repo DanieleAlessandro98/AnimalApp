@@ -40,6 +40,10 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitViewHolder> implemen
         notifyItemRemoved(pos);
     }
 
+    public ArrayList<Visit> getVisitList() {
+        return visitList;
+    }
+
     @NonNull
     @Override
     public VisitViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
