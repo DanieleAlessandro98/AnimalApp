@@ -127,8 +127,8 @@ public final class PrivateDao {
         }
     }
 
-    public void createPrivate(Private Private){
 
+    public void createPrivate(Private Private, final UserCallback.UserRegisterCallback callback){
         List<DocumentReference> dr= new ArrayList<>();
 
 
@@ -143,18 +143,20 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
-
+        //TODO: Creare Autentication
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                        callback.onRegisterSuccess();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error adding document", e);
+                        callback.onRegisterFail();
                     }
                 });
     }

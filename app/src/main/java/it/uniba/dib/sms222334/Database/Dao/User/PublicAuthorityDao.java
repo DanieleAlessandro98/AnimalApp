@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -103,7 +104,7 @@ public class PublicAuthorityDao {
                 });
     }
 
-    public void createPublicAutority(PublicAuthority publicAuthority){
+    public void createPublicAuthority(PublicAuthority publicAuthority, final UserCallback.UserRegisterCallback callback){
 
         List<DocumentReference> dr= new ArrayList<>();
 
@@ -123,12 +124,14 @@ public class PublicAuthorityDao {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                        callback.onRegisterSuccess();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error adding document", e);
+                        callback.onRegisterFail();
                     }
                 });
     }

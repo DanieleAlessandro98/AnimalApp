@@ -2,7 +2,6 @@ package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
 
-import it.uniba.dib.sms222334.Models.VISIT;
 import it.uniba.dib.sms222334.Models.Visit;
 
 /**

@@ -4,6 +4,12 @@ import it.uniba.dib.sms222334.Models.User;
 
 public final class UserCallback {
 
+    public interface UserRegisterCallback{
+
+        void onRegisterSuccess();
+        void onRegisterFail();
+    }
+
     public interface UserStateListener{
         void notifyItemLoaded();
         void notifyItemUpdated(int position);

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
+import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -210,4 +212,15 @@ public class PublicAuthority extends User implements Owner, Parcelable {
             return new Private[size];
         }
     };
+
+// TODO: Da ultimare bisogna controllare il metodo da creare nel Dao dell'authority
+    public void registerAuthority(UserCallback.UserRegisterCallback callback) {
+
+        // Crea un'istanza di PublicAuthorityDao
+        PublicAuthorityDao pubblicAuthorityDao = new PublicAuthorityDao();
+
+        // Chiamata al metodo di creazione di PublicAuthorityDao per salvare la PA nel database
+        pubblicAuthorityDao.createPublicAuthority(this, callback);
+
+    }
 }
