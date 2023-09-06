@@ -54,7 +54,6 @@
     <string name="day">Day</string>
     <string name="days">Days</string>
     <string name="born_today">born today!</string>
-<<<<<<< HEAD
     <string name="invalid_user_name">Invalid name. Only characters</string>
     <string name="invalid_user_surname">Invalid surname. Only characters</string>
     <string name="invalid_user_birthdate">Invalid date of birth</string>
@@ -62,8 +61,6 @@
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
     <string name="login_error">"Access error"</string>
     <string name="profile_update_successful">"Profile successfully updated"</string>
-=======
->>>>>>> f5e930b2a31dade750ba2d0897384f9a3232f739
     <string name="book_visit">Book visit</string>
 
     <string-array name="diagnosis_type">
@@ -79,11 +76,11 @@
     </string-array>
 
     <string-array name="exam_type">
-        <item>Deworming</item>
-        <item>Vaccination</item>
-        <item>Sterilization</item>
-        <item>Surgery</item>
-        <item>Control</item>
+        <item>DEWORMING</item>
+        <item>VACCINATION</item>
+        <item>STERILIZATION</item>
+        <item>SURGERY</item>
+        <item>CONTROL</item>
     </string-array>
 
     <string-array name="animal_species">
@@ -233,8 +230,8 @@
     </string-array>
 
     <string-array name="relation_type">
-        <item>Friend</item>
-        <item>Incompatible</item>
-        <item>Cohabitee</item>
+        <item>FRIEND</item>
+        <item>INCOMPATIBLE</item>
+        <item>COHABITEE</item>
     </string-array>
 </resources>

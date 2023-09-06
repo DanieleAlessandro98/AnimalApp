@@ -32,6 +32,9 @@ public class Relation extends Document implements Parcelable{
         this.animal = animal;
     }
 
+    public static boolean deleteRelation(){
+        return true;
+    }
     public static class Builder{
         private String bID;
         private relationType bcategory;

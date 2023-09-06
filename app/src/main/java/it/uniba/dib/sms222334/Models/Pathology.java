@@ -6,11 +6,23 @@ import android.os.Parcelable;
 
 public class Pathology extends Document implements Parcelable{
     private String name;
-
+    //TODO chiedere come si crea la classe nel present
     private Pathology(String id, String name) {
         super(id);
 
         this.name = name;
+    }
+
+    public static void createPathology (){
+
+    }
+
+    public static boolean deletePathology(String idPathology){
+        if(idPathology != null) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public String getName() {

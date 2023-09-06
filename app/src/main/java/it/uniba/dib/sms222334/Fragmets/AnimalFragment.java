@@ -38,7 +38,7 @@ public class AnimalFragment extends Fragment {
 
     ProfileFragment.Type profileType;
 
-    Animal animal;
+    public static Animal animal;    //modifica 13 giu
 
     private ProfileFragment.Tab previousTab;
 

@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -10,9 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,19 +31,19 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
-import it.uniba.dib.sms222334.Activity.MainActivity;
-import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
+import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
-import kotlin.jvm.Throws;
+import it.uniba.dib.sms222334.Models.Visit;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
@@ -103,6 +107,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         this.role=((User)getArguments().getParcelable("profile")).getRole();
+        String username = SessionManager.getInstance().getCurrentUser().getName();
+        String email = SessionManager.getInstance().getCurrentUser().getEmail();
 
         switch (this.role){
             case PRIVATE:
@@ -127,6 +133,13 @@ public class ProfileFragment extends Fragment {
         }
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
+
+        TextView nameView = layout.findViewById(R.id.name);
+        TextView emailView = layout.findViewById(R.id.email);
+
+
+        nameView.setText(username);
+        emailView.setText(email);
 
         if(this.role==UserRole.VETERINARIAN){
             this.addVisitButton=layout.findViewById(R.id.create_visit);
@@ -191,21 +204,98 @@ public class ProfileFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
+    public Visit.visitType visitType;
+
     private void launchAddVisit(){
         final Dialog editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         editDialog.setContentView(R.layout.create_visit);
 
+        this.dateTextView = editDialog.findViewById(R.id.date_text_view);
+
         Spinner visitTypeSpinner= editDialog.findViewById(R.id.visit_type);
+        Button backButton= editDialog.findViewById(R.id.back_button);
+        Button createButton = editDialog.findViewById(R.id.save_button);
+        Spinner animalchooser = editDialog.findViewById(R.id.animal_chooser);
+        EditText doctorName = editDialog.findViewById(R.id.doctor_name);
+        ImageButton dateButton = editDialog.findViewById(R.id.date_picker_button);
+
         ArrayAdapter<CharSequence> visitTypeAdapter= ArrayAdapter.createFromResource(getContext(),R.array.exam_type,
                 android.R.layout.simple_list_item_1);
         visitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         visitTypeSpinner.setAdapter(visitTypeAdapter);
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar c = Calendar.getInstance();
+
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        getContext(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                dateTextView.setText(dayOfMonth + "/" + (month+1) + "/" + year);
+                            }
+                        }, year, month, day);
+
+                datePickerDialog.show();
+            }
+        });
 
         backButton.setOnClickListener(v -> editDialog.cancel());
+        final String[] animalValue = new String[1];
+
+        String visitName = doctorName.getText().toString();
+
+        visitTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                visitType = Visit.visitType.valueOf(adapterView.getItemAtPosition(i).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        animalchooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                animalValue[0] = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                VisitPresenter visit = new VisitPresenter();
+                String date = dateTextView.getText().toString();//INIZIO Data di nascita
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date dateConvert = null;
+                try {
+                    dateConvert = dateFormat.parse(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                Visit value = visit.createVisit(visitType,dateConvert,visitName);
+                if (value != null){
+                    System.out.println("finito");
+                    editDialog.cancel();
+                }
+            }
+        });
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
