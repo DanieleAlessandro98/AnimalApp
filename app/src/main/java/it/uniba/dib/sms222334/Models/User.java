@@ -83,10 +83,31 @@ public abstract class User extends Document implements UserCallback.UserStateLis
         return this.photo;
     }
 
-    public abstract UserRole getRole();
-    public abstract void updateProfile();
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setPhone(long phone) {
+        this.phone = phone;
+    }
+
+    public void setPhoto(Bitmap photo) {
+        this.photo = photo;
+    }
 
     public String getPhotoPath() {
         return this.photoPath;
     }
+
+    public abstract UserRole getRole();
+    public abstract void updateProfile();
+    public abstract void deleteProfile();
 }

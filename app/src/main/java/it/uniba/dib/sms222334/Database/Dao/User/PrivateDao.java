@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Database.Dao.User;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,18 +27,20 @@ import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.ContentProvider.OwnerSuggestContentProvider;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Utils.Media;
 
 public final class PrivateDao {
     private final String TAG="PrivateDao";
     public static final CollectionReference collectionPrivate = FirebaseFirestore.getInstance().collection(AnimalAppDB.Private.TABLE_NAME);
 
     public void getPrivateByEmail(String email, final DatabaseCallbackResult<Private> listener) {
-        collectionPrivate.whereEqualTo(AnimalAppDB.Private.COLUMN_NAME_EMAIL,email).get()
+        collectionPrivate.whereEqualTo(AnimalAppDB.Private.COLUMN_NAME_EMAIL, email).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -46,10 +49,18 @@ public final class PrivateDao {
                             if (querySnapshot != null && !querySnapshot.isEmpty()) {
                                 DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
-                                Private resultPrivate = findPrivate(document);
-                                loadPrivateAnimals(document, resultPrivate);
+                                findPrivate(document, new PrivateCallback() {
+                                    @Override
+                                    public void onPrivateFound(Private privateObject) {
+                                        loadPrivateAnimals(document, privateObject);
+                                        listener.onDataRetrieved(privateObject);
+                                    }
 
-                                listener.onDataRetrieved(resultPrivate);
+                                    @Override
+                                    public void onPrivateFindFailed(Exception exception) {
+
+                                    }
+                                });
                             } else {
                                 listener.onDataNotFound();
                             }
@@ -60,8 +71,9 @@ public final class PrivateDao {
                 });
     }
 
-    public void getPrivatesByEmail(String emailText,final DatabaseCallbackResult<Owner> listener){
-        Log.d(TAG,emailText);
+
+    public void getPrivatesByEmail(String emailText, final DatabaseCallbackResult<Owner> listener) {
+        Log.d(TAG, emailText);
 
         collectionPrivate.whereGreaterThanOrEqualTo("email", emailText)
                 .whereLessThanOrEqualTo("email", emailText + "\uf8ff")
@@ -70,10 +82,19 @@ public final class PrivateDao {
                     if (task.isSuccessful()) {
                         ArrayList<Owner> resultList = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Private privateFound = findPrivate(document);
-                            resultList.add(privateFound);
+                            findPrivate(document, new PrivateCallback() {
+                                @Override
+                                public void onPrivateFound(Private privateObject) {
+                                    resultList.add(privateObject);
 
-                            Log.d(TAG,privateFound.getFirebaseID()+" found!");
+                                    Log.d(TAG, privateObject.getFirebaseID() + " found!");
+                                }
+
+                                @Override
+                                public void onPrivateFindFailed(Exception exception) {
+
+                                }
+                            });
                         }
 
                         listener.onDataRetrieved(resultList);
@@ -81,19 +102,32 @@ public final class PrivateDao {
                 });
     }
 
-    public Private findPrivate(DocumentSnapshot document) {
-        Private.Builder private_requested_builder=Private.Builder.
-                create(
-                        document.getId(),
-                        document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
-                        document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL)) //TODO: document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO))
-                .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
-                .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
-                .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
-                .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
+    public void findPrivate(DocumentSnapshot document, PrivateCallback callback) {
+        MediaDao mediaDao = new MediaDao();
+        mediaDao.downloadPhoto(document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO), new MediaDao.PhotoDownloadListener() {
+            @Override
+            public void onPhotoDownloaded(Bitmap bitmap) {
+                Private.Builder private_requested_builder = Private.Builder.
+                        create(
+                                document.getId(),
+                                document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
+                                document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
+                        .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
+                        .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
+                        .setPhoto(bitmap)
+                        .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
+                        .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
+                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
 
-        return private_requested_builder.build();
+                Private resultPrivate = private_requested_builder.build();
+                callback.onPrivateFound(resultPrivate);
+            }
+
+            @Override
+            public void onPhotoDownloadFailed(Exception exception) {
+                callback.onPrivateFindFailed(exception);
+            }
+        });
     }
 
     public void loadPrivateAnimals(final DocumentSnapshot document, Private resultPrivate) {
@@ -140,7 +174,7 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, Private.getEmail());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhone());
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "");
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
         //TODO: Creare Autentication
@@ -203,7 +237,7 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhotoPath());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + updatePrivate.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())
@@ -223,4 +257,10 @@ public final class PrivateDao {
                     }
                 });
     }
+
+    public interface PrivateCallback {
+        void onPrivateFound(Private privateObject);
+        void onPrivateFindFailed(Exception exception);
+    }
+
 }

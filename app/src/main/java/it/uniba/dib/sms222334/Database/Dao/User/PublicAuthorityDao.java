@@ -115,7 +115,7 @@ public class PublicAuthorityDao {
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,publicAuthority.getNBeds());
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, publicAuthority.getPassword());
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "/images/profiles/users/default.jpg");
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, publicAuthority.getPhone());
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, publicAuthority.getLegalSite());
 

@@ -3,6 +3,7 @@ package it.uniba.dib.sms222334.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.animation.AnimationUtils;
+import it.uniba.dib.sms222334.Database.Dao.FoodDao;
 
 import java.util.LinkedList;
 
@@ -74,4 +75,9 @@ public class Food extends Document implements Parcelable {
             return new Food[size];
         }
     };
+
+    public void delete() {
+        FoodDao foodDao = new FoodDao();
+        foodDao.deleteFood(this);
+    }
 }

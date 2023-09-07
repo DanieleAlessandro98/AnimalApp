@@ -9,14 +9,13 @@ import androidx.annotation.Nullable;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.ArrayList;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 
 public class Animal extends Document implements Parcelable {
-
 
     //in carico, smarrito, adottato, assistico, randagio
     public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
@@ -315,7 +314,6 @@ public class Animal extends Document implements Parcelable {
         videos.add(video);
     }
 
-
     @Override
     public int describeContents() {
         return 0;
@@ -375,4 +373,38 @@ public class Animal extends Document implements Parcelable {
             return new Animal[size];
         }
     };
+
+    public void delete() {
+        for (Visit visit : visits) {
+            visit.delete();
+        }
+
+        for (Pathology pathology : pathologies) {
+            pathology.delete();
+        }
+
+        for (Food food : foods) {
+            food.delete();
+        }
+
+        for (Expense expense : expenses) {
+            expense.delete();
+        }
+
+        // TODO: Cancellare relazioni
+        // TODO: Cancellare foto e video (dal repo di firebase)
+
+        AnimalDao animalDao = new AnimalDao();
+        animalDao.deleteAnimal(this, new AnimalCallbacks.eliminationCallback() {
+            @Override
+            public void eliminatedSuccesfully() {
+
+            }
+
+            @Override
+            public void failedElimination() {
+
+            }
+        });
+    }
 }

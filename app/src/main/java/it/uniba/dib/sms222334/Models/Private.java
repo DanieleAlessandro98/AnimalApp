@@ -113,6 +113,18 @@ public class Private extends User implements Owner, Parcelable {
         return taxIDCode;
     }
 
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setTaxIDCode(String taxIDCode) {
+        this.taxIDCode = taxIDCode;
+    }
+
     @Override
     public UserRole getRole() {
         return UserRole.PRIVATE;
@@ -121,7 +133,27 @@ public class Private extends User implements Owner, Parcelable {
     @Override
     public void updateProfile() {
         PrivateDao privateDao = new PrivateDao();
-        privateDao.updatePrivate(this,null);
+        privateDao.updatePrivate(this, new UserCallback.UserUpdateCallback() {
+            @Override
+            public void notifyUpdateSuccesfull() {
+
+            }
+
+            @Override
+            public void notifyUpdateFailed() {
+
+            }
+        });
+    }
+
+    @Override
+    public void deleteProfile() {
+        for (Animal animal : listAnimal) {
+            animal.delete();
+        }
+
+        PrivateDao privateDao = new PrivateDao();
+        privateDao.deletePrivate(this);
     }
 
     @Override
@@ -221,4 +253,3 @@ public class Private extends User implements Owner, Parcelable {
         privateDao.createPrivate(this, callback);
     }
 }
-
