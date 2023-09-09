@@ -13,8 +13,9 @@ public class Pathology extends Document implements Parcelable{
         this.name = name;
     }
 
-    public static void createPathology (){
-
+    public static boolean createPathology (String idAnimal, String name){
+        PathologyDao dao = new PathologyDao();
+        return dao.createPathology(idAnimal,name);
     }
 
     public static boolean deletePathology(String idPathology){
@@ -23,6 +24,11 @@ public class Pathology extends Document implements Parcelable{
         }else{
             return false;
         }
+    }
+
+    public static boolean getPathology(String idAnimal){
+        PathologyDao dao = new PathologyDao();
+        return dao.getListPathology(idAnimal);
     }
 
     public String getName() {

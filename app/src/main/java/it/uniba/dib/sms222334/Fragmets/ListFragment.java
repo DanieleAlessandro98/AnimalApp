@@ -97,6 +97,7 @@ public class ListFragment extends Fragment{
 
     public static ListFragment newInstance(ProfileFragment.Tab tabPosition,ProfileFragment.Type profileType) {
         ListFragment myFragment = new ListFragment();
+        animal = AnimalFragment.animal; // Non cancellare questa riga, viene usato nella patologia dell'animale
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
         args.putInt("profile_type", profileType.ordinal());
@@ -382,10 +383,12 @@ public class ListFragment extends Fragment{
                         public void onClick(View view) {
                             PathologyPresenter pathology = new PathologyPresenter();
                             Pathology pathologyValue = pathology.action_create(animal.getFirebaseID(),getValue[0]);
-                            addDialog.cancel();
+                            if (pathologyValue != null) {
+                                addDialog.cancel();
 
-                            pathologyList.add(pathologyValue);
-                            recyclerView.setAdapter(pathologyAdapter);
+                                pathologyList.add(pathologyValue);
+                                recyclerView.setAdapter(pathologyAdapter);
+                            }
                         }
                     });
                     ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_pathologies,
@@ -695,11 +698,11 @@ public class ListFragment extends Fragment{
         pathologyList=new ArrayList<>();
 
         Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
+        /*pathologyList.add(p1);
         pathologyList.add(p1);
         pathologyList.add(p1);
         pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
+        pathologyList.add(p1);*/
         pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
 
         addButton.setOnClickListener(v -> launchAddDialog() );

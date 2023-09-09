@@ -20,8 +20,10 @@ public class PathologyPresenter {
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
             pathology = Pathology.Builder.create(idAnimal,name).build();
-            Pathology.createPathology();
-            return pathology;
+            //TODO ho fatto passare per parametro perché non sto capendo come prendere i paramentri dalla Build
+            if(Pathology.createPathology(idAnimal,name)) {
+                return pathology;
+            }
         }else{
             System.out.println(name+"   the string is not currect");
         }
@@ -38,8 +40,12 @@ public class PathologyPresenter {
         }
     }
 
-    public void action_view(String idAnimal){
+    public void action_getPathology(String idAnimal){
+        if (idAnimal != null){
+            if(Pathology.getPathology(idAnimal)){
 
+            }
+        }
     }
 
     private boolean isAlphabet(String s){
