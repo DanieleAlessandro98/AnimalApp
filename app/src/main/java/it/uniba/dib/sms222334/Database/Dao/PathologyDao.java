@@ -42,20 +42,7 @@ public class PathologyDao {
     }
 
     private boolean value = true;
-    private String idPathology = "";
 
-    public void getidPathology(String idAnimal,String name){
-        collectionPathology.whereEqualTo(idAnimal,name).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                    idPathology = document.getId();
-                }
-            }
-        });
-    }
     public boolean deleteAnimalPathology(String id,String name) {
 
         collectionPathology.whereEqualTo(id,name).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -85,7 +72,6 @@ public class PathologyDao {
         });
         return value;
     }
-
 
     private static boolean valueReturn = true;
 
