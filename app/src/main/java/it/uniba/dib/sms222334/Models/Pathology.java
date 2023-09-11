@@ -2,6 +2,8 @@ package it.uniba.dib.sms222334.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
@@ -18,17 +20,13 @@ public class Pathology extends Document implements Parcelable{
         return dao.createPathology(idAnimal,name);
     }
 
-    public static boolean deletePathology(String idPathology){
-        if(idPathology != null) {
-            return true;
-        }else{
-            return false;
-        }
+    public boolean deletePathology(String idAnimal,String name){
+        PathologyDao dao = new PathologyDao();
+       return dao.deleteAnimalPathology(idAnimal, name);
     }
 
-    public static boolean getPathology(String idAnimal){
-        PathologyDao dao = new PathologyDao();
-        return dao.getListPathology(idAnimal);
+    public static void getPathology(String idAnimal){
+
     }
 
     public String getName() {
@@ -51,7 +49,7 @@ public class Pathology extends Document implements Parcelable{
         public static Builder create(final String id, final String name){
             return new Builder(id,name);
         }
-
+        
         public Builder setName(final String name){
             this.bName=name;
             return this;

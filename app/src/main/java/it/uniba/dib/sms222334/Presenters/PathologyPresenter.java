@@ -31,9 +31,9 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public boolean action_delete(String idPathology){
-        if (checkIfExist(idPathology) && isAlphaNumeric(idPathology)){
-            return Pathology.deletePathology(idPathology);  //TODO usare un controllo if per verificare l'esito della cancellazione
+    public boolean action_delete(String idAnimal, String name){
+        if (idAnimal != null && name != null){
+            return pathology.deletePathology(idAnimal,name);  //TODO usare un controllo if per verificare l'esito della cancellazione
         }else{
             System.out.println("the Pathology is not Exist");
             return false;
@@ -42,9 +42,7 @@ public class PathologyPresenter {
 
     public void action_getPathology(String idAnimal){
         if (idAnimal != null){
-            if(Pathology.getPathology(idAnimal)){
-
-            }
+            Pathology.getPathology(idAnimal);
         }
     }
 
