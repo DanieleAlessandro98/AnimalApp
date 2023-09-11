@@ -92,7 +92,8 @@ public class PathologyDao {
     public boolean createPathology(String IdAnimal, String TypePathology){
         Map<String,String> newAnimal = new HashMap<>();
 
-        newAnimal.put(IdAnimal,TypePathology);
+        newAnimal.put("ID animal",IdAnimal);
+        newAnimal.put("Type pathology",TypePathology);
 
         collectionPathology.add(newAnimal).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
