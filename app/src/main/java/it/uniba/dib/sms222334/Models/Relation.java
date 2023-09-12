@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import it.uniba.dib.sms222334.Database.Dao.RelationDao;
+
 public class Relation extends Document implements Parcelable{
 
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
@@ -14,6 +16,11 @@ public class Relation extends Document implements Parcelable{
         super(id);
         this.animal=animal;
         this.category= relationType;
+    }
+
+    public boolean createRelation(){
+        RelationDao dao = new RelationDao();
+        return dao.createRelation(this.category,this.animal);
     }
 
     public Relation.relationType getRelationType() {

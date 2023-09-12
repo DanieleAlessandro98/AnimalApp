@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
@@ -25,8 +28,18 @@ public class Pathology extends Document implements Parcelable{
        return dao.deleteAnimalPathology(idAnimal, name);
     }
 
-    public static void getPathology(String idAnimal){
-
+    public static ArrayList<Pathology> getPathology(String idAnimal){
+        PathologyDao dao = new PathologyDao();
+        ArrayList <Pathology> listReturn = new ArrayList<>();
+        dao.getListPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
+            @Override
+            public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                for (int i = 0; i < listPathology.size(); i++) {
+                    System.out.println("Esterno " + listPathology.get(i).getName());
+                }
+            }
+        });
+        return new ArrayList<>(PathologyDao.getListPathology());
     }
 
     public String getName() {

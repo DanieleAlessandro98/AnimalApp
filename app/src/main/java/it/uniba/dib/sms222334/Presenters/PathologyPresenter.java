@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,10 +42,13 @@ public class PathologyPresenter {
         }
     }
 
-    public void action_getPathology(String idAnimal){
+    public static ArrayList <Pathology> action_getPathology(String idAnimal){
+        ArrayList <Pathology> list;
         if (idAnimal != null){
-            Pathology.getPathology(idAnimal);
+            list = Pathology.getPathology(idAnimal);
+            return list;
         }
+        return null;
     }
 
     private boolean isAlphabet(String s){

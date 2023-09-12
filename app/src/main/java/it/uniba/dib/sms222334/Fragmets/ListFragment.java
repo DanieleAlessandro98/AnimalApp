@@ -39,7 +39,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
@@ -338,7 +340,7 @@ public class ListFragment extends Fragment{
                         @Override
                         public void onClick(View view) {
                             RelationPresenter relation = new RelationPresenter();
-                            Relation relationValue = relation.createRelation("abc123", type[0],animal);
+                            Relation relationValue = relation.createRelation(animal.getFirebaseID(), type[0],animal);
                             if(relationValue != null) {
                                 addDialog.cancel();
                                 relationList.add(relationValue);
@@ -356,6 +358,7 @@ public class ListFragment extends Fragment{
                     break;
                 case HEALTH:
                     addDialog.setContentView(R.layout.add_pathology);
+
                     Spinner pathologySpinner= addDialog.findViewById(R.id.pathology_type);
                     Button save = addDialog.findViewById(R.id.save_button);
 
@@ -430,8 +433,6 @@ public class ListFragment extends Fragment{
 
         ArrayList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
 
-
-
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
         }
@@ -456,6 +457,10 @@ public class ListFragment extends Fragment{
         adapter.setOnAnimalClickListener(animal -> {
             FragmentManager fragmentManager=getParentFragmentManager();
 
+            ArrayList<Pathology> list = PathologyPresenter.action_getPathology(animal.getFirebaseID());
+            for (int i=0; i<list.size();i++){
+                System.out.println("esterno    "+list.get(i));
+            }
             FragmentTransaction transaction= fragmentManager.beginTransaction();
             transaction.addToBackStack("itemPage");
             transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal,getContext())).commit();
@@ -695,7 +700,11 @@ public class ListFragment extends Fragment{
     private ArrayList<Pathology> pathologyList;
 
     public void setHealtList(){
+
+        System.out.println("dentro setHealtList()");
         pathologyList=new ArrayList<>();
+
+
 
         Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
         /*pathologyList.add(p1);
@@ -729,7 +738,6 @@ public class ListFragment extends Fragment{
 
                             confirmButton.setOnClickListener(v -> {
                                     PathologyPresenter pathology = new PathologyPresenter();
-                                    System.out.println("posizione  "+pos+"  altro "+pathologyAdapter.simpleItemList.get(pos));
                                     if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
                                         pathologyAdapter.removeSimpleElement(pos);
                                         deleteDialog.cancel();

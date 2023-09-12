@@ -14,10 +14,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Pathology;
 
 public class PathologyDao {
@@ -45,7 +48,10 @@ public class PathologyDao {
 
     public boolean deleteAnimalPathology(String id,String name) {
 
-        collectionPathology.whereEqualTo(id,name).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        collectionPathology
+                .whereEqualTo("ID animal",id)
+                .whereEqualTo("Type pathology",name)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 QuerySnapshot querySnapshot = task.getResult();
@@ -97,7 +103,44 @@ public class PathologyDao {
         return valueReturn;
     }
 
-    public void getListPathology(String idAnimal){
-
+    public interface OnPathologyListListener {
+        void onPathologyListReady(ArrayList<Pathology> listPathology);
     }
+
+    private static ArrayList <Pathology> listPathology ;
+
+    public static ArrayList<Pathology> getListPathology() {
+        return listPathology;
+    }
+
+    public void getListPathology(String idAnimal, final OnPathologyListListener listener){
+        listPathology = new ArrayList<>();
+        collectionPathology.whereEqualTo("ID animal",idAnimal).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            String pathologyData = document.getString("Type pathology");
+                            listPathology.add(Pathology.Builder.create(document.getId(), pathologyData).build());
+                        }
+
+                        for (int i=0; i<listPathology.size();i++){
+                            System.out.println("interno     "+listPathology.get(i).getName());
+                        }
+                        listener.onPathologyListReady(listPathology);
+                    } else {
+                        Log.w("W","Nessun dato trovato");
+                        listener.onPathologyListReady(new ArrayList<>());
+                    }
+                } else {
+                    Log.w("W","La query non ha funzionato");
+                    listener.onPathologyListReady(new ArrayList<>());
+                }
+            }
+        });
+    }
+
+
 }

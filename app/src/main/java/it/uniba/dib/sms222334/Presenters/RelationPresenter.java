@@ -14,8 +14,11 @@ public class RelationPresenter {
     public Relation createRelation(String id, Relation.relationType relationCategory, Animal animal) {
         if (animal != null  && isAlphaNumeric(id)) {
             relation = Relation.Builder.create(id, relationCategory, animal).build();
-            System.out.println("creato");
-            return relation;
+            if (relation.createRelation()) {
+                return relation;
+            }else{
+                return null;
+            }
         }else{
             return null;
         }
