@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
 
 /**
@@ -22,10 +23,17 @@ public class VisitPresenter {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }
 
-    public Visit createVisit(Visit.visitType visit_type, Date date, String visitName){
-        if(visit_type != null && date != null && visitName != null){
-            Visit visit = Visit.Builder.create("",visitName,visit_type,date).build();
-            return visit;
+    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName){
+        if(visit_type != null && date != null && visitName != null && animal != null){
+            Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
+            visit.setAnimal(animal);
+
+            if(visit.createVisit(visit)){
+                System.out.println("creazione finita");
+                return visit;
+            }else{
+                return null;
+            }
         }else{
             System.out.println("error in the parametro of create visit");
             return null;

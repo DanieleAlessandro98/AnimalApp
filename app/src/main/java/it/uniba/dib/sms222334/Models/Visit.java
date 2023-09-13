@@ -181,6 +181,12 @@ public class Visit extends Document implements Serializable {
         }
     }
 
+    public boolean createVisit(Visit visit){
+        VisitDao dao = new VisitDao();
+        System.out.println("nome della visita "+visit.getName());
+        return dao.createVisit(visit);
+    }
+
     public void delete() {
         VisitDao visitDao = new VisitDao();
         visitDao.deleteVisit(this);

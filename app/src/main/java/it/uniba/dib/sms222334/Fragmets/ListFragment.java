@@ -149,7 +149,6 @@ public class ListFragment extends Fragment{
         return layout;
     }
 
-    private static Pathology pathology;
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
 
     private void launchAddDialog() {
@@ -425,13 +424,15 @@ public class ListFragment extends Fragment{
         addDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    public static ArrayList<Animal> animalList;
+
     public void setAnimalList(){
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,0);
 
         animalPresenter= new AnimalPresenter();
 
-        ArrayList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
+        animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
 
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
@@ -458,8 +459,8 @@ public class ListFragment extends Fragment{
             FragmentManager fragmentManager=getParentFragmentManager();
 
             ArrayList<Pathology> list = PathologyPresenter.action_getPathology(animal.getFirebaseID());
-            for (int i=0; i<list.size();i++){
-                System.out.println("esterno    "+list.get(i));
+            for (int i=0; i<animalList.size();i++){
+                System.out.println("esterno    "+animalList.get(i).getName());
             }
             FragmentTransaction transaction= fragmentManager.beginTransaction();
             transaction.addToBackStack("itemPage");
@@ -487,7 +488,7 @@ public class ListFragment extends Fragment{
     }
 
     public static VisitAdapter visitAdapter;
-    public static ArrayList<Visit> visitList;
+    public static ArrayList<Visit> visitList = new ArrayList<>();
 
     public void setVisitList(){
         final Calendar c = Calendar.getInstance();
@@ -501,7 +502,6 @@ public class ListFragment extends Fragment{
 
         addButton.setVisibility(View.GONE);
 
-        visitList=new ArrayList<>();
         Calendar calendar=Calendar.getInstance();
 
         Visit v1=Visit.Builder.create("TestID", "Test", Visit.visitType.CONTROL, calendar.getTime())
@@ -514,6 +514,8 @@ public class ListFragment extends Fragment{
         visitList.add(v1);
         visitList.add(v1);
         visitList.add(v1);
+
+        System.out.println("per elimina visita");
 
         visitAdapter=new VisitAdapter(visitList,getContext());
 
