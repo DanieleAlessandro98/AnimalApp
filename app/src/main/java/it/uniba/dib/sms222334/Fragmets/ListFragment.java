@@ -549,10 +549,17 @@ public class ListFragment extends Fragment{
                             undoButton.setOnClickListener(v -> deleteDialog.cancel());
 
                             confirmButton.setOnClickListener(v -> {
-                                VisitPresenter visit = new VisitPresenter();
-                                    if(visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID()))
-                                        visitAdapter.removeVisit(pos);
-                                        deleteDialog.cancel();
+                                        VisitPresenter visit = new VisitPresenter();
+                                        String idAnimal = visitAdapter.getVisitList().get(pos).getFirebaseID();
+                                        String TypeVisit = visitAdapter.getVisitList().get(pos).getType().toString();
+                                        String Date = visitAdapter.getVisitList().get(pos).getDate().toString();
+
+                                        if (visit.removeVisit(idAnimal, TypeVisit)) {
+                                            visitAdapter.removeVisit(pos);
+                                            deleteDialog.cancel();
+                                        }else{
+                                            Log.w(TAG,"Delete Visit is Failure");
+                                        }
                                     }
                             );
 

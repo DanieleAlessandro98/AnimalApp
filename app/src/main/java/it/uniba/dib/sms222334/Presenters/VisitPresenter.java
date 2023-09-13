@@ -51,10 +51,13 @@ public class VisitPresenter {
         }
     }
 
-    public boolean removeVisit(String idvisita){
-        if (isAlphaNumeric(idvisita)){
-            // TODO chiamare il metodo della model per eliminare la visita
-            return true;
+    public boolean removeVisit(String idAnimal, String TypeVisit){
+        if (isAlphaNumeric(idAnimal) && TypeVisit != null){
+            if (Visit.removeVisit(idAnimal,TypeVisit)) {
+                return true;
+            }else{
+                return false;
+            }
         }else{
             // TODO fare qualcosa per visualizzare errore nella eliminazione
             return false;

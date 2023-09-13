@@ -4,11 +4,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +50,42 @@ public class VisitDao {
             }
         });
         return returnValue;
+    }
+
+    private boolean value = true;
+
+    public boolean removeVisit(String idAnimal, String TypeVisit){
+        System.out.println("ID  "+idAnimal);
+        System.out.println("Tipo  "+TypeVisit);
+        collectionVisit
+                .whereEqualTo("animalID",idAnimal)
+                .whereEqualTo("Visit Type",TypeVisit)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                            collectionVisit.document(document.getId())
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "Visit successfully deleted!");
+                                            value = true;
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error deleting Visit", e);
+                                            value = false;
+                                        }
+                                    });
+                        }
+                    }
+                });
+        return value;
     }
 
     public void deleteVisit(Visit visit){
