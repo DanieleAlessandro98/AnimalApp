@@ -40,13 +40,15 @@ public class VisitPresenter {
         }
     }
 
-    public boolean action_edit(String idVisit,String visitType, String animalChooser, String dateVisit, String doctor_name){
+    public boolean action_edit(Visit visit,String idAnimal,String name){
 
-        if(isAlphabet(visitType) && isAlphabet(animalChooser)){
-            //TODO chiamare il metodo della model per modificare la visita
-            return true;
+        if(visit != null){
+            if (Visit.editVisit(visit,idAnimal,name)) {
+                return true;
+            }else{
+                return false;
+            }
         }else{
-            //TODO fare qualcosa per visualizzare errore nella modifica
             return false;
         }
     }

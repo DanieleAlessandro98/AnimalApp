@@ -22,12 +22,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -165,24 +168,35 @@ public class VisitFragment extends Fragment {
                 android.R.layout.simple_list_item_1);
         diagnosisAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         diagnosiSpinner.setAdapter(diagnosisAdapter);
-        diagnosiSpinner.setSelection(editVisit.getDiagnosis().ordinal());
-
 
         Spinner examStateSpinner= editDialog.findViewById(R.id.exam_state_spinner);
         ArrayAdapter<CharSequence> examAdapter= ArrayAdapter.createFromResource(getContext(),R.array.visit_state,
                 android.R.layout.simple_spinner_item);
         examAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         examStateSpinner.setAdapter(examAdapter);
-        examStateSpinner.setSelection(editVisit.getState().ordinal());
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String date = dateTextView.getText().toString();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date dateConvert = null;
+                try {
+                    dateConvert = dateFormat.parse(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
                 editVisit.setDoctorName(doctorName.getText().toString());
                 editVisit.setMedicalNotes(medicalNote.getText().toString());
                 editVisit.setDiagnosis(Visit.diagnosisType.values()[diagnosiSpinner.getSelectedItemPosition()]);
                 editVisit.setState(Visit.visitState.values()[examStateSpinner.getSelectedItemPosition()]);
-                saveVisit(editVisit);
+                editVisit.setDate(dateConvert);
+
+                VisitPresenter presenter = new VisitPresenter();
+                presenter.action_edit(editVisit,"RVMKaVtwKSYhsPw8AesA","visita di vacinazione");
+
+                saveVisit(editVisit);           //TODO verificare se serve o no
                 editDialog.cancel();
             }
         });
