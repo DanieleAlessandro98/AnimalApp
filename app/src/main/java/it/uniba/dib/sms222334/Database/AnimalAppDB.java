@@ -112,6 +112,13 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_ANIMAL = "animalID";
     }
 
+    public static class Relation implements BaseColumns{
+        public static final String TABLE_NAME = "Relation";
+        public static final String COLUMN_NAME_IDANIMAL1 = "idAnimal1";
+        public static final String COLUMN_NAME_IDANIMAL2 = "idAnimal2";
+        public static final String COLUMN_NAME_REFERENCE = "Relation";
+    }
+
     public static class Photo implements BaseColumns {
         public static final String TABLE_NAME = "Photo";
 

@@ -458,7 +458,7 @@ public class ListFragment extends Fragment{
         adapter.setOnAnimalClickListener(animal -> {
             FragmentManager fragmentManager=getParentFragmentManager();
 
-            ArrayList<Pathology> list = PathologyPresenter.action_getPathology(animal.getFirebaseID());
+            //ArrayList<Pathology> list = PathologyPresenter.action_getPathology(animal.getFirebaseID());
             for (int i=0; i<animalList.size();i++){
                 System.out.println("esterno    "+animalList.get(i).getName());
             }
@@ -552,7 +552,6 @@ public class ListFragment extends Fragment{
                                         VisitPresenter visit = new VisitPresenter();
                                         String idAnimal = visitAdapter.getVisitList().get(pos).getFirebaseID();
                                         String TypeVisit = visitAdapter.getVisitList().get(pos).getType().toString();
-                                        String Date = visitAdapter.getVisitList().get(pos).getDate().toString();
 
                                         if (visit.removeVisit(idAnimal, TypeVisit)) {
                                             visitAdapter.removeVisit(pos);
@@ -686,7 +685,8 @@ public class ListFragment extends Fragment{
 
                             confirmButton.setOnClickListener(v -> {
                                     RelationPresenter relation = new RelationPresenter();
-                                    if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
+                                    System.out.println(relationAdapter.getRelationList().get(pos).getFirebaseID());
+                                    if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID(),"idAnimaleDiAltri")) {
                                         relationAdapter.removeRelation(pos);
                                         deleteDialog.cancel();
                                         System.out.println("eliminato");

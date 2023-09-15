@@ -20,7 +20,7 @@ public class Relation extends Document implements Parcelable{
 
     public boolean createRelation(){
         RelationDao dao = new RelationDao();
-        return dao.createRelation(this.category,this.animal);
+        return dao.createRelation(this.category,this.animal.getFirebaseID(),"idAnimaleDiAltri");
     }
 
     public Relation.relationType getRelationType() {
@@ -39,7 +39,9 @@ public class Relation extends Document implements Parcelable{
         this.animal = animal;
     }
 
-    public static boolean deleteRelation(){
+    public static boolean deleteRelation(String idAnimal1,String idAnimal2){
+        RelationDao dao = new RelationDao();
+        dao.deleteRelation(idAnimal1,idAnimal2);
         return true;
     }
     public static class Builder{

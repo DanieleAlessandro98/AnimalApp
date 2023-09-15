@@ -24,9 +24,9 @@ public class RelationPresenter {
         }
     }
 
-    public boolean deleteRelation(String idRerlation){
-        if (isAlphaNumeric(idRerlation)) {
-            return Relation.deleteRelation();
+    public boolean deleteRelation(String idAnimal1,String idAnimal2){
+        if (isAlphaNumeric(idAnimal1)) {
+            return Relation.deleteRelation(idAnimal1,idAnimal2);
         }else{
             return false;
         }
