@@ -31,15 +31,21 @@ public class VisitDao {
 
     private boolean returnValue = true;
     public boolean createVisit(Visit visit){
-        Map<String,String> newVisit = new HashMap<>();
+        Map<String, Object> newVisit = new HashMap<>();
 
-        newVisit.put("animalID",visit.getAnimal().getFirebaseID());
-        newVisit.put("Visit Type",visit.getType().toString());
-        newVisit.put("Date",visit.getDate().toString());
-        newVisit.put("name",visit.getName());
-        newVisit.put("diagnosis","");
-        newVisit.put("medical_note","");
-        newVisit.put("state","");
+        // Creazione di un riferimento all'animale usando il suo firebaseID
+        DocumentReference animalReference = FirebaseFirestore.getInstance()
+                .collection(AnimalAppDB.Animal.TABLE_NAME)
+                .document(visit.getAnimal().getFirebaseID());
+
+        newVisit.put("animalID", animalReference);
+        newVisit.put("Visit Type", visit.getType().toString());
+        newVisit.put("Date", visit.getDate().toString());
+        newVisit.put("name", visit.getName());
+        newVisit.put("diagnosis", "");
+        newVisit.put("medical_note", "");
+        newVisit.put("state", "");
+
 
         collectionVisit.add(newVisit).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
