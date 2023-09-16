@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import it.uniba.dib.sms222334.Database.Dao.ExpenseDao;
 
 public class Expense extends Document implements Parcelable{
 
@@ -107,5 +108,9 @@ public class Expense extends Document implements Parcelable{
             return new Expense[size];
         }
     };
-}
 
+    public void delete() {
+        ExpenseDao expenseDao = new ExpenseDao();
+        expenseDao.deleteExpense(this);
+    }
+}

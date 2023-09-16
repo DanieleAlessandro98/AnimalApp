@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+
 public class Visit extends Document implements Serializable {
 
     public enum visitType{DEWORMING,VACCINATION,STERILIZATION,SURGERY,CONTROL}
@@ -178,4 +180,10 @@ public class Visit extends Document implements Serializable {
             return new Visit(bID,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
+
+    public void delete() {
+        VisitDao visitDao = new VisitDao();
+        visitDao.deleteVisit(this);
+    }
+
 }

@@ -1,8 +1,8 @@
 package it.uniba.dib.sms222334.Models;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
     private String name;
@@ -84,4 +84,9 @@ public class Pathology extends Document implements Parcelable{
             return new Pathology[size];
         }
     };
+
+    public void delete() {
+        PathologyDao pathologyDao = new PathologyDao();
+        pathologyDao.deletePathology(this);
+    }
 }

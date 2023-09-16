@@ -67,15 +67,16 @@
                     app:strokeColor="?attr/colorAccent"
                     app:shapeAppearanceOverlay="@style/circular"
                     android:scaleType="centerCrop"/>
+
                 <Button
                     android:id="@+id/edit_button"
                     android:layout_width="80dp"
                     android:layout_height="30dp"
+                    android:layout_centerInParent="true"
                     android:background="@drawable/button_shape"
                     android:paddingHorizontal="10dp"
                     android:text="@string/edit"
                     android:textColor="?attr/colorPrimary"
-                    android:layout_centerInParent="true"
                     android:textSize="10sp" />
             </RelativeLayout>
 

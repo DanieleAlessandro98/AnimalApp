@@ -1,12 +1,11 @@
 package it.uniba.dib.sms222334.Presenters;
-import android.util.Patterns;
 
 import it.uniba.dib.sms222334.Activity.LoginActivity;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Utils.Validations;
 
-public class LoginPresenter implements AuthenticationCallbackResult.LoginCompletedListener  {
+public class LoginPresenter implements AuthenticationCallbackResult.LoginCompletedListener {
 
     private final LoginActivity loginActivity;
     private final Authentication loginModel;
@@ -30,8 +29,8 @@ public class LoginPresenter implements AuthenticationCallbackResult.LoginComplet
     }
 
     @Override
-    public void onLoginCompleted() {
-        if (loginModel.isLogged()) {
+    public void onLoginCompleted(boolean isSuccessful) {
+        if (isSuccessful && loginModel.isLogged()) {
             loginActivity.authSuccessful(loginModel.getUserRole());
         } else {
             loginActivity.showLoginError();

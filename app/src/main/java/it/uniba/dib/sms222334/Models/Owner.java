@@ -8,6 +8,7 @@ import java.util.LinkedList;
 public interface Owner {
     void addAnimal(Animal animal);
     void removeAnimal(Animal animal);
+
     void updateAnimal(Animal animal, boolean profilePictureFlag);
     void addExpense(Expense Expense);
     void removeExpense(Expense Expense);

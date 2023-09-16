@@ -4,10 +4,25 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import static android.app.Activity.RESULT_OK;
+
+import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.os.ext.SdkExtensions;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +34,16 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -34,6 +54,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
@@ -44,7 +65,6 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.Models.Visit;
-
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
@@ -67,6 +87,8 @@ public class ProfileFragment extends Fragment {
 
     UserRole role;
 
+    private ActivityResultLauncher<Intent> photoPickerResultLauncher;
+
     private EditText nameEditText;
     private EditText surnameEditText;
     private TextView dateTextView;
@@ -75,12 +97,20 @@ public class ProfileFragment extends Fragment {
     private EditText emailEditText;
     private EditText passwordEditText;
 
+
     private UserPresenter userPresenter;
 
     public SharedPreferences.Editor editor;
     private static SharedPreferences preferences;
 
     private User profile;
+
+    private ImageView photoImageView;
+    private Button saveButton;
+    private Button deleteButton;
+    private Button editPhotoButton;
+
+    private Dialog editDialog;
 
     public ProfileFragment(){
 
@@ -203,6 +233,19 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        this.photoPickerResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        userPresenter.pickPhoto(selectedImage);
+                    }
+                });
+
+        Log.d(TAG,"qui teoricamente");
+
+        changeTab(TabPosition.ANIMAL,false);
+
         return layout;
     }
 
@@ -314,13 +357,14 @@ public class ProfileFragment extends Fragment {
 
     private void launchEditDialog() {
 
-        final Dialog editDialog=new Dialog(getContext());
+        editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         switch (this.role){
             case PRIVATE:
                 editDialog.setContentView(R.layout.private_profile_edit);
 
+                photoImageView = editDialog.findViewById(R.id.profile_picture);
                 nameEditText = editDialog.findViewById(R.id.nameEditText);
                 surnameEditText = editDialog.findViewById(R.id.surnameEditText);
                 dateTextView = editDialog.findViewById(R.id.date_text_view);
@@ -338,7 +382,9 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
-        Button saveButton = editDialog.findViewById(R.id.save_button);
+        saveButton = editDialog.findViewById(R.id.save_button);
+        deleteButton = editDialog.findViewById(R.id.delete_button);
+        editPhotoButton = editDialog.findViewById(R.id.edit_button);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -362,8 +408,22 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        userPresenter.initUserData();
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteConfirm();
+            }
+        });
 
+        editPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                photoPickerResultLauncher.launch(photoIntent);
+            }
+        });
+
+        userPresenter.initUserData();
 
         Spinner prefixSpinner= editDialog.findViewById(R.id.prefix_spinner);
         ArrayAdapter<CharSequence> prefixAdapter= ArrayAdapter.createFromResource(getContext(),R.array.phone_prefixes,
@@ -455,6 +515,7 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(String.valueOf(userPrivate.getPhone()));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
+        photoImageView.setImageBitmap(userPrivate.getPhoto());
     }
 
     public void showInvalidInput(int inputType) {
@@ -483,6 +544,45 @@ public class ProfileFragment extends Fragment {
 
     public void showUpdateSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showDeleteConfirm() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(this.getString(R.string.profile_delete_alert_title));
+        builder.setMessage(this.getString(R.string.profile_delete_alert_mex1));
+        builder.setPositiveButton(this.getString(R.string.profile_delete_alert_confirm), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                userPresenter.deleteProfile();
+            }
+        });
+        builder.setNegativeButton(this.getString(R.string.profile_delete_alert_cancel), null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showLogoutSuccessful() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+
+        ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);
+        editDialog.cancel();
+    }
+
+    public void showLogoutError() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_failed), Toast.LENGTH_SHORT).show();
+    }
+
+    public void setPhotoPicked(Bitmap bitmap) {
+        photoImageView.setImageBitmap(bitmap);
+    }
+
+    public Bitmap getPhotoPicked() {
+        return ((BitmapDrawable)photoImageView.getDrawable()).getBitmap();
+    }
+
+    public void showPhotoUpdateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.photo_update_failed), Toast.LENGTH_SHORT).show();
     }
 
 }

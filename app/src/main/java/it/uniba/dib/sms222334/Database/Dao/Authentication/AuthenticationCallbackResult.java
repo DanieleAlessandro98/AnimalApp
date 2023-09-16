@@ -1,9 +1,6 @@
 package it.uniba.dib.sms222334.Database.Dao.Authentication;
 
-import com.google.firebase.auth.FirebaseUser;
-
 import it.uniba.dib.sms222334.Models.User;
-import it.uniba.dib.sms222334.Utils.UserRole;
 
 public interface AuthenticationCallbackResult {
     interface Login {
@@ -11,7 +8,16 @@ public interface AuthenticationCallbackResult {
         void onLoginFailure();
     }
 
+    interface Logout {
+        void onLogoutSuccessful();
+        void onLogoutFailure();
+    }
+
     interface LoginCompletedListener {
-        void onLoginCompleted();
+        void onLoginCompleted(boolean isSuccessful);
+    }
+
+    interface LogoutCompletedListener {
+        void onLogoutCompleted(boolean isSuccessful);
     }
 }

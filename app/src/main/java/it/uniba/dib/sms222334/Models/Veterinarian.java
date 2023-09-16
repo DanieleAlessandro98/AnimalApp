@@ -141,6 +141,7 @@ public class Veterinarian extends User implements Parcelable{
     public void updateProfile() {
 
     }
+
     // TODO: Da ultimare bisogna controllare il metodo da creare nel Dao dell'authority
     public void registerVeterinarian(String companyName, String emailB, String passwordB, Long phoneB, GeoPoint TEST /*UserCallback.UserRegisterCallback callback*/) {
 
@@ -149,6 +150,10 @@ public class Veterinarian extends User implements Parcelable{
 
         // Chiamata al metodo di creazione di VeterinarianDao per salvare il Veterinarian nel database
         // TODO:VeterinarianDao.createVeterinarian(this, callback);
+    }
+
+    @Override
+    public void deleteProfile() {
 
     }
 }

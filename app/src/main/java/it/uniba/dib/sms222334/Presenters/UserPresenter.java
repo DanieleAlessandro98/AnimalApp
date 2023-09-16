@@ -1,21 +1,27 @@
 package it.uniba.dib.sms222334.Presenters;
 
-import java.util.ArrayList;
+import android.graphics.Bitmap;
+import android.net.Uri;
+
+import java.io.IOException;
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
+import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
-import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Utils.Validations;
 
-public class UserPresenter{
+public class UserPresenter implements AuthenticationCallbackResult.LogoutCompletedListener {
 
     private ProfileFragment profileView;
     private User profileModel;
@@ -23,6 +29,11 @@ public class UserPresenter{
     public UserPresenter(ProfileFragment profileView) {
         this.profileView = profileView;
         this.profileModel = SessionManager.getInstance().getCurrentUser();
+    }
+
+    public static void getOwnerList(String emailMatched, DatabaseCallbackResult<Owner> callback){
+        new PrivateDao().getPrivatesByEmail(emailMatched, callback);
+        new PublicAuthorityDao().getPublicAuthoritiesByEmail(emailMatched,callback);
     }
 
     public void initUserData() {
@@ -38,12 +49,6 @@ public class UserPresenter{
                 // ...
                 break;
         }
-    }
-
-    public static void getOwnerList(String emailMatched, DatabaseCallbackResult<Owner> callback){
-        new PrivateDao().getPrivatesByEmail(emailMatched, callback);
-
-        new PublicAuthorityDao().getPublicAuthoritiesByEmail(emailMatched,callback);
     }
 
     public void updateProfile(String name, String surname, Date birthDate, String taxID, long phone, String email, String password) {
@@ -68,24 +73,16 @@ public class UserPresenter{
             return;
         }
 
-        UserRole userRole = profileModel.getRole();
+        profileModel.setName(name);
+        profileModel.setEmail(email);
+        profileModel.setPassword(password);
+        profileModel.setPhone(phone);
 
-        switch (userRole) {
+        switch (profileModel.getRole()) {
             case PRIVATE:
-                Private.Builder updatedPrivate=Private.Builder.
-                        create(
-                                profileModel.getFirebaseID(),
-                                name,
-                                email) //TODO: photo
-                        .setPassword(password)
-                        .setPhone(phone)
-                        .setSurname(surname)
-                        .setBirthDate(birthDate)
-                        .setTaxIdCode(taxID);
-
-                SessionManager.getInstance().updateCurrentUser(updatedPrivate.build());
-                this.profileModel = SessionManager.getInstance().getCurrentUser();
-                this.profileModel.updateProfile();
+                ((Private)profileModel).setSurname(surname);
+                ((Private)profileModel).setBirthDate(birthDate);
+                ((Private)profileModel).setTaxIDCode(taxID);
                 break;
 
             case PUBLIC_AUTHORITY:
@@ -94,7 +91,55 @@ public class UserPresenter{
                 break;
         }
 
-        profileView.showUpdateSuccessful();
+        if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
+            MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                @Override
+                public void onPhotoUploaded() {
+                    profileModel.setPhoto(profileView.getPhotoPicked());
+                    profileModel.updateProfile();
+                    profileView.showUpdateSuccessful();
+                }
+
+                @Override
+                public void onPhotoUploadFailed(Exception exception) {
+                    profileView.showPhotoUpdateError();
+                }
+            };
+
+            MediaDao mediaDao = new MediaDao();
+            mediaDao.uploadPhoto(profileView.getPhotoPicked(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+        }
+        else {
+            profileModel.updateProfile();
+            profileView.showUpdateSuccessful();
+        }
     }
 
+    public void deleteProfile() {
+        if ((!SessionManager.getInstance().isLogged()) || profileModel == null)
+            return;
+
+        Authentication authentication = new Authentication(this);
+        authentication.delete();
+    }
+
+    public void pickPhoto(Uri uri) {
+        try {
+            Bitmap bitmap = Media.getBitmapFromUri(uri, profileView.getContext());
+            profileView.setPhotoPicked(bitmap);
+        } catch (IOException e) {
+            profileView.showPhotoUpdateError();
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onLogoutCompleted(boolean isSuccessful) {
+        if (isSuccessful) {
+            profileModel.deleteProfile();
+            profileView.showLogoutSuccessful();
+        } else {
+            profileView.showLogoutError();
+        }
+    }
 }
