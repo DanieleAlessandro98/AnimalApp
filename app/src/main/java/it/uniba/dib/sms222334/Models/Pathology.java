@@ -25,21 +25,18 @@ public class Pathology extends Document implements Parcelable{
 
     public boolean deletePathology(String idAnimal,String name){
         PathologyDao dao = new PathologyDao();
-       return dao.deleteAnimalPathology(idAnimal, name);
+        return dao.deleteAnimalPathology(idAnimal, name);
     }
 
-    public static ArrayList<Pathology> getPathology(String idAnimal){
+
+    public static void getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
         PathologyDao dao = new PathologyDao();
-        ArrayList <Pathology> listReturn = new ArrayList<>();
         dao.getListPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
             @Override
             public void onPathologyListReady(ArrayList<Pathology> listPathology) {
-                for (int i = 0; i < listPathology.size(); i++) {
-                    System.out.println("Esterno " + listPathology.get(i).getName());
-                }
+                listener.onPathologyListReady(listPathology);
             }
         });
-        return new ArrayList<>(PathologyDao.getListPathology());
     }
 
     public String getName() {

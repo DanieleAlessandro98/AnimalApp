@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Models.Pathology;
 
 /**
@@ -35,20 +36,23 @@ public class PathologyPresenter {
     // this is che method that check if exist the pathology, if exist then call the delete method
     public boolean action_delete(String idAnimal, String name){
         if (idAnimal != null && name != null){
-            return pathology.deletePathology(idAnimal,name);  //TODO usare un controllo if per verificare l'esito della cancellazione
+            pathology = Pathology.Builder.create(idAnimal,name).build();
+            return pathology.deletePathology(idAnimal,name);
         }else{
             System.out.println("the Pathology is not Exist");
             return false;
         }
     }
 
-    public static ArrayList <Pathology> action_getPathology(String idAnimal){
-        ArrayList <Pathology> list;
+    public static void action_getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
         if (idAnimal != null){
-            list = Pathology.getPathology(idAnimal);
-            return list;
+            Pathology.getPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
+                @Override
+                public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                    listener.onPathologyListReady(listPathology);
+                }
+            });
         }
-        return null;
     }
 
     private boolean isAlphabet(String s){

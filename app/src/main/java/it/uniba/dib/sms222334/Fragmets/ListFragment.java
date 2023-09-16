@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
@@ -125,6 +126,8 @@ public class ListFragment extends Fragment{
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
+        System.out.println("swip 3");
+
         switch (this.tabPosition){
             case ANIMAL:
                 setAnimalList();
@@ -139,7 +142,12 @@ public class ListFragment extends Fragment{
                 setRelationList();
                 break;
             case HEALTH:
-                setHealtList();
+                PathologyPresenter.action_getPathology(animal.getFirebaseID(), new PathologyDao.OnPathologyListListener() {
+                    @Override
+                    public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                        setHealtList(listPathology);
+                    }
+                });
                 break;
             case FOOD:
                 setFoodList();
@@ -458,10 +466,10 @@ public class ListFragment extends Fragment{
         adapter.setOnAnimalClickListener(animal -> {
             FragmentManager fragmentManager=getParentFragmentManager();
 
-            //ArrayList<Pathology> list = PathologyPresenter.action_getPathology(animal.getFirebaseID());
-            for (int i=0; i<animalList.size();i++){
+
+            /*for (int i=0; i<animalList.size();i++){
                 System.out.println("esterno    "+animalList.get(i).getName());
-            }
+            }*/
             FragmentTransaction transaction= fragmentManager.beginTransaction();
             transaction.addToBackStack("itemPage");
             transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal,getContext())).commit();
@@ -708,20 +716,9 @@ public class ListFragment extends Fragment{
     private SimpleTextAdapter<Pathology> pathologyAdapter;
     private ArrayList<Pathology> pathologyList;
 
-    public void setHealtList(){
+    public void setHealtList(ArrayList<Pathology> listPathology){
 
-        System.out.println("dentro setHealtList()");
-        pathologyList=new ArrayList<>();
-
-
-
-        Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
-        /*pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);*/
-        pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
+        pathologyAdapter=new SimpleTextAdapter<>(listPathology);
 
         addButton.setOnClickListener(v -> launchAddDialog() );
 
@@ -746,12 +743,14 @@ public class ListFragment extends Fragment{
                             undoButton.setOnClickListener(v -> deleteDialog.cancel());
 
                             confirmButton.setOnClickListener(v -> {
-                                    PathologyPresenter pathology = new PathologyPresenter();
-                                    if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
-                                        pathologyAdapter.removeSimpleElement(pos);
-                                        deleteDialog.cancel();
+                                        PathologyPresenter pathology = new PathologyPresenter();
+                                        if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
+                                            pathologyAdapter.removeSimpleElement(pos);
+                                            deleteDialog.cancel();
+                                        }else{
+                                            Log.w(TAG,"remove pathology failure");
+                                        }
                                     }
-                                }
                             );
 
 

@@ -47,17 +47,7 @@ public class PathologyDao {
     private boolean value = true;
 
     public boolean deleteAnimalPathology(String id,String name) {
-
-        collectionPathology
-                .whereEqualTo("ID animal",id)
-                .whereEqualTo("Type pathology",name)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                    collectionPathology.document(document.getId())
+        collectionPathology.document(id)
                             .delete()
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -73,11 +63,9 @@ public class PathologyDao {
                                     value = false;
                                 }
                             });
-                }
-            }
-        });
         return value;
     }
+
 
     private static boolean valueReturn = true;
 
@@ -124,10 +112,6 @@ public class PathologyDao {
                         for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                             String pathologyData = document.getString("Type pathology");
                             listPathology.add(Pathology.Builder.create(document.getId(), pathologyData).build());
-                        }
-
-                        for (int i=0; i<listPathology.size();i++){
-                            System.out.println("interno     "+listPathology.get(i).getName());
                         }
                         listener.onPathologyListReady(listPathology);
                     } else {
