@@ -45,6 +45,7 @@ public class VisitDao {
         newVisit.put("diagnosis", "");
         newVisit.put("medical_note", "");
         newVisit.put("state", "");
+        newVisit.put("doctor name","");
 
 
         collectionVisit.add(newVisit).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -141,6 +142,7 @@ public class VisitDao {
                             updateMap.put("medical_note", visit.getMedicalNotes());
                             updateMap.put("name", visit.getName());
                             updateMap.put("state",visit.getState().toString());
+                            updateMap.put("doctor name",visit.getDoctorName());
 
                             collectionVisit.document(document.getId())
                                     .update(updateMap)
