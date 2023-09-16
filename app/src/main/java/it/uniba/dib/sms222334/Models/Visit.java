@@ -179,4 +179,3 @@ public class Visit extends Document implements Serializable {
         }
     }
 }
-
