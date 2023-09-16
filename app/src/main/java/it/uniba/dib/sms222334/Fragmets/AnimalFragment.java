@@ -5,8 +5,6 @@ import static android.app.Activity.RESULT_OK;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +15,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -47,14 +43,9 @@ import com.google.gson.Gson;
 
 import java.util.Calendar;
 
-import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
-import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
-import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Database.Dao.User.Presenters.AnimalPresenter;
-import it.uniba.dib.sms222334.Models.ContentProvider.CursorOwnerAdapter;
-import it.uniba.dib.sms222334.Models.ContentProvider.OwnerSuggestContentProvider;
+import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
@@ -77,6 +68,7 @@ public class AnimalFragment extends Fragment {
                                 and this must be set before fragment is created(onCreateView())*/
 
     Animal animal;
+
 
     private ProfileFragment.Tab previousTab;
 

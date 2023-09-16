@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.IntRange;
 import androidx.appcompat.app.ActionBar;
@@ -14,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import it.uniba.dib.sms222334.Presenters.RegisterPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
@@ -21,12 +24,23 @@ import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
 public class RegisterActivity extends AppCompatActivity {
     final static String TAG="RegisterActivity";
     private TabLayoutMediator tabLayoutMediator;
+    private EditText nameEditText;
+    private EditText surnameEditText;
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private EditText phoneNumberEditText;
+    private EditText dateEditText;
+    private EditText taxIDCodeEditText;
+    private Button registerButton;
+
+    private RegisterPresenter presenter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_layout);
-
 
         ViewPager2 pager =findViewById(R.id.register_viewpager);
         pager.setAdapter(new AnimalAppPageAdapter(this));
@@ -48,6 +62,10 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
+    public void onRegisterFail(UserRole Role){
+      //Da implementare Forse
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -61,4 +79,5 @@ public class RegisterActivity extends AppCompatActivity {
         setResult(RESULT_CANCELED);
         finish();
     }
+
 }

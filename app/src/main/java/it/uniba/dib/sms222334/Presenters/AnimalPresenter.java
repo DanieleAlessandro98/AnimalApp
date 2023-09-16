@@ -1,4 +1,4 @@
-package it.uniba.dib.sms222334.Database.Dao.User.Presenters;
+package it.uniba.dib.sms222334.Presenters;
 
 import android.widget.Toast;
 

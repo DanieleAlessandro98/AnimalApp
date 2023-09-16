@@ -28,6 +28,10 @@ public class RelationAdapter extends RecyclerView.Adapter<RelationViewHolder>{
         notifyItemRemoved(pos);
     }
 
+    public ArrayList<Relation> getRelationList() {
+        return relationList;
+    }
+
     @NonNull
     @Override
     public RelationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

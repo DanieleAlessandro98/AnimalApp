@@ -6,28 +6,18 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.JsonWriter;
 import android.util.Log;
-import android.widget.SimpleCursorAdapter;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.google.android.gms.common.util.JsonUtils;
-
 import java.util.ArrayList;
-
-import io.grpc.internal.JsonUtil;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Database.Dao.User.Presenters.UserPresenter;
+import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
-import it.uniba.dib.sms222334.Models.Veterinarian;
 
 public class OwnerSuggestContentProvider extends ContentProvider implements DatabaseCallbackResult<Owner>, Runnable{
 

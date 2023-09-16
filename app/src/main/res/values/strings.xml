@@ -77,11 +77,11 @@
     </string-array>
 
     <string-array name="exam_type">
-        <item>Deworming</item>
-        <item>Vaccination</item>
-        <item>Sterilization</item>
-        <item>Surgery</item>
-        <item>Control</item>
+        <item>DEWORMING</item>
+        <item>VACCINATION</item>
+        <item>STERILIZATION</item>
+        <item>SURGERY</item>
+        <item>CONTROL</item>
     </string-array>
 
     <string-array name="animal_species">
@@ -231,8 +231,8 @@
     </string-array>
 
     <string-array name="relation_type">
-        <item>Friend</item>
-        <item>Incompatible</item>
-        <item>Cohabitee</item>
+        <item>FRIEND</item>
+        <item>INCOMPATIBLE</item>
+        <item>COHABITEE</item>
     </string-array>
 </resources>

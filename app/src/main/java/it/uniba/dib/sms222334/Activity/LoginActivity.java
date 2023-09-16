@@ -13,8 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import it.uniba.dib.sms222334.Database.Dao.User.Presenters.LoginPresenter;
+import it.uniba.dib.sms222334.Presenters.LoginPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -57,7 +56,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
-
                 loginPresenter.onLogin(email, password);
             }
         });
