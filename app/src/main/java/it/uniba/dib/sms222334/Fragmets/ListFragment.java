@@ -680,14 +680,32 @@ public class ListFragment extends Fragment{
     private ArrayList<Relation> relationList;
     private RelationAdapter relationAdapter;
 
-    public void setRelationList(List <Animal> AnimalDate,ArrayList<Relation> relationList){
+    public void setRelationList(List <Animal> AnimalDate,ArrayList<Relation> relationListGet){
+
+        relationList=new ArrayList<>();
+        relationList.addAll(relationListGet);
+
 
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
+        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
+                .setSpecies("Dog")
+                .setBirthDate(c.getTime())
+                .setName("Alberto")
+                .build();
+
+        Relation r1=Relation.Builder.create("ueue",Relation.relationType.INCOMPATIBLE,a1).build();
+
+        relationList.add(r1);
+        relationList.add(r1);
+        relationList.add(r1);
+        relationList.add(r1);
+        relationList.add(r1);
+
         relationAdapter=new RelationAdapter(relationList,getContext());
 
-        addButton.setOnClickListener(v -> launchAddDialog(AnimalDate) );
+        addButton.setOnClickListener(v -> launchAddDialog(AnimalDate));
 
         SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
@@ -708,6 +726,7 @@ public class ListFragment extends Fragment{
                             confirmButton=deleteDialog.findViewById(R.id.delete_button);
 
                             undoButton.setOnClickListener(v -> deleteDialog.cancel());
+
 
                             confirmButton.setOnClickListener(v -> {
                                     RelationPresenter relation = new RelationPresenter();
@@ -731,6 +750,7 @@ public class ListFragment extends Fragment{
         };
 
         recyclerView.setAdapter(relationAdapter);
+
     }
     private SimpleTextAdapter<Pathology> pathologyAdapter;
     private ArrayList<Pathology> pathologyList;
