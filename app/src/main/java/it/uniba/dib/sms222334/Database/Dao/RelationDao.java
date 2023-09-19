@@ -13,7 +13,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -21,11 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Pathology;
 import it.uniba.dib.sms222334.Models.Relation;
 
 public class RelationDao {
@@ -56,7 +53,7 @@ public class RelationDao {
 
         return valueReturn;
     }
-    public boolean deleteRelation(String idAnimal1,String idAnimal2){
+    public void deleteRelation(String idAnimal1, String idAnimal2){
         collectionRelation
                 .whereEqualTo("idAnimal1",idAnimal1)
                 .whereEqualTo("idAnimal2",idAnimal2)
@@ -83,7 +80,6 @@ public class RelationDao {
                         }
                     }
                 });
-        return valueReturn;
     }
 
     public interface OnRelationListener {

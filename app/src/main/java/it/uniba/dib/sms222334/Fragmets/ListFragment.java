@@ -726,8 +726,9 @@ public class ListFragment extends Fragment{
 
                             confirmButton.setOnClickListener(v -> {
                                     RelationPresenter relation = new RelationPresenter();
-                                    System.out.println(relationAdapter.getRelationList().get(pos).getFirebaseID());
-                                    if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID(),"idAnimaleDiAltri")) {
+                                    String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
+                                    String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
+                                    if (relation.deleteRelation(idAnimal1,idAnimal2)) {
                                         relationAdapter.removeRelation(pos);
                                         deleteDialog.cancel();
                                         System.out.println("eliminato");
