@@ -3,6 +3,9 @@ package it.uniba.dib.sms222334.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.List;
+import java.util.Map;
+
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 
 public class Relation extends Document implements Parcelable{
@@ -18,9 +21,9 @@ public class Relation extends Document implements Parcelable{
         this.category= relationType;
     }
 
-    public boolean createRelation(){
+    public boolean createRelation(String id,String idAnimalChooser){
         RelationDao dao = new RelationDao();
-        return dao.createRelation(this.category,this.animal.getFirebaseID(),"idAnimaleDiAltri");
+        return dao.createRelation(this.category,id,idAnimalChooser);
     }
 
     public Relation.relationType getRelationType() {
@@ -44,6 +47,17 @@ public class Relation extends Document implements Parcelable{
         dao.deleteRelation(idAnimal1,idAnimal2);
         return true;
     }
+
+    public static void getListAnimal(String ownerID, final RelationDao.OnRelationListener listener){
+        RelationDao dao = new RelationDao();
+        dao.getListAnimalDao(ownerID, new RelationDao.OnRelationListener() {
+            @Override
+            public void onRelationListener(List<Animal> animalList) {
+                listener.onRelationListener(animalList);
+            }
+        });
+    }
+
     public static class Builder{
         private String bID;
         private relationType bcategory;
