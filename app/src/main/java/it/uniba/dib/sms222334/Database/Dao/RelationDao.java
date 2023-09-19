@@ -82,9 +82,8 @@ public class RelationDao {
                 });
     }
 
-    public interface OnRelationListener {
-        void onRelationListener(List <Animal> animalList);
-    }
+
+
     //TODO capire come sistemare questo enum di stato dell'animale
     public void getListAnimalDao(String ownerID, final OnRelationListener listener){
         collectionAnimalRelation.whereNotEqualTo("ownerID", ownerID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -122,5 +121,82 @@ public class RelationDao {
                 }
             }
         });
+    }
+
+    public ArrayList <Relation> listRelation;
+    public void getRelation(String idAnimal, final OnRelationAnimalListener listener){
+        listRelation = new ArrayList<>();
+        collectionRelation.whereEqualTo("idAnimal1",idAnimal).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            final Relation.relationType[] relation = new Relation.relationType[1];
+                            relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
+                            String idAnimal1 = document.getString("idAnimal1");
+                            String idAnimal2 = document.getString("idAnimal2");
+
+                            getAnimalClass(idAnimal2, new OnRelationClassAnimalListener() {
+                                @Override
+                                public void onRelationClassAnimalListener(Animal animalList) {
+                                    listRelation.add(Relation.Builder.create(idAnimal1,relation[0],animalList).build());
+                                    listener.onRelationAnimalListener(listRelation);
+                                }
+                            });
+
+                        }
+                    } else {
+                        Log.w("W", "Nessun dato trovato");
+                        listener.onRelationAnimalListener(new ArrayList<>());
+                    }
+                } else {
+                    Log.w("W", "La query non ha funzionato");
+                    listener.onRelationAnimalListener(new ArrayList<>());
+                }
+            }
+        });
+    }
+
+    private void getAnimalClass(String idAnimal, final OnRelationClassAnimalListener listener){
+        collectionAnimalRelation.document(idAnimal).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Timestamp timestamp = document.getTimestamp("birthdate");
+                        if (timestamp != null) {
+                            Date birthDate = timestamp.toDate();
+                            //TODO da capire come sistemare lo stato dell'animale al suo tipo
+                            Animal getAnimal = Animal.Builder.create(document.getId(),Animal.stateList.ADOPTED)
+                                .setSpecies(document.getString("species"))
+                                .setBirthDate(birthDate)
+                                .setName(document.getString("name"))
+                                .setOwner(document.getString("ownerID"))
+                                .build();
+                            listener.onRelationClassAnimalListener(getAnimal);
+                        }
+                    }else{
+                        Log.d(TAG, "Il documento non esiste.");
+                    }
+                }else {
+                    Log.w(TAG, "Errore nel recupero del documento.", task.getException());
+                }
+            }
+        });
+    }
+
+    public interface OnRelationListener {
+        void onRelationListener(List <Animal> animalList);
+    }
+
+    public interface OnRelationAnimalListener{
+        void onRelationAnimalListener(ArrayList <Relation> relationList);
+    }
+
+    public interface OnRelationClassAnimalListener{
+        void onRelationClassAnimalListener(Animal animalList);
     }
 }

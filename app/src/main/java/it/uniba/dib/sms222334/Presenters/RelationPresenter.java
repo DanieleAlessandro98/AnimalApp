@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,6 @@ public class RelationPresenter {
     }
 
     public void action_getAnimal(String ownerID,final RelationDao.OnRelationListener listener){
-        System.out.println("entrato nel present");
         Relation.getListAnimal(ownerID, new RelationDao.OnRelationListener() {
             @Override
             public void onRelationListener(List<Animal> animalList) {
@@ -45,6 +45,17 @@ public class RelationPresenter {
             }
         });
     }
+
+    public void action_getRelation(String idAnimal,final RelationDao.OnRelationAnimalListener listener){
+        Relation.getListRelation(idAnimal, new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationList) {
+                listener.onRelationAnimalListener(relationList);
+            }
+        });
+    }
+
+
     public static boolean isAlphaNumeric(String s) {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }

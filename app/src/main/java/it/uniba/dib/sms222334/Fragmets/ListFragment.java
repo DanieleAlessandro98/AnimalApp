@@ -143,12 +143,19 @@ public class ListFragment extends Fragment{
                 break;
             case RELATION:
                 RelationPresenter presenter = new RelationPresenter();
-                presenter.action_getAnimal("test2@gmail.com", new RelationDao.OnRelationListener() {
+                presenter.action_getRelation(animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
                     @Override
-                    public void onRelationListener(List<Animal> animalList) {
-                        setRelationList(animalList);
+                    public void onRelationAnimalListener(ArrayList<Relation> relationList) {
+                        //TODO capire come prendere l'id del profilo
+                        presenter.action_getAnimal("test2@gmail.com", new RelationDao.OnRelationListener() {
+                            @Override
+                            public void onRelationListener(List<Animal> animalList) {
+                                setRelationList(animalList,relationList);
+                            }
+                        });
                     }
                 });
+
                 break;
             case HEALTH:
                 PathologyPresenter.action_getPathology(animal.getFirebaseID(), new PathologyDao.OnPathologyListListener() {
@@ -673,32 +680,10 @@ public class ListFragment extends Fragment{
     private ArrayList<Relation> relationList;
     private RelationAdapter relationAdapter;
 
-    public void setRelationList(List <Animal> AnimalDate){
-
-        for (int i = 0; i < AnimalDate.size(); i++) {
-            System.out.println("ID animale"+AnimalDate.get(i).getFirebaseID());
-            System.out.println("Nome: "+AnimalDate.get(i).getName());
-            System.out.println("Owner: "+AnimalDate.get(i).getOwnerReference());
-        }
-
-        relationList=new ArrayList<>();
+    public void setRelationList(List <Animal> AnimalDate,ArrayList<Relation> relationList){
 
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
-
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-
-        Relation r1=Relation.Builder.create("ueue",Relation.relationType.INCOMPATIBLE,a1).build();
-
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
 
         relationAdapter=new RelationAdapter(relationList,getContext());
 

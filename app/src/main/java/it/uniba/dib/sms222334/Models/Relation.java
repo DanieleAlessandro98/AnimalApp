@@ -3,6 +3,7 @@ package it.uniba.dib.sms222334.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,16 @@ public class Relation extends Document implements Parcelable{
             @Override
             public void onRelationListener(List<Animal> animalList) {
                 listener.onRelationListener(animalList);
+            }
+        });
+    }
+
+    public static void getListRelation(String id,final RelationDao.OnRelationAnimalListener listener){
+        RelationDao dao = new RelationDao();
+        dao.getRelation(id, new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationList) {
+                listener.onRelationAnimalListener(relationList);
             }
         });
     }
