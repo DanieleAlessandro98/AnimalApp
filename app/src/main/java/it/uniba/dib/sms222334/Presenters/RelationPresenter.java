@@ -2,7 +2,6 @@ package it.uniba.dib.sms222334.Presenters;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 import it.uniba.dib.sms222334.Models.Animal;
@@ -40,17 +39,17 @@ public class RelationPresenter {
     public void action_getAnimal(String ownerID,final RelationDao.OnRelationListener listener){
         Relation.getListAnimal(ownerID, new RelationDao.OnRelationListener() {
             @Override
-            public void onRelationListener(List<Animal> animalList) {
-                listener.onRelationListener(animalList);
+            public void onGetAnimalListener(List<Animal> animalList) {
+                listener.onGetAnimalListener(animalList);
             }
         });
     }
 
-    public void action_getRelation(String idAnimal,final RelationDao.OnRelationAnimalListener listener){
-        Relation.getListRelation(idAnimal, new RelationDao.OnRelationAnimalListener() {
+    public void action_getRelation(String ownerID,String idAnimal,final RelationDao.OnRelationAnimalListener listener){
+        Relation.getListRelation(ownerID,idAnimal, new RelationDao.OnRelationAnimalListener() {
             @Override
-            public void onRelationAnimalListener(ArrayList<Relation> relationList) {
-                listener.onRelationAnimalListener(relationList);
+            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
+                listener.onRelationAnimalListener(relationList,animalList);
             }
         });
     }

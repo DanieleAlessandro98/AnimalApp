@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 
@@ -53,18 +52,18 @@ public class Relation extends Document implements Parcelable{
         RelationDao dao = new RelationDao();
         dao.getListAnimalDao(ownerID, new RelationDao.OnRelationListener() {
             @Override
-            public void onRelationListener(List<Animal> animalList) {
-                listener.onRelationListener(animalList);
+            public void onGetAnimalListener(List<Animal> animalList) {
+                listener.onGetAnimalListener(animalList);
             }
         });
     }
 
-    public static void getListRelation(String id,final RelationDao.OnRelationAnimalListener listener){
+    public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
         RelationDao dao = new RelationDao();
-        dao.getRelation(id, new RelationDao.OnRelationAnimalListener() {
+        dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {
             @Override
-            public void onRelationAnimalListener(ArrayList<Relation> relationList) {
-                listener.onRelationAnimalListener(relationList);
+            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
+                listener.onRelationAnimalListener(relationList,animalList);
             }
         });
     }

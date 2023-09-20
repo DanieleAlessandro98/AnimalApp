@@ -143,16 +143,10 @@ public class ListFragment extends Fragment{
                 break;
             case RELATION:
                 RelationPresenter presenter = new RelationPresenter();
-                presenter.action_getRelation(animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
+                presenter.action_getRelation("test2@gmail.com",animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
                     @Override
-                    public void onRelationAnimalListener(ArrayList<Relation> relationList) {
-                        //TODO capire come prendere l'id del profilo
-                        presenter.action_getAnimal("test2@gmail.com", new RelationDao.OnRelationListener() {
-                            @Override
-                            public void onRelationListener(List<Animal> animalList) {
-                                setRelationList(animalList,relationList);
-                            }
-                        });
+                    public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
+                        setRelationList(animalList,relationList);
                     }
                 });
 
@@ -688,20 +682,6 @@ public class ListFragment extends Fragment{
 
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
-
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-
-        Relation r1=Relation.Builder.create("ueue",Relation.relationType.INCOMPATIBLE,a1).build();
-
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
 
         relationAdapter=new RelationAdapter(relationList,getContext());
 

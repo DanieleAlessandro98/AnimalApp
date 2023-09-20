@@ -110,21 +110,21 @@ public class RelationDao {
                                 System.out.println("Il campo 'birthdate' è nullo o non esiste nel documento.");
                             }
                         }
-                        listener.onRelationListener(animalList);
+                        listener.onGetAnimalListener(animalList);
                     } else {
                         Log.w("W","Nessun dato trovato");
-                        listener.onRelationListener(new ArrayList<>());
+                        listener.onGetAnimalListener(new ArrayList<>());
                     }
                 } else {
                     Log.w(TAG,"ricerca fallita");
-                    listener.onRelationListener(new ArrayList<>());
+                    listener.onGetAnimalListener(new ArrayList<>());
                 }
             }
         });
     }
 
     public ArrayList <Relation> listRelation;
-    public void getRelation(String idAnimal, final OnRelationAnimalListener listener){
+    public void getRelation(String ownerID,String idAnimal, final OnRelationAnimalListener listener){
         listRelation = new ArrayList<>();
         collectionRelation.whereEqualTo("idAnimal1",idAnimal).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -142,18 +142,25 @@ public class RelationDao {
                                 @Override
                                 public void onRelationClassAnimalListener(Animal animalList) {
                                     listRelation.add(Relation.Builder.create(idAnimal1,relation[0],animalList).build());
-                                    listener.onRelationAnimalListener(listRelation);
+
+
+                                    getListAnimalDao("", new OnRelationListener() {
+                                        @Override
+                                        public void onGetAnimalListener(List<Animal> animalList) {
+                                            listener.onRelationAnimalListener(listRelation, animalList);
+                                        }
+                                    });
                                 }
                             });
 
                         }
                     } else {
                         Log.w("W", "Nessun dato trovato");
-                        listener.onRelationAnimalListener(new ArrayList<>());
+                        listener.onRelationAnimalListener(new ArrayList<>(), new ArrayList<>());
                     }
                 } else {
                     Log.w("W", "La query non ha funzionato");
-                    listener.onRelationAnimalListener(new ArrayList<>());
+                    listener.onRelationAnimalListener(new ArrayList<>(), new ArrayList<>());
                 }
             }
         });
@@ -189,11 +196,11 @@ public class RelationDao {
     }
 
     public interface OnRelationListener {
-        void onRelationListener(List <Animal> animalList);
+        void onGetAnimalListener(List <Animal> animalList);
     }
 
     public interface OnRelationAnimalListener{
-        void onRelationAnimalListener(ArrayList <Relation> relationList);
+        void onRelationAnimalListener(ArrayList <Relation> relationList,List <Animal> animalList);
     }
 
     public interface OnRelationClassAnimalListener{
