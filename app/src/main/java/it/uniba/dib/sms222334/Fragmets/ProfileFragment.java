@@ -93,7 +93,7 @@ public class ProfileFragment extends Fragment {
 
     private int inflatedLayout;
 
-    UserRole role;
+    private UserRole role;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
@@ -368,7 +368,11 @@ public class ProfileFragment extends Fragment {
 
                 String visitName = doctorName.getText().toString();
 
-                Visit value = visit.createVisit(visitType,ListFragment.animalList.get(posizione),dateConvert,visitName);
+                Visit value = visit.createVisit(visitType,
+                        ListFragment.animalList.get(posizione),
+                        dateConvert,
+                        visitName,
+                        profile.getFirebaseID());
                 if (value != null){
                     ListFragment.visitList.add(value);
                     editDialog.cancel();

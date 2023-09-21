@@ -2,7 +2,6 @@ package it.uniba.dib.sms222334.Models;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 
@@ -17,7 +16,7 @@ public class Visit extends Document implements Serializable {
     private visitType type;
     private visitState state;   // stato
 
-    private String doctorName;
+    private String doctorID;
     private Date date;
     private diagnosisType Diagnosis;
     private String medicalNotes;
@@ -31,7 +30,7 @@ public class Visit extends Document implements Serializable {
         this.state = state;
         this.type=type;
         this.date=date;
-        this.doctorName=doctorName;
+        this.doctorID =doctorName;
         this.Diagnosis = diagnosis;
         this.medicalNotes = medicalNotes;
         this.animal=animal;
@@ -50,12 +49,12 @@ public class Visit extends Document implements Serializable {
         return type;
     }
 
-    public String getDoctorName(){
-        return doctorName;
+    public String getDoctorFirebaseID(){
+        return doctorID;
     }
 
-    public void setDoctorName(String doctorName){
-        this.doctorName=doctorName;
+    public void setDoctorFirebaseID(String doctorID){
+        this.doctorID =doctorID;
     }
 
     public void setType(visitType type) {
@@ -130,7 +129,7 @@ public class Visit extends Document implements Serializable {
 
         public static Builder createFrom(Visit visit){
             return new Builder(visit.getFirebaseID(), visit.getName(),visit.getType(),visit.getDate())
-                    .setDoctorName(visit.getDoctorName())
+                    .setDoctorName(visit.getDoctorFirebaseID())
                     .setState(visit.getState())
                     .setDiagnosis(visit.getDiagnosis())
                     .setMedicalNotes(visit.getMedicalNotes());
@@ -183,7 +182,6 @@ public class Visit extends Document implements Serializable {
 
     public boolean createVisit(Visit visit){
         VisitDao dao = new VisitDao();
-        System.out.println("nome della visita "+visit.getName());
         return dao.createVisit(visit);
     }
 

@@ -45,7 +45,7 @@ public class VisitDao {
         newVisit.put("diagnosis", "");
         newVisit.put("medical_note", "");
         newVisit.put("state", "");
-        newVisit.put("doctor name","");
+        newVisit.put("IdDoctor",visit.getDoctorFirebaseID());
 
 
         collectionVisit.add(newVisit).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -67,10 +67,12 @@ public class VisitDao {
     private boolean value = true;
 
     public boolean removeVisit(String idAnimal, String TypeVisit){
-        System.out.println("ID  "+idAnimal);
-        System.out.println("Tipo  "+TypeVisit);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference animalRef = db.collection("Animal").document(idAnimal);
+
         collectionVisit
-                .whereEqualTo("animalID",idAnimal)
+                .whereEqualTo("animalID",animalRef)
                 .whereEqualTo("Visit Type",TypeVisit)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -142,7 +144,7 @@ public class VisitDao {
                             updateMap.put("medical_note", visit.getMedicalNotes());
                             updateMap.put("name", visit.getName());
                             updateMap.put("state",visit.getState().toString());
-                            updateMap.put("doctor name",visit.getDoctorName());
+                            updateMap.put("doctor name",visit.getDoctorFirebaseID());
 
                             collectionVisit.document(document.getId())
                                     .update(updateMap)

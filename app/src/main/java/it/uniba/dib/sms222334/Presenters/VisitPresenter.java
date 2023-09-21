@@ -23,10 +23,11 @@ public class VisitPresenter {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }
 
-    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName){
-        if(visit_type != null && date != null && visitName != null && animal != null){
+    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName,String doctorID){
+        if(visit_type != null && date != null && visitName != null && animal != null && doctorID != null){
             Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
             visit.setAnimal(animal);
+            visit.setDoctorFirebaseID(doctorID);
 
             if(visit.createVisit(visit)){
                 System.out.println("creazione finita");

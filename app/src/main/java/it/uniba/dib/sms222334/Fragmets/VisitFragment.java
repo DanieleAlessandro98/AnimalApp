@@ -28,7 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Models.SessionManager;
-import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
@@ -107,7 +106,7 @@ public class VisitFragment extends Fragment {
             this.diagnosisType.setText("");
         }
         this.medicalNote.setText(visit.getMedicalNotes());
-        this.doctorName.setText(visit.getDoctorName());
+        this.doctorName.setText(visit.getDoctorFirebaseID());
     }
 
     public void deleteVisit(){
@@ -155,7 +154,7 @@ public class VisitFragment extends Fragment {
         medicalNote.setText(editVisit.getMedicalNotes());
 
         EditText doctorName=editDialog.findViewById(R.id.doctor_name);
-        doctorName.setText(editVisit.getDoctorName());
+        doctorName.setText(editVisit.getDoctorFirebaseID());
 
         Button backButton= editDialog.findViewById(R.id.back_button);
 
@@ -187,7 +186,7 @@ public class VisitFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                editVisit.setDoctorName(doctorName.getText().toString());
+                editVisit.setDoctorFirebaseID(doctorName.getText().toString());
                 editVisit.setMedicalNotes(medicalNote.getText().toString());
                 editVisit.setDiagnosis(Visit.diagnosisType.values()[diagnosiSpinner.getSelectedItemPosition()]);
                 editVisit.setState(Visit.visitState.values()[examStateSpinner.getSelectedItemPosition()]);
