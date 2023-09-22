@@ -737,7 +737,10 @@ public class ListFragment extends Fragment{
 
     public void setHealtList(ArrayList<Pathology> listPathology){
 
-        pathologyAdapter=new SimpleTextAdapter<>(listPathology);
+        pathologyList = new ArrayList<>();
+        pathologyList.addAll(listPathology);
+
+        pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
 
         addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
 

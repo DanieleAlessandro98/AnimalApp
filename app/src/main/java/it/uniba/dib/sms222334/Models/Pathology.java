@@ -23,9 +23,9 @@ public class Pathology extends Document implements Parcelable{
         return dao.createPathology(idAnimal,name);
     }
 
-    public boolean deletePathology(String idAnimal,String name){
+    public boolean deletePathology(String idPathology){
         PathologyDao dao = new PathologyDao();
-        return dao.deleteAnimalPathology(idAnimal, name);
+        return dao.deleteAnimalPathology(idPathology);
     }
 
 

@@ -46,14 +46,16 @@ public class PathologyDao {
 
     private boolean value = true;
 
-    public boolean deleteAnimalPathology(String id,String name) {
-        collectionPathology.document(id)
+    public boolean deleteAnimalPathology(String idPathology) {
+        System.out.println("id patologia: "+idPathology);
+        collectionPathology.document(idPathology)
                             .delete()
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Log.d(TAG, "DocumentSnapshot successfully deleted!");
                                     value = true;
+                                    System.out.println("cancellato");
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -61,6 +63,7 @@ public class PathologyDao {
                                 public void onFailure(@NonNull Exception e) {
                                     Log.w(TAG, "Error deleting document", e);
                                     value = false;
+                                    System.out.println("non cancellato");
                                 }
                             });
         return value;

@@ -34,10 +34,10 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public boolean action_delete(String idAnimal, String name){
-        if (idAnimal != null && name != null){
-            pathology = Pathology.Builder.create(idAnimal,name).build();
-            return pathology.deletePathology(idAnimal,name);
+    public boolean action_delete(String idPathology, String name){
+        if (idPathology != null && name != null){
+            pathology = Pathology.Builder.create(idPathology,name).build();
+            return pathology.deletePathology(idPathology);
         }else{
             System.out.println("the Pathology is not Exist");
             return false;
