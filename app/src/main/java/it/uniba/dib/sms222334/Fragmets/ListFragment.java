@@ -142,14 +142,7 @@ public class ListFragment extends Fragment{
                 setExpenseList();
                 break;
             case RELATION:
-                RelationPresenter presenter = new RelationPresenter();
-                presenter.action_getRelation("test2@gmail.com",animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
-                    @Override
-                    public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
-                        setRelationList(animalList,relationList);
-                    }
-                });
-
+                setRelationList();
                 break;
             case HEALTH:
                 PathologyPresenter.action_getPathology(animal.getFirebaseID(), new PathologyDao.OnPathologyListListener() {
@@ -674,19 +667,27 @@ public class ListFragment extends Fragment{
     private ArrayList<Relation> relationList;
     private RelationAdapter relationAdapter;
 
-    public void setRelationList(List <Animal> AnimalDate,ArrayList<Relation> relationListGet){
+    public void setRelationList(){
+        RelationPresenter presenter = new RelationPresenter();
+        presenter.action_getRelation(currentUser.getFirebaseID(), animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationListGet, List<Animal> animalListGet) {
+                relationList=new ArrayList<>();
+                relationList.addAll(relationListGet);
 
-        relationList=new ArrayList<>();
-        relationList.addAll(relationListGet);
+
+                final Calendar c = Calendar.getInstance();
+                c.add(Calendar.DAY_OF_MONTH,-1600);
+
+                relationAdapter=new RelationAdapter(relationList,getContext());
+
+                addButton.setOnClickListener(v -> launchAddDialog(animalListGet));
 
 
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
+                recyclerView.setAdapter(relationAdapter);
 
-        relationAdapter=new RelationAdapter(relationList,getContext());
-
-        addButton.setOnClickListener(v -> launchAddDialog(AnimalDate));
-
+            }
+        });
         SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -709,15 +710,15 @@ public class ListFragment extends Fragment{
 
 
                             confirmButton.setOnClickListener(v -> {
-                                    RelationPresenter relation = new RelationPresenter();
-                                    String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
-                                    String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
-                                    if (relation.deleteRelation(idAnimal1,idAnimal2)) {
-                                        relationAdapter.removeRelation(pos);
-                                        deleteDialog.cancel();
-                                        System.out.println("eliminato");
+                                        RelationPresenter relation = new RelationPresenter();
+                                        String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
+                                        String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
+                                        if (relation.deleteRelation(idAnimal1,idAnimal2)) {
+                                            relationAdapter.removeRelation(pos);
+                                            deleteDialog.cancel();
+                                            System.out.println("eliminato");
+                                        }
                                     }
-                                }
                             );
 
 
@@ -728,8 +729,6 @@ public class ListFragment extends Fragment{
                 ));
             }
         };
-
-        recyclerView.setAdapter(relationAdapter);
 
     }
     private SimpleTextAdapter<Pathology> pathologyAdapter;
