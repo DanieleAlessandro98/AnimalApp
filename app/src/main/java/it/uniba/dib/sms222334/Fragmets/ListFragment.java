@@ -765,7 +765,7 @@ public class ListFragment extends Fragment{
 
                             confirmButton.setOnClickListener(v -> {
                                         PathologyPresenter pathology = new PathologyPresenter();
-                                        if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
+                                        if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getIdAnimal(),pathologyAdapter.simpleItemList.get(pos).getName())) {
                                             pathologyAdapter.removeSimpleElement(pos);
                                             deleteDialog.cancel();
                                         }else{

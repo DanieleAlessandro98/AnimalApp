@@ -22,7 +22,7 @@ public class PathologyPresenter {
     // this is the method that check if are error in the name and call the method for create the pathology
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
-            pathology = Pathology.Builder.create(idAnimal,name).build();
+            pathology = Pathology.Builder.create("",idAnimal,name).build();
             //TODO ho fatto passare per parametro perché non sto capendo come prendere i paramentri dalla Build
             if(Pathology.createPathology(idAnimal,name)) {
                 return pathology;
@@ -34,10 +34,11 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public boolean action_delete(String idPathology, String name){
-        if (idPathology != null && name != null){
-            pathology = Pathology.Builder.create(idPathology,name).build();
-            return pathology.deletePathology(idPathology);
+    public boolean action_delete(String idAnimal, String name){
+        if (idAnimal != null && name != null){
+            boolean value =Pathology.deletePathology(idAnimal,name);
+            System.out.println("return value "+value);
+            return value;
         }else{
             System.out.println("the Pathology is not Exist");
             return false;
