@@ -1,9 +1,12 @@
 package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
+import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 /**
  * this Class handles the create, view, edit, remove and check Exist or currect of the visit
@@ -67,8 +70,15 @@ public class VisitPresenter {
         }
     }
 
-    public void action_view(String idAnimale){
-
+    public void action_view(UserRole idProfile,final VisitDao.OnVisitListener listener){
+        if (idProfile != null){
+            Visit.ViewVisit(idProfile, new VisitDao.OnVisitListener() {
+                @Override
+                public void onGetVisitListener(List<Visit> visitList) {
+                    listener.onGetVisitListener(visitList);
+                }
+            });
+        }
     }
 
     public String getIdAnimale() {

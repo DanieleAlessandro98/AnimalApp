@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,13 +18,20 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Fragmets.ListFragment;
+import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Document;
+import it.uniba.dib.sms222334.Models.Pathology;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class VisitDao {
     private final String TAG="VisitDao";
@@ -184,4 +192,118 @@ public class VisitDao {
         return date;
     }
 
+    public void viewVisitListDao(UserRole id,final OnVisitListener listener){
+        ArrayList <Visit> visits = new ArrayList<>();
+        CollectionReference animaliRef = FirebaseFirestore.getInstance().collection("Animal");
+
+
+        if (id == UserRole.PRIVATE || id == UserRole.PUBLIC_AUTHORITY){
+            collectionVisit.whereEqualTo("idOwner", ListFragment.currentUser.getFirebaseID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                String visitID = document.getId();
+                                String visitName = document.getString("name");
+                                String visitType = document.getString("Visit Type");
+                                Date time = convertDate(document.getString("Date"));
+                                DocumentReference animalID = (DocumentReference) document.get("animalID");
+                                getAnimalClass(animalID.getId(), new RelationDao.OnRelationClassAnimalListener() {
+                                    @Override
+                                    public void onRelationClassAnimalListener(Animal animalList) {
+                                        visits.add(Visit.Builder.create(visitID,visitName, Visit.visitType.valueOf(visitType),time)
+                                                        .setAnimal(animalList)
+                                                        .build());
+                                        listener.onGetVisitListener(visits);
+                                    }
+                                });
+                            }
+                        } else {
+                            Log.w("W","Nessun dato trovato");
+                            listener.onGetVisitListener(new ArrayList<>());
+                        }
+                    } else {
+                        Log.w("W","La query non ha funzionato");
+                        listener.onGetVisitListener(new ArrayList<>());
+                    }
+                }
+            });
+        }else{
+            System.out.println("id doctor: "+ListFragment.currentUser.getFirebaseID());
+            collectionVisit.whereEqualTo("idDoctor", ListFragment.currentUser.getFirebaseID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                String visitID = document.getId();
+                                String visitName = document.getString("name");
+                                String visitType = document.getString("Visit Type");
+                                Date time = convertDate(document.getString("Date"));
+                                DocumentReference animalID = (DocumentReference) document.get("animalID");
+
+                                getAnimalClass(animalID.getId(), new RelationDao.OnRelationClassAnimalListener() {
+                                    @Override
+                                    public void onRelationClassAnimalListener(Animal animalList) {
+                                        visits.add(Visit.Builder.create(visitID,visitName, Visit.visitType.valueOf(visitType),time)
+                                                .setAnimal(animalList)
+                                                .build());
+
+                                        for (int i = 0; i < visits.size(); i++) {
+                                            System.out.println(visits.get(i).getName());
+                                        }
+
+                                        listener.onGetVisitListener(visits);
+                                    }
+                                });
+                            }
+                            listener.onGetVisitListener(visits);
+                        } else {
+                            Log.w("W","Nessun dato trovato");
+                            listener.onGetVisitListener(new ArrayList<>());
+                        }
+                    } else {
+                        Log.w("W","La query non ha funzionato");
+                        listener.onGetVisitListener(new ArrayList<>());
+                    }
+                }
+            });
+        }
+    }
+    final private CollectionReference collectionAnimalRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
+    private void getAnimalClass(String idAnimal, final RelationDao.OnRelationClassAnimalListener listener) {
+        collectionAnimalRelation.document(idAnimal).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Timestamp timestamp = document.getTimestamp("birthdate");
+                        if (timestamp != null) {
+                            Date birthDate = timestamp.toDate();
+                            //TODO da capire come sistemare lo stato dell'animale al suo tipo
+                            Animal getAnimal = Animal.Builder.create(document.getId(), Animal.stateList.ADOPTED)
+                                    .setSpecies(document.getString("species"))
+                                    .setBirthDate(birthDate)
+                                    .setName(document.getString("name"))
+                                    .setOwner(document.getString("ownerID"))
+                                    .build();
+                            listener.onRelationClassAnimalListener(getAnimal);
+                        }
+                    } else {
+                        Log.d(TAG, "Il documento non esiste.");
+                    }
+                } else {
+                    Log.w(TAG, "Errore nel recupero del documento.", task.getException());
+                }
+            }
+        });
+    }
+
+    public interface OnVisitListener {
+        void onGetVisitListener(List<Visit> visitList);
+    }
 }

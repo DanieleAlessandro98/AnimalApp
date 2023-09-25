@@ -49,6 +49,7 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
@@ -89,7 +90,7 @@ public class ListFragment extends Fragment{
 
     AnimalPresenter animalPresenter;
 
-    User currentUser; //profile of the user logged
+    public static User currentUser; //profile of the user logged
     UserRole currentUserRole;
     static Animal animal;
 
@@ -521,18 +522,76 @@ public class ListFragment extends Fragment{
     public static ArrayList<Visit> visitList = new ArrayList<>();
 
     public void setVisitList(){
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
 
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
+
+        VisitPresenter visitPresenter = new VisitPresenter();
+        visitPresenter.action_view(currentUser.getRole(), new VisitDao.OnVisitListener() {
+            @Override
+            public void onGetVisitListener(List<Visit> visitGetList) {
+                visitList.clear();
+                visitList.addAll(visitGetList);
+
+                visitAdapter=new VisitAdapter(visitList,getContext());
+                visitAdapter.setOnVisitClickListener(visit -> {
+                    FragmentManager fragmentManager=getParentFragmentManager();
+
+                    FragmentTransaction transaction= fragmentManager.beginTransaction();
+                    transaction.addToBackStack("itemPage");
+                    transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
+                });
+
+                SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+                    @SuppressLint("SuspiciousIndentation")
+                    @Override
+                    public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
+                        underlayButtons.add(new SwipeHelper.UnderlayButton(
+                                getResources().getString(R.string.delete),
+                                0,
+                                Color.parseColor("#CD4C51"),
+                                pos -> {
+                                    final Dialog deleteDialog=new Dialog(getContext());
+                                    deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+                                    deleteDialog.setContentView(R.layout.delete_dialog);
+
+                                    Button undoButton,confirmButton;
+
+                                    undoButton=deleteDialog.findViewById(R.id.undo_button);
+                                    confirmButton=deleteDialog.findViewById(R.id.delete_button);
+
+                                    undoButton.setOnClickListener(v -> deleteDialog.cancel());
+
+                                    confirmButton.setOnClickListener(v -> {
+                                                VisitPresenter visit = new VisitPresenter();
+                                                String idAnimal = visitAdapter.getVisitList().get(pos).getFirebaseID();
+                                                String TypeVisit = visitAdapter.getVisitList().get(pos).getType().toString();
+
+                                                if (visit.removeVisit(idAnimal, TypeVisit)) {
+                                                    visitAdapter.removeVisit(pos);
+                                                    deleteDialog.cancel();
+                                                }else{
+                                                    Log.w(TAG,"Delete Visit is Failure");
+                                                }
+                                            }
+                                    );
+
+
+                                    deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                                    deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                    deleteDialog.show();
+                                }
+                        ));
+                    }
+                };
+
+
+                recyclerView.setAdapter(visitAdapter);
+            }
+        });
 
         addButton.setVisibility(View.GONE);
 
-        Calendar calendar=Calendar.getInstance();
+        /*Calendar calendar=Calendar.getInstance();
 
         Visit v1=Visit.Builder.create("TestID", "Test", Visit.visitType.CONTROL, calendar.getTime())
                 .setState(Visit.visitState.NOT_EXECUTED)
@@ -545,64 +604,9 @@ public class ListFragment extends Fragment{
         visitList.add(v1);
         visitList.add(v1);
 
-        System.out.println("per elimina visita");
-
-        visitAdapter=new VisitAdapter(visitList,getContext());
-
-        visitAdapter.setOnVisitClickListener(visit -> {
-            FragmentManager fragmentManager=getParentFragmentManager();
-
-            FragmentTransaction transaction= fragmentManager.beginTransaction();
-            transaction.addToBackStack("itemPage");
-            transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
-        });
-
-        SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
-            @SuppressLint("SuspiciousIndentation")
-            @Override
-            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new SwipeHelper.UnderlayButton(
-                        getResources().getString(R.string.delete),
-                        0,
-                        Color.parseColor("#CD4C51"),
-                        pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
-                                        VisitPresenter visit = new VisitPresenter();
-                                        String idAnimal = visitAdapter.getVisitList().get(pos).getFirebaseID();
-                                        String TypeVisit = visitAdapter.getVisitList().get(pos).getType().toString();
-
-                                        if (visit.removeVisit(idAnimal, TypeVisit)) {
-                                            visitAdapter.removeVisit(pos);
-                                            deleteDialog.cancel();
-                                        }else{
-                                            Log.w(TAG,"Delete Visit is Failure");
-                                        }
-                                    }
-                            );
+        System.out.println("per elimina visita");*/
 
 
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
-                        }
-                ));
-            }
-        };
-
-
-        recyclerView.setAdapter(visitAdapter);
     }
 
     public void setExpenseList(){
