@@ -52,7 +52,7 @@ public class VisitFragment extends Fragment {
         Bundle args = new Bundle();
         args.putSerializable("visit", visit);
         myFragment.setArguments(args);
-
+        System.out.println("dati visita dal visitFragment: "+visit.getFirebaseID());
         return myFragment;
     }
 
@@ -71,7 +71,8 @@ public class VisitFragment extends Fragment {
 
         if(this.userRole== UserRole.VETERINARIAN){
             editButton = layout.findViewById(R.id.edit_button);
-            editButton.setOnClickListener(v -> launchEditDialogForVeterinarian());
+            System.out.println("visit in createview: "+this.visit.getFirebaseID()+" "+this.visit.getAnimal().getFirebaseID()+" "+this.visit.getName());
+            editButton.setOnClickListener(v -> launchEditDialogForVeterinarian(this.visit.getAnimal().getFirebaseID(),this.visit.getName()));
             editButton.setVisibility(View.VISIBLE);
         }
         else{
@@ -113,7 +114,7 @@ public class VisitFragment extends Fragment {
 
     }
 
-    public void launchEditDialogForVeterinarian(){
+    public void launchEditDialogForVeterinarian(String idAnimal,String name){
         Visit editVisit=Visit.Builder.createFrom(this.visit).build();
 
 
@@ -193,7 +194,7 @@ public class VisitFragment extends Fragment {
                 editVisit.setDate(dateConvert);
 
                 VisitPresenter presenter = new VisitPresenter();
-                presenter.action_edit(editVisit,"RVMKaVtwKSYhsPw8AesA","visita di vacinazione");
+                presenter.action_edit(editVisit,idAnimal,name);
 
                 saveVisit(editVisit);           //TODO verificare se serve o no
                 editDialog.cancel();

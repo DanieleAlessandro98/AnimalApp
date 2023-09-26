@@ -28,8 +28,6 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Fragmets.ListFragment;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Document;
-import it.uniba.dib.sms222334.Models.Pathology;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -128,17 +126,21 @@ public class VisitDao {
     }
 
     public void editVisit(Visit visit,String idAnimal,String name){
-        collectionVisit.whereEqualTo("animalID",idAnimal).whereEqualTo("name",name)
+        DocumentReference reference = collectionAnimalVisit.document(idAnimal);
+        collectionVisit.whereEqualTo("animalID",reference).whereEqualTo("name",name)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                            DocumentReference animalid = (DocumentReference) document.get("animalID");
+
+                            System.out.println(animalid.getPath());
 
                             visit.setDate(convertDate(document.getString("Date")));
                             visit.setType(Visit.visitType.valueOf(document.getString("Visit Type")));
-                            visit.setFirebaseID(document.getString("animalID"));
+                            visit.setFirebaseID(animalid.getPath());
                             visit.setName(document.getString("name"));
 
                             Map<String,Object> updateMap = new HashMap<>();
@@ -147,7 +149,7 @@ public class VisitDao {
 
                             updateMap.put("Date",visit.getDate().toString());
                             updateMap.put("Visit Type",visit.getType().toString());
-                            updateMap.put("animalID",visit.getFirebaseID());
+                            updateMap.put("animalID",animalid);
                             updateMap.put("diagnosis",visit.getDiagnosis().toString());
                             updateMap.put("medical_note", visit.getMedicalNotes());
                             updateMap.put("name", visit.getName());
@@ -160,13 +162,17 @@ public class VisitDao {
                                         @Override
                                         public void onSuccess(Void unused) {
                                             Log.d(TAG, "update fatto");
+                                            System.out.println("update fatto");
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
+                                            System.out.println("fallito");
                                             Log.d(TAG, "errore update");
                                         }
                                     });
+                        }else{
+                            System.out.println("documento non trovato");
                         }
                     }
                 });
@@ -251,11 +257,7 @@ public class VisitDao {
                                         visits.add(Visit.Builder.create(visitID,visitName, Visit.visitType.valueOf(visitType),time)
                                                 .setAnimal(animalList)
                                                 .build());
-
-                                        for (int i = 0; i < visits.size(); i++) {
-                                            System.out.println(visits.get(i).getName());
-                                        }
-
+                                        System.out.println("preso tutto dottore");
                                         listener.onGetVisitListener(visits);
                                     }
                                 });
@@ -273,9 +275,9 @@ public class VisitDao {
             });
         }
     }
-    final private CollectionReference collectionAnimalRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
+    final private CollectionReference collectionAnimalVisit = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
     private void getAnimalClass(String idAnimal, final RelationDao.OnRelationClassAnimalListener listener) {
-        collectionAnimalRelation.document(idAnimal).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        collectionAnimalVisit.document(idAnimal).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {

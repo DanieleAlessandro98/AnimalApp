@@ -520,6 +520,7 @@ public class ListFragment extends Fragment{
 
     public static VisitAdapter visitAdapter;
     public static ArrayList<Visit> visitList = new ArrayList<>();
+    public static int position = -1;
 
     public void setVisitList(){
 
@@ -533,8 +534,8 @@ public class ListFragment extends Fragment{
 
                 visitAdapter=new VisitAdapter(visitList,getContext());
                 visitAdapter.setOnVisitClickListener(visit -> {
+                    position = visitList.indexOf(visit);
                     FragmentManager fragmentManager=getParentFragmentManager();
-
                     FragmentTransaction transaction= fragmentManager.beginTransaction();
                     transaction.addToBackStack("itemPage");
                     transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
@@ -551,7 +552,6 @@ public class ListFragment extends Fragment{
                                 pos -> {
                                     final Dialog deleteDialog=new Dialog(getContext());
                                     deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
                                     deleteDialog.setContentView(R.layout.delete_dialog);
 
                                     Button undoButton,confirmButton;
@@ -583,7 +583,6 @@ public class ListFragment extends Fragment{
                         ));
                     }
                 };
-
 
                 recyclerView.setAdapter(visitAdapter);
             }
