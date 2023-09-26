@@ -57,11 +57,14 @@ public class VisitPresenter {
         }
     }
 
-    public boolean removeVisit(String idAnimal, String TypeVisit){
-        if (isAlphaNumeric(idAnimal) && TypeVisit != null){
-            if (Visit.removeVisit(idAnimal,TypeVisit)) {
+    public boolean removeVisit(String idVisit){
+        if (isAlphaNumeric(idVisit)){
+            System.out.println("entrato in if di removeVisit()");
+            if (Visit.removeVisit(idVisit)) {
+                System.out.println("vero di remove visit");
                 return true;
             }else{
+                System.out.println("falso di remove visit");
                 return false;
             }
         }else{

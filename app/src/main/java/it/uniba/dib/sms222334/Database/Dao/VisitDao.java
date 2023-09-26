@@ -72,37 +72,24 @@ public class VisitDao {
 
     private boolean value = true;
 
-    public boolean removeVisit(String idAnimal, String TypeVisit){
+    public boolean removeVisit(String idVisita){
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference animalRef = db.collection("Animal").document(idAnimal);
-
-        collectionVisit
-                .whereEqualTo("animalID",animalRef)
-                .whereEqualTo("Visit Type",TypeVisit)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        collectionVisit.document(idVisita)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                            collectionVisit.document(document.getId())
-                                    .delete()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "Visit successfully deleted!");
-                                            value = true;
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error deleting Visit", e);
-                                            value = false;
-                                        }
-                                    });
-                        }
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("eliminato");
+                        Log.d(TAG, "Visit successfully deleted!");
+                        value = true;
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("non eliminato");
+                        Log.w(TAG, "Error deleting Visit", e);
+                        value = false;
                     }
                 });
         return value;

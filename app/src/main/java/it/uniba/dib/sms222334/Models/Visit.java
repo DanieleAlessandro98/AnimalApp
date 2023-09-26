@@ -196,9 +196,9 @@ public class Visit extends Document implements Serializable {
         return dao.createVisit(visit);
     }
 
-    public static boolean removeVisit(String idAnimal, String TypeVisit){
+    public static boolean removeVisit(String idVisit){
         VisitDao dao = new VisitDao();
-        return dao.removeVisit(idAnimal,TypeVisit);
+        return dao.removeVisit(idVisit);
     }
 
     public void delete() {

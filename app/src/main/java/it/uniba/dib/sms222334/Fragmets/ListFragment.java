@@ -541,52 +541,53 @@ public class ListFragment extends Fragment{
                     transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
                 });
 
-                SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
-                    @SuppressLint("SuspiciousIndentation")
-                    @Override
-                    public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
-                        underlayButtons.add(new SwipeHelper.UnderlayButton(
-                                getResources().getString(R.string.delete),
-                                0,
-                                Color.parseColor("#CD4C51"),
-                                pos -> {
-                                    final Dialog deleteDialog=new Dialog(getContext());
-                                    deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                    deleteDialog.setContentView(R.layout.delete_dialog);
 
-                                    Button undoButton,confirmButton;
-
-                                    undoButton=deleteDialog.findViewById(R.id.undo_button);
-                                    confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                                    undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                                    confirmButton.setOnClickListener(v -> {
-                                                VisitPresenter visit = new VisitPresenter();
-                                                String idAnimal = visitAdapter.getVisitList().get(pos).getFirebaseID();
-                                                String TypeVisit = visitAdapter.getVisitList().get(pos).getType().toString();
-
-                                                if (visit.removeVisit(idAnimal, TypeVisit)) {
-                                                    visitAdapter.removeVisit(pos);
-                                                    deleteDialog.cancel();
-                                                }else{
-                                                    Log.w(TAG,"Delete Visit is Failure");
-                                                }
-                                            }
-                                    );
-
-
-                                    deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                                    deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                    deleteDialog.show();
-                                }
-                        ));
-                    }
-                };
 
                 recyclerView.setAdapter(visitAdapter);
             }
         });
+
+        SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+            @SuppressLint("SuspiciousIndentation")
+            @Override
+            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
+                underlayButtons.add(new SwipeHelper.UnderlayButton(
+                        getResources().getString(R.string.delete),
+                        0,
+                        Color.parseColor("#CD4C51"),
+                        pos -> {
+                            final Dialog deleteDialog=new Dialog(getContext());
+                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                            deleteDialog.setContentView(R.layout.delete_dialog);
+
+                            Button undoButton,confirmButton;
+
+                            undoButton=deleteDialog.findViewById(R.id.undo_button);
+                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
+
+                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
+
+                            confirmButton.setOnClickListener(v -> {
+                                        VisitPresenter visit = new VisitPresenter();
+                                        System.out.println("entrato in click");
+                                        if (visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID())) {
+                                            System.out.println("eliminato visita");
+                                            visitAdapter.removeVisit(pos);
+                                            deleteDialog.cancel();
+                                        }else{
+                                            Log.w(TAG,"Delete Visit is Failure");
+                                        }
+                                    }
+                            );
+
+
+                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            deleteDialog.show();
+                        }
+                ));
+            }
+        };
 
         addButton.setVisibility(View.GONE);
 
