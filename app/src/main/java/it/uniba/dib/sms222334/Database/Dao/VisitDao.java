@@ -44,6 +44,8 @@ public class VisitDao {
                 .collection(AnimalAppDB.Animal.TABLE_NAME)
                 .document(visit.getAnimal().getFirebaseID());
 
+        System.out.println("animal reference: "+animalReference);
+
         newVisit.put("animalID", animalReference);
         newVisit.put("Visit Type", visit.getType().toString());
         newVisit.put("Date", visit.getDate().toString());
@@ -51,8 +53,8 @@ public class VisitDao {
         newVisit.put("diagnosis", "");
         newVisit.put("medical_note", "");
         newVisit.put("state", "");
-        newVisit.put("IdDoctor",visit.getDoctorFirebaseID());
-
+        newVisit.put("idDoctor",visit.getDoctorFirebaseID());
+        newVisit.put("idOwner",visit.getAnimal().getOwnerReference());
 
         collectionVisit.add(newVisit).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -187,7 +189,6 @@ public class VisitDao {
 
     public void viewVisitListDao(UserRole id,final OnVisitListener listener){
         ArrayList <Visit> visits = new ArrayList<>();
-        CollectionReference animaliRef = FirebaseFirestore.getInstance().collection("Animal");
 
 
         if (id == UserRole.PRIVATE || id == UserRole.PUBLIC_AUTHORITY){
