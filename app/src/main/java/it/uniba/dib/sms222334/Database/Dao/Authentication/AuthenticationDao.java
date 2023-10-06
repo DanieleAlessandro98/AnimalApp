@@ -57,7 +57,7 @@ public class AuthenticationDao {
                             privateDao.findPrivate(document, new PrivateDao.PrivateCallback() {
                                 @Override
                                 public void onPrivateFound(Private resultPrivate) {
-                                    privateDao.loadPrivateAnimals(document, resultPrivate);
+                                    privateDao.loadPrivateAnimals(document, resultPrivate,null);
                                     listener.onUserFound(resultPrivate);
                                 }
 
@@ -84,7 +84,7 @@ public class AuthenticationDao {
                             PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
                             PublicAuthority authorityFound = publicAuthorityDao.findPublicAuthority(document);
 
-                            publicAuthorityDao.loadPublicAuthorityAnimals(document,authorityFound);
+                            publicAuthorityDao.loadPublicAuthorityAnimals(document,authorityFound,null);
 
                             User user = authorityFound;
 

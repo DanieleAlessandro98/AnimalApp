@@ -77,14 +77,16 @@ public class OwnerSuggestContentProvider extends ContentProvider implements Data
                 if(owner instanceof Private){
                     cursor.addRow(new Object[]{id
                             ,((Private)owner).getEmail()
-                            ,((Private)owner).getPhoto()});
+                            ,((Private)owner).getPhoto()
+                            ,((Private)owner).getFirebaseID()});
 
                     Log.d(TAG,((Private)owner).getEmail());
                 }
                 else if(owner instanceof PublicAuthority) {
                     cursor.addRow(new Object[]{id
                             ,((PublicAuthority)owner).getEmail()
-                            ,((PublicAuthority)owner).getPhoto()});
+                            ,((PublicAuthority)owner).getPhoto()
+                            ,((PublicAuthority)owner).getFirebaseID()});
 
                     Log.d(TAG,((PublicAuthority)owner).getEmail());
                 }
@@ -93,7 +95,7 @@ public class OwnerSuggestContentProvider extends ContentProvider implements Data
             }
 
             //if(cursor!=null)
-              //  cursor.setNotificationUri(getContext().getContentResolver(),CONTENT_URI);
+             // cursor.setNotificationUri(getContext().getContentResolver(),CONTENT_URI);
 
 
             list.clear();
@@ -131,12 +133,12 @@ public class OwnerSuggestContentProvider extends ContentProvider implements Data
 
     @Override
     public void onDataRetrieved(Owner result) {
-
+        this.list.add(result);
     }
 
     @Override
     public void onDataRetrieved(ArrayList<Owner> results) {
-        this.list.addAll(results);
+
     }
 
     @Override

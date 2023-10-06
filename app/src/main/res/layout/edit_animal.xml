@@ -92,19 +92,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:visibility="gone"
                     android:hint="@string/owner"
                     android:background="@drawable/check_button_shape"
                     android:textSize="16sp" />
+
+                <it.uniba.dib.sms222334.Views.AnimalAppEditText
+                    android:id="@+id/owner_chooser_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="16dp"
+                    android:layout_marginEnd="5dp"
+                    android:inputType="textEmailAddress"
+                    android:textColorHint="#A3A3A3"
+                    android:background="@drawable/edit_text_shape"
+                    android:textSize="16sp"
+                    android:enabled="false"/>
 
                 <Button
                     android:id="@+id/edit_owner_button"
                     android:layout_width="80dp"
                     android:layout_height="32dp"
-                    android:layout_marginTop="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/baseline_edit_24"
-                    app:tint="?attr/colorPrimary" />
+                    android:background="@drawable/baseline_lock_24"
+                    android:backgroundTint="@color/dark_main_green"/>
             </LinearLayout>
 
             <it.uniba.dib.sms222334.Views.AnimalAppEditText
@@ -114,6 +127,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/edit_text_shape"
                 android:hint="@string/name"
+                android:maxLength="9"
                 android:inputType="textPersonName"
                 android:padding="16dp"
                 android:textColorHint="#A3A3A3"

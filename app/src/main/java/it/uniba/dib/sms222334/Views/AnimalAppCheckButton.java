@@ -25,15 +25,6 @@ public class AnimalAppCheckButton extends androidx.appcompat.widget.AppCompatBut
             super(context, attrs);
 
             this.setOnClickListener(this);
-
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
-                    R.styleable.AnimalAppCheckButton, 0, 0);
-
-            try {
-                 isChecked = a.getBoolean(R.styleable.AnimalAppCheckButton_isChecked, false);
-            } finally {
-                 a.recycle();
-            }
     }
 
     public boolean getChecked() {

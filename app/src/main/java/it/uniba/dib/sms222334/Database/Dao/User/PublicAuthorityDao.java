@@ -18,6 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,15 +53,23 @@ public class PublicAuthorityDao {
         return public_authority_requested_builder.build();
     }
 
-    public void loadPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority) {
+    public void loadPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority,@Nullable UserCallback.UserStateListener userCallback) {
         AnimalDao animalDao = new AnimalDao();
         List<DocumentReference> animalRefs = (List<DocumentReference>) document.get(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS);
+
+        if(animalRefs.isEmpty() && userCallback!=null){
+            userCallback.notifyItemLoaded();
+        }
 
         for (DocumentReference animalRef : animalRefs) {
             DatabaseCallbackResult<Animal> animalListener = new DatabaseCallbackResult<Animal>() {
                 @Override
                 public void onDataRetrieved(Animal result) {
                     resultPublicAuthority.addAnimal(result);
+                    Log.d("test passaggio proprietà","aggiungo un suo animale:ente");
+
+                    if(((animalRefs.indexOf(animalRef)+1) == animalRefs.size()) && (userCallback!=null))
+                        userCallback.notifyItemLoaded();
                 }
 
                 @Override
@@ -90,15 +100,12 @@ public class PublicAuthorityDao {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        ArrayList<Owner> resultList = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             PublicAuthority authorityFound = findPublicAuthority(document);
-                            resultList.add(authorityFound);
 
                             Log.d(TAG,authorityFound.getFirebaseID()+" found!");
+                            listener.onDataRetrieved(authorityFound);
                         }
-
-                        listener.onDataRetrieved(resultList);
                     }
                 });
     }
@@ -119,19 +126,43 @@ public class PublicAuthorityDao {
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, publicAuthority.getLegalSite());
 
         collectionPublicAuthority.add(new_authority)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                        callback.onRegisterSuccess();
-                    }
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                    callback.onRegisterSuccess();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                        callback.onRegisterFail();
-                    }
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error adding document", e);
+                    callback.onRegisterFail();
+                });
+    }
+
+    public void updatePublicAuthorityAuthExcluded(PublicAuthority updateAuthority, UserCallback.UserUpdateCallback callback) {
+        List<DocumentReference> dr= new ArrayList<>();
+
+        for(Animal a: updateAuthority.getAnimalList()){
+            DocumentReference documentReference = AnimalDao.collectionAnimal.document(a.getFirebaseID());
+            dr.add(documentReference);
+        }
+
+        Map<String, Object> newAuthorityData = new HashMap<>();
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME, updateAuthority.getName());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL, updateAuthority.getEmail());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,updateAuthority.getNBeds());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLegalSite());
+
+        collectionPublicAuthority.document(updateAuthority.getFirebaseID())
+                .update(newAuthorityData)
+                .addOnSuccessListener(aVoid -> {
+                    callback.notifyUpdateSuccesfull();
+                    Log.d(TAG, "update fatto");
+                })
+                .addOnFailureListener(e -> {
+                    callback.notifyUpdateFailed();
+                    Log.d(TAG, "errore update");
                 });
     }
 
@@ -146,10 +177,7 @@ public class PublicAuthorityDao {
         }
 
         user.updateEmail(updateAuthority.getEmail())
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {}
-                });
+                .addOnCompleteListener(task -> {});
 
         Map<String, Object> newAuthorityData = new HashMap<>();
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME, updateAuthority.getName());
@@ -163,42 +191,52 @@ public class PublicAuthorityDao {
 
         collectionPublicAuthority.document(updateAuthority.getFirebaseID())
                 .update(newAuthorityData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        callback.notifyUpdateSuccesfull();
-                        Log.d(TAG, "update fatto");
-                    }
+                .addOnSuccessListener(
+                        aVoid -> {
+                    callback.notifyUpdateSuccesfull();
+                    Log.d(TAG, "update fatto");
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.notifyUpdateFailed();
-                        Log.d(TAG, "errore update");
-                    }
+                .addOnFailureListener(
+                        e -> {
+                    callback.notifyUpdateFailed();
+                    Log.d(TAG, "errore update");
                 });
     }
 
     public void getPublicAuthorityByEmail(String email, DatabaseCallbackResult<PublicAuthority> listener) {
         collectionPublicAuthority.whereEqualTo(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL,email).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                .addOnCompleteListener(
+                        task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
-                                PublicAuthority resultAuthority = findPublicAuthority(document);
-                                loadPublicAuthorityAnimals(document, resultAuthority);
+                            PublicAuthority resultAuthority = findPublicAuthority(document);
 
-                                listener.onDataRetrieved(resultAuthority);
-                            } else {
-                                listener.onDataNotFound();
-                            }
+                            Log.d("test passaggio proprietà","ho trovato l'ente ora carico i suoi animali");
+                            loadPublicAuthorityAnimals(document, resultAuthority, new UserCallback.UserStateListener() {
+                                @Override
+                                public void notifyItemLoaded() {
+                                    Log.d("test passaggio proprietà","ho caricato tutti i suoi animali:ente");
+                                    listener.onDataRetrieved(resultAuthority);
+                                }
+
+                                @Override
+                                public void notifyItemUpdated(int position) {
+
+                                }
+
+                                @Override
+                                public void notifyItemRemoved(int position) {
+
+                                }
+                            });
                         } else {
-                            listener.onDataQueryError(task.getException());
+                            listener.onDataNotFound();
                         }
+                    } else {
+                        listener.onDataQueryError(task.getException());
                     }
                 });
     }

@@ -39,6 +39,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
@@ -58,6 +59,7 @@ import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
+import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.Expences.ExpenseAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
@@ -151,7 +153,6 @@ public class ListFragment extends Fragment{
     private void launchAddDialog() {
 
         final AnimalAppDialog addDialog=new AnimalAppDialog(getContext());
-        addDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         //is is a owner profile it can add animal, veterinarian can't add anything
         if((this.profileType == ProfileFragment.Type.PUBLIC_AUTHORITY) || (this.profileType == ProfileFragment.Type.PRIVATE) ){
@@ -172,11 +173,11 @@ public class ListFragment extends Fragment{
 
                     profilePicture=addDialog.findViewById(R.id.profile_picture);
 
-                    TextView name= addDialog.findViewById(R.id.nameEditText);
+                    AnimalAppEditText name= addDialog.findViewById(R.id.nameEditText);
 
                     TextView birthDate= addDialog.findViewById(R.id.date_text_view);
 
-                    TextView microChip= addDialog.findViewById(R.id.micro_chip);
+                    AnimalAppEditText microChip= addDialog.findViewById(R.id.micro_chip);
 
                     Spinner speciesSpinner= addDialog.findViewById(R.id.species_spinner);
 
@@ -192,22 +193,25 @@ public class ListFragment extends Fragment{
                     addDialog.setInputCallback(new AnimalCallbacks.inputValidate() {
                         @Override
                         public void InvalidName() {
-                            name.setError("nome non valido");
+                            name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                            name.setError(getContext().getString(R.string.invalid_user_name));
                         }
 
                         @Override
                         public void InvalidBirthDate() {
-                            birthDate.setError("data non valida");
+                            birthDate.setError(getContext().getString(R.string.invalid_user_birthdate));
                         }
 
                         @Override
                         public void InvalidMicrochip() {
-                            microChip.setError("microchip non valido");
+                            microChip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                            microChip.setError(getContext().getString(R.string.invalid_microchip));
                         }
 
                         @Override
                         public void MicrochipAlreadyUsed() {
-                            microChip.setError("microchip esiste già");
+                            name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                            microChip.setError(getContext().getString(R.string.microchip_already_exist));
                         }
                     });
 
@@ -413,12 +417,11 @@ public class ListFragment extends Fragment{
 
         addDialog.show();
         addDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        addDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         addDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         addDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
-    public void setAnimalList(){
+    private void setAnimalList(){
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,0);
 
@@ -480,7 +483,7 @@ public class ListFragment extends Fragment{
     public static VisitAdapter visitAdapter;
     public static ArrayList<Visit> visitList;
 
-    public void setVisitList(){
+    private void setVisitList(){
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
@@ -525,30 +528,13 @@ public class ListFragment extends Fragment{
                         0,
                         Color.parseColor("#CD4C51"),
                         pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
+                            launchConfirmDialog(() -> {
                                 VisitPresenter visit = new VisitPresenter();
-                                    if(visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID()))
-                                        visitAdapter.removeVisit(pos);
-                                        deleteDialog.cancel();
-                                    }
-                            );
+                                if(visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID()))
+                                    visitAdapter.removeVisit(pos);
 
-
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
+                                return null;
+                            });
                         }
                 ));
             }
@@ -558,7 +544,7 @@ public class ListFragment extends Fragment{
         recyclerView.setAdapter(visitAdapter);
     }
 
-    public void setExpenseList(){
+    private void setExpenseList(){
         Log.d(TAG,tabPosition+"");
         if(profileType != ProfileFragment.Type.ANIMAL)
             addButton.setVisibility(View.GONE);
@@ -588,28 +574,10 @@ public class ListFragment extends Fragment{
                         0,
                         Color.parseColor("#CD4C51"),
                         pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
-                                        expenseAdapter.removeExpense(pos);
-                                        deleteDialog.cancel();
-                                    }
-                            );
-
-
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
+                            launchConfirmDialog(() -> {
+                                expenseAdapter.removeExpense(pos);
+                                return null;
+                            });
                         }
                 ));
             }
@@ -621,7 +589,7 @@ public class ListFragment extends Fragment{
     private ArrayList<Relation> relationList;
     private RelationAdapter relationAdapter;
 
-    public void setRelationList(){
+    private void setRelationList(){
 
         relationList=new ArrayList<>();
 
@@ -654,32 +622,14 @@ public class ListFragment extends Fragment{
                         0,
                         Color.parseColor("#CD4C51"),
                         pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
-                                    RelationPresenter relation = new RelationPresenter();
-                                    if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
-                                        relationAdapter.removeRelation(pos);
-                                        deleteDialog.cancel();
-                                        System.out.println("eliminato");
-                                    }
+                            launchConfirmDialog(() -> {
+                                RelationPresenter relation = new RelationPresenter();
+                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
+                                    relationAdapter.removeRelation(pos);
+                                    System.out.println("eliminato");
                                 }
-                            );
-
-
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
+                                return null;
+                            });
                         }
                 ));
             }
@@ -690,7 +640,7 @@ public class ListFragment extends Fragment{
     private SimpleTextAdapter<Pathology> pathologyAdapter;
     private ArrayList<Pathology> pathologyList;
 
-    public void setHealtList(){
+    private void setHealtList(){
         pathologyList=new ArrayList<>();
 
         Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
@@ -711,31 +661,16 @@ public class ListFragment extends Fragment{
                         0,
                         Color.parseColor("#CD4C51"),
                         pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
+                            launchConfirmDialog(() -> {
+                                RelationPresenter relation = new RelationPresenter();
+                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
                                     PathologyPresenter pathology = new PathologyPresenter();
                                     if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID())) {
                                         pathologyAdapter.removeSimpleElement(pos);
-                                        deleteDialog.cancel();
                                     }
                                 }
-                            );
-
-
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
+                                return null;
+                            });
                         }
                 ));
             }
@@ -745,7 +680,7 @@ public class ListFragment extends Fragment{
 
     }
 
-    public void setFoodList(){
+    private void setFoodList(){
         addButton.setOnClickListener(v -> launchAddDialog() );
 
         ArrayList<Food> foodList=new ArrayList<>();
@@ -769,28 +704,13 @@ public class ListFragment extends Fragment{
                         0,
                         Color.parseColor("#CD4C51"),
                         pos -> {
-                            final Dialog deleteDialog=new Dialog(getContext());
-                            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                            deleteDialog.setContentView(R.layout.delete_dialog);
-
-                            Button undoButton,confirmButton;
-
-                            undoButton=deleteDialog.findViewById(R.id.undo_button);
-                            confirmButton=deleteDialog.findViewById(R.id.delete_button);
-
-                            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-                            confirmButton.setOnClickListener(v -> {
-                                        foodAdapter.removeSimpleElement(pos);
-                                        deleteDialog.cancel();
-                                    }
-                            );
-
-
-                            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            deleteDialog.show();
+                            launchConfirmDialog(() -> {
+                                RelationPresenter relation = new RelationPresenter();
+                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
+                                    foodAdapter.removeSimpleElement(pos);
+                                }
+                                return null;
+                            });
                         }
                 ));
             }
@@ -798,4 +718,25 @@ public class ListFragment extends Fragment{
 
         recyclerView.setAdapter(foodAdapter);
     }
+
+    public void launchConfirmDialog(Callable<Void> confirmAction){
+        final AnimalAppDialog deleteDialog=new AnimalAppDialog(getContext());
+
+        deleteDialog.setContentView(getContext().getString(R.string.this_element_will_be), AnimalAppDialog.DialogType.CRITICAL);
+
+        deleteDialog.setConfirmAction(t -> {
+            try {
+                confirmAction.call();
+                deleteDialog.cancel();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        deleteDialog.setUndoAction(t -> deleteDialog.cancel());
+
+        deleteDialog.show();
+    }
+
+
 }

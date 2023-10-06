@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <it.uniba.dib.sms222334.Views.Carousel.MediaContainer
+        android:id="@+id/item_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/add_media_button"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/circular_container_shape"
+                android:src="@drawable/baseline_add_a_photo_24"
+                app:tint="?attr/colorPrimary" />
+        </RelativeLayout>
+
+    </it.uniba.dib.sms222334.Views.Carousel.MediaContainer>
+</LinearLayout>

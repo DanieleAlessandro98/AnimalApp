@@ -30,9 +30,9 @@ public class Animal extends Document implements Parcelable {
     private String species;
     private String race;
     private Bitmap photo;
-    private ArrayList<String> videos;
+    private ArrayList<Video> videos;
 
-    private ArrayList<String> photos;
+    private ArrayList<Photo> photos;
 
     private ArrayList<Visit> visits;
 
@@ -108,19 +108,19 @@ public class Animal extends Document implements Parcelable {
         this.photo = photo;
     }
 
-    public ArrayList<String> getPhotos() {
+    public ArrayList<Photo> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(ArrayList<String> photos) {
+    public void setPhotos(ArrayList<Photo> photos) {
         this.photos = photos;
     }
 
-    public ArrayList<String> getVideos() {
+    public ArrayList<Video> getVideos() {
         return videos;
     }
 
-    public void setVideos(ArrayList<String> videos) {
+    public void setVideos(ArrayList<Video> videos) {
         this.videos = videos;
     }
 
@@ -306,11 +306,11 @@ public class Animal extends Document implements Parcelable {
         }
     }
 
-    public void addImage(String image) {
+    public void addImage(Photo image) {
         photos.add(image);
     }
 
-    public void addVideo(String video) {
+    public void addVideo(Video video) {
         videos.add(video);
     }
 
@@ -333,8 +333,8 @@ public class Animal extends Document implements Parcelable {
         dest.writeString(getRace());
         dest.writeParcelable(getPhoto(),flags);
         dest.writeString(getMicrochip());
-        dest.writeStringList(getVideos());
-        dest.writeStringList(getPhotos());
+        dest.writeList(getVideos());
+        dest.writeList(getPhotos());
         dest.writeList(getFoods());
         dest.writeList(getPathologies());
         dest.writeList(getVisits());
@@ -353,8 +353,8 @@ public class Animal extends Document implements Parcelable {
         this.race = in.readString();
         this.photo = in.readParcelable(Bitmap.class.getClassLoader());
         this.microchip = in.readString();
-        in.readStringList(this.videos);
-        in.readStringList(this.photos);
+        this.photos=in.readArrayList(Photo.class.getClassLoader());
+        this.videos=in.readArrayList(Video.class.getClassLoader());
         this.foods =in.readArrayList(Food.class.getClassLoader());
         this.pathologies=in.readArrayList(Pathology.class.getClassLoader());
         this.visits=in.readArrayList(Visit.class.getClassLoader());

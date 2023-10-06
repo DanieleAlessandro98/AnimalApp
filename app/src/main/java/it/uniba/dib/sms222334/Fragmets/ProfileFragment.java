@@ -6,21 +6,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import static android.app.Activity.RESULT_OK;
 
-import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.os.ext.SdkExtensions;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,11 +34,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -550,7 +543,7 @@ public class ProfileFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(this.getString(R.string.profile_delete_alert_title));
         builder.setMessage(this.getString(R.string.profile_delete_alert_mex1));
-        builder.setPositiveButton(this.getString(R.string.profile_delete_alert_confirm), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(this.getString(R.string.confirm), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 userPresenter.deleteProfile();

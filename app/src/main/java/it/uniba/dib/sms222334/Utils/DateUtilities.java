@@ -39,7 +39,7 @@ public final class DateUtilities {
         }
 
         if (age==0){
-            return stringResources=context.getString(R.string.born_today);
+            return context.getString(R.string.born_today);
 
         } else if (age<30) {
             stringResources=age==1?context.getString(R.string.day):context.getString(R.string.days);
