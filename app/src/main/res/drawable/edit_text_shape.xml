@@ -26,7 +26,7 @@
         </shape>
     </item>
 
-    <item app:validate_input="warning_input">
+    <item app:validate_input="report_input">
         <shape android:shape="rectangle">
             <corners android:radius="10dp"/>
             <solid android:color="?attr/colorOnPrimary"/>

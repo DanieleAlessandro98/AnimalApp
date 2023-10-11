@@ -1,9 +1,19 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,8 +24,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -28,11 +42,12 @@ import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
-import it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation.RequestSegnalationAdapter;
+import it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport.RequestReportAdapter;
 
 public class HomeFragment extends Fragment {
 
@@ -40,11 +55,16 @@ public class HomeFragment extends Fragment {
 
     UserRole role;
     Button requestButton;
-    ImageButton warningButton;
+    ImageButton reportButton;
 
     RecyclerView recyclerView;
 
     Boolean isLogged;
+
+    ReportPresenter reportPresenter;
+    private ActivityResultLauncher<Intent> photoPickerResultLauncher;
+    private ImageView photoImageView;
+    private Dialog editDialog;
 
     public HomeFragment() {
     }
@@ -53,16 +73,15 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        reportPresenter = new ReportPresenter(this);
+
         this.isLogged = SessionManager.getInstance().isLogged();
 
         if (isLogged)
             this.role = SessionManager.getInstance().getCurrentUser().getRole();
 
-        warningButton.setOnClickListener(v -> {
-            if(isLogged)
-                launchWarningDialog();
-            else
-                ((MainActivity)getActivity()).forceLogin();
+        reportButton.setOnClickListener(v -> {
+            launchReportDialog();
         });
 
         if(role == UserRole.VETERINARIAN){
@@ -97,7 +116,7 @@ public class HomeFragment extends Fragment {
         listaProva.add(r1);
         listaProva.add(r1);
 
-        RequestSegnalationAdapter adapter=new RequestSegnalationAdapter(listaProva,getContext());
+        RequestReportAdapter adapter=new RequestReportAdapter(listaProva,getContext());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
@@ -106,18 +125,36 @@ public class HomeFragment extends Fragment {
         Log.d(TAG,recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item)+"");
 
         requestButton = layout.findViewById(R.id.add_request);
-        warningButton = layout.findViewById(R.id.add_warning);
+        reportButton = layout.findViewById(R.id.add_report);
+
+        this.photoPickerResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        reportPresenter.pickPhoto(selectedImage);
+                    }
+                });
 
         return layout;
     }
 
-    private void launchWarningDialog() {
-        final Dialog editDialog=new Dialog(getContext());
+    private void launchReportDialog() {
+        editDialog = new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        editDialog.setContentView(R.layout.add_segnalation);
-        Button backButton= editDialog.findViewById(R.id.back_button);
+        editDialog.setContentView(R.layout.add_report);
 
-        Spinner segnalationSpinner= editDialog.findViewById(R.id.segnalation_spinner);
+        photoImageView = editDialog.findViewById(R.id.image_view);
+
+        Button backButton= editDialog.findViewById(R.id.back_button);
+        Button saveButton= editDialog.findViewById(R.id.save_button);
+        ImageButton photoButton = editDialog.findViewById(R.id.image_button);
+
+        AnimalAppEditText name = editDialog.findViewById(R.id.nameEditText);
+        AnimalAppEditText description = editDialog.findViewById(R.id.description);
+        AnimalAppEditText age = editDialog.findViewById(R.id.ageEditText);
+
+        Spinner reportSpinner= editDialog.findViewById(R.id.report_spinner);
 
         Spinner speciesSpinner= editDialog.findViewById(R.id.species_spinner);
 
@@ -127,13 +164,30 @@ public class HomeFragment extends Fragment {
 
         speciesSpinner.setAdapter(speciesAdapter);
 
-        ArrayAdapter<CharSequence> segnalationAdapter= ArrayAdapter.createFromResource(getContext(),
-                R.array.segnalation_type,
+        ArrayAdapter<CharSequence> reportAdapter= ArrayAdapter.createFromResource(getContext(),
+                R.array.report_type,
                 android.R.layout.simple_list_item_1);
 
-        segnalationSpinner.setAdapter(segnalationAdapter);
+        reportSpinner.setAdapter(reportAdapter);
+
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                photoPickerResultLauncher.launch(photoIntent);
+            }
+        });
+
 
         backButton.setOnClickListener(v -> editDialog.cancel());
+
+        saveButton.setOnClickListener(v -> reportPresenter.onAdd(
+                reportSpinner.getSelectedItemPosition(),
+                speciesSpinner.getSelectedItemPosition(),
+                description.getText().toString(),
+                name.getText().toString(),
+                age.getText().toString()
+                ));
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -145,7 +199,7 @@ public class HomeFragment extends Fragment {
 
     private void launchRequestDialog() {
 
-        final Dialog editDialog=new Dialog(getContext());
+        editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_request);
 
@@ -222,7 +276,6 @@ public class HomeFragment extends Fragment {
 
 
 
-
         requestAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         requestSpinner.setAdapter(requestAdapter);
 
@@ -239,4 +292,34 @@ public class HomeFragment extends Fragment {
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    public void showInvalidReportDescription() {
+        Toast.makeText(getContext(), this.getString(R.string.invalid_report_description), Toast.LENGTH_SHORT).show();
+    }
+
+    public void setPhotoPicked(Bitmap bitmap) {
+        photoImageView.setImageBitmap(bitmap);
+    }
+
+    public Bitmap getPhotoPicked() {
+        Drawable drawable = photoImageView.getDrawable();
+        if (drawable instanceof BitmapDrawable)
+            return ((BitmapDrawable) drawable).getBitmap();
+
+        return null;
+    }
+
+    public void showPhotoUpdateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.photo_update_failed), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showCreateSuccessful() {
+        Toast.makeText(requireContext(), this.getString(R.string.report_create_successful), Toast.LENGTH_SHORT).show();
+
+        if (editDialog != null)
+            editDialog.cancel();
+    }
+
+    public void showCreateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.report_create_error), Toast.LENGTH_SHORT).show();
+    }
 }

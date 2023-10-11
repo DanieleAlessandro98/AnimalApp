@@ -34,12 +34,13 @@
     <string name="add_animal">ADD ANIMAL</string>
     <string name="add">ADD</string>
     <string name="age">Age</string>
+    <string name="report_age">Age (Optional)</string>
     <string name="microchip">Microchip</string>
     <string name="edit_animal">EDIT ANIMAL</string>
     <string name="add_pathology">ADD PATHOLOGY</string>
     <string name="add_food">ADD FOOD</string>
     <string name="delete">Delete</string>
-    <string name="add_warning">ADD WARNING</string>
+    <string name="add_report">ADD REPORT</string>
     <string name="add_request">ADD REQUEST</string>
     <string name="beds">Beds</string>
     <string name="description">Description</string>
@@ -70,6 +71,10 @@
     <string name="profile_delete_successful">"Account successfully deleted"</string>
     <string name="profile_delete_failed">"Account deletion error"</string>
     <string name="photo_update_failed">"Photo update error"</string>
+    <string name="invalid_report_description">"Enter a valid description"</string>
+    <string name="report_name">Name (Optional)</string>
+    <string name="report_create_successful">Report successfully created</string>
+    <string name="report_create_error">Error. Report not created</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>
@@ -231,9 +236,9 @@
         <item>Offer animal</item>
     </string-array>
 
-    <string-array name="segnalation_type">
-        <item>Losted</item>
+    <string-array name="report_type">
         <item>Find</item>
+        <item>Losted</item>
         <item>In danger</item>
     </string-array>
 

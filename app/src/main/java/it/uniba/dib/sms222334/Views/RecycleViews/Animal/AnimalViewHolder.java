@@ -42,7 +42,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
             animalPhoto=itemView.findViewById(R.id.animal_photo);
             visitIcon=itemView.findViewById(R.id.visit_icon);
             pathologiesIcon=itemView.findViewById(R.id.pathologies_icon);
-            dangerIcon=itemView.findViewById(R.id.warning_icon);
+            dangerIcon=itemView.findViewById(R.id.report_icon);
 
             itemView.setOnClickListener(this);
         }

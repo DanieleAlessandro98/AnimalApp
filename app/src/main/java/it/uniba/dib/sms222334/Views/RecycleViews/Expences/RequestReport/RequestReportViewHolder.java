@@ -1,4 +1,4 @@
-package it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation;
+package it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,12 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import it.uniba.dib.sms222334.Models.Request;
-import it.uniba.dib.sms222334.Models.Segnalation;
+import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 
-public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private static final String TAG="RequestSegnalationViewHolder";
+public class RequestReportViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        private static final String TAG="RequestReportViewHolder";
 
         TextView Distance,Type,AnimalName,SpeciesAge,CreatorName,Description;
         ImageView creatorPhoto,image;
@@ -31,7 +31,7 @@ public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implem
 
         OnItemClickListener onItemClickListener;
 
-        public RequestSegnalationViewHolder(@NonNull View itemView,Context context) {
+        public RequestReportViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
 
             this.context=context;
@@ -77,23 +77,27 @@ public class RequestSegnalationViewHolder extends RecyclerView.ViewHolder implem
              }
         }
 
-        public void bind(Segnalation segnalation){
-            //this.Type selection array string
-            this.latidute=segnalation.getLatitude();
-            this.longitude=segnalation.getLongitude();
-            this.AnimalName.setText(segnalation.getAnimalName());
-            this.SpeciesAge.setText(segnalation.getSpecies()+", "+segnalation.getAge());
-            this.CreatorName.setText(segnalation.getCreatorName());
-            this.Description.setText(segnalation.getDescription());
-            this.image.setImageBitmap(segnalation.getsegnalationPhoto());
+        public void bind(Report report){
+            /*
 
-            Bitmap creator= segnalation.getCreatorPhoto();
+            //this.Type selection array string
+            this.latidute=report.getLatitude();
+            this.longitude=report.getLongitude();
+            this.AnimalName.setText(report.getAnimalName());
+            this.SpeciesAge.setText(report.getSpecies()+", "+report.getAge());
+            this.CreatorName.setText(report.getCreatorName());
+            this.Description.setText(report.getDescription());
+            this.image.setImageBitmap(report.getReportPhoto());
+
+            Bitmap creator= report.getCreatorPhoto();
             if(creator==null){
                 this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
             }
             else{
                 this.creatorPhoto.setImageBitmap(creator);
             }
+
+             */
         }
 
         public void setDistance(Location devicePosition) {

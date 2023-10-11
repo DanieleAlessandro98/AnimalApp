@@ -33,12 +33,13 @@
     <string name="add_animal">AGGIUNGI ANIMALE</string>
     <string name="add">AGGIUNGI</string>
     <string name="age">Età</string>
+    <string name="report_age">Età (Opzionale)</string>
     <string name="microchip">Microchip</string>
     <string name="edit_animal">MODIFICA ANIMALE</string>
     <string name="add_pathology">AGGIUNGI PATOLOGIA</string>
     <string name="add_food">AGGIUNGI CIBO</string>
     <string name="delete">Elimina</string>
-    <string name="add_warning">NUOVA SEGNALAZIONE</string>
+    <string name="add_report">NUOVA SEGNALAZIONE</string>
     <string name="add_request">NUOVA RICHIESTA</string>
     <string name="beds">Posti letto</string>
     <string name="description">Descrizione</string>
@@ -69,6 +70,10 @@
     <string name="profile_delete_successful">"Account cancellato con successo"</string>
     <string name="profile_delete_failed">"Errore cancellazione account"</string>
     <string name="photo_update_failed">"Errore caricamento foto"</string>
+    <string name="invalid_report_description">"Inserisci una descrizione valida"</string>
+    <string name="report_name">Nome (Opzionale)</string>
+    <string name="report_create_successful">Report creato con successo</string>
+    <string name="report_create_error">Errore. Report non creato</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
@@ -205,9 +210,9 @@
         <item>Offro animale</item>
     </string-array>
 
-    <string-array name="segnalation_type">
-        <item>Perso</item>
+    <string-array name="report_type">
         <item>Trovato</item>
+        <item>Perso</item>
         <item>In pericolo</item>
     </string-array>
 

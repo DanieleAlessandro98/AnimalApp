@@ -41,4 +41,9 @@ public class Validations {
         }
     }
 
+    public static boolean isValidReportDescription(String reportDescription) {
+        return (reportDescription.length() >= 2);
+    }
+
+
 }

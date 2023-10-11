@@ -4,7 +4,7 @@
         <attr name="validate_input" format="enum">
             <enum name="no_input" value="0"/>
             <enum name="valid_input" value="1"/>
-            <enum name="warning_input" value="2"/>
+            <enum name="report_input" value="2"/>
             <enum name="invalid_input" value="3"/>
         </attr>
     </declare-styleable>

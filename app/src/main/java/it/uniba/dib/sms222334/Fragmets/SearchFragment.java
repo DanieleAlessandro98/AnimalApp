@@ -16,22 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
-import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
-import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
-import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
-import it.uniba.dib.sms222334.Views.RecycleViews.RequestSegnalation.RequestSegnalationAdapter;
 import it.uniba.dib.sms222334.Views.RecycleViews.VeterinarianAuthorities.VeterinarianAuthoritiesAdapter;
 
 public class SearchFragment extends Fragment {

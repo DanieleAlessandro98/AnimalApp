@@ -1,7 +1,6 @@
 package it.uniba.dib.sms222334.Views.RecycleViews.Animal;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Document;
-import it.uniba.dib.sms222334.Models.Request;
-import it.uniba.dib.sms222334.Models.Segnalation;
 import it.uniba.dib.sms222334.R;
 
 public class AnimalAdapter extends RecyclerView.Adapter<AnimalViewHolder> implements  AnimalViewHolder.OnItemClickListener{
