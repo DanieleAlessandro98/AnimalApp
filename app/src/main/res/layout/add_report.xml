@@ -48,6 +48,15 @@
             android:paddingVertical="20dp"
             android:layout_centerInParent="true">
 
+            <Spinner
+                android:id="@+id/report_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/check_button_shape"
+                android:textSize="16sp" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -74,7 +83,7 @@
             </RelativeLayout>
 
             <Spinner
-                android:id="@+id/report_spinner"
+                android:id="@+id/my_animal_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
@@ -125,9 +134,20 @@
                 android:background="@drawable/edit_text_shape"
                 android:layout_marginHorizontal="20dp"
                 android:hint="@string/report_age"
-                android:inputType="number"
                 android:padding="16dp"
                 android:textColorHint="#A3A3A3"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/share_profile_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edit_text_shape"
+                android:layout_marginHorizontal="20dp"
+                android:hint="@string/report_animal_profile"
+                android:padding="16dp"
+                android:textColorHint="#000000"
                 android:textSize="16sp" />
 
             <Button

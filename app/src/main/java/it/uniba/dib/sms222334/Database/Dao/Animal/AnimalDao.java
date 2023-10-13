@@ -38,6 +38,7 @@ import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AnimalDao {
@@ -315,5 +316,23 @@ public class AnimalDao {
                 });
                 break;
         }
+    }
+
+    public void updateStateToLost(String documentID) {
+        Map<String, Object> animal = new HashMap<>();
+        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, Animal.stateList.LOST);
+
+        collectionAnimal.document(documentID)
+                .update(animal)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
     }
 }

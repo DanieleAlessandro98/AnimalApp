@@ -407,4 +407,9 @@ public class Animal extends Document implements Parcelable {
             }
         });
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

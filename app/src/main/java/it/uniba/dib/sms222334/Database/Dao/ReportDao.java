@@ -40,9 +40,10 @@ public class ReportDao {
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION, report.getDescription());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
-        //new_report.put(AnimalAppDB.Report.COLUMN_NAME_PHOTO, report.getReportPhoto());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE, report.getAnimalAge());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, report.getAnimalID());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE, report.isShowAnimalProfile());
 
         collectionReport.add(new_report)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

@@ -8,14 +8,21 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
+import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Report;
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.Validations;
@@ -37,7 +44,7 @@ public class ReportPresenter {
         }
     }
 
-    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age) {
+    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, String animalID, boolean isShowAnimalProfile) {
         if (reportFragment.getPhotoPicked() == null) {
             reportFragment.showPhotoUpdateError();
             return;
@@ -54,20 +61,29 @@ public class ReportPresenter {
             return;
         }
 
+        if (!age.isEmpty()) {
+            int validationCode = Validations.isValidAgeString(age, reportFragment.getContext());
+            if (validationCode != 0) {
+                reportFragment.showInvalidAge(validationCode);
+                return;
+            }
+        }
+
         ReportType type = ReportType.values()[selectedPositionReport];
         AnimalSpecies species = AnimalSpecies.values()[selectedPositionSpecies];
 
-        Report reportModel = Report.Builder.create("", type, species, description, 0f, 0f, reportFragment.getPhotoPicked()).build();
-        if (!name.isEmpty())
-            reportModel.setAnimalName(name);
-
-        int ageValue;
-        try {
-            ageValue = Integer.parseInt(age);
-        } catch (NumberFormatException e) {
-            ageValue = -1;
-        }
-        reportModel.setAnimalAge(ageValue);
+        Report reportModel = Report.Builder.create("",
+                type,
+                species,
+                description,
+                0f,
+                0f,
+                reportFragment.getPhotoPicked())
+                .setAnimalName(name)
+                .setAnimalAge(DateUtilities.parseAgeString(age, reportFragment.getContext()))
+                .setAnimalID(animalID)
+                .setShowAnimalProfile(isShowAnimalProfile)
+                .build();
 
         reportModel.createReport(new DatabaseCallbackResult() {
             @Override
@@ -103,33 +119,31 @@ public class ReportPresenter {
                 reportFragment.showCreateError();
             }
         });
-        //test();
     }
 
-    private void test() {
-        String addressToConvert = "Via Giuseppe Capruzzi, Bari, Italia";
-        Geocoder geocoder = new Geocoder(reportFragment.getContext(), Locale.getDefault());
+    public List<Animal> getMyAnimalNames() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        ArrayList<Animal> myAnimalNames = new ArrayList<>();
 
-        try {
-            // Ottieni una lista di risultati
-            List<Address> addresses = geocoder.getFromLocationName(addressToConvert, 1);
+        if (!SessionManager.getInstance().isLogged())
+            return myAnimalNames;
 
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                double latitude = address.getLatitude();
-                double longitude = address.getLongitude();
+        switch (user.getRole()) {
+            case PRIVATE:
+                for (Animal animal : ((Private) user).getAnimalList())
+                    myAnimalNames.add(animal);
+                break;
 
-                // Ora puoi utilizzare latitude e longitude
-                Log.d("test", "Latitudine: " + latitude + ", Longitudine: " + longitude);
-            } else {
-                // L'indirizzo non è stato trovato
-                Log.d("test", "Indirizzo non trovato");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            case PUBLIC_AUTHORITY:
+                for (Animal animal : ((PublicAuthority) user).getAnimalList())
+                    myAnimalNames.add(animal);
+                break;
+
+            default:
+                break;
         }
 
+        return myAnimalNames;
     }
-
 
 }

@@ -140,5 +140,7 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_PHOTO = "photo";
         public static final String COLUMN_NAME_ANIMAL_NAME = "animal_name";
         public static final String COLUMN_NAME_ANIMAL_AGE = "animal_age";
+        public static final String COLUMN_NAME_ANIMAL_ID = "animal_id";
+        public static final String COLUMN_NAME_SHOW_ANIMAL_PROFILE = "show_animal_profile";
     }
 }

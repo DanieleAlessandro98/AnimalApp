@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,15 +18,18 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -37,13 +41,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
@@ -65,6 +73,9 @@ public class HomeFragment extends Fragment {
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
     private ImageView photoImageView;
     private Dialog editDialog;
+    private Animal selectedAnimal;
+    private boolean isSharedAnimalProfile;
+
 
     public HomeFragment() {
     }
@@ -144,6 +155,9 @@ public class HomeFragment extends Fragment {
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_report);
 
+        List<Animal> myAnimalNames = reportPresenter.getMyAnimalNames();
+        isSharedAnimalProfile = false;
+
         photoImageView = editDialog.findViewById(R.id.image_view);
 
         Button backButton= editDialog.findViewById(R.id.back_button);
@@ -153,22 +167,146 @@ public class HomeFragment extends Fragment {
         AnimalAppEditText name = editDialog.findViewById(R.id.nameEditText);
         AnimalAppEditText description = editDialog.findViewById(R.id.description);
         AnimalAppEditText age = editDialog.findViewById(R.id.ageEditText);
+        Switch shareAnimalProfile = editDialog.findViewById(R.id.share_profile_switch);
 
         Spinner reportSpinner= editDialog.findViewById(R.id.report_spinner);
-
+        Spinner myAnimalSpinner = editDialog.findViewById(R.id.my_animal_spinner);
         Spinner speciesSpinner= editDialog.findViewById(R.id.species_spinner);
 
         ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
-
         speciesSpinner.setAdapter(speciesAdapter);
+
+        ArrayAdapter<Animal> myAnimalAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                myAnimalNames);
+        myAnimalSpinner.setAdapter(myAnimalAdapter);
 
         ArrayAdapter<CharSequence> reportAdapter= ArrayAdapter.createFromResource(getContext(),
                 R.array.report_type,
                 android.R.layout.simple_list_item_1);
-
         reportSpinner.setAdapter(reportAdapter);
+
+        reportSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                switch (position) {
+                    case 0:
+                        myAnimalSpinner.setVisibility(View.GONE);
+                        shareAnimalProfile.setVisibility(View.GONE);
+
+                        name.setFocusable(true);
+                        name.setFocusableInTouchMode(true);
+                        age.setFocusable(true);
+                        age.setFocusableInTouchMode(true);
+
+                        isSharedAnimalProfile = false;
+                        shareAnimalProfile.setChecked(false);
+
+                        selectedAnimal = null;
+                        name.setText("");
+                        description.setText("");
+                        age.setText("");
+                        myAnimalSpinner.setSelection(0);
+                        speciesSpinner.setSelection(0);
+                        photoImageView.setImageBitmap(null);
+                        break;
+
+                    case 1:
+                        if (!SessionManager.getInstance().isLogged()) {
+                            showNotLoggedForLostOption();
+                            reportSpinner.setSelection(0);
+                        } else {
+                            myAnimalSpinner.setVisibility(View.VISIBLE);
+                            shareAnimalProfile.setVisibility(View.VISIBLE);
+
+                            name.setFocusable(false);
+                            name.setFocusableInTouchMode(false);
+                            age.setFocusable(false);
+                            age.setFocusableInTouchMode(false);
+
+                            isSharedAnimalProfile = false;
+                            shareAnimalProfile.setChecked(false);
+
+                            if (myAnimalNames.size() > 0) {
+                                selectedAnimal = myAnimalNames.get(0);
+
+                                name.setText(selectedAnimal.getName());
+                                description.setText("");
+                                age.setText(DateUtilities.calculateAge(selectedAnimal.getBirthDate(), getContext()));
+                                photoImageView.setImageBitmap(selectedAnimal.getPhoto());
+                            } else {
+                                selectedAnimal = null;
+
+                                name.setText("");
+                                description.setText("");
+                                age.setText("");
+                                myAnimalSpinner.setSelection(0);
+                                speciesSpinner.setSelection(0);
+                                photoImageView.setImageBitmap(null);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedAnimal = null;
+                name.setText("");
+                description.setText("");
+                age.setText("");
+                myAnimalSpinner.setSelection(0);
+                speciesSpinner.setSelection(0);
+                photoImageView.setImageBitmap(null);
+            }
+        });
+
+        speciesSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (reportSpinner.getSelectedItemPosition() == 1)
+                    return true;
+
+                return false;
+            }
+        });
+
+        myAnimalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (reportSpinner.getSelectedItemPosition() == 1) {
+                    selectedAnimal = myAnimalNames.get(position);
+
+                    name.setText(selectedAnimal.getName());
+                    description.setText("");
+                    age.setText(DateUtilities.calculateAge(selectedAnimal.getBirthDate(), getContext()));
+                    photoImageView.setImageBitmap(selectedAnimal.getPhoto());
+                } else {
+                    selectedAnimal = null;
+                    name.setText("");
+                    description.setText("");
+                    age.setText("");
+                    myAnimalSpinner.setSelection(0);
+                    speciesSpinner.setSelection(0);
+                    photoImageView.setImageBitmap(null);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedAnimal = null;
+                name.setText("");
+                description.setText("");
+                age.setText("");
+                myAnimalSpinner.setSelection(0);
+                speciesSpinner.setSelection(0);
+                photoImageView.setImageBitmap(null);
+            }
+        });
 
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,6 +316,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        shareAnimalProfile.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isSharedAnimalProfile = isChecked;
+            }
+        });
 
         backButton.setOnClickListener(v -> editDialog.cancel());
 
@@ -186,7 +330,9 @@ public class HomeFragment extends Fragment {
                 speciesSpinner.getSelectedItemPosition(),
                 description.getText().toString(),
                 name.getText().toString(),
-                age.getText().toString()
+                age.getText().toString(),
+                selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                isSharedAnimalProfile
                 ));
 
         editDialog.show();
@@ -195,7 +341,6 @@ public class HomeFragment extends Fragment {
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
-
 
     private void launchRequestDialog() {
 
@@ -321,5 +466,25 @@ public class HomeFragment extends Fragment {
 
     public void showCreateError() {
         Toast.makeText(requireContext(), this.getString(R.string.report_create_error), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showNotLoggedForLostOption() {
+        Toast.makeText(getContext(), this.getString(R.string.report_select_lost_option), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showInvalidAge(int validationCode) {
+        switch (validationCode) {
+            case 1:
+                Toast.makeText(getContext(), this.getString(R.string.invalid_report_age_1), Toast.LENGTH_SHORT).show();
+                break;
+
+            case 2:
+                Toast.makeText(getContext(), this.getString(R.string.invalid_report_age_2), Toast.LENGTH_SHORT).show();
+                break;
+
+            case 3:
+                Toast.makeText(getContext(), this.getString(R.string.invalid_report_age_3), Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 }

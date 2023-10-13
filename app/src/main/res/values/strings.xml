@@ -75,6 +75,11 @@
     <string name="report_name">Name (Optional)</string>
     <string name="report_create_successful">Report successfully created</string>
     <string name="report_create_error">Error. Report not created</string>
+    <string name="report_animal_profile">Share animal profile</string>
+    <string name="report_select_lost_option">You must be logged in to select this option</string>
+    <string name="invalid_report_age_1">The date must consist of two parts; Example: "3 Months"</string>
+    <string name="invalid_report_age_2">The first part of the date must be a number</string>
+    <string name="invalid_report_age_3">The second part of the date must be a word: day(s), month(s), year(s)</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

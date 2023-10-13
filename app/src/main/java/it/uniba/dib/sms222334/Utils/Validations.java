@@ -1,10 +1,13 @@
 package it.uniba.dib.sms222334.Utils;
 
+import android.content.Context;
 import android.util.Patterns;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import it.uniba.dib.sms222334.R;
 
 public class Validations {
     public static boolean isValidName(String name) {
@@ -45,5 +48,37 @@ public class Validations {
         return (reportDescription.length() >= 2);
     }
 
+    public static int isValidAgeString(String ageString, Context context) {
+        if (ageString.isEmpty())
+            return 0;
+
+        String[] parts = ageString.split(" ");
+        if (parts.length != 2)
+            return 1;
+
+        try {
+            Integer.parseInt(parts[0]);
+        } catch (NumberFormatException e) {
+            return 2;
+        }
+
+        String ageUnit = parts[1].toLowerCase();
+
+        String[] validUnits = new String[]{
+                context.getString(R.string.day).toLowerCase(),
+                context.getString(R.string.days).toLowerCase(),
+                context.getString(R.string.month).toLowerCase(),
+                context.getString(R.string.months).toLowerCase(),
+                context.getString(R.string.year).toLowerCase(),
+                context.getString(R.string.years).toLowerCase()
+        };
+
+        for (String validUnit : validUnits) {
+            if (ageUnit.equals(validUnit))
+                return 0;
+        }
+
+        return 3;
+    }
 
 }
