@@ -8,11 +8,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -124,45 +126,61 @@ public class RelationDao {
     }
 
     public ArrayList <Relation> listRelation;
-    public void getRelation(String ownerID,String idAnimal, final OnRelationAnimalListener listener){
+    public void getRelation(String ownerID, String idAnimal, final OnRelationAnimalListener listener) {
         listRelation = new ArrayList<>();
         getListAnimalDao(ownerID, new OnRelationListener() {
             @Override
             public void onGetAnimalListener(List<Animal> animalGetList) {
-                collectionRelation.whereEqualTo("idAnimal1",idAnimal).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                    final Relation.relationType[] relation = new Relation.relationType[1];
-                                    relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
-                                    String idAnimal1 = document.getString("idAnimal1");
-                                    String idAnimal2 = document.getString("idAnimal2");
+                // Creare due query separate per "idAnimal1" e "idAnimal2"
+                Query query1 = collectionRelation.whereEqualTo("idAnimal1", idAnimal);
+                Query query2 = collectionRelation.whereEqualTo("idAnimal2", idAnimal);
 
-                                    getAnimalClass(idAnimal2, new OnRelationClassAnimalListener() {
-                                        @Override
-                                        public void onRelationClassAnimalListener(Animal animalList) {
-                                            listRelation.add(Relation.Builder.create(idAnimal1,relation[0],animalList).build());
-                                            listener.onRelationAnimalListener(listRelation,animalGetList);
-                                        }
-                                    });
+                // Unire i risultati delle due query
+                Task<QuerySnapshot> query1Result = query1.get();
+                Task<QuerySnapshot> query2Result = query2.get();
 
+                Tasks.whenAllSuccess(query1Result, query2Result)
+                        .addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+                            @Override
+                            public void onSuccess(List<Object> results) {
+                                List<QuerySnapshot> snapshots = new ArrayList<>();
+                                for (Object result : results) {
+                                    snapshots.add((QuerySnapshot) result);
                                 }
-                            } else {
-                                Log.w("W", "Nessun dato trovato get relation");
-                                listener.onRelationAnimalListener(new ArrayList<>(), animalGetList);
+
+                                for (QuerySnapshot snapshot : snapshots) {
+                                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                                        // Processa i risultati come hai fatto in precedenza
+                                        final Relation.relationType[] relation = new Relation.relationType[1];
+                                        relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
+                                        String idAnimal1 = document.getString("idAnimal1");
+                                        String idAnimal2 = document.getString("idAnimal2");
+                                        String searchAnimalId;
+
+                                        if (idAnimal.equals(idAnimal1)){
+                                            searchAnimalId = idAnimal2;
+                                        }else{
+                                            searchAnimalId = idAnimal1;
+                                        }
+
+                                        getAnimalClass(searchAnimalId, new OnRelationClassAnimalListener() {
+                                            @Override
+                                            public void onRelationClassAnimalListener(Animal animalList) {
+                                                assert searchAnimalId != null;
+                                                if (searchAnimalId.equals(idAnimal1)) {
+                                                    listRelation.add(Relation.Builder.create(idAnimal2, relation[0], animalList).build());
+                                                }else{
+                                                    listRelation.add(Relation.Builder.create(idAnimal1, relation[0], animalList).build());
+                                                }
+                                                listener.onRelationAnimalListener(listRelation, animalGetList);
+                                            }
+                                        });
+                                    }
+                                }
                             }
-                        } else {
-                            Log.w("W", "La query non ha funzionato");
-                            listener.onRelationAnimalListener(new ArrayList<>(), new ArrayList<>());
-                        }
-                    }
-                });
+                        });
             }
         });
-
     }
 
     private void getAnimalClass(String idAnimal, final OnRelationClassAnimalListener listener){

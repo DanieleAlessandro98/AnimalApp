@@ -143,6 +143,10 @@ public class ProfileFragment extends Fragment {
         changeTab(TabPosition.ANIMAL,false);
     }
 
+    public static TextView nameView;
+    public static TextView emailView;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -179,8 +183,8 @@ public class ProfileFragment extends Fragment {
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
 
-        TextView nameView = layout.findViewById(R.id.name);
-        TextView emailView = layout.findViewById(R.id.email);
+        nameView = layout.findViewById(R.id.name);
+        emailView = layout.findViewById(R.id.email);
 
 
         nameView.setText(username);

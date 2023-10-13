@@ -29,6 +29,7 @@ import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.ContentProvider.OwnerSuggestContentProvider;
 import it.uniba.dib.sms222334.Models.Owner;
@@ -247,6 +248,8 @@ public final class PrivateDao {
                     public void onSuccess(Void aVoid) {
                         callback.notifyUpdateSuccesfull();
                         Log.d(TAG, "update fatto");
+                        ProfileFragment.nameView.setText(updatePrivate.getName());
+                        ProfileFragment.emailView.setText(updatePrivate.getEmail());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
