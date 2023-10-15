@@ -7,7 +7,6 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.Date;
 
-import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.ReportDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
@@ -184,11 +183,6 @@ public class Report extends Document {
 
             @Override
             public void onDataRetrieved(Object result) {
-                if (type == ReportType.LOST) {
-                    AnimalDao animalDao = new AnimalDao();
-                    animalDao.updateStateToLost(animalID);
-                }
-
                 callbackPresenter.onDataRetrieved(result);
             }
 

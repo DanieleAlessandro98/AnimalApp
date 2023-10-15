@@ -38,7 +38,9 @@ import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.Media;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AnimalDao {
@@ -243,7 +245,7 @@ public class AnimalDao {
 
     private Animal findAnimal(DocumentSnapshot document, final String resultPrivateRefernce) {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
-        Animal.stateList state = Animal.stateList.values()[stateInteger];
+        AnimalStates state = AnimalStates.values()[stateInteger];
 
         Animal.Builder animal_find = Animal.Builder.create(document.getId(), state)
                 .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
@@ -318,9 +320,19 @@ public class AnimalDao {
         }
     }
 
-    public void updateStateToLost(String documentID) {
+    public void updateState(String documentID, ReportType reportType) {
         Map<String, Object> animal = new HashMap<>();
-        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, Animal.stateList.LOST);
+
+        int stateValue = AnimalStates.NULL.ordinal();
+        if (reportType == ReportType.LOST)
+            stateValue = AnimalStates.LOST.ordinal();
+        else if (reportType == ReportType.IN_DANGER)
+            stateValue = AnimalStates.IN_DANGER.ordinal();
+
+        if (documentID.equals("") || stateValue == 0)
+            return;
+
+        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, stateValue);
 
         collectionAnimal.document(documentID)
                 .update(animal)

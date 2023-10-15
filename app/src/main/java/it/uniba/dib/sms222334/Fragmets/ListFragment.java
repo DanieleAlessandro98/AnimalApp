@@ -56,6 +56,7 @@ import it.uniba.dib.sms222334.Presenters.PathologyPresenter;
 import it.uniba.dib.sms222334.Presenters.RelationPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
@@ -277,7 +278,7 @@ public class ListFragment extends Fragment{
                     });
 
                     saveButton.setOnClickListener(v -> {
-                        animalPresenter.addAnimal(Animal.Builder.create("", Animal.stateList.ADOPTED)
+                        animalPresenter.addAnimal(Animal.Builder.create("", AnimalStates.ADOPTED)
                             .setBirthDate(dateIsSetted[0]?c.getTime():null)
                             .setRace(raceSpinner.getSelectedItem().toString())
                             .setSpecies(speciesSpinner.getSelectedItem().toString())
@@ -484,7 +485,7 @@ public class ListFragment extends Fragment{
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
+        Animal a1=Animal.Builder.create("testID", AnimalStates.ADOPTED)
                 .setSpecies("Dog")
                 .setBirthDate(c.getTime())
                 .setName("Alberto")
@@ -628,7 +629,7 @@ public class ListFragment extends Fragment{
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
+        Animal a1=Animal.Builder.create("testID", AnimalStates.ADOPTED)
                 .setSpecies("Dog")
                 .setBirthDate(c.getTime())
                 .setName("Alberto")

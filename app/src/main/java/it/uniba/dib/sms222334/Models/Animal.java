@@ -14,18 +14,16 @@ import java.util.Date;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 
 public class Animal extends Document implements Parcelable {
-
-    //in carico, smarrito, adottato, assistico, randagio
-    public enum stateList{LOST,IN_CHARGE,ADOPTED,ASSISTED,STRAY}
 
     public final static String PHOTO_PATH="/images/profiles/animals/";
     private String name;
 
     private String ownerReference;
     private Date birthDate;
-    private stateList state;
+    private AnimalStates state;
     private String microchip;
     private String species;
     private String race;
@@ -68,11 +66,11 @@ public class Animal extends Document implements Parcelable {
         this.birthDate = birthDate;
     }
 
-    public stateList getState() {
+    public AnimalStates getState() {
         return state;
     }
 
-    public void setState(stateList state) {
+    public void setState(AnimalStates state) {
         this.state = state;
     }
 
@@ -172,7 +170,7 @@ public class Animal extends Document implements Parcelable {
         return this.getPathologies().size();
     }
 
-    private Animal(String id, String name, String ownerReference, Date birthDate, stateList state, String species, String race, Bitmap photo, String microchip){
+    private Animal(String id, String name, String ownerReference, Date birthDate, AnimalStates state, String species, String race, Bitmap photo, String microchip){
         super(id);
 
         this.name = name;
@@ -231,24 +229,24 @@ public class Animal extends Document implements Parcelable {
         private String bownerReference;
 
         private Date bbirthDate;
-        private stateList bstate;
+        private AnimalStates bstate;
         private String bspecies;
         private String brace;
         private Bitmap bphoto;
         private String bmicrochip;
 
-        private Builder(final String id, final stateList state){
+        private Builder(final String id, final AnimalStates state){
             this.bID = id;
             this.bstate=state;
         }
 
-        public static Builder create(final String id, final stateList state){
+        public static Builder create(final String id, final AnimalStates state){
             return new Builder(id, state);
         }
 
         public static Builder fromDocumentSnapshot(DocumentSnapshot document) {
             return Builder.
-                    create(document.getId(), stateList.values()[Math.toIntExact(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE))])
+                    create(document.getId(), AnimalStates.values()[Math.toIntExact(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE))])
                     .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
                     .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
                     .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
@@ -261,7 +259,7 @@ public class Animal extends Document implements Parcelable {
             return this;
         }
 
-        public Builder setState(final stateList state){
+        public Builder setState(final AnimalStates state){
             this.bstate=state;
             return this;
         }
@@ -348,7 +346,7 @@ public class Animal extends Document implements Parcelable {
         this.name = in.readString();
         this.ownerReference = in.readString();
         this.birthDate = (Date)in.readSerializable();
-        this.state = stateList.values()[in.readInt()];
+        this.state = AnimalStates.values()[in.readInt()];
         this.species = in.readString();
         this.race = in.readString();
         this.photo = in.readParcelable(Bitmap.class.getClassLoader());

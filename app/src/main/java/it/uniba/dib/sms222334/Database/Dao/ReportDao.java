@@ -36,7 +36,7 @@ public class ReportDao {
     public void createReport(Report report, final DatabaseCallbackResult callbackModel) {
         Map<String, Object> new_report = new HashMap<>();
 
-        new_report.put(AnimalAppDB.Report.COLUMN_NAME_TYPE, report.getType());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_TYPE, report.getType().ordinal());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION, report.getDescription());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
@@ -51,6 +51,9 @@ public class ReportDao {
                     public void onSuccess(DocumentReference documentReference) {
                         String documentID = documentReference.getId();
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentID);
+
+                        AnimalDao animalDao = new AnimalDao();
+                        animalDao.updateState(report.getAnimalID(), report.getType());
 
                         setPhotoPath(documentID);
                         callbackModel.onDataRetrieved(documentID);

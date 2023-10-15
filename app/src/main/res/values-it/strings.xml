@@ -75,10 +75,12 @@
     <string name="report_create_successful">Report creato con successo</string>
     <string name="report_create_error">Errore. Report non creato</string>
     <string name="report_animal_profile">Condividi profilo animale</string>
-    <string name="report_select_lost_option">Devi effettuare l\'accesso per selezionare questa opzione</string>
+    <string name="invalid_report_select_lost_option_1">Devi effettuare l\'accesso per selezionare questa opzione</string>
+    <string name="invalid_report_select_lost_option_2">Devi possedere almeno un animale per selezionare questa opzione</string>
     <string name="invalid_report_age_1">La data deve essere composta da due parti; Esempio: "3 Mesi"</string>
     <string name="invalid_report_age_2">La prima parte della data deve essere un numero</string>
     <string name="invalid_report_age_3">La seconda parte della data deve essere una parola: giorno(i), mese(i), anno(i)</string>
+    <string name="invalid_report_selected_animal">Seleziona un animale dalla lista dei tuoi animali</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

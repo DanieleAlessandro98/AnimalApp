@@ -22,6 +22,7 @@ import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Utils.Media;
 import it.uniba.dib.sms222334.Utils.ReportType;
@@ -45,16 +46,23 @@ public class ReportPresenter {
     }
 
     public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, String animalID, boolean isShowAnimalProfile) {
-        if (reportFragment.getPhotoPicked() == null) {
-            reportFragment.showPhotoUpdateError();
-            return;
-        }
-
         if (selectedPositionReport < 0 || selectedPositionReport >= ReportType.values().length)
             return;
 
         if (selectedPositionSpecies < 0 || selectedPositionSpecies >= AnimalSpecies.values().length)
             return;
+
+        ReportType type = ReportType.values()[selectedPositionReport];
+
+        if (type == ReportType.LOST && name.equals("")) {
+            reportFragment.showInvalidReportSelectedAnimal();
+            return;
+        }
+
+        if (reportFragment.getPhotoPicked() == null) {
+            reportFragment.showPhotoUpdateError();
+            return;
+        }
 
         if (!Validations.isValidReportDescription(description)) {
             reportFragment.showInvalidReportDescription();
@@ -69,7 +77,6 @@ public class ReportPresenter {
             }
         }
 
-        ReportType type = ReportType.values()[selectedPositionReport];
         AnimalSpecies species = AnimalSpecies.values()[selectedPositionSpecies];
 
         Report reportModel = Report.Builder.create("",
@@ -121,12 +128,15 @@ public class ReportPresenter {
         });
     }
 
-    public List<Animal> getMyAnimalNames() {
+    public List<Animal> getMyAnimalNames(boolean showEmptyAnimal) {
         User user = SessionManager.getInstance().getCurrentUser();
         ArrayList<Animal> myAnimalNames = new ArrayList<>();
 
         if (!SessionManager.getInstance().isLogged())
             return myAnimalNames;
+
+        if (showEmptyAnimal)
+            myAnimalNames.add(Animal.Builder.create("", AnimalStates.ADOPTED).build());
 
         switch (user.getRole()) {
             case PRIVATE:

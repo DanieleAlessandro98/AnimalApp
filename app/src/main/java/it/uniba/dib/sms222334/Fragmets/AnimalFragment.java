@@ -48,6 +48,7 @@ import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 
@@ -453,7 +454,7 @@ public class AnimalFragment extends Fragment {
         this.race.setText(animal.getRace());
         this.age.setText(DateUtilities.calculateAge(animal.getBirthDate(),getContext()));
         this.owner.setText(animal.getOwnerReference());
-        this.state.setText(Animal.stateList.values()[animal.getState().ordinal()].toString());
+        this.state.setText(AnimalStates.values()[animal.getState().ordinal()].toString());
     }
 
 }
