@@ -47,7 +47,7 @@ public class RelationViewHolder extends RecyclerView.ViewHolder{
 
              this.animalName.setText(relation.getAnimal().getName());
 
-             this.animalSpecieAge.setText(relation.getAnimal().getSpecies()+", "+ DateUtilities.calculateAge(relation.getAnimal().getBirthDate(),context));
+             this.animalSpecieAge.setText(relation.getAnimal().getSpeciesString(context)+", "+ DateUtilities.calculateAge(relation.getAnimal().getBirthDate(),context));
 
              this.animalPhoto.setImageBitmap(relation.getAnimal().getPhoto());
 

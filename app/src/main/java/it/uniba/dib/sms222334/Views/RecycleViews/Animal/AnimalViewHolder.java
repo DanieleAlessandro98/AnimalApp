@@ -53,7 +53,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
 
         public void bind(Animal animal){
              this.animalName.setText(animal.getName());
-             this.SpeciesAge.setText(animal.getSpecies()+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
+             this.SpeciesAge.setText(animal.getSpeciesString(context)+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
 
              if(animal.getVisitNumber()==0){
                  this.visitNumber.setText("");

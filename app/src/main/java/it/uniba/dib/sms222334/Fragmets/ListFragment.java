@@ -56,7 +56,9 @@ import it.uniba.dib.sms222334.Presenters.PathologyPresenter;
 import it.uniba.dib.sms222334.Presenters.RelationPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.RecycleViews.Animal.AnimalAdapter;
@@ -281,7 +283,7 @@ public class ListFragment extends Fragment{
                         animalPresenter.addAnimal(Animal.Builder.create("", AnimalStates.ADOPTED)
                             .setBirthDate(dateIsSetted[0]?c.getTime():null)
                             .setRace(raceSpinner.getSelectedItem().toString())
-                            .setSpecies(speciesSpinner.getSelectedItem().toString())
+                            .setSpecies(AnimalSpecies.values()[speciesSpinner.getSelectedItemPosition()])
                             .setName(name.getText().toString())
                             .setOwner(SessionManager.getInstance().getCurrentUser().getFirebaseID())
                             .setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap())
@@ -486,7 +488,7 @@ public class ListFragment extends Fragment{
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
         Animal a1=Animal.Builder.create("testID", AnimalStates.ADOPTED)
-                .setSpecies("Dog")
+                .setSpecies(AnimalSpecies.DOG)
                 .setBirthDate(c.getTime())
                 .setName("Alberto")
                 .build();
@@ -630,7 +632,7 @@ public class ListFragment extends Fragment{
         c.add(Calendar.DAY_OF_MONTH,-1600);
 
         Animal a1=Animal.Builder.create("testID", AnimalStates.ADOPTED)
-                .setSpecies("Dog")
+                .setSpecies(AnimalSpecies.DOG)
                 .setBirthDate(c.getTime())
                 .setName("Alberto")
                 .build();

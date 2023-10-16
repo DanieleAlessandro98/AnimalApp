@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -14,6 +15,8 @@ import java.util.Date;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 
 public class Animal extends Document implements Parcelable {
@@ -25,7 +28,7 @@ public class Animal extends Document implements Parcelable {
     private Date birthDate;
     private AnimalStates state;
     private String microchip;
-    private String species;
+    private AnimalSpecies species;
     private String race;
     private Bitmap photo;
     private ArrayList<String> videos;
@@ -82,11 +85,28 @@ public class Animal extends Document implements Parcelable {
         this.microchip = microchip;
     }
 
-    public String getSpecies() {
+    public AnimalSpecies getSpecies() {
         return species;
     }
 
-    public void setSpecies(String species) {
+    public String getSpeciesString(Context context) {
+        switch (getSpecies()) {
+            case DOG:
+                return context.getString(R.string.dog_species_name);
+            case CAT:
+                return context.getString(R.string.cat_species_name);
+            case FISH:
+                return context.getString(R.string.fish_species_name);
+            case BIRD:
+                return context.getString(R.string.bird_species_name);
+            case RABBIT:
+                return context.getString(R.string.rabbit_species_name);
+            default:
+                return "";
+        }
+    }
+
+    public void setSpecies(AnimalSpecies species) {
         this.species = species;
     }
 
@@ -170,7 +190,7 @@ public class Animal extends Document implements Parcelable {
         return this.getPathologies().size();
     }
 
-    private Animal(String id, String name, String ownerReference, Date birthDate, AnimalStates state, String species, String race, Bitmap photo, String microchip){
+    private Animal(String id, String name, String ownerReference, Date birthDate, AnimalStates state, AnimalSpecies species, String race, Bitmap photo, String microchip){
         super(id);
 
         this.name = name;
@@ -230,7 +250,7 @@ public class Animal extends Document implements Parcelable {
 
         private Date bbirthDate;
         private AnimalStates bstate;
-        private String bspecies;
+        private AnimalSpecies bspecies;
         private String brace;
         private Bitmap bphoto;
         private String bmicrochip;
@@ -249,7 +269,7 @@ public class Animal extends Document implements Parcelable {
                     create(document.getId(), AnimalStates.values()[Math.toIntExact(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE))])
                     .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
                     .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
-                    .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
+                    .setSpecies(AnimalSpecies.values()[Math.toIntExact(document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE))])
                     .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
                     .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE));
         }
@@ -279,7 +299,7 @@ public class Animal extends Document implements Parcelable {
             return this;
         }
 
-        public Builder setSpecies(final String species){
+        public Builder setSpecies(final AnimalSpecies species){
             this.bspecies=species;
             return this;
         }
@@ -327,7 +347,7 @@ public class Animal extends Document implements Parcelable {
         dest.writeString(getOwnerReference());
         dest.writeSerializable(birthDate);
         dest.writeInt(getState().ordinal());
-        dest.writeString(getSpecies());
+        dest.writeInt(getSpecies().ordinal());
         dest.writeString(getRace());
         dest.writeParcelable(getPhoto(),flags);
         dest.writeString(getMicrochip());
@@ -347,7 +367,7 @@ public class Animal extends Document implements Parcelable {
         this.ownerReference = in.readString();
         this.birthDate = (Date)in.readSerializable();
         this.state = AnimalStates.values()[in.readInt()];
-        this.species = in.readString();
+        this.species = AnimalSpecies.values()[in.readInt()];
         this.race = in.readString();
         this.photo = in.readParcelable(Bitmap.class.getClassLoader());
         this.microchip = in.readString();

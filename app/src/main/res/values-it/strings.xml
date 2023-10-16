@@ -81,6 +81,11 @@
     <string name="invalid_report_age_2">La prima parte della data deve essere un numero</string>
     <string name="invalid_report_age_3">La seconda parte della data deve essere una parola: giorno(i), mese(i), anno(i)</string>
     <string name="invalid_report_selected_animal">Seleziona un animale dalla lista dei tuoi animali</string>
+    <string name="dog_species_name">Cane</string>
+    <string name="cat_species_name">Gatto</string>
+    <string name="fish_species_name">Pesce</string>
+    <string name="bird_species_name">Uccello</string>
+    <string name="rabbit_species_name">Coniglio</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
