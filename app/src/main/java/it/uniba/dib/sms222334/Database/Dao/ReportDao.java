@@ -37,7 +37,7 @@ public class ReportDao {
         Map<String, Object> new_report = new HashMap<>();
 
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_TYPE, report.getType().ordinal());
-        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies().ordinal());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION, report.getDescription());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());

@@ -291,7 +291,7 @@ public class HomeFragment extends Fragment {
                 if (myAnimalNames.size() > 0) {
                     selectedAnimal = myAnimalNames.get(0);
                     myAnimalSpinner.setSelection(0);
-                    fillCommonFields(name, description, age);
+                    fillCommonFields(name, description, age, speciesSpinner);
                 } else {
                     selectedAnimal = null;
                     clearCommonFields(name, description, age, speciesSpinner);
@@ -317,7 +317,7 @@ public class HomeFragment extends Fragment {
         if (reportSpinner.getSelectedItemPosition() == 1 && position >= 0) {
             selectedAnimal = myAnimalNames.get(position);
 
-            fillCommonFields(name, description, age);
+            fillCommonFields(name, description, age, speciesSpinner);
         } else if (reportSpinner.getSelectedItemPosition() == 2 && position == 0) {
             selectedAnimal = null;
 
@@ -330,7 +330,7 @@ public class HomeFragment extends Fragment {
             selectedAnimal = myAnimalNames.get(position);
 
             setFocusableReportFields(name, age, false);
-            fillCommonFields(name, description, age);
+            fillCommonFields(name, description, age, speciesSpinner);
 
             updateViewForMyAnimalsSelection(myAnimalSpinner, true);
             updateViewForMyAnimalsProfile(shareAnimalProfile, true);
@@ -355,10 +355,11 @@ public class HomeFragment extends Fragment {
         photoImageView.setImageBitmap(null);
     }
 
-    private void fillCommonFields(AnimalAppEditText name, AnimalAppEditText description, AnimalAppEditText age) {
+    private void fillCommonFields(AnimalAppEditText name, AnimalAppEditText description, AnimalAppEditText age, Spinner speciesSpinner) {
         name.setText(selectedAnimal.getName());
         description.setText("");
         age.setText(DateUtilities.calculateAge(selectedAnimal.getBirthDate(), getContext()));
+        speciesSpinner.setSelection(selectedAnimal.getSpecies().ordinal());
         photoImageView.setImageBitmap(selectedAnimal.getPhoto());
     }
 
