@@ -53,7 +53,8 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
         }
 
         public void bind(Request request){
-            //this.Type selection array string
+            /*
+                        //this.Type selection array string
              this.latidute=request.getLatitude();
              this.longitude=request.getLongitude();
              this.AnimalName.setText(request.getAnimalName());
@@ -75,6 +76,8 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
              else{
                  this.creatorPhoto.setImageBitmap(creator);
              }
+
+             */
         }
 
         public void bind(Report report){

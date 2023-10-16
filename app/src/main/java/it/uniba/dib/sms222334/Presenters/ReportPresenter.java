@@ -1,16 +1,11 @@
 package it.uniba.dib.sms222334.Presenters;
 
 import android.graphics.Bitmap;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
@@ -98,7 +93,7 @@ public class ReportPresenter {
                 MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
                     @Override
                     public void onPhotoUploaded() {
-                        reportFragment.showCreateSuccessful();
+                        reportFragment.showReportCreateSuccessful();
                     }
 
                     @Override
@@ -123,7 +118,7 @@ public class ReportPresenter {
 
             @Override
             public void onDataQueryError(Exception e) {
-                reportFragment.showCreateError();
+                reportFragment.showReportCreateError();
             }
         });
     }

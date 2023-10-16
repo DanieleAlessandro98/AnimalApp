@@ -1,182 +1,144 @@
 package it.uniba.dib.sms222334.Models;
 
-import android.graphics.Bitmap;
+import java.util.ArrayList;
+
+import it.uniba.dib.sms222334.Database.Dao.RequestDao;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.RequestType;
 
 
 public class Request extends Document{
-    public enum requestType{FIND_ANIMAL,OFFER_ANIMAL,OFFER_BEDS}
-    String AnimalName,Species,Age,CreatorName,Description;
-    requestType type;
-    public Float latitude;
-    public Float longitude;
-    Bitmap creatorPhoto, requestPhoto;
+    private String userID;
+    RequestType type;
+    private String description;
 
-    public String getAnimalName() {
-        return AnimalName;
+    private AnimalSpecies animalSpecies;
+    private String animalID;
+    private int nBeds;
+
+    public String getUserID() {
+        return userID;
     }
 
-    public void setAnimalName(String animalName) {
-        AnimalName = animalName;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
-    public String getSpecies() {
-        return Species;
-    }
-
-    public void setSpecies(String species) {
-        Species = species;
-    }
-
-    public String getAge() {
-        return Age;
-    }
-
-    public void setAge(String age) {
-        Age = age;
-    }
-
-    public String getCreatorName() {
-        return CreatorName;
-    }
-
-    public void setCreatorName(String creatorName) {
-        CreatorName = creatorName;
-    }
-
-    public String getDescription() {
-        return Description;
-    }
-
-    public void setDescription(String description) {
-        Description = description;
-    }
-
-    public requestType getType() {
+    public RequestType getType() {
         return type;
     }
 
-    public void setType(requestType type) {
+    public void setType(RequestType type) {
         this.type = type;
     }
 
-    public Float getLatitude() {
-        return latitude;
+    public String getDescription() {
+        return description;
     }
 
-    public void setLatitude(Float latitude) {
-        this.latitude = latitude;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Float getLongitude() {
-        return longitude;
+    public AnimalSpecies getAnimalSpecies() {
+        return animalSpecies;
     }
 
-    public void setLongitude(Float longitude) {
-        this.longitude = longitude;
+    public void setAnimalSpecies(AnimalSpecies animalSpecies) {
+        this.animalSpecies = animalSpecies;
     }
 
-    public Bitmap getCreatorPhoto() {
-        return creatorPhoto;
+    public String getAnimalID() {
+        return animalID;
     }
 
-    public void setCreatorPhoto(Bitmap creatorPhoto) {
-        this.creatorPhoto = creatorPhoto;
+    public void setAnimalID(String animalID) {
+        this.animalID = animalID;
     }
 
-    public Bitmap getRequestPhoto() {
-        return requestPhoto;
+    public int getNBeds() {
+        return nBeds;
     }
 
-    public void setRequestPhoto(Bitmap requestPhoto) {
-        this.requestPhoto = requestPhoto;
+    public void setNBeds(int nBeds) {
+        this.nBeds = nBeds;
     }
 
-    private Request(String id, String animalName, String species, String age, String creatorName, String description, requestType type, Float latitude, Float longitude, Bitmap creatorPhoto, Bitmap requestPhoto) {
+    private Request(String id, String userID, RequestType type, String description, AnimalSpecies animalSpecies, String animalID, int nBeds) {
         super(id);
 
-        this.AnimalName = animalName;
-        this.Species = species;
-        this.Age=age;
-        this.CreatorName = creatorName;
-        this.Description = description;
+        this.userID = userID;
         this.type = type;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.creatorPhoto = creatorPhoto;
-        this.requestPhoto=requestPhoto;
+        this.description = description;
+        this.animalSpecies = animalSpecies;
+        this.animalID = animalID;
+        this.nBeds = nBeds;
     }
 
     public static class Builder{
         private String bID;
-        String bAnimalName, bSpecies,bAge, bCreatorName, bDescription;
-        requestType btype;
-        public Float blatitude;
-        public Float blongitude;
-        Bitmap bcreatorPhoto, brequestPhoto;
+        private String bUserID;
+        RequestType bType;
+        private String bDescription;
 
-        private Builder(final String id, final requestType type,Float latitude, Float longitude){
-            this.bID = id;
-            this.blatitude=latitude;
-            this.blongitude=longitude;
-            this.btype=type;
+        private AnimalSpecies bAnimalSpecies;
+        private String bAnimalID;
+        private int bNBeds;
+
+        private Builder(String bID, String bUserID, RequestType bType, String bDescription) {
+            this.bID = bID;
+            this.bUserID = bUserID;
+            this.bType = bType;
+            this.bDescription = bDescription;
         }
 
-        public static Builder create(final String id, final requestType type,Float latitude, Float longitude){
-            return new Builder(id,type,latitude,longitude);
+        public static Builder create(final String bID, String bUserID, final RequestType bType, String bDescription) {
+            return new Builder(bID, bUserID, bType, bDescription);
         }
 
-        public Builder setAnimalName(String AnimalName) {
-            this.bAnimalName = AnimalName;
+        public Builder setAnimalSpecies(AnimalSpecies bAnimalSpecies) {
+            this.bAnimalSpecies = bAnimalSpecies;
             return this;
         }
 
-        public Builder setSpecies(String Species) {
-            this.bSpecies = Species;
+        public Builder setAnimalID(String bAnimalID) {
+            this.bAnimalID = bAnimalID;
             return this;
         }
 
-        public Builder setAge(String Age) {
-            this.bAge = Age;
+        public Builder setNBeds(int bNBeds) {
+            this.bNBeds = bNBeds;
             return this;
         }
 
-        public Builder setCreatorName(String CreatorName) {
-            this.bCreatorName = CreatorName;
-            return this;
-        }
-
-        public Builder setDescription(String Description) {
-            this.bDescription = Description;
-            return this;
-        }
-
-        public Builder setType(requestType type) {
-            this.btype = type;
-            return this;
-        }
-
-        public Builder setLatitude(Float latitude) {
-            this.blatitude = latitude;
-            return this;
-        }
-
-        public Builder setLongitude(Float longitude) {
-            this.blongitude = longitude;
-            return this;
-        }
-
-        public Builder setCreatorPhoto(Bitmap creatorPhoto) {
-            this.bcreatorPhoto = creatorPhoto;
-            return this;
-        }
-
-        public Builder setRequestPhoto(Bitmap requestPhoto) {
-            this.brequestPhoto = requestPhoto;
-            return this;
-        }
-
-        public Request build(){
-            return new Request(bID,bAnimalName,bSpecies,bAge,bCreatorName,bDescription,btype,blatitude,blongitude,bcreatorPhoto,brequestPhoto);
+        public Request build() {
+            return new Request(bID, bUserID, bType, bDescription, bAnimalSpecies, bAnimalID, bNBeds);
         }
     }
+
+    public void createRequest(DatabaseCallbackResult callbackPresenter) {
+        RequestDao requestDao = new RequestDao();
+        requestDao.createRequest(this, new DatabaseCallbackResult() {
+
+            @Override
+            public void onDataRetrieved(Object result) {
+                callbackPresenter.onDataRetrieved(result);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+            }
+
+            @Override
+            public void onDataNotFound() {
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+                callbackPresenter.onDataQueryError(e);
+            }
+        });
+    }
+
 }

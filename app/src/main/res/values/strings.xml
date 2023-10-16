@@ -74,7 +74,9 @@
     <string name="invalid_report_description">"Enter a valid description"</string>
     <string name="report_name">Name (Optional)</string>
     <string name="report_create_successful">Report successfully created</string>
+    <string name="request_create_successful">Request successfully created</string>
     <string name="report_create_error">Error. Report not created</string>
+    <string name="request_create_error">Error. Request not created</string>
     <string name="report_animal_profile">Share animal profile</string>
     <string name="invalid_report_select_lost_option_1">You must be logged in to select this option</string>
     <string name="invalid_report_select_lost_option_2">You must own at least one animal to select this option</string>

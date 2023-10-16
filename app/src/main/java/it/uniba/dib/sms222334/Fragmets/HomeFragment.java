@@ -46,8 +46,11 @@ import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
+import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
@@ -66,6 +69,7 @@ public class HomeFragment extends Fragment {
     Boolean isLogged;
 
     ReportPresenter reportPresenter;
+    RequestPresenter requestPresenter;
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
     private ImageView photoImageView;
     private Dialog editDialog;
@@ -81,6 +85,7 @@ public class HomeFragment extends Fragment {
         super.onResume();
 
         reportPresenter = new ReportPresenter(this);
+        requestPresenter = new RequestPresenter(this);
 
         this.isLogged = SessionManager.getInstance().isLogged();
 
@@ -112,10 +117,10 @@ public class HomeFragment extends Fragment {
         recyclerView = layout.findViewById(R.id.list_item);
 
         ArrayList<Document> listaProva=new ArrayList<>();
-        Request r1=Request.Builder.create("TestID", Request.requestType.FIND_ANIMAL, 130.0F,13.0F)
-                .setCreatorName("Giuseppe")
-                .setSpecies("Cane")
-                .setDescription("Cerco cane bellissimo ciao")
+        Request r1=Request.Builder.create("TestID", "TestUserID", RequestType.FIND_ANIMAL, "")
+                .setAnimalSpecies(AnimalSpecies.DOG)
+                .setAnimalID("")
+                .setNBeds(0)
                 .build();
 
         listaProva.add(r1);
@@ -147,6 +152,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void launchReportDialog() {
+        selectedAnimal = null;
+
         editDialog = new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_report);
@@ -381,23 +388,30 @@ public class HomeFragment extends Fragment {
     }
 
     private void launchRequestDialog() {
+        selectedAnimal = null;
 
         editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_request);
 
-
-
         Spinner requestSpinner= editDialog.findViewById(R.id.request_spinner);
         Spinner animalSpinner= editDialog.findViewById(R.id.animal_chooser);
         Spinner speciesSpinner= editDialog.findViewById(R.id.species_chooser);
         AnimalAppEditText beds= editDialog.findViewById(R.id.beds);
+        AnimalAppEditText description= editDialog.findViewById(R.id.description);
 
         ArrayAdapter<CharSequence> requestAdapter;
         ArrayAdapter<CharSequence> speciesAdapter=ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
+
+        List<Animal> myAnimalNames = requestPresenter.getMyAnimalNames();
+        ArrayAdapter<Animal> animalAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                myAnimalNames);
+        animalSpinner.setAdapter(animalAdapter);
 
         if(role== UserRole.PRIVATE){
             requestAdapter= ArrayAdapter.createFromResource(getContext(),
@@ -456,23 +470,56 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        animalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedAnimal = myAnimalNames.get(position);
+            }
 
-
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         requestAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         requestSpinner.setAdapter(requestAdapter);
+        requestSpinner.setSelection(0);
 
         Button backButton= editDialog.findViewById(R.id.back_button);
-
         backButton.setOnClickListener(v -> editDialog.cancel());
 
-        requestSpinner.setSelection(0);
+        Button createButton= editDialog.findViewById(R.id.create_button);
+        createButton.setOnClickListener(v -> requestPresenter.onAdd(
+                findRequestType(requestSpinner),
+                description.getText().toString(),
+                speciesSpinner.getSelectedItemPosition(),
+                selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                (role == UserRole.PUBLIC_AUTHORITY && requestSpinner.getSelectedItemPosition() == 0) ? beds.getText().toString() : null
+        ));
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    private RequestType findRequestType(Spinner requestSpinner) {
+        int selectedItemPosition = requestSpinner.getSelectedItemPosition();
+
+        if (role == UserRole.PRIVATE) {
+            if (selectedItemPosition == 0)
+                return RequestType.FIND_ANIMAL;
+            else if (selectedItemPosition == 1)
+                return RequestType.OFFER_ANIMAL;
+        } else {
+            if (selectedItemPosition == 0)
+                return RequestType.OFFER_BEDS;
+            else if (selectedItemPosition == 1)
+                return RequestType.OFFER_ANIMAL;
+        }
+
+        return null;
     }
 
     public void showInvalidReportDescription() {
@@ -495,14 +542,14 @@ public class HomeFragment extends Fragment {
         Toast.makeText(requireContext(), this.getString(R.string.photo_update_failed), Toast.LENGTH_SHORT).show();
     }
 
-    public void showCreateSuccessful() {
+    public void showReportCreateSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.report_create_successful), Toast.LENGTH_SHORT).show();
 
         if (editDialog != null)
             editDialog.cancel();
     }
 
-    public void showCreateError() {
+    public void showReportCreateError() {
         Toast.makeText(requireContext(), this.getString(R.string.report_create_error), Toast.LENGTH_SHORT).show();
     }
 
@@ -532,6 +579,17 @@ public class HomeFragment extends Fragment {
 
     public void showInvalidReportSelectedAnimal() {
         Toast.makeText(requireContext(), this.getString(R.string.invalid_report_selected_animal), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showRequestCreateSuccessful() {
+        Toast.makeText(requireContext(), this.getString(R.string.request_create_successful), Toast.LENGTH_SHORT).show();
+
+        if (editDialog != null)
+            editDialog.cancel();
+    }
+
+    public void showRequestCreateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.request_create_error), Toast.LENGTH_SHORT).show();
     }
 
 }

@@ -73,7 +73,9 @@
     <string name="invalid_report_description">"Inserisci una descrizione valida"</string>
     <string name="report_name">Nome (Opzionale)</string>
     <string name="report_create_successful">Report creato con successo</string>
+    <string name="request_create_successful">Richiesta creata con successo</string>
     <string name="report_create_error">Errore. Report non creato</string>
+    <string name="request_create_error">Errore. Richiesta non creata</string>
     <string name="report_animal_profile">Condividi profilo animale</string>
     <string name="invalid_report_select_lost_option_1">Devi effettuare l\'accesso per selezionare questa opzione</string>
     <string name="invalid_report_select_lost_option_2">Devi possedere almeno un animale per selezionare questa opzione</string>

@@ -143,4 +143,15 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_ANIMAL_ID = "animal_id";
         public static final String COLUMN_NAME_SHOW_ANIMAL_PROFILE = "show_animal_profile";
     }
+
+    public static class Request implements BaseColumns {
+        public static final String TABLE_NAME = "Request";
+
+        public static final String COLUMN_NAME_USER_ID = "user_id";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_DESCRIPTION = "description";
+        public static final String COLUMN_NAME_ANIMAL_SPECIES = "animal_species";
+        public static final String COLUMN_NAME_ANIMAL_ID = "animal_id";
+        public static final String COLUMN_NAME_BEDS_NUMBER = "beds_number";
+    }
 }
