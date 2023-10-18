@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
@@ -49,6 +50,7 @@ import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
@@ -75,7 +77,7 @@ public class HomeFragment extends Fragment {
     private Dialog editDialog;
     private Animal selectedAnimal;
     private boolean isSharedAnimalProfile;
-
+    private RequestReportAdapter adapter;
 
     public HomeFragment() {
     }
@@ -83,9 +85,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        reportPresenter = new ReportPresenter(this);
-        requestPresenter = new RequestPresenter(this);
 
         this.isLogged = SessionManager.getInstance().isLogged();
 
@@ -112,26 +111,36 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        reportPresenter = new ReportPresenter(this);
+        requestPresenter = new RequestPresenter(this);
+
         final View layout= inflater.inflate(R.layout.home_fragment,container,false);
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        ArrayList<Document> listaProva=new ArrayList<>();
-        Request r1=Request.Builder.create("TestID", "TestUserID", RequestType.FIND_ANIMAL, "")
-                .setAnimalSpecies(AnimalSpecies.DOG)
-                .setAnimalID("")
-                .setNBeds(0)
-                .build();
+        requestPresenter.getRequestList(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+            }
 
-        listaProva.add(r1);
-        listaProva.add(r1);
-        listaProva.add(r1);
-        listaProva.add(r1);
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+                adapter=new RequestReportAdapter(results,getContext());
+                recyclerView.setAdapter(adapter);
+            }
 
-        RequestReportAdapter adapter=new RequestReportAdapter(listaProva,getContext());
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
         Log.d(TAG,recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item)+"");
@@ -493,7 +502,7 @@ public class HomeFragment extends Fragment {
                 findRequestType(requestSpinner),
                 description.getText().toString(),
                 speciesSpinner.getSelectedItemPosition(),
-                selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                selectedAnimal,
                 (role == UserRole.PUBLIC_AUTHORITY && requestSpinner.getSelectedItemPosition() == 0) ? beds.getText().toString() : null
         ));
 

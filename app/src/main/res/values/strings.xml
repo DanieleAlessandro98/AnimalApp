@@ -89,6 +89,9 @@
     <string name="fish_species_name">Fish</string>
     <string name="bird_species_name">Bird</string>
     <string name="rabbit_species_name">Rabbit</string>
+    <string name="find_animal_request_name">FIND ANIMAL</string>
+    <string name="offer_animal_request_name">OFFER ANIMAL</string>
+    <string name="offer_beds_request_name">OFFER BEDS</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

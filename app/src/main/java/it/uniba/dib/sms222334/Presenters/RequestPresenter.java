@@ -3,6 +3,7 @@ package it.uniba.dib.sms222334.Presenters;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.RequestDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Models.Animal;
@@ -46,7 +47,7 @@ public class RequestPresenter {
         return myAnimalNames;
     }
 
-    public void onAdd(RequestType type, String description, int selectedPositionAnimalSpecies, String animalID, String beds) {
+    public void onAdd(RequestType type, String description, int selectedPositionAnimalSpecies, Animal animal, String beds) {
         if (selectedPositionAnimalSpecies < 0 || selectedPositionAnimalSpecies >= AnimalSpecies.values().length)
             return;
 
@@ -59,9 +60,9 @@ public class RequestPresenter {
             bedsValue = 0;
         }
 
-        Request requestModel = Request.Builder.create("", SessionManager.getInstance().getCurrentUser().getFirebaseID(), type, description)
+        Request requestModel = Request.Builder.create("", SessionManager.getInstance().getCurrentUser(), type, description)
                 .setAnimalSpecies(species)
-                .setAnimalID(animalID)
+                .setAnimal(animal)
                 .setNBeds(bedsValue)
                 .build();
         requestModel.createRequest(new DatabaseCallbackResult() {
@@ -86,4 +87,30 @@ public class RequestPresenter {
             }
         });
     }
+
+    public void getRequestList(DatabaseCallbackResult callback) {
+        RequestDao requestDao = new RequestDao();
+        requestDao.getAllRequests(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+                callback.onDataRetrieved(results);
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
+    }
+
 }

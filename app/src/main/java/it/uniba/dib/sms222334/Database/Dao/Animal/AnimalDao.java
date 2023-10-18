@@ -351,4 +351,11 @@ public class AnimalDao {
                     }
                 });
     }
+
+    public DocumentReference findAnimalRef(String animalID) {
+        if (animalID.equals(""))
+            return null;
+
+        return collectionAnimal.document(animalID);
+    }
 }

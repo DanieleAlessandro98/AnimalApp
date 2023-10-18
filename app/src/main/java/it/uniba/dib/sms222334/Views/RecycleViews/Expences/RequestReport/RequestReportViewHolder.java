@@ -10,10 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
+import it.uniba.dib.sms222334.Utils.DateUtilities;
 
 public class RequestReportViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="RequestReportViewHolder";
@@ -53,29 +55,29 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
         }
 
         public void bind(Request request){
+            this.Type.setText(Request.getRequestTypeString(request.getType(), context));
+            this.CreatorName.setText(request.getUser().getName());
+            this.Description.setText(request.getDescription());
+
+            Bitmap creator = request.getUser().getPhoto();
+            if(creator==null)
+                this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
+            else
+                this.creatorPhoto.setImageBitmap(creator);
+
+            Animal animal = request.getAnimal();
+            if (animal != null) {
+                this.AnimalName.setText(animal.getName());
+                this.SpeciesAge.setText(animal.getSpeciesString(context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
+                this.image.setImageBitmap(animal.getPhoto());
+            } else {
+                this.AnimalName.setText("");
+                this.SpeciesAge.setText("");
+            }
+
             /*
-                        //this.Type selection array string
              this.latidute=request.getLatitude();
              this.longitude=request.getLongitude();
-             this.AnimalName.setText(request.getAnimalName());
-             this.SpeciesAge.setText(request.getSpecies()+(request.getAge()==null?"":(", "+request.getAge())));
-             this.CreatorName.setText(request.getCreatorName());
-             this.Description.setText(request.getDescription());
-             Bitmap requestPhoto=request.getRequestPhoto();
-             if(requestPhoto==null){
-                 this.image.setImageDrawable(context.getDrawable(R.drawable.baseline_photo_camera_24));
-             }
-             else{
-                 this.image.setImageBitmap(request.getRequestPhoto());
-             }
-
-             Bitmap creator= request.getCreatorPhoto();
-             if(creator==null){
-                 this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
-             }
-             else{
-                 this.creatorPhoto.setImageBitmap(creator);
-             }
 
              */
         }

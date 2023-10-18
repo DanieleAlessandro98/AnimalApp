@@ -88,6 +88,9 @@
     <string name="fish_species_name">Pesce</string>
     <string name="bird_species_name">Uccello</string>
     <string name="rabbit_species_name">Coniglio</string>
+    <string name="find_animal_request_name">CERCO ANIMALE</string>
+    <string name="offer_animal_request_name">OFFRO ANIMALE</string>
+    <string name="offer_beds_request_name">OFFRO STALLO</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

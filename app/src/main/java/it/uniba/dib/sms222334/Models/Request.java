@@ -1,28 +1,31 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 import it.uniba.dib.sms222334.Database.Dao.RequestDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
 
 
 public class Request extends Document{
-    private String userID;
+    private User user;
     RequestType type;
     private String description;
 
     private AnimalSpecies animalSpecies;
-    private String animalID;
+    private Animal animal;
     private int nBeds;
 
-    public String getUserID() {
-        return userID;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public RequestType getType() {
@@ -49,12 +52,12 @@ public class Request extends Document{
         this.animalSpecies = animalSpecies;
     }
 
-    public String getAnimalID() {
-        return animalID;
+    public Animal getAnimal() {
+        return animal;
     }
 
-    public void setAnimalID(String animalID) {
-        this.animalID = animalID;
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
     }
 
     public int getNBeds() {
@@ -65,36 +68,36 @@ public class Request extends Document{
         this.nBeds = nBeds;
     }
 
-    private Request(String id, String userID, RequestType type, String description, AnimalSpecies animalSpecies, String animalID, int nBeds) {
+    private Request(String id, User user, RequestType type, String description, AnimalSpecies animalSpecies, Animal animal, int nBeds) {
         super(id);
 
-        this.userID = userID;
+        this.user = user;
         this.type = type;
         this.description = description;
         this.animalSpecies = animalSpecies;
-        this.animalID = animalID;
+        this.animal = animal;
         this.nBeds = nBeds;
     }
 
     public static class Builder{
         private String bID;
-        private String bUserID;
+        private User bUser;
         RequestType bType;
         private String bDescription;
 
         private AnimalSpecies bAnimalSpecies;
-        private String bAnimalID;
+        private Animal bAnimal;
         private int bNBeds;
 
-        private Builder(String bID, String bUserID, RequestType bType, String bDescription) {
+        private Builder(String bID, User bUser, RequestType bType, String bDescription) {
             this.bID = bID;
-            this.bUserID = bUserID;
+            this.bUser = bUser;
             this.bType = bType;
             this.bDescription = bDescription;
         }
 
-        public static Builder create(final String bID, String bUserID, final RequestType bType, String bDescription) {
-            return new Builder(bID, bUserID, bType, bDescription);
+        public static Builder create(final String bID, User bUser, final RequestType bType, String bDescription) {
+            return new Builder(bID, bUser, bType, bDescription);
         }
 
         public Builder setAnimalSpecies(AnimalSpecies bAnimalSpecies) {
@@ -102,8 +105,8 @@ public class Request extends Document{
             return this;
         }
 
-        public Builder setAnimalID(String bAnimalID) {
-            this.bAnimalID = bAnimalID;
+        public Builder setAnimal(Animal bAnimal) {
+            this.bAnimal = bAnimal;
             return this;
         }
 
@@ -113,7 +116,7 @@ public class Request extends Document{
         }
 
         public Request build() {
-            return new Request(bID, bUserID, bType, bDescription, bAnimalSpecies, bAnimalID, bNBeds);
+            return new Request(bID, bUser, bType, bDescription, bAnimalSpecies, bAnimal, bNBeds);
         }
     }
 
@@ -139,6 +142,19 @@ public class Request extends Document{
                 callbackPresenter.onDataQueryError(e);
             }
         });
+    }
+
+    public static String getRequestTypeString(RequestType type, Context context) {
+        switch (type) {
+            case FIND_ANIMAL:
+                return context.getString(R.string.find_animal_request_name);
+            case OFFER_ANIMAL:
+                return context.getString(R.string.offer_animal_request_name);
+            case OFFER_BEDS:
+                return context.getString(R.string.offer_beds_request_name);
+            default:
+                return "";
+        }
     }
 
 }
