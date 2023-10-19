@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
 
 /**
@@ -22,36 +23,53 @@ public class VisitPresenter {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }
 
-    public Visit createVisit(Visit.visitType visit_type, Date date, String visitName){
-        if(visit_type != null && date != null && visitName != null){
-            Visit visit = Visit.Builder.create("",visitName,visit_type,date).build();
-            return visit;
+    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName){
+        if(visit_type != null && date != null && visitName != null && animal != null){
+            Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
+            visit.setAnimal(animal);
+
+            if(visit.createVisit(visit)){
+                System.out.println("creazione finita");
+                return visit;
+            }else{
+                return null;
+            }
         }else{
             System.out.println("error in the parametro of create visit");
             return null;
         }
     }
 
-    public boolean action_edit(String idVisit,String visitType, String animalChooser, String dateVisit, String doctor_name){
+    public boolean action_edit(Visit visit,String idAnimal,String name){
 
-        if(isAlphabet(visitType) && isAlphabet(animalChooser)){
-            //TODO chiamare il metodo della model per modificare la visita
-            return true;
+        if(visit != null){
+            if (Visit.editVisit(visit,idAnimal,name)) {
+                return true;
+            }else{
+                return false;
+            }
         }else{
-            //TODO fare qualcosa per visualizzare errore nella modifica
             return false;
         }
     }
 
-    public boolean removeVisit(String idvisita){
-        if (isAlphaNumeric(idvisita)){
-            // TODO chiamare il metodo della model per eliminare la visita
-            return true;
-        }else{
+    public boolean removeVisit(String idVisit) {
+        if (isAlphaNumeric(idVisit)) {
+            System.out.println("entrato in if di removeVisit()");
+            if (Visit.removeVisit(idVisit)) {
+                System.out.println("vero di remove visit");
+                return true;
+            } else {
+                System.out.println("falso di remove visit");
+                return false;
+            }
+        } else {
             // TODO fare qualcosa per visualizzare errore nella eliminazione
             return false;
         }
     }
+
+
 
     public void action_view(String idAnimale){
 

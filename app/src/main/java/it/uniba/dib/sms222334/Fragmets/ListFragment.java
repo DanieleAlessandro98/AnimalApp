@@ -1,7 +1,6 @@
 package it.uniba.dib.sms222334.Fragmets;
 
 import static android.app.Activity.RESULT_OK;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -25,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -35,13 +33,12 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
@@ -98,6 +95,7 @@ public class ListFragment extends Fragment{
 
     public static ListFragment newInstance(ProfileFragment.Tab tabPosition,ProfileFragment.Type profileType) {
         ListFragment myFragment = new ListFragment();
+        animal = AnimalFragment.animal; // Non cancellare questa riga, viene usato nella patologia dell'animale
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
         args.putInt("profile_type", profileType.ordinal());
@@ -123,6 +121,8 @@ public class ListFragment extends Fragment{
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
+        System.out.println("swip 3");
+
         switch (this.tabPosition){
             case ANIMAL:
                 setAnimalList();
@@ -137,7 +137,12 @@ public class ListFragment extends Fragment{
                 setRelationList();
                 break;
             case HEALTH:
-                setHealtList();
+                PathologyPresenter.action_getPathology(animal.getFirebaseID(), new PathologyDao.OnPathologyListListener() {
+                    @Override
+                    public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                        setHealtList(listPathology);
+                    }
+                });
                 break;
             case FOOD:
                 setFoodList();
@@ -147,7 +152,6 @@ public class ListFragment extends Fragment{
         return layout;
     }
 
-    private static Pathology pathology;
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
 
     private void launchAddDialog() {
@@ -340,7 +344,7 @@ public class ListFragment extends Fragment{
                         @Override
                         public void onClick(View view) {
                             RelationPresenter relation = new RelationPresenter();
-                            Relation relationValue = relation.createRelation("abc123", type[0],animal);
+                            Relation relationValue = relation.createRelation(animal.getFirebaseID(), type[0],animal);
                             if(relationValue != null) {
                                 addDialog.cancel();
                                 relationList.add(relationValue);
@@ -358,6 +362,7 @@ public class ListFragment extends Fragment{
                     break;
                 case HEALTH:
                     addDialog.setContentView(R.layout.add_pathology);
+
                     Spinner pathologySpinner= addDialog.findViewById(R.id.pathology_type);
                     Button save = addDialog.findViewById(R.id.save_button);
 
@@ -385,10 +390,12 @@ public class ListFragment extends Fragment{
                         public void onClick(View view) {
                             PathologyPresenter pathology = new PathologyPresenter();
                             Pathology pathologyValue = pathology.action_create(animal.getFirebaseID(),getValue[0]);
-                            addDialog.cancel();
+                            if (pathologyValue != null) {
+                                addDialog.cancel();
 
-                            pathologyList.add(pathologyValue);
-                            recyclerView.setAdapter(pathologyAdapter);
+                                pathologyList.add(pathologyValue);
+                                recyclerView.setAdapter(pathologyAdapter);
+                            }
                         }
                     });
                     ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_pathologies,
@@ -421,15 +428,15 @@ public class ListFragment extends Fragment{
         addDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    public static ArrayList<Animal> animalList;
+
     private void setAnimalList(){
         final Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH,0);
 
         animalPresenter= new AnimalPresenter();
 
-        ArrayList<Animal> animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
-
-
+        animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
 
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
@@ -455,6 +462,10 @@ public class ListFragment extends Fragment{
         adapter.setOnAnimalClickListener(animal -> {
             FragmentManager fragmentManager=getParentFragmentManager();
 
+
+            /*for (int i=0; i<animalList.size();i++){
+                System.out.println("esterno    "+animalList.get(i).getName());
+            }*/
             FragmentTransaction transaction= fragmentManager.beginTransaction();
             transaction.addToBackStack("itemPage");
             transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal,getContext())).commit();
@@ -481,33 +492,10 @@ public class ListFragment extends Fragment{
     }
 
     public static VisitAdapter visitAdapter;
-    public static ArrayList<Visit> visitList;
+    public static ArrayList<Visit> visitList = new ArrayList<>();
 
     private void setVisitList(){
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
-
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-
         addButton.setVisibility(View.GONE);
-
-        visitList=new ArrayList<>();
-        Calendar calendar=Calendar.getInstance();
-
-        Visit v1=Visit.Builder.create("TestID", "Test", Visit.visitType.CONTROL, calendar.getTime())
-                .setState(Visit.visitState.NOT_EXECUTED)
-                .setAnimal(a1)
-                .build();
-
-        visitList.add(v1);
-        visitList.add(v1);
-        visitList.add(v1);
-        visitList.add(v1);
-        visitList.add(v1);
 
         visitAdapter=new VisitAdapter(visitList,getContext());
 
@@ -530,8 +518,12 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 VisitPresenter visit = new VisitPresenter();
-                                if(visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID()))
+
+                                if (visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID())) {
                                     visitAdapter.removeVisit(pos);
+                                }else{
+                                    Log.w(TAG,"Delete Visit is Failure");
+                                }
 
                                 return null;
                             });
@@ -590,26 +582,6 @@ public class ListFragment extends Fragment{
     private RelationAdapter relationAdapter;
 
     private void setRelationList(){
-
-        relationList=new ArrayList<>();
-
-        final Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_MONTH,-1600);
-
-        Animal a1=Animal.Builder.create("testID", Animal.stateList.ADOPTED)
-                .setSpecies("Dog")
-                .setBirthDate(c.getTime())
-                .setName("Alberto")
-                .build();
-
-        Relation r1=Relation.Builder.create("ueue",Relation.relationType.INCOMPATIBLE,a1).build();
-
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-        relationList.add(r1);
-
         relationAdapter=new RelationAdapter(relationList,getContext());
 
         addButton.setOnClickListener(v -> launchAddDialog() );
@@ -624,10 +596,15 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 RelationPresenter relation = new RelationPresenter();
-                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
+
+                                String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
+                                String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
+                                if (relation.deleteRelation(idAnimal1,idAnimal2)) {
                                     relationAdapter.removeRelation(pos);
                                     System.out.println("eliminato");
                                 }
+
+
                                 return null;
                             });
                         }
@@ -637,19 +614,13 @@ public class ListFragment extends Fragment{
 
         recyclerView.setAdapter(relationAdapter);
     }
+
     private SimpleTextAdapter<Pathology> pathologyAdapter;
     private ArrayList<Pathology> pathologyList;
 
-    private void setHealtList(){
-        pathologyList=new ArrayList<>();
+    public void setHealtList(ArrayList<Pathology> listPathology){
 
-        Pathology p1=Pathology.Builder.create("TestID", "Scogliosi").build();
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyList.add(p1);
-        pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
+        pathologyAdapter=new SimpleTextAdapter<>(listPathology);
 
         addButton.setOnClickListener(v -> launchAddDialog() );
 
@@ -662,12 +633,11 @@ public class ListFragment extends Fragment{
                         Color.parseColor("#CD4C51"),
                         pos -> {
                             launchConfirmDialog(() -> {
-                                RelationPresenter relation = new RelationPresenter();
-                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
-                                    PathologyPresenter pathology = new PathologyPresenter();
-                                    if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID())) {
-                                        pathologyAdapter.removeSimpleElement(pos);
-                                    }
+                                PathologyPresenter pathology = new PathologyPresenter();
+                                if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
+                                    pathologyAdapter.removeSimpleElement(pos);
+                                }else{
+                                    Log.w(TAG,"remove pathology failure");
                                 }
                                 return null;
                             });
@@ -705,10 +675,7 @@ public class ListFragment extends Fragment{
                         Color.parseColor("#CD4C51"),
                         pos -> {
                             launchConfirmDialog(() -> {
-                                RelationPresenter relation = new RelationPresenter();
-                                if (relation.deleteRelation(relationAdapter.getRelationList().get(pos).getFirebaseID())) {
-                                    foodAdapter.removeSimpleElement(pos);
-                                }
+                                foodAdapter.removeSimpleElement(pos);
                                 return null;
                             });
                         }

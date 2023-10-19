@@ -45,8 +45,10 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
@@ -249,6 +251,8 @@ public class ProfileFragment extends Fragment {
 
     public Visit.visitType visitType;
 
+    private int posizione = 0;
+
     private void launchAddVisit(){
         final Dialog editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -268,6 +272,16 @@ public class ProfileFragment extends Fragment {
                 android.R.layout.simple_list_item_1);
         visitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         visitTypeSpinner.setAdapter(visitTypeAdapter);
+
+        ArrayList<String> animalListName = new ArrayList<>();
+
+        for (int i = 0; i < ListFragment.animalList.size(); i++) {
+            animalListName.add(ListFragment.animalList.get(i).getName());
+        }
+
+        ArrayAdapter<String> animal_chooseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,animalListName);
+        animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        animalchooser.setAdapter(animal_chooseAdapter);
 
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -294,8 +308,6 @@ public class ProfileFragment extends Fragment {
         backButton.setOnClickListener(v -> editDialog.cancel());
         final String[] animalValue = new String[1];
 
-        String visitName = doctorName.getText().toString();
-
         visitTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -307,10 +319,18 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+
+
+
         animalchooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 animalValue[0] = adapterView.getItemAtPosition(i).toString();
+                for (int j = 0; j < ListFragment.animalList.size(); j++) {
+                    if (Objects.equals(animalValue[0], ListFragment.animalList.get(j).getName())){
+                        posizione = j;
+                    }
+                }
             }
 
             @Override
@@ -332,10 +352,13 @@ public class ProfileFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                Visit value = visit.createVisit(visitType,dateConvert,visitName);
+                String visitName = doctorName.getText().toString();
+
+                Visit value = visit.createVisit(visitType,ListFragment.animalList.get(posizione),dateConvert,visitName);
                 if (value != null){
-                    System.out.println("finito");
+                    ListFragment.visitList.add(value);
                     editDialog.cancel();
+                    ListFragment.recyclerView.setAdapter(ListFragment.visitAdapter);
                 }
             }
         });

@@ -74,7 +74,7 @@ public class AnimalFragment extends Fragment {
     ImageView newProfilePicture; /*i added this here because it has to be passed on onActivityResult,
                                 and this must be set before fragment is created(onCreateView())*/
 
-    Animal animal;
+    static Animal animal;   // quest'oggetto deve rimanere statico, serve per la patologia dell'animale.
 
 
     private ProfileFragment.Tab previousTab;

@@ -2,6 +2,11 @@ package it.uniba.dib.sms222334.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
@@ -13,16 +18,25 @@ public class Pathology extends Document implements Parcelable{
         this.name = name;
     }
 
-    public static void createPathology (){
-
+    public static boolean createPathology (String idAnimal, String name){
+        PathologyDao dao = new PathologyDao();
+        return dao.createPathology(idAnimal,name);
     }
 
-    public static boolean deletePathology(String idPathology){
-        if(idPathology != null) {
-            return true;
-        }else{
-            return false;
-        }
+    public boolean deletePathology(String idAnimal,String name){
+        PathologyDao dao = new PathologyDao();
+        return dao.deleteAnimalPathology(idAnimal, name);
+    }
+
+
+    public static void getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
+        PathologyDao dao = new PathologyDao();
+        dao.getListPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
+            @Override
+            public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                listener.onPathologyListReady(listPathology);
+            }
+        });
     }
 
     public String getName() {
@@ -45,7 +59,7 @@ public class Pathology extends Document implements Parcelable{
         public static Builder create(final String id, final String name){
             return new Builder(id,name);
         }
-
+        
         public Builder setName(final String name){
             this.bName=name;
             return this;
