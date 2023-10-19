@@ -32,9 +32,9 @@ public class MediaDao {
         });
     }
 
-    public void uploadPhoto(Bitmap bitmap, String fileName, final PhotoUploadListener listener) {
+    public void uploadPhoto(Bitmap bitmap, String path, String fileName, final PhotoUploadListener listener) {
         StorageReference storageRef = storage.getReference()
-                .child(Media.PROFILE_PHOTO_PATH)
+                .child(path)
                 .child(fileName);
 
         UploadTask uploadTask = storageRef.putBytes(Media.getBytesFromBitmap(bitmap));

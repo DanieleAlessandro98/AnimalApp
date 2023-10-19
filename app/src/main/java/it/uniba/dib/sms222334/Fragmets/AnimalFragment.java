@@ -51,6 +51,7 @@ import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
@@ -499,10 +500,10 @@ public class AnimalFragment extends Fragment {
 
     public void refresh(Animal animal){
         this.name.setText(animal.getName());
-        this.species.setText(animal.getSpecies());
+        this.species.setText(animal.getSpeciesString(animal.getSpecies(), getContext()));
         this.race.setText(animal.getRace());
         this.age.setText(DateUtilities.calculateAge(animal.getBirthDate(),getContext()));
-        this.state.setText(Animal.stateList.values()[animal.getState().ordinal()].toString());
+        this.state.setText(AnimalStates.values()[animal.getState().ordinal()].toString());
         this.profileImage.setImageBitmap(animal.getPhoto());
     }
 

@@ -36,7 +36,7 @@
     <color name="edit_text_normal">@color/soft_black</color>
     <color name="edit_text_invalid_input">@color/red</color>
     <color name="edit_text_valid_input">@color/green</color>
-    <color name="edit_text_warning_input">@color/yellow</color>
+    <color name="edit_text_report_input">@color/yellow</color>
     <color name="button_pressed">@color/yellow</color>
     <color name="button_normal">@color/soft_yellow</color>
 

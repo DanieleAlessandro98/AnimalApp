@@ -54,6 +54,9 @@ import it.uniba.dib.sms222334.Presenters.PathologyPresenter;
 import it.uniba.dib.sms222334.Presenters.RelationPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
@@ -285,10 +288,10 @@ public class ListFragment extends Fragment{
                     });
 
                     saveButton.setOnClickListener(v -> {
-                        animalPresenter.addAnimal(Animal.Builder.create("", Animal.stateList.ADOPTED)
+                        animalPresenter.addAnimal(Animal.Builder.create("", AnimalStates.ADOPTED)
                             .setBirthDate(dateIsSetted[0]?c.getTime():null)
                             .setRace(raceSpinner.getSelectedItem().toString())
-                            .setSpecies(speciesSpinner.getSelectedItem().toString())
+                            .setSpecies(AnimalSpecies.values()[speciesSpinner.getSelectedItemPosition()])
                             .setName(name.getText().toString())
                             .setOwner(SessionManager.getInstance().getCurrentUser().getFirebaseID())
                             .setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap())
@@ -578,7 +581,7 @@ public class ListFragment extends Fragment{
         recyclerView.setAdapter(expenseAdapter);
     }
 
-    private ArrayList<Relation> relationList;
+    private ArrayList<Relation> relationList = new ArrayList<>();
     private RelationAdapter relationAdapter;
 
     private void setRelationList(){
@@ -616,7 +619,7 @@ public class ListFragment extends Fragment{
     }
 
     private SimpleTextAdapter<Pathology> pathologyAdapter;
-    private ArrayList<Pathology> pathologyList;
+    private ArrayList<Pathology> pathologyList = new ArrayList<>();
 
     public void setHealtList(ArrayList<Pathology> listPathology){
 

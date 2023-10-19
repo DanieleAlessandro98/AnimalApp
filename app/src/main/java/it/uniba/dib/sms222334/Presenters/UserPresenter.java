@@ -107,7 +107,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             };
 
             MediaDao mediaDao = new MediaDao();
-            mediaDao.uploadPhoto(profileView.getPhotoPicked(), profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+            mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
         }
         else {
             profileModel.updateProfile();

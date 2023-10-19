@@ -82,4 +82,35 @@ public final class DateUtilities {
         return age >= minimunAgeYear;
 
     }
+
+    public static Date parseAgeString(String ageString, Context context) {
+        if (ageString.isEmpty())
+            return null;
+
+        Calendar today = Calendar.getInstance();
+
+        int ageValue = 0;
+        String[] parts = ageString.split(" ");
+        if (parts.length != 2)
+            return null;
+
+        try {
+            ageValue = Integer.parseInt(parts[0]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        String ageUnit = parts[1].toLowerCase();
+
+        if (ageUnit.equals(context.getString(R.string.day).toLowerCase()) || ageUnit.equals(context.getString(R.string.days).toLowerCase()))
+            today.add(Calendar.DAY_OF_YEAR, -ageValue);
+        else if (ageUnit.equals(context.getString(R.string.month).toLowerCase()) || ageUnit.equals(context.getString(R.string.months).toLowerCase()))
+            today.add(Calendar.MONTH, -ageValue);
+        else if (ageUnit.equals(context.getString(R.string.year).toLowerCase()) || ageUnit.equals(context.getString(R.string.years).toLowerCase()))
+            today.add(Calendar.YEAR, -ageValue);
+        else
+            return null;
+
+        return today.getTime();
+    }
 }
