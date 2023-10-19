@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.google.firebase.firestore.GeoPoint;
@@ -9,10 +10,13 @@ import java.util.Date;
 
 import it.uniba.dib.sms222334.Database.Dao.ReportDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.ReportType;
+import it.uniba.dib.sms222334.Utils.RequestType;
 
 public class Report extends Document {
+    private User user;
     private ReportType type;
     private AnimalSpecies animalSpecies;
     private String description;
@@ -24,6 +28,14 @@ public class Report extends Document {
     private Date animalAge;
     private String animalID;
     private boolean showAnimalProfile;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public ReportType getType() {
         return type;
@@ -105,9 +117,10 @@ public class Report extends Document {
         this.showAnimalProfile = showAnimalProfile;
     }
 
-    private Report(String firebaseID, ReportType type, AnimalSpecies animalSpecies, String description, Float latitude, Float longitude, Bitmap reportPhoto, String animalName, Date animalAge, String animalID, boolean isShowAnimalProfile) {
+    private Report(String firebaseID, User user, ReportType type, AnimalSpecies animalSpecies, String description, Float latitude, Float longitude, Bitmap reportPhoto, String animalName, Date animalAge, String animalID, boolean isShowAnimalProfile) {
         super(firebaseID);
 
+        this.user = user;
         this.type = type;
         this.animalSpecies = animalSpecies;
         this.description = description;
@@ -122,6 +135,7 @@ public class Report extends Document {
 
     public static class Builder {
         private String bID;
+        private User bUser;
         private ReportType bType;
         private AnimalSpecies bAnimalSpecies;
         private String bDescription;
@@ -134,8 +148,9 @@ public class Report extends Document {
         private String bAnimalID;
         private boolean bIsShowAnimalProfile;
 
-        private Builder(String bID, ReportType bType, AnimalSpecies bAnimalSpecies, String bDescription, Float bLatitude, Float bLongitude, Bitmap bReportPhoto) {
+        private Builder(String bID, User bUser, ReportType bType, AnimalSpecies bAnimalSpecies, String bDescription, Float bLatitude, Float bLongitude, Bitmap bReportPhoto) {
             this.bID = bID;
+            this.bUser = bUser;
             this.bType = bType;
             this.bAnimalSpecies = bAnimalSpecies;
             this.bDescription = bDescription;
@@ -144,8 +159,8 @@ public class Report extends Document {
             this.bReportPhoto = bReportPhoto;
         }
 
-        public static Builder create(String bID, ReportType bType, AnimalSpecies bAnimalSpecies, String bDescription, Float bLatitude, Float bLongitude, Bitmap bReportPhoto) {
-            return new Builder(bID, bType, bAnimalSpecies, bDescription, bLatitude, bLongitude, bReportPhoto);
+        public static Builder create(String bID, User bUser, ReportType bType, AnimalSpecies bAnimalSpecies, String bDescription, Float bLatitude, Float bLongitude, Bitmap bReportPhoto) {
+            return new Builder(bID, bUser, bType, bAnimalSpecies, bDescription, bLatitude, bLongitude, bReportPhoto);
         }
 
         public Builder setAnimalName(String bAnimalName) {
@@ -169,7 +184,7 @@ public class Report extends Document {
         }
 
         public Report build() {
-            return new Report(bID, bType, bAnimalSpecies, bDescription, bLatitude, bLongitude, bReportPhoto, bAnimalName, bAnimalAge, bAnimalID, bIsShowAnimalProfile);
+            return new Report(bID, bUser, bType, bAnimalSpecies, bDescription, bLatitude, bLongitude, bReportPhoto, bAnimalName, bAnimalAge, bAnimalID, bIsShowAnimalProfile);
         }
     }
 
@@ -199,5 +214,18 @@ public class Report extends Document {
                 callbackPresenter.onDataQueryError(e);
             }
         });
+    }
+
+    public static String getRequestTypeString(ReportType type, Context context) {
+        switch (type) {
+            case FIND:
+                return context.getString(R.string.find_animal_report_name);
+            case LOST:
+                return context.getString(R.string.lost_animal_report_name);
+            case IN_DANGER:
+                return context.getString(R.string.danger_animal_report_name);
+            default:
+                return "";
+        }
     }
 }

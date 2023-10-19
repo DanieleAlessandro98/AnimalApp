@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Relation;
 import it.uniba.dib.sms222334.R;
@@ -47,7 +48,8 @@ public class RelationViewHolder extends RecyclerView.ViewHolder{
 
              this.animalName.setText(relation.getAnimal().getName());
 
-             this.animalSpecieAge.setText(relation.getAnimal().getSpeciesString(context)+", "+ DateUtilities.calculateAge(relation.getAnimal().getBirthDate(),context));
+             Animal animal = relation.getAnimal();
+             this.animalSpecieAge.setText(animal.getSpeciesString(animal.getSpecies(), context)+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
 
              this.animalPhoto.setImageBitmap(relation.getAnimal().getPhoto());
 

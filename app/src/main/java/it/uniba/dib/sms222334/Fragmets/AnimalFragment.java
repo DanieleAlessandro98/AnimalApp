@@ -450,7 +450,7 @@ public class AnimalFragment extends Fragment {
 
     public void refresh(Animal animal){
         this.name.setText(animal.getName());
-        this.species.setText(animal.getSpeciesString(getContext()));
+        this.species.setText(animal.getSpeciesString(animal.getSpecies(), getContext()));
         this.race.setText(animal.getRace());
         this.age.setText(DateUtilities.calculateAge(animal.getBirthDate(),getContext()));
         this.owner.setText(animal.getOwnerReference());

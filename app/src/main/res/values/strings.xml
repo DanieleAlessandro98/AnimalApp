@@ -92,6 +92,11 @@
     <string name="find_animal_request_name">FIND ANIMAL</string>
     <string name="offer_animal_request_name">OFFER ANIMAL</string>
     <string name="offer_beds_request_name">OFFER BEDS</string>
+    <string name="find_animal_report_name">FOUND</string>
+    <string name="lost_animal_report_name">LOST</string>
+    <string name="danger_animal_report_name">ENDANGERED</string>
+    <string name="user_not_logged_report">Anonymous user</string>
+    <string name="animal_name_unknown_report">Unknown name</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

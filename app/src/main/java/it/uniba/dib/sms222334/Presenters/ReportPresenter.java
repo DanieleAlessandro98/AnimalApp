@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
+import it.uniba.dib.sms222334.Database.Dao.ReportDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Models.Animal;
@@ -75,6 +76,7 @@ public class ReportPresenter {
         AnimalSpecies species = AnimalSpecies.values()[selectedPositionSpecies];
 
         Report reportModel = Report.Builder.create("",
+                SessionManager.getInstance().getCurrentUser(),
                 type,
                 species,
                 description,
@@ -150,5 +152,31 @@ public class ReportPresenter {
 
         return myAnimalNames;
     }
+
+    public void getReportList(DatabaseCallbackResult callback) {
+        ReportDao reportDao = new ReportDao();
+        reportDao.getAllReports(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+                callback.onDataRetrieved(results);
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
+    }
+
 
 }

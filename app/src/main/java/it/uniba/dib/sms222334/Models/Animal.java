@@ -89,8 +89,8 @@ public class Animal extends Document implements Parcelable {
         return species;
     }
 
-    public String getSpeciesString(Context context) {
-        switch (getSpecies()) {
+    public static String getSpeciesString(AnimalSpecies species, Context context) {
+        switch (species) {
             case DOG:
                 return context.getString(R.string.dog_species_name);
             case CAT:

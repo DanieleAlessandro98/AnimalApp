@@ -10,9 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Date;
+
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
@@ -68,7 +71,7 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
             Animal animal = request.getAnimal();
             if (animal != null) {
                 this.AnimalName.setText(animal.getName());
-                this.SpeciesAge.setText(animal.getSpeciesString(context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
+                this.SpeciesAge.setText(animal.getSpeciesString(animal.getSpecies(), context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
                 this.image.setImageBitmap(animal.getPhoto());
             } else {
                 this.AnimalName.setText("");
@@ -83,24 +86,30 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
         }
 
         public void bind(Report report){
-            /*
-
-            //this.Type selection array string
-            this.latidute=report.getLatitude();
-            this.longitude=report.getLongitude();
-            this.AnimalName.setText(report.getAnimalName());
-            this.SpeciesAge.setText(report.getSpecies()+", "+report.getAge());
-            this.CreatorName.setText(report.getCreatorName());
+            this.Type.setText(report.getRequestTypeString(report.getType(), context));
+            this.SpeciesAge.setText(Animal.getSpeciesString(report.getAnimalSpecies(), context) + (report.getAnimalAge()==null?"":(", "+ DateUtilities.calculateAge(report.getAnimalAge(), context))));
             this.Description.setText(report.getDescription());
             this.image.setImageBitmap(report.getReportPhoto());
 
-            Bitmap creator= report.getCreatorPhoto();
-            if(creator==null){
+            User user = report.getUser();
+            if (user != null) {
+                this.CreatorName.setText(user.getName());
+                this.creatorPhoto.setImageBitmap(user.getPhoto());
+            } else {
+                this.CreatorName.setText(context.getString(R.string.user_not_logged_report));
                 this.creatorPhoto.setImageDrawable(context.getDrawable(R.drawable.default_profile_image));
             }
-            else{
-                this.creatorPhoto.setImageBitmap(creator);
-            }
+
+            String animalName = report.getAnimalName();
+            if (!animalName.equals(""))
+                this.AnimalName.setText(animalName);
+            else
+                this.AnimalName.setText(context.getString(R.string.animal_name_unknown_report));
+
+            /*
+
+            this.latidute=report.getLatitude();
+            this.longitude=report.getLongitude();
 
              */
         }

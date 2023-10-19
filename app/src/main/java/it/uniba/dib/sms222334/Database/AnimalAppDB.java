@@ -133,6 +133,7 @@ public class AnimalAppDB {
     public static class Report implements BaseColumns {
         public static final String TABLE_NAME = "Report";
 
+        public static final String COLUMN_NAME_USER_ID = "user_id";
         public static final String COLUMN_NAME_TYPE = "type";
         public static final String COLUMN_NAME_ANIMAL_SPECIES = "animal_species";
         public static final String COLUMN_NAME_DESCRIPTION = "description";

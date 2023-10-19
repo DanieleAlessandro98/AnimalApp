@@ -13,7 +13,7 @@ import it.uniba.dib.sms222334.Utils.RequestType;
 
 public class Request extends Document{
     private User user;
-    RequestType type;
+    private RequestType type;
     private String description;
 
     private AnimalSpecies animalSpecies;

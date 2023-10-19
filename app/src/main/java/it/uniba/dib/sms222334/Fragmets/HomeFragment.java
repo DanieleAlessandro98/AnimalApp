@@ -44,6 +44,7 @@ import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
+import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
@@ -52,6 +53,7 @@ import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
@@ -118,25 +120,44 @@ public class HomeFragment extends Fragment {
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        requestPresenter.getRequestList(new DatabaseCallbackResult() {
+        reportPresenter.getReportList(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
             }
 
             @Override
             public void onDataRetrieved(ArrayList results) {
-                adapter=new RequestReportAdapter(results,getContext());
-                recyclerView.setAdapter(adapter);
+                final ArrayList combinedList = new ArrayList(results);
+
+                requestPresenter.getRequestList(new DatabaseCallbackResult() {
+                    @Override
+                    public void onDataRetrieved(Object result) {
+                    }
+
+                    @Override
+                    public void onDataRetrieved(ArrayList results) {
+                        combinedList.addAll(results); // Unisci le due liste
+
+                        adapter = new RequestReportAdapter(combinedList, getContext());
+                        recyclerView.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onDataNotFound() {
+                    }
+
+                    @Override
+                    public void onDataQueryError(Exception e) {
+                    }
+                });
             }
 
             @Override
             public void onDataNotFound() {
-
             }
 
             @Override
             public void onDataQueryError(Exception e) {
-
             }
         });
 
