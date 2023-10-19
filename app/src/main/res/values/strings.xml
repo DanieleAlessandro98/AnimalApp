@@ -59,6 +59,8 @@
     <string name="invalid_user_birthdate">Invalid date of birth</string>
     <string name="invalid_user_email">Invalid email</string>
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
+    <string name="invalid_user_phonenumber" translatable="false">Invalid Phone Number. Only numbers</string>
+    <string name="invalid_user_companyname" translatable="false">Invalid password. Minimum 6 characters</string>
     <string name="login_error">"Access error"</string>
     <string name="profile_update_successful">"Profile successfully updated"</string>
     <string name="book_visit">Book visit</string>

@@ -13,50 +13,54 @@ import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
-
+import it.uniba.dib.sms222334.Utils.Validations;
 
 
 public class RegisterPresenter implements UserCallback.UserRegisterCallback{
     private final String TAG="RegisterPresenter";
     private RegisterFragment registerFragment;
 
-    StringBuilder errorMessage = new StringBuilder();
-
     public RegisterPresenter(RegisterFragment fragment){
         this.registerFragment = fragment;
-
     }
 
     //Prendo i dati dal fragment e li Controllo
     public void checkPrivateRegistration(String name, String surname, String email, String password, Long phone, Date birthDate, String taxIDCode){
 
-        StringBuilder errorMessage = new StringBuilder();
-
-        // Validazione del nome e del cognome
-        if (!name.matches("[a-zA-Z ]+")) {
-            errorMessage.append("Il nome non deve contenere numeri o caratteri speciali. ");
+        //Richiama il metodo isValidName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidName(name)) {
+            registerFragment.showInvalidName();
             return;
         }
 
-        if (!surname.matches("[a-zA-Z ]+")) {
-            errorMessage.append("Il cognome non deve contenere numeri o caratteri speciali. ");
+        //Richiama il metodo isValidSurname e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidSurname(surname)) {
+            registerFragment.showInvalidSurname();
+            return;
+        }
+
+        //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidEmail(email)) {
+            registerFragment.showInvalidEmail();
+            return;
+        }
+
+        //Richiama il metodo isValidPassword e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPassword(password)) {
+            registerFragment.showInvalidPassword();
             return;
         }
 
         String phoneStr = phone.toString();
-        if (!phoneStr.matches("[0-9]+")) {
-            errorMessage.append("Il numero di telefono non deve contenere lettere. ");
+        //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPhone(phoneStr)) {
+            registerFragment.showInvalidPhone();
             return;
         }
 
-        if (!DateUtilities.validateAge(birthDate, 18)){
-            errorMessage.append("Devi avere 18 anni. ");
-            return;
-        }
-
-        // Validazione dell'email
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            errorMessage.append("L'indirizzo email non è valido. ");
+        //Richiama il metodo isValidDateBirth e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidDateBirth(birthDate)) {
+            registerFragment.showInvalidDateBirth();
             return;
         }
 
@@ -73,27 +77,33 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         privateUser.registerPrivate( this);
         }
 
-    // TODO: Check sui dati dell'autority
     public void checkAuthorityRegistration(String companyName, String emailA, String passwordA, Long phoneA, String site){
+        //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidCompanyName(companyName)) {
+            registerFragment.showInvalidCompanyName();
+            return;
+        }
 
-        // Validazione del COMPANYNAME
-        if (!companyName.matches("[a-zA-Z ]+")) {
-            errorMessage.append("Il nome non deve contenere numeri o caratteri speciali. ");
+        //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidEmail(emailA)) {
+            registerFragment.showInvalidEmail();
+            return;
+        }
+
+        //Richiama il metodo isValidPassword e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPassword(passwordA)) {
+            registerFragment.showInvalidPassword();
             return;
         }
 
         String phoneStr = phoneA.toString();
-        if (!phoneStr.matches("[0-9]+")) {
-            errorMessage.append("Il numero di telefono non deve contenere lettere. ");
+        //Richiama il metodo isValidPhone e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPhone(phoneStr)) {
+            registerFragment.showInvalidPhone();
             return;
         }
 
-        // Validazione dell'email
-        if (!Patterns.EMAIL_ADDRESS.matcher(emailA).matches()) {
-            errorMessage.append("L'indirizzo email non è valido. ");
-            return;
-        }
-
+        //Variabile di test per la geolocalizzazione
         GeoPoint TEST = new GeoPoint(-90,90);
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
@@ -108,26 +118,33 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
     }
 
     public void checkVeterinarianRegistration(String companyName, String emailB, String passwordB, Long phoneB, String siteB){
+        //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidCompanyName(companyName)) {
+            registerFragment.showInvalidCompanyName();
+            return;
+        }
 
-        // Validazione del COMPANYNAME
-        if (!companyName.matches("[a-zA-Z ]+")) {
-            errorMessage.append("Il nome non deve contenere numeri o caratteri speciali. ");
+        //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidEmail(emailB)) {
+            registerFragment.showInvalidEmail();
+            return;
+        }
+
+        //Richiama il metodo isValidPassword e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPassword(passwordB)) {
+            registerFragment.showInvalidPassword();
             return;
         }
 
         String phoneStr = phoneB.toString();
-        if (!phoneStr.matches("[0-9]+")) {
-            errorMessage.append("Il numero di telefono non deve contenere lettere. ");
+        //Richiama il metodo isValidPhone e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
+        if (!Validations.isValidPhone(phoneStr)) {
+            registerFragment.showInvalidPhone();
             return;
         }
 
-        // Validazione dell'email
-        if (!Patterns.EMAIL_ADDRESS.matcher(emailB).matches()) {
-            errorMessage.append("L'indirizzo email non è valido. ");
-            return;
-        }
-
-        GeoPoint TEST = new GeoPoint(110,4);
+        //Variabile di test per la geolocalizzazione
+        GeoPoint TEST = new GeoPoint(-90,90);
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
         Veterinarian authorityUser = Veterinarian.Builder.create("", companyName, emailB)
@@ -137,9 +154,9 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
                 .build();
 
         // Tutti i dati sono validi, procedi con la registrazione
-        authorityUser.registerVeterinarian(companyName, emailB, passwordB, phoneB, TEST);
+        authorityUser.registerVeterinarian(this);
     }
-//Da implementare l'interfaccia tra fragment e presenter
+
     @Override
     public void onRegisterSuccess() {
         registerFragment.onRegisterSuccess();
