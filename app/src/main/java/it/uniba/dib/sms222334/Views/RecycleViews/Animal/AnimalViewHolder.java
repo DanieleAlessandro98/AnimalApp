@@ -9,10 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 
@@ -79,10 +77,13 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
                  this.animalPhoto.setImageBitmap(animal.getPhoto());
              }
 
+             for(Visit visit:animal.getVisits()){
 
-             //TODO if there is a visit in at least one day
-             this.dangerIcon.setVisibility(View.VISIBLE);
-
+                 if (!DateUtilities.validateDate(visit.getDate(),2)){
+                     this.dangerIcon.setVisibility(View.VISIBLE);
+                     break;
+                 }
+             }
         }
 
 

@@ -1,7 +1,6 @@
 package it.uniba.dib.sms222334.Utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 
@@ -60,11 +59,11 @@ public final class DateUtilities {
      * Method to verify validity of date based on the minimun age
      *
      * @param date birthdate.
-     * @param minimunAgeYear minimun year age accepted.
+     * @param minimunAgeDays minimun days age accepted.
      *
-     * @return ageInMonth age expressed in text.
+     * @return if boolean check.
      */
-    public static Boolean validateAge(Date date,@IntRange(from = 0, to = 100) int minimunAgeYear) {
+    public static Boolean validateDate(Date date, @IntRange(from = 0, to = 36500) int minimunAgeDays) {
         Calendar birthdate = Calendar.getInstance();
         birthdate.setTime(date);
 
@@ -74,12 +73,7 @@ public final class DateUtilities {
 
         age += today.get(Calendar.DAY_OF_YEAR) - birthdate.get(Calendar.DAY_OF_YEAR);
 
-        if(age<0)
-            return false;
-
-        age=(int)Math.floor(age/365);
-
-        return age >= minimunAgeYear;
+        return age >= minimunAgeDays;
 
     }
 }

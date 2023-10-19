@@ -1,12 +1,11 @@
 package it.uniba.dib.sms222334.Presenters;
 
-import android.util.Log;
 import android.util.Patterns;
 
 import java.util.Date;
 
 import com.google.firebase.firestore.GeoPoint;
-import it.uniba.dib.sms222334.Activity.RegisterActivity;
+
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Fragmets.RegisterFragment;
 import it.uniba.dib.sms222334.Models.Private;
@@ -49,7 +48,7 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
             return;
         }
 
-        if (!DateUtilities.validateAge(birthDate, 18)){
+        if (!DateUtilities.validateDate(birthDate, 18*365)){
             errorMessage.append("Devi avere 18 anni. ");
             return;
         }

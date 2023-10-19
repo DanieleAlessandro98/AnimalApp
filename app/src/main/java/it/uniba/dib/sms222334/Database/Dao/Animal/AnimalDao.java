@@ -322,7 +322,7 @@ public class AnimalDao {
                     final long MAX_SIZE = 4096 * 4096; // dimensione massima dell'immagine in byte
 
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference().child("images/profiles/animals/"+document.getId()+".jpg");
+                    StorageReference storageRef = storage.getReference().child(Animal.PHOTO_PATH+document.getId()+".jpg");
 
                     storageRef.getBytes(MAX_SIZE).addOnSuccessListener(bytes -> {
                         // Converti i dati dell'immagine in un oggetto Bitmap
@@ -392,7 +392,6 @@ public class AnimalDao {
                 .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
                 .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
                 .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
-                //.setPhoto(document.getString(AnimalAppDB.Animal.COLUMN_NAME_PHOTO))   TODO: Da finire
                 .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE))
                 .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
                 .setOwner(resultPrivateRefernce);
