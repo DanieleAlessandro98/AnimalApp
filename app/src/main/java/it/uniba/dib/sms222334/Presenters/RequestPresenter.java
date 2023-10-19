@@ -69,6 +69,7 @@ public class RequestPresenter {
             @Override
             public void onDataRetrieved(Object result) {
                 reportFragment.showRequestCreateSuccessful();
+                reportFragment.loadReportsAndRequests();
             }
 
             @Override

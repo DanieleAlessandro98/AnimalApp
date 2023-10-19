@@ -96,6 +96,7 @@ public class ReportPresenter {
                     @Override
                     public void onPhotoUploaded() {
                         reportFragment.showReportCreateSuccessful();
+                        reportFragment.loadReportsAndRequests();
                     }
 
                     @Override

@@ -119,50 +119,10 @@ public class HomeFragment extends Fragment {
         final View layout= inflater.inflate(R.layout.home_fragment,container,false);
 
         recyclerView = layout.findViewById(R.id.list_item);
-
-        reportPresenter.getReportList(new DatabaseCallbackResult() {
-            @Override
-            public void onDataRetrieved(Object result) {
-            }
-
-            @Override
-            public void onDataRetrieved(ArrayList results) {
-                final ArrayList combinedList = new ArrayList(results);
-
-                requestPresenter.getRequestList(new DatabaseCallbackResult() {
-                    @Override
-                    public void onDataRetrieved(Object result) {
-                    }
-
-                    @Override
-                    public void onDataRetrieved(ArrayList results) {
-                        combinedList.addAll(results); // Unisci le due liste
-
-                        adapter = new RequestReportAdapter(combinedList, getContext());
-                        recyclerView.setAdapter(adapter);
-                    }
-
-                    @Override
-                    public void onDataNotFound() {
-                    }
-
-                    @Override
-                    public void onDataQueryError(Exception e) {
-                    }
-                });
-            }
-
-            @Override
-            public void onDataNotFound() {
-            }
-
-            @Override
-            public void onDataQueryError(Exception e) {
-            }
-        });
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
+
+        loadReportsAndRequests();
 
         Log.d(TAG,recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item)+"");
 
@@ -532,6 +492,49 @@ public class HomeFragment extends Fragment {
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    public void loadReportsAndRequests() {
+        reportPresenter.getReportList(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+                final ArrayList combinedList = new ArrayList(results);
+
+                requestPresenter.getRequestList(new DatabaseCallbackResult() {
+                    @Override
+                    public void onDataRetrieved(Object result) {
+                    }
+
+                    @Override
+                    public void onDataRetrieved(ArrayList results) {
+                        combinedList.addAll(results); // Unisci le due liste
+
+                        adapter = new RequestReportAdapter(combinedList, getContext());
+                        recyclerView.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onDataNotFound() {
+                    }
+
+                    @Override
+                    public void onDataQueryError(Exception e) {
+                    }
+                });
+            }
+
+            @Override
+            public void onDataNotFound() {
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+            }
+        });
     }
 
     private RequestType findRequestType(Spinner requestSpinner) {
