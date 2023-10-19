@@ -21,11 +21,9 @@ public class Validations {
     public static boolean isValidEmail(String email) {
         return (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches());
     }
-
     public static boolean isValidPassword(String password) {
         return (password.length() >= 6);
     }
-
     public static boolean isValidDateBirth(Date dateBirth) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateFormat.setLenient(false);
@@ -42,6 +40,13 @@ public class Validations {
         } catch (ParseException e) {
             return false;
         }
+    }
+    public static boolean isValidPhone(String phone) {
+        return phone.matches("[0-9]+");
+    }
+
+    public static boolean isValidCompanyName(String company) {
+        return (company.length() >= 4 && company.matches("[a-zA-Z]+"));
     }
 
     public static boolean isValidReportDescription(String reportDescription) {

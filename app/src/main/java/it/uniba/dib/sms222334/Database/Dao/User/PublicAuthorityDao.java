@@ -110,20 +110,18 @@ public class PublicAuthorityDao {
                 });
     }
 
-    public void createPublicAuthority(PublicAuthority publicAuthority, final UserCallback.UserRegisterCallback callback){
-
+    public void createPublicAuthority(PublicAuthority PublicAuthority, final UserCallback.UserRegisterCallback callback){
         List<DocumentReference> dr= new ArrayList<>();
 
-
         Map<String, Object> new_authority = new HashMap<>();
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME, publicAuthority.getName());
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL, publicAuthority.getEmail());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME, PublicAuthority.getName());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL, PublicAuthority.getEmail());
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,publicAuthority.getNBeds());
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, publicAuthority.getPassword());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,0);
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, PublicAuthority.getPassword());
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "/images/profiles/users/default.jpg");
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, publicAuthority.getPhone());
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, publicAuthority.getLegalSite());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, PublicAuthority.getPhone());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, PublicAuthority.getLegalSite());
 
         collectionPublicAuthority.add(new_authority)
                 .addOnSuccessListener(documentReference -> {

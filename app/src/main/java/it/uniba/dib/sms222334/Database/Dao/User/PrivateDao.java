@@ -194,7 +194,6 @@ public final class PrivateDao {
     public void createPrivate(Private Private, final UserCallback.UserRegisterCallback callback){
         List<DocumentReference> dr= new ArrayList<>();
 
-
         Map<String, Object> new_private = new HashMap<>();
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_NAME, Private.getName());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, Private.getSurname());
@@ -206,7 +205,7 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
-        //TODO: Creare Autentication
+
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());

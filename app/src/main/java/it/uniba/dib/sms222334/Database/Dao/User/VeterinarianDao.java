@@ -1,8 +1,20 @@
 package it.uniba.dib.sms222334.Database.Dao.User;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -27,22 +39,30 @@ public class VeterinarianDao {
         return veterinarian_requested_builder.build();
     }
 
-    // TODO: createVeterinarian metodo
-    //TODO: Creare Autentication
+    public void createVeterinarian(Veterinarian Veterinarian, final UserCallback.UserRegisterCallback callback){
 
-    //Callback per far tornare dalla pagina di registrazione a quella di login (DA INSERIRE NEL METODO createVeterinarian)
-    /*                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-        @Override
-        public void onSuccess(DocumentReference documentReference) {
-            Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-            callback.onRegisterSuccess();
-        }
-    })
-            .addOnFailureListener(new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception e) {
-            Log.w(TAG, "Error adding document", e);
-            callback.onRegisterFail();
-        }
-    });*/
+        Map<String, Object> new_veterinarian = new HashMap<>();
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME, Veterinarian.getName());
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL, Veterinarian.getEmail());
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD, Veterinarian.getPassword());
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, "/images/profiles/users/default.jpg");
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER, Veterinarian.getPhone());
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, Veterinarian.getLegalSite());
+
+        collectionVeterinarian.add(new_veterinarian)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                        callback.onRegisterSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                        callback.onRegisterFail();
+                    }
+                });
+    }
 }
