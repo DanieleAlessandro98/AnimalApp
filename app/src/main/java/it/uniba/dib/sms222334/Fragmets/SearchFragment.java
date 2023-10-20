@@ -69,14 +69,15 @@ public class SearchFragment extends Fragment {
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        ArrayList<User> listaProva = new ArrayList<>();
+        ArrayList<User> listaProfilo = new ArrayList<>();
 
         VeterinarianPresenter presenter = new VeterinarianPresenter();
-        presenter.action_getVeterinarian(new VeterinarianDao.OnVeterinarianListener() {
+
+        presenter.action_getVeterinarian(new VeterinarianDao.OnCombinedListener() {
             @Override
-            public void onGetVeterinarianListener(List<Veterinarian> veterinarianList) {
-                listaProva.addAll(veterinarianList);
-                adapter = new VeterinarianAuthoritiesAdapter(listaProva, getContext());
+            public void onGetCombinedData(List<User> UserList) {
+                listaProfilo.addAll(UserList);
+                adapter = new VeterinarianAuthoritiesAdapter(listaProfilo, getContext());
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 recyclerView.setAdapter(adapter);
@@ -95,7 +96,6 @@ public class SearchFragment extends Fragment {
                 });
             }
         });
-
 
         return layout;
     }
