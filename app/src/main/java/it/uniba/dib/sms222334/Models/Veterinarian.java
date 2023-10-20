@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
@@ -43,12 +42,12 @@ public class Veterinarian extends User implements Parcelable{
         this.visitList=new ArrayList<>();
     }
 
-    public static void getVeterinarian(final VeterinarianDao.OnVeterinarianListener listener){
+    public static void getVeterinarianAndPublicAuthority(final VeterinarianDao.OnCombinedListener listener){
         VeterinarianDao dao = new VeterinarianDao();
-        dao.getVeterinariansDao(new VeterinarianDao.OnVeterinarianListener() {
+        dao.getVeterinariansAndPublicAuthorities(new VeterinarianDao.OnCombinedListener() {
             @Override
-            public void onGetVeterinarianListener(List<Veterinarian> veterinarianList) {
-                listener.onGetVeterinarianListener(veterinarianList);
+            public void onGetCombinedData(List<User> UserList) {
+                listener.onGetCombinedData(UserList);
             }
         });
     }

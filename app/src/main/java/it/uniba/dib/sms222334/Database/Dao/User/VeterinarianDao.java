@@ -2,6 +2,8 @@ package it.uniba.dib.sms222334.Database.Dao.User;
 
 import android.util.Log;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -17,11 +19,14 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
+
 public class VeterinarianDao {
     private final String TAG = "VeterinarianDao";
     final private CollectionReference collectionVeterinarian = FirebaseFirestore.getInstance().collection(AnimalAppDB.Veterinarian.TABLE_NAME);
-
+    final private CollectionReference collectionPublicAuthority = FirebaseFirestore.getInstance().collection(AnimalAppDB.PublicAuthority.TABLE_NAME);
     public Veterinarian findVeterinarian(DocumentSnapshot document) {
         Veterinarian.Builder veterinarian_requested_builder = Veterinarian.Builder.
                 create(
@@ -64,42 +69,62 @@ public class VeterinarianDao {
                 });
     }
 
-    public void getVeterinariansDao(final OnVeterinarianListener listener){
-        ArrayList<Veterinarian> list = new ArrayList<>();
-        collectionVeterinarian.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null) {
-                    for (QueryDocumentSnapshot document : querySnapshot) {
-                        String documentId = document.getId();
-                        String companyName = document.getString("company_name");
-                        String email = document.getString("email");
-                        GeoPoint site = document.getGeoPoint("site");
-
-                        assert site != null;
-                        Veterinarian veterinarian = Veterinarian.Builder.create(documentId,companyName,email)
-                                .setLegalSite(new GeoPoint(site.getLatitude(),site.getLongitude())).build();
-
-                        System.out.println("ID: " + documentId);
-                        System.out.println("Company Name: " + companyName);
-                        System.out.println("Email: " + email);
-                        System.out.println("Site (Latitude): " + site.getLatitude());
-                        System.out.println("Site (Longitude): " + site.getLongitude());
-                        list.add(veterinarian);
-                    }
-                    listener.onGetVeterinarianListener(list);
-                }else{
-                    Log.w("W","vuoto");
-                    listener.onGetVeterinarianListener(new ArrayList<>());
-                }
-            } else {
-                Log.w("W","query fallito");
-                listener.onGetVeterinarianListener(new ArrayList<>());
-            }
-        });
+    public interface OnCombinedListener {
+        void onGetCombinedData(List<User> UserList);
     }
 
-    public interface OnVeterinarianListener {
-        void onGetVeterinarianListener(List<Veterinarian> veterinarianList);
+    public void getVeterinariansAndPublicAuthorities(final OnCombinedListener listener) {
+        ArrayList<User> list = new ArrayList<>();
+        ArrayList<User> veterinarians = new ArrayList<>();
+        ArrayList<PublicAuthority> publicAuthorities = new ArrayList<>();
+
+        Task<QuerySnapshot> veterinariansTask = collectionVeterinarian.get();
+        Task<QuerySnapshot> publicAuthoritiesTask = collectionPublicAuthority.get();
+        Tasks.whenAllSuccess(veterinariansTask, publicAuthoritiesTask)
+                .addOnSuccessListener(v -> {
+                    QuerySnapshot veterinariansSnapshot = veterinariansTask.getResult();
+                    QuerySnapshot publicAuthoritiesSnapshot = publicAuthoritiesTask.getResult();
+
+                    if (veterinariansSnapshot != null) {
+                        for (QueryDocumentSnapshot document : veterinariansSnapshot) {
+                            String documentId = document.getId();
+                            String companyName = document.getString("company_name");
+                            String email = document.getString("email");
+                            GeoPoint site = document.getGeoPoint("site");
+
+                            assert site != null;
+                            Veterinarian veterinarian = Veterinarian.Builder.create(documentId,companyName,email)
+                                    .setLegalSite(new GeoPoint(site.getLatitude(),site.getLongitude())).build();
+
+                            list.add(veterinarian);
+                        }
+                    } else {
+                        Log.w("W", "Veterinarians data is empty");
+                    }
+
+                    if (publicAuthoritiesSnapshot != null) {
+                        for (QueryDocumentSnapshot document : publicAuthoritiesSnapshot) {
+                            String documentId = document.getId();
+                            String companyName = document.getString("company_name");
+                            String email = document.getString("email");
+                            GeoPoint site = document.getGeoPoint("site");
+
+                            assert site != null;
+                            PublicAuthority publicAuthority = PublicAuthority.Builder.create(documentId,companyName,email)
+                                    .setLegalSite(new GeoPoint(site.getLatitude(),site.getLongitude())).build();
+                            list.add(publicAuthority);
+                        }
+                    } else {
+                        Log.w("W", "Public Authorities data is empty");
+                    }
+
+                    listener.onGetCombinedData(list);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("W", "Query failed: " + e.getMessage());
+
+                    // Notify the listener with empty data or an error
+                    listener.onGetCombinedData(new ArrayList<>());
+                });
     }
 }
