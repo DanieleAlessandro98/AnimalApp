@@ -80,7 +80,7 @@ public class ProfileFragment extends Fragment {
 
     private int inflatedLayout;
 
-    UserRole role;
+    private UserRole role;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
@@ -106,6 +106,8 @@ public class ProfileFragment extends Fragment {
     private Button editPhotoButton;
 
     private Dialog editDialog;
+    private TextView nameView;
+    private TextView emailView;
 
     public ProfileFragment(){
 
@@ -129,6 +131,7 @@ public class ProfileFragment extends Fragment {
 
         changeTab(TabPosition.ANIMAL,false);
     }
+
 
     @Nullable
     @Override
@@ -165,8 +168,8 @@ public class ProfileFragment extends Fragment {
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
 
-        TextView nameView = layout.findViewById(R.id.name);
-        TextView emailView = layout.findViewById(R.id.email);
+        nameView = layout.findViewById(R.id.name);
+        emailView = layout.findViewById(R.id.email);
 
 
         nameView.setText(username);
@@ -354,7 +357,11 @@ public class ProfileFragment extends Fragment {
 
                 String visitName = doctorName.getText().toString();
 
-                Visit value = visit.createVisit(visitType,ListFragment.animalList.get(posizione),dateConvert,visitName);
+                Visit value = visit.createVisit(visitType,
+                        ListFragment.animalList.get(posizione),
+                        dateConvert,
+                        visitName,
+                        profile.getFirebaseID());
                 if (value != null){
                     ListFragment.visitList.add(value);
                     editDialog.cancel();

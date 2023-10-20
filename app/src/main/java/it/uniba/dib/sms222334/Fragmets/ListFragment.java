@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
+import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
@@ -84,7 +86,7 @@ public class ListFragment extends Fragment{
 
     AnimalPresenter animalPresenter;
 
-    User currentUser; //profile of the user logged
+    public static User currentUser; //profile of the user logged
     UserRole currentUserRole;
     static Animal animal;
 
@@ -157,7 +159,7 @@ public class ListFragment extends Fragment{
 
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
 
-    private void launchAddDialog() {
+    private void launchAddDialog(List <Animal> animalList) {
 
         final AnimalAppDialog addDialog=new AnimalAppDialog(getContext());
 
@@ -311,11 +313,20 @@ public class ListFragment extends Fragment{
 
                     Spinner relationSpinner= addDialog.findViewById(R.id.relation_type);
                     // TODO ricambiare in xml textview in spinner di animalchoose
-                    TextView animalChooseSpinner = addDialog.findViewById(R.id.animal_chooser);
+                    String [] getAnimal = new String[1];
+                    Spinner animalChooseSpinner = addDialog.findViewById(R.id.animal_chooser);
                     Button createVisit = addDialog.findViewById(R.id.save_button);
 
+                    ArrayList <String> animalListName = new ArrayList<>();
 
-                    String [] getAnimal = new String[1];
+                    for (int i = 0; i < animalList.size(); i++) {
+                        animalListName.add(animalList.get(i).getName());
+                    }
+
+                    ArrayAdapter <String> animal_chooseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,animalListName);
+                    animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    animalChooseSpinner.setAdapter(animal_chooseAdapter);
+
                     final Relation.relationType[] type = new Relation.relationType[1];
                     relationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
@@ -329,31 +340,41 @@ public class ListFragment extends Fragment{
                         }
                     });
 
-                    getAnimal[0] = animalChooseSpinner.getText().toString();
-
-                    /*animalChooseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    animalChooseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                             getAnimal[0] = adapterView.getItemAtPosition(i).toString();
+                            System.out.println("get animal  "+getAnimal[0]);
                         }
 
                         @Override
                         public void onNothingSelected(AdapterView<?> adapterView) {
 
                         }
-                    });*/
-
+                    });
                     createVisit.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            RelationPresenter relation = new RelationPresenter();
-                            Relation relationValue = relation.createRelation(animal.getFirebaseID(), type[0],animal);
-                            if(relationValue != null) {
-                                addDialog.cancel();
-                                relationList.add(relationValue);
-                                recyclerView.setAdapter(relationAdapter);
+                            Animal chooseAnimal = null;
+
+                            for (int i = 0; i < animalList.size(); i++) {
+                                if (animalList.get(i).getName().equals(getAnimal[0])) {
+                                    chooseAnimal = animalList.get(i);
+                                }
+                            }
+
+                            if (chooseAnimal != null) {
+                                RelationPresenter relation = new RelationPresenter();
+                                Relation relationValue = relation.createRelation(animal.getFirebaseID(), type[0], chooseAnimal);
+                                if (relationValue != null) {
+                                    addDialog.cancel();
+                                    relationList.add(relationValue);
+                                    recyclerView.setAdapter(relationAdapter);
+                                } else {
+                                    System.out.println("there are a error");
+                                }
                             }else{
-                                System.out.println("there are a error");
+                                Log.w(TAG,"Animal Class not found");
                             }
                         }
                     });
@@ -445,7 +466,7 @@ public class ListFragment extends Fragment{
             addButton.setVisibility(View.GONE);
         }
         else{
-            addButton.setOnClickListener(v -> launchAddDialog() );
+            addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
         }
 
 
@@ -496,18 +517,31 @@ public class ListFragment extends Fragment{
 
     public static VisitAdapter visitAdapter;
     public static ArrayList<Visit> visitList = new ArrayList<>();
+    public static int position = -1;
 
-    private void setVisitList(){
-        addButton.setVisibility(View.GONE);
+    public void setVisitList(){
 
-        visitAdapter=new VisitAdapter(visitList,getContext());
 
-        visitAdapter.setOnVisitClickListener(visit -> {
-            FragmentManager fragmentManager=getParentFragmentManager();
+        VisitPresenter visitPresenter = new VisitPresenter();
+        visitPresenter.action_view(currentUser.getRole(), new VisitDao.OnVisitListener() {
+            @Override
+            public void onGetVisitListener(List<Visit> visitGetList) {
+                visitList.clear();
+                visitList.addAll(visitGetList);
 
-            FragmentTransaction transaction= fragmentManager.beginTransaction();
-            transaction.addToBackStack("itemPage");
-            transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
+                visitAdapter=new VisitAdapter(visitList,getContext());
+                visitAdapter.setOnVisitClickListener(visit -> {
+                    position = visitList.indexOf(visit);
+                    FragmentManager fragmentManager=getParentFragmentManager();
+                    FragmentTransaction transaction= fragmentManager.beginTransaction();
+                    transaction.addToBackStack("itemPage");
+                    transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
+                });
+
+
+
+                recyclerView.setAdapter(visitAdapter);
+            }
         });
 
         SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
@@ -521,22 +555,23 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 VisitPresenter visit = new VisitPresenter();
-
+                                System.out.println("entrato in click");
                                 if (visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID())) {
+                                    System.out.println("eliminato visita");
                                     visitAdapter.removeVisit(pos);
                                 }else{
                                     Log.w(TAG,"Delete Visit is Failure");
                                 }
-
                                 return null;
                             });
+
                         }
                 ));
             }
         };
 
+        addButton.setVisibility(View.GONE);
 
-        recyclerView.setAdapter(visitAdapter);
     }
 
     private void setExpenseList(){
@@ -544,7 +579,7 @@ public class ListFragment extends Fragment{
         if(profileType != ProfileFragment.Type.ANIMAL)
             addButton.setVisibility(View.GONE);
         else
-            addButton.setOnClickListener(v -> launchAddDialog() );
+            addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
 
         ArrayList<Expense> expenseList=new ArrayList<>();
 
@@ -557,7 +592,6 @@ public class ListFragment extends Fragment{
         expenseList.add(e1);
         expenseList.add(e1);
         expenseList.add(e1);
-
 
         ExpenseAdapter expenseAdapter=new ExpenseAdapter(expenseList,getContext());
 
@@ -584,11 +618,24 @@ public class ListFragment extends Fragment{
     private ArrayList<Relation> relationList = new ArrayList<>();
     private RelationAdapter relationAdapter;
 
-    private void setRelationList(){
-        relationAdapter=new RelationAdapter(relationList,getContext());
+    public void setRelationList(){
+        RelationPresenter presenter = new RelationPresenter();
+        presenter.action_getRelation(currentUser.getFirebaseID(), animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationListGet, List<Animal> animalListGet) {
+                relationList=new ArrayList<>();
+                relationList.addAll(relationListGet);
 
-        addButton.setOnClickListener(v -> launchAddDialog() );
 
+                final Calendar c = Calendar.getInstance();
+                c.add(Calendar.DAY_OF_MONTH,-1600);
+
+                relationAdapter=new RelationAdapter(relationList,getContext());
+
+                addButton.setOnClickListener(v -> launchAddDialog(animalListGet));
+                recyclerView.setAdapter(relationAdapter);
+            }
+        });
         SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -599,15 +646,12 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 RelationPresenter relation = new RelationPresenter();
-
                                 String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
                                 String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
                                 if (relation.deleteRelation(idAnimal1,idAnimal2)) {
                                     relationAdapter.removeRelation(pos);
                                     System.out.println("eliminato");
                                 }
-
-
                                 return null;
                             });
                         }
@@ -615,7 +659,6 @@ public class ListFragment extends Fragment{
             }
         };
 
-        recyclerView.setAdapter(relationAdapter);
     }
 
     private SimpleTextAdapter<Pathology> pathologyAdapter;
@@ -623,9 +666,12 @@ public class ListFragment extends Fragment{
 
     public void setHealtList(ArrayList<Pathology> listPathology){
 
-        pathologyAdapter=new SimpleTextAdapter<>(listPathology);
+        pathologyList = new ArrayList<>();
+        pathologyList.addAll(listPathology);
 
-        addButton.setOnClickListener(v -> launchAddDialog() );
+        pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
+
+        addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
 
         SwipeHelper PathologySwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
@@ -653,8 +699,9 @@ public class ListFragment extends Fragment{
 
     }
 
-    private void setFoodList(){
-        addButton.setOnClickListener(v -> launchAddDialog() );
+
+    public void setFoodList(){
+        addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
 
         ArrayList<Food> foodList=new ArrayList<>();
 

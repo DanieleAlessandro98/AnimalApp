@@ -51,12 +51,12 @@
             android:background="@drawable/check_button_shape"
             android:textSize="16sp" />
 
-        <EditText
+        <Spinner
             android:id="@+id/animal_chooser"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
             android:background="@drawable/check_button_shape"
             android:textSize="16sp" />
 

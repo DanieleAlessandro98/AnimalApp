@@ -2,9 +2,10 @@ package it.uniba.dib.sms222334.Models;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Visit extends Document implements Serializable {
 
@@ -13,31 +14,32 @@ public class Visit extends Document implements Serializable {
 
     public enum visitState{EXECUTED,NOT_EXECUTED,BE_REVIEWED}
     private String name;
-
+    private String IDowner;
     private visitType type;
     private visitState state;   // stato
 
-    private String doctorName;
+    private String doctorID;
     private Date date;
     private diagnosisType Diagnosis;
     private String medicalNotes;
 
     private Animal animal;
 
-    private Visit(String id, String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
+    private Visit(String id,String IDowner,String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
         super(id);
 
         this.name = name;
         this.state = state;
         this.type=type;
         this.date=date;
-        this.doctorName=doctorName;
+        this.doctorID =doctorName;
         this.Diagnosis = diagnosis;
         this.medicalNotes = medicalNotes;
         this.animal=animal;
+        this.IDowner = IDowner;
     }
 
-
+    public String getIDowner(){return IDowner;}
     public String getName() {
         return name;
     }
@@ -50,12 +52,12 @@ public class Visit extends Document implements Serializable {
         return type;
     }
 
-    public String getDoctorName(){
-        return doctorName;
+    public String getDoctorFirebaseID(){
+        return doctorID;
     }
 
-    public void setDoctorName(String doctorName){
-        this.doctorName=doctorName;
+    public void setDoctorFirebaseID(String doctorID){
+        this.doctorID =doctorID;
     }
 
     public void setType(visitType type) {
@@ -116,24 +118,32 @@ public class Visit extends Document implements Serializable {
         private String BmedicalNotes="";
 
         private Animal banimal;
+        private String bIDowner;
 
-        private Builder(final String id, final String name, final visitType type, final Date date){
+        private Builder(final String id,final String name, final visitType type, final Date date){
             this.bID = id;
             this.Bname=name;
             this.Btype=type;
             this.Bdate=date;
         }
 
-        public static Builder create(final String id, final String name, final visitType type, final Date date){
-            return new Builder(id, name,type,date);
+        public static Builder create(final String id,final String name, final visitType type, final Date date){
+            return new Builder(id,name,type,date);
         }
 
         public static Builder createFrom(Visit visit){
-            return new Builder(visit.getFirebaseID(), visit.getName(),visit.getType(),visit.getDate())
-                    .setDoctorName(visit.getDoctorName())
+            return new Builder(visit.getFirebaseID(),visit.getName(),visit.getType(),visit.getDate())
+                    .setDoctorName(visit.getDoctorFirebaseID())
                     .setState(visit.getState())
                     .setDiagnosis(visit.getDiagnosis())
-                    .setMedicalNotes(visit.getMedicalNotes());
+                    .setMedicalNotes(visit.getMedicalNotes())
+                    .setIDowner(visit.getIDowner());
+
+        }
+
+        public Builder setIDowner(final String IDowner){
+            this.bIDowner=IDowner;
+            return this;
         }
 
         public Builder setName(final String Name){
@@ -177,13 +187,12 @@ public class Visit extends Document implements Serializable {
         }
 
         public Visit build(){
-            return new Visit(bID,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
+            return new Visit(bID,bIDowner,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
 
     public boolean createVisit(Visit visit){
         VisitDao dao = new VisitDao();
-        System.out.println("nome della visita "+visit.getName());
         return dao.createVisit(visit);
     }
 
@@ -201,6 +210,16 @@ public class Visit extends Document implements Serializable {
         VisitDao dao = new VisitDao();
         dao.editVisit(visit,idAnimal,name);
         return false;
+    }
+
+    public static void ViewVisit(UserRole idProfile,final VisitDao.OnVisitListener listener){
+        VisitDao dao = new VisitDao();
+        dao.viewVisitListDao(idProfile, new VisitDao.OnVisitListener() {
+            @Override
+            public void onGetVisitListener(List<Visit> visitList) {
+                listener.onGetVisitListener(visitList);
+            }
+        });
     }
 
 }

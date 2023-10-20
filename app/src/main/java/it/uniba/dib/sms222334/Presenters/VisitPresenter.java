@@ -1,9 +1,12 @@
 package it.uniba.dib.sms222334.Presenters;
 
 import java.util.Date;
+import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 /**
  * this Class handles the create, view, edit, remove and check Exist or currect of the visit
@@ -23,10 +26,11 @@ public class VisitPresenter {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }
 
-    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName){
-        if(visit_type != null && date != null && visitName != null && animal != null){
+    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName,String doctorID){
+        if(visit_type != null && date != null && visitName != null && animal != null && doctorID != null){
             Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
             visit.setAnimal(animal);
+            visit.setDoctorFirebaseID(doctorID);
 
             if(visit.createVisit(visit)){
                 System.out.println("creazione finita");
@@ -53,13 +57,14 @@ public class VisitPresenter {
         }
     }
 
-    public boolean removeVisit(String idVisit) {
-        if (isAlphaNumeric(idVisit)) {
+
+    public boolean removeVisit(String idVisit){
+        if (isAlphaNumeric(idVisit)){
             System.out.println("entrato in if di removeVisit()");
             if (Visit.removeVisit(idVisit)) {
                 System.out.println("vero di remove visit");
                 return true;
-            } else {
+            }else{
                 System.out.println("falso di remove visit");
                 return false;
             }
@@ -70,9 +75,15 @@ public class VisitPresenter {
     }
 
 
-
-    public void action_view(String idAnimale){
-
+    public void action_view(UserRole idProfile,final VisitDao.OnVisitListener listener){
+        if (idProfile != null){
+            Visit.ViewVisit(idProfile, new VisitDao.OnVisitListener() {
+                @Override
+                public void onGetVisitListener(List<Visit> visitList) {
+                    listener.onGetVisitListener(visitList);
+                }
+            });
+        }
     }
 
     public String getIdAnimale() {
