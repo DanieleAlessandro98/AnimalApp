@@ -22,12 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Models.SessionManager;
-import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
@@ -50,7 +52,7 @@ public class VisitFragment extends Fragment {
         Bundle args = new Bundle();
         args.putSerializable("visit", visit);
         myFragment.setArguments(args);
-
+        System.out.println("dati visita dal visitFragment: "+visit.getFirebaseID());
         return myFragment;
     }
 
@@ -69,7 +71,8 @@ public class VisitFragment extends Fragment {
 
         if(this.userRole== UserRole.VETERINARIAN){
             editButton = layout.findViewById(R.id.edit_button);
-            editButton.setOnClickListener(v -> launchEditDialogForVeterinarian());
+            System.out.println("visit in createview: "+this.visit.getFirebaseID()+" "+this.visit.getAnimal().getFirebaseID()+" "+this.visit.getName());
+            editButton.setOnClickListener(v -> launchEditDialogForVeterinarian(this.visit.getAnimal().getFirebaseID(),this.visit.getName()));
             editButton.setVisibility(View.VISIBLE);
         }
         else{
@@ -104,14 +107,14 @@ public class VisitFragment extends Fragment {
             this.diagnosisType.setText("");
         }
         this.medicalNote.setText(visit.getMedicalNotes());
-        this.doctorName.setText(visit.getDoctorName());
+        this.doctorName.setText(visit.getDoctorFirebaseID());
     }
 
     public void deleteVisit(){
 
     }
 
-    public void launchEditDialogForVeterinarian(){
+    public void launchEditDialogForVeterinarian(String idAnimal,String name){
         Visit editVisit=Visit.Builder.createFrom(this.visit).build();
 
 
@@ -152,7 +155,7 @@ public class VisitFragment extends Fragment {
         medicalNote.setText(editVisit.getMedicalNotes());
 
         EditText doctorName=editDialog.findViewById(R.id.doctor_name);
-        doctorName.setText(editVisit.getDoctorName());
+        doctorName.setText(editVisit.getDoctorFirebaseID());
 
         Button backButton= editDialog.findViewById(R.id.back_button);
 
@@ -165,24 +168,35 @@ public class VisitFragment extends Fragment {
                 android.R.layout.simple_list_item_1);
         diagnosisAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         diagnosiSpinner.setAdapter(diagnosisAdapter);
-        diagnosiSpinner.setSelection(editVisit.getDiagnosis().ordinal());
-
 
         Spinner examStateSpinner= editDialog.findViewById(R.id.exam_state_spinner);
         ArrayAdapter<CharSequence> examAdapter= ArrayAdapter.createFromResource(getContext(),R.array.visit_state,
                 android.R.layout.simple_spinner_item);
         examAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         examStateSpinner.setAdapter(examAdapter);
-        examStateSpinner.setSelection(editVisit.getState().ordinal());
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editVisit.setDoctorName(doctorName.getText().toString());
+                String date = dateTextView.getText().toString();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date dateConvert = null;
+                try {
+                    dateConvert = dateFormat.parse(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                editVisit.setDoctorFirebaseID(doctorName.getText().toString());
                 editVisit.setMedicalNotes(medicalNote.getText().toString());
                 editVisit.setDiagnosis(Visit.diagnosisType.values()[diagnosiSpinner.getSelectedItemPosition()]);
                 editVisit.setState(Visit.visitState.values()[examStateSpinner.getSelectedItemPosition()]);
-                saveVisit(editVisit);
+                editVisit.setDate(dateConvert);
+
+                VisitPresenter presenter = new VisitPresenter();
+                presenter.action_edit(editVisit,idAnimal,name);
+
+                saveVisit(editVisit);           //TODO verificare se serve o no
                 editDialog.cancel();
             }
         });

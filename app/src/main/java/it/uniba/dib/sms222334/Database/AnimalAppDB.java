@@ -1,8 +1,12 @@
 package it.uniba.dib.sms222334.Database;
 
 import android.content.ContentResolver;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.ReportType;
 
 public class AnimalAppDB {
     public static final String DATABASE_NAME = "AnimalApp";
@@ -112,6 +116,13 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_ANIMAL = "animalID";
     }
 
+    public static class Relation implements BaseColumns{
+        public static final String TABLE_NAME = "Relation";
+        public static final String COLUMN_NAME_IDANIMAL1 = "idAnimal1";
+        public static final String COLUMN_NAME_IDANIMAL2 = "idAnimal2";
+        public static final String COLUMN_NAME_REFERENCE = "Relation";
+    }
+
     public static class Photo implements BaseColumns {
         public static final String TABLE_NAME = "Photo";
 
@@ -124,5 +135,31 @@ public class AnimalAppDB {
 
         public static final String COLUMN_NAME_VIDEO = "video";
         public static final String COLUMN_NAME_ANIMAL = "animalID";
+    }
+
+    public static class Report implements BaseColumns {
+        public static final String TABLE_NAME = "Report";
+
+        public static final String COLUMN_NAME_USER_ID = "user_id";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_ANIMAL_SPECIES = "animal_species";
+        public static final String COLUMN_NAME_DESCRIPTION = "description";
+        public static final String COLUMN_NAME_LOCATION = "location";
+        public static final String COLUMN_NAME_PHOTO = "photo";
+        public static final String COLUMN_NAME_ANIMAL_NAME = "animal_name";
+        public static final String COLUMN_NAME_ANIMAL_AGE = "animal_age";
+        public static final String COLUMN_NAME_ANIMAL_ID = "animal_id";
+        public static final String COLUMN_NAME_SHOW_ANIMAL_PROFILE = "show_animal_profile";
+    }
+
+    public static class Request implements BaseColumns {
+        public static final String TABLE_NAME = "Request";
+
+        public static final String COLUMN_NAME_USER_ID = "user_id";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_DESCRIPTION = "description";
+        public static final String COLUMN_NAME_ANIMAL_SPECIES = "animal_species";
+        public static final String COLUMN_NAME_ANIMAL_ID = "animal_id";
+        public static final String COLUMN_NAME_BEDS_NUMBER = "beds_number";
     }
 }

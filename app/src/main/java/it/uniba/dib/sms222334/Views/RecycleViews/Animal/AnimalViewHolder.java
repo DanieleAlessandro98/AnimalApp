@@ -40,7 +40,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
             animalPhoto=itemView.findViewById(R.id.animal_photo);
             visitIcon=itemView.findViewById(R.id.visit_icon);
             pathologiesIcon=itemView.findViewById(R.id.pathologies_icon);
-            dangerIcon=itemView.findViewById(R.id.warning_icon);
+            dangerIcon=itemView.findViewById(R.id.report_icon);
 
             itemView.setOnClickListener(this);
         }
@@ -51,7 +51,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
 
         public void bind(Animal animal){
              this.animalName.setText(animal.getName());
-             this.SpeciesAge.setText(animal.getSpecies()+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
+             this.SpeciesAge.setText(animal.getSpeciesString(animal.getSpecies(), context)+", "+ DateUtilities.calculateAge(animal.getBirthDate(),context));
 
              if(animal.getVisitNumber()==0){
                  this.visitNumber.setText("");

@@ -3,40 +3,29 @@ package it.uniba.dib.sms222334.Database.Dao.User;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.ContentProvider.OwnerSuggestContentProvider;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
-import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Utils.Media;
 
 public final class PrivateDao {
@@ -194,7 +183,6 @@ public final class PrivateDao {
     public void createPrivate(Private Private, final UserCallback.UserRegisterCallback callback){
         List<DocumentReference> dr= new ArrayList<>();
 
-
         Map<String, Object> new_private = new HashMap<>();
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_NAME, Private.getName());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, Private.getSurname());
@@ -206,7 +194,7 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
-        //TODO: Creare Autentication
+
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
@@ -288,6 +276,7 @@ public final class PrivateDao {
                 .addOnSuccessListener(aVoid -> {
                     callback.notifyUpdateSuccesfull();
                     Log.d(TAG, "update fatto");
+                    //TODO Aggiornare dati del privato
                 })
                 .addOnFailureListener(e -> {
                     callback.notifyUpdateFailed();

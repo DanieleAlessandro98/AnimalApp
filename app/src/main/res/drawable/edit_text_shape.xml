@@ -1,63 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item app:no_input="false"
-        app:invalid_input="false"
-        app:valid_input="true"
-        app:warning_input="false">
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item app:invalid_input="false" app:no_input="false" app:valid_input="true" app:warning_input="false">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
-            <stroke android:color="@color/green" android:width="2dp"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:width="2dp" android:color="@color/green" />
         </shape>
     </item>
-
-    <item app:no_input="false"
-        app:invalid_input="true"
-        app:valid_input="false"
-        app:warning_input="false">
+    <item app:invalid_input="true" app:no_input="false" app:valid_input="false" app:warning_input="false">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
-            <stroke android:color="@color/red" android:width="2dp"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:width="2dp" android:color="@color/red" />
         </shape>
     </item>
-
-    <item app:no_input="false"
-        app:invalid_input="false"
-        app:valid_input="false"
-        app:warning_input="true">
+    <item app:invalid_input="false" app:no_input="false" app:valid_input="false" app:warning_input="true">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
-            <stroke android:color="@color/yellow" android:width="2dp"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:width="2dp" android:color="@color/yellow" />
         </shape>
     </item>
-
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
-            <stroke android:color="@color/edit_text_focused" android:width="2dp"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:width="2dp" android:color="@color/edit_text_focused" />
         </shape>
     </item>
-
-    <item app:no_input="true"
-          app:invalid_input="false"
-          app:valid_input="false"
-          app:warning_input="false">
+    <item app:invalid_input="false" app:no_input="true" app:valid_input="false" app:warning_input="false">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
-            <stroke android:color="@color/edit_text_normal" android:width="2dp"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:width="2dp" android:color="@color/edit_text_normal" />
         </shape>
     </item>
-
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="10dp"/>
-            <solid android:color="?attr/colorOnPrimary"/>
+            <corners android:radius="10dp" />
+            <solid android:color="?attr/colorOnPrimary" />
         </shape>
     </item>
 </selector>

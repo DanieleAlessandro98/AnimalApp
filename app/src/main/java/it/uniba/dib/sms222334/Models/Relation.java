@@ -3,6 +3,11 @@ package it.uniba.dib.sms222334.Models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import it.uniba.dib.sms222334.Database.Dao.RelationDao;
+
 public class Relation extends Document implements Parcelable{
 
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
@@ -14,6 +19,11 @@ public class Relation extends Document implements Parcelable{
         super(id);
         this.animal=animal;
         this.category= relationType;
+    }
+
+    public boolean createRelation(String id,String idAnimalChooser){
+        RelationDao dao = new RelationDao();
+        return dao.createRelation(this.category,id,idAnimalChooser);
     }
 
     public Relation.relationType getRelationType() {
@@ -32,9 +42,32 @@ public class Relation extends Document implements Parcelable{
         this.animal = animal;
     }
 
-    public static boolean deleteRelation(){
+    public static boolean deleteRelation(String idAnimal1,String idAnimal2){
+        RelationDao dao = new RelationDao();
+        dao.deleteRelation(idAnimal1,idAnimal2);
         return true;
     }
+
+    public static void getListAnimal(String ownerID, final RelationDao.OnRelationListener listener){
+        RelationDao dao = new RelationDao();
+        dao.getListAnimalDao(ownerID, new RelationDao.OnRelationListener() {
+            @Override
+            public void onGetAnimalListener(List<Animal> animalList) {
+                listener.onGetAnimalListener(animalList);
+            }
+        });
+    }
+
+    public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
+        RelationDao dao = new RelationDao();
+        dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
+                listener.onRelationAnimalListener(relationList,animalList);
+            }
+        });
+    }
+
     public static class Builder{
         private String bID;
         private relationType bcategory;

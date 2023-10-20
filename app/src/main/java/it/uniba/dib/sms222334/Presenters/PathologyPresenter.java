@@ -1,8 +1,11 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Models.Pathology;
 
 /**
@@ -19,9 +22,11 @@ public class PathologyPresenter {
     // this is the method that check if are error in the name and call the method for create the pathology
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
-            pathology = Pathology.Builder.create(idAnimal,name).build();
-            Pathology.createPathology();
-            return pathology;
+            pathology = Pathology.Builder.create("",idAnimal,name).build();
+            //TODO ho fatto passare per parametro perché non sto capendo come prendere i paramentri dalla Build
+            if(Pathology.createPathology(idAnimal,name)) {
+                return pathology;
+            }
         }else{
             System.out.println(name+"   the string is not currect");
         }
@@ -29,17 +34,26 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public boolean action_delete(String idPathology){
-        if (checkIfExist(idPathology) && isAlphaNumeric(idPathology)){
-            return Pathology.deletePathology(idPathology);  //TODO usare un controllo if per verificare l'esito della cancellazione
+    public boolean action_delete(String idAnimal, String name){
+        if (idAnimal != null && name != null){
+            boolean value =Pathology.deletePathology(idAnimal,name);
+            System.out.println("return value "+value);
+            return value;
         }else{
             System.out.println("the Pathology is not Exist");
             return false;
         }
     }
 
-    public void action_view(String idAnimal){
-
+    public static void action_getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
+        if (idAnimal != null){
+            Pathology.getPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
+                @Override
+                public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                    listener.onPathologyListReady(listPathology);
+                }
+            });
+        }
     }
 
     private boolean isAlphabet(String s){

@@ -2,27 +2,42 @@ package it.uniba.dib.sms222334.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
     private String name;
+    private String idAnimal;
     //TODO chiedere come si crea la classe nel present
-    private Pathology(String id, String name) {
+    private Pathology(String id,String idAnimal,String name) {
         super(id);
-
+        this.idAnimal = idAnimal;
         this.name = name;
     }
 
-    public static void createPathology (){
-
+    public static boolean createPathology (String idAnimal, String name){
+        PathologyDao dao = new PathologyDao();
+        return dao.createPathology(idAnimal,name);
     }
 
-    public static boolean deletePathology(String idPathology){
-        if(idPathology != null) {
-            return true;
-        }else{
-            return false;
-        }
+    public static boolean deletePathology(String idAnimal,String name){
+        PathologyDao dao = new PathologyDao();
+        return dao.deleteAnimalPathology(idAnimal,name);
+    }
+
+
+    public static void getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
+        PathologyDao dao = new PathologyDao();
+        dao.getListPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
+            @Override
+            public void onPathologyListReady(ArrayList<Pathology> listPathology) {
+                listener.onPathologyListReady(listPathology);
+            }
+        });
     }
 
     public String getName() {
@@ -33,26 +48,41 @@ public class Pathology extends Document implements Parcelable{
         this.name = name;
     }
 
+    public String getIdAnimal() {
+        return idAnimal;
+    }
+
+    public void setIdAnimal(String idAnimal) {
+        this.idAnimal = idAnimal;
+    }
+
     public static class Builder {
         private String bID;
+        private String bidAnimal;
         private String bName;
 
-        private Builder(final String id, final String name){
+        private Builder(final String id,final String idAnimal ,final String name){
             this.bID = id;
+            this.bidAnimal = idAnimal;
             this.bName=name;
         }
 
-        public static Builder create(final String id, final String name){
-            return new Builder(id,name);
+        public static Builder create(final String id,final String idAnimal, final String name){
+            return new Builder(id,idAnimal,name);
         }
-
+        
         public Builder setName(final String name){
             this.bName=name;
             return this;
         }
 
+        public Builder setIdAnimal(final String idAnimal){
+            this.bidAnimal=idAnimal;
+            return this;
+        }
+
         public Pathology build(){
-            return new Pathology(bID, bName);
+            return new Pathology(bID,bidAnimal,bName);
         }
     }
 

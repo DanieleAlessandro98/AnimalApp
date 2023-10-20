@@ -8,9 +8,11 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Veterinarian extends User implements Parcelable{
@@ -39,6 +41,16 @@ public class Veterinarian extends User implements Parcelable{
 
         this.legalSite = legalSite;
         this.visitList=new ArrayList<>();
+    }
+
+    public static void getVeterinarian(final VeterinarianDao.OnVeterinarianListener listener){
+        VeterinarianDao dao = new VeterinarianDao();
+        dao.getVeterinariansDao(new VeterinarianDao.OnVeterinarianListener() {
+            @Override
+            public void onGetVeterinarianListener(List<Veterinarian> veterinarianList) {
+                listener.onGetVeterinarianListener(veterinarianList);
+            }
+        });
     }
 
     public static class Builder {
@@ -141,17 +153,14 @@ public class Veterinarian extends User implements Parcelable{
     public void updateProfile() {
 
     }
-
-    // TODO: Da ultimare bisogna controllare il metodo da creare nel Dao dell'authority
-    public void registerVeterinarian(String companyName, String emailB, String passwordB, Long phoneB, GeoPoint TEST /*UserCallback.UserRegisterCallback callback*/) {
+    public void registerVeterinarian(UserCallback.UserRegisterCallback callback) {
 
         // Crea un'istanza di PublicAuthorityDao
-        PublicAuthorityDao VeterinarianDao = new PublicAuthorityDao();
+        VeterinarianDao veterinarianDao = new VeterinarianDao();
 
         // Chiamata al metodo di creazione di VeterinarianDao per salvare il Veterinarian nel database
-        // TODO:VeterinarianDao.createVeterinarian(this, callback);
+        veterinarianDao.createVeterinarian(this, callback);
     }
-
     @Override
     public void deleteProfile() {
 

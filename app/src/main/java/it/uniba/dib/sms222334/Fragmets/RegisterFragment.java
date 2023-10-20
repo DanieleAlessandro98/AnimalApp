@@ -2,7 +2,6 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,11 +23,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Activity.RegisterActivity;
-import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.RegisterPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
-import it.uniba.dib.sms222334.Views.Adapter.AnimalAppPageAdapter;
 
 public class RegisterFragment extends Fragment{
     private final String TAG="RegisterFragment";
@@ -47,7 +37,7 @@ public class RegisterFragment extends Fragment{
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText phoneNumberEditText;
-    private EditText dateEditText;
+    private TextView dateTextView;
     private EditText taxIDCodeEditText;
 
     private EditText companyNameEditText;
@@ -150,14 +140,14 @@ public class RegisterFragment extends Fragment{
         // Recupera i dati inseriti dall'utente dal layout corrente (in base al valore di inflatedLayout)
         switch (inflatedLayout) {
             case R.layout.private_register:
-                EditText nameEditText = layout.findViewById(R.id.nameEditText);
-                EditText surnameEditText = layout.findViewById(R.id.surnameEditText);
-                TextView dateTextView = layout.findViewById(R.id.date_text_view);
-                EditText taxIdEditText = layout.findViewById(R.id.tax_id_EditText);
+                nameEditText = layout.findViewById(R.id.nameEditText);
+                surnameEditText = layout.findViewById(R.id.surnameEditText);
+                dateTextView = layout.findViewById(R.id.date_text_view);
+                taxIDCodeEditText = layout.findViewById(R.id.tax_id_EditText);
                 Spinner prefixSpinner = layout.findViewById(R.id.prefix_spinner);
-                EditText phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
-                EditText emailEditText = layout.findViewById(R.id.emailEditText);
-                EditText passwordEditText = layout.findViewById(R.id.passwordEditText);
+                phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
+                emailEditText = layout.findViewById(R.id.emailEditText);
+                passwordEditText = layout.findViewById(R.id.passwordEditText);
 
                 // Recupera i valori inseriti dall'utente
                 String name = nameEditText.getText().toString();
@@ -170,7 +160,7 @@ public class RegisterFragment extends Fragment{
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }//FINE Data di nascita Check
-                String taxIDCode = taxIdEditText.getText().toString();
+                String taxIDCode = taxIDCodeEditText.getText().toString();
                 String prefix = prefixSpinner.getSelectedItem().toString();//Telefono
                 Long phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
                 String email = emailEditText.getText().toString();
@@ -180,14 +170,14 @@ public class RegisterFragment extends Fragment{
                 role = UserRole.PRIVATE;
                 registerPresenter.checkPrivateRegistration(name, surname, email, password, phone, birthDate, taxIDCode);
                 break;
+
             case R.layout.public_authority_register:
-                EditText companyNameEditText = layout.findViewById(R.id.nameEditText);
-                EditText siteEditText = layout.findViewById(R.id.surnameEditText);
+                companyNameEditText = layout.findViewById(R.id.nameEditText);
+                siteEditText = layout.findViewById(R.id.surnameEditText);
                 prefixSpinner = layout.findViewById(R.id.prefix_spinner);
                 phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
                 emailEditText = layout.findViewById(R.id.emailEditText);
                 passwordEditText = layout.findViewById(R.id.passwordEditText);
-
 
                 // Recupera i dati dal layout public_authority_register
                 String companyName = companyNameEditText.getText().toString();
@@ -197,23 +187,22 @@ public class RegisterFragment extends Fragment{
                 String emailA = emailEditText.getText().toString();
                 String passwordA = passwordEditText.getText().toString();
 
-
                 // Manda i dati al presenter
                 role = UserRole.PUBLIC_AUTHORITY;
                 registerPresenter.checkAuthorityRegistration(companyName, emailA, passwordA, phoneA, site);
                 break;
+
             case R.layout.veterinarian_register:
-                EditText companyNameEditTextB = layout.findViewById(R.id.nameEditText);
-                EditText siteEditTextB = layout.findViewById(R.id.surnameEditText);
+                companyNameEditText = layout.findViewById(R.id.nameEditText);
+                siteEditText = layout.findViewById(R.id.surnameEditText);
                 prefixSpinner = layout.findViewById(R.id.prefix_spinner);
                 phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
                 emailEditText = layout.findViewById(R.id.emailEditText);
                 passwordEditText = layout.findViewById(R.id.passwordEditText);
 
-
                 // Recupera i dati dal layout veterinarian_register
-                String companyNameB = companyNameEditTextB.getText().toString();
-                String siteB = siteEditTextB.getText().toString();
+                String companyNameB = companyNameEditText.getText().toString();
+                String siteB = siteEditText.getText().toString();
                 String prefixB = prefixSpinner.getSelectedItem().toString();//Telefono
                 Long phoneB = Long.valueOf(prefixB + phoneNumberEditText.getText().toString());//Telefono
                 String emailB = emailEditText.getText().toString();
@@ -223,6 +212,7 @@ public class RegisterFragment extends Fragment{
                 role = UserRole.VETERINARIAN;
                 registerPresenter.checkVeterinarianRegistration(companyNameB, emailB, passwordB, phoneB, siteB);
                 break;
+
         }
     }
     //Da Implementare
@@ -233,4 +223,25 @@ public class RegisterFragment extends Fragment{
         registerActivity.onRegisterFail(role);
     }
 
+    public void showInvalidPassword() {
+        passwordEditText.setError(this.getString(R.string.invalid_user_password));
+    }
+    public void showInvalidEmail() {
+        emailEditText.setError(this.getString(R.string.invalid_user_email));
+    }
+    public void showInvalidSurname() {
+        surnameEditText.setError(this.getString(R.string.invalid_user_surname));
+    }
+    public void showInvalidName() {
+        nameEditText.setError(this.getString(R.string.invalid_user_name));
+    }
+    public void showInvalidDateBirth() {
+        nameEditText.setError(this.getString(R.string.invalid_user_birthdate));
+    }
+    public void showInvalidPhone() {
+        phoneNumberEditText.setError(this.getString(R.string.invalid_user_phonenumber));
+    }
+    public void showInvalidCompanyName() {
+        nameEditText.setError(this.getString(R.string.invalid_user_companyname));
+    }
 }

@@ -41,7 +41,9 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Video;
-import it.uniba.dib.sms222334.Presenters.UserPresenter;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.ReportType;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class AnimalDao {
@@ -60,7 +62,7 @@ public class AnimalDao {
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_RACE, animal.getRace());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, SessionManager.getInstance().getCurrentUser().getFirebaseID());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_PHOTO, "");
-        new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies());
+        new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies().ordinal());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animal.getState().ordinal());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, new ArrayList<>());
 
@@ -140,7 +142,7 @@ public class AnimalDao {
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_RACE, animal.getRace());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, animal.getOwnerReference());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_PHOTO, "");
-        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies());
+        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies().ordinal());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animal.getState().ordinal());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, new ArrayList<>());
 
@@ -386,14 +388,17 @@ public class AnimalDao {
 
     private Animal findAnimal(DocumentSnapshot document, final String resultPrivateRefernce) {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
-        Animal.stateList state = Animal.stateList.values()[stateInteger];
+        AnimalStates state = AnimalStates.values()[stateInteger];
+
+        int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
+        AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
 
         Animal.Builder animal_find = Animal.Builder.create(document.getId(), state)
                 .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
                 .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
                 .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
                 .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE))
-                .setSpecies(document.getString(AnimalAppDB.Animal.COLUMN_NAME_SPECIES))
+                .setSpecies(species)
                 .setOwner(resultPrivateRefernce);
 
         return animal_find.build();
@@ -458,5 +463,40 @@ public class AnimalDao {
                 });
                 break;
         }
+    }
+
+    public void updateState(String documentID, ReportType reportType) {
+        Map<String, Object> animal = new HashMap<>();
+
+        int stateValue = AnimalStates.NULL.ordinal();
+        if (reportType == ReportType.LOST)
+            stateValue = AnimalStates.LOST.ordinal();
+        else if (reportType == ReportType.IN_DANGER)
+            stateValue = AnimalStates.IN_DANGER.ordinal();
+
+        if (documentID.equals("") || stateValue == 0)
+            return;
+
+        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, stateValue);
+
+        collectionAnimal.document(documentID)
+                .update(animal)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
+    }
+
+    public DocumentReference findAnimalRef(String animalID) {
+        if (animalID.equals(""))
+            return null;
+
+        return collectionAnimal.document(animalID);
     }
 }
