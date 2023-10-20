@@ -14,6 +14,7 @@ import java.io.IOException;
 
 public class Media {
     public final static String PROFILE_PHOTO_PATH = "images/profiles/users/";
+    public final static String REPORT_PHOTO_PATH = "images/reports/";
     public final static int IMAGE_DOWNLOADED_SIZE = 1024 * 1024 * 1024;
     public final static String PROFILE_PHOTO_EXTENSION = ".jpg";
 

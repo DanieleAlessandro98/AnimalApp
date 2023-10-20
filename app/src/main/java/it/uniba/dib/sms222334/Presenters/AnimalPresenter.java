@@ -1,14 +1,25 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
+import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
 import it.uniba.dib.sms222334.Fragmets.ListFragment;
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Owner;
+import it.uniba.dib.sms222334.Models.Private;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
@@ -23,6 +34,8 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
 
     boolean editFlag=false;
     boolean profilePictureFlag=false;
+
+    String ownerEmail;
     private Animal animal;
 
     AnimalFragment animalFragment;
@@ -50,18 +63,29 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
             validateMicroChip(animal.getMicrochip());
     }
 
-    public void editAnimal(Animal animal, String oldMicroChip,boolean profilePictureFlag) {
+    public void editAnimal(Animal animal,String ownerEmail, String oldMicroChip,boolean profilePictureFlag) {
         this.animal=animal;
         this.profilePictureFlag=profilePictureFlag;
+        this.ownerEmail=ownerEmail;
 
         editFlag=true;
 
         if(validateInput()){
             if(oldMicroChip.compareTo(animal.getMicrochip()) != 0)
                 validateMicroChip(animal.getMicrochip());
-            else
-                this.animalDao.editAnimal(animal,this,profilePictureFlag);
+            else{
+                updateAnimal();
+            }
         }
+
+    }
+
+    public static boolean checkAnimalProperty(Animal animal){
+        return animal.getOwnerReference().equals(SessionManager.getInstance().getCurrentUser().getFirebaseID());
+    }
+
+    private void updateAnimal(){
+        this.animalDao.editAnimal(animal,ownerEmail,this,profilePictureFlag);
 
     }
 
@@ -114,7 +138,7 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
         if(!editFlag)
             this.animalDao.createAnimal(animal,this);
         else
-            this.animalDao.editAnimal(animal,this,this.profilePictureFlag);
+            updateAnimal();
     }
 
     @Override
@@ -158,6 +182,6 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
 
     @Override
     public void failedUpdate() {
-
+        Toast.makeText(animalFragment.getContext(), "Errore durante la modifica dell'animale", Toast.LENGTH_SHORT).show();
     }
 }

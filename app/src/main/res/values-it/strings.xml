@@ -33,12 +33,13 @@
     <string name="add_animal">AGGIUNGI ANIMALE</string>
     <string name="add">AGGIUNGI</string>
     <string name="age">Età</string>
+    <string name="report_age">Età (Opzionale)</string>
     <string name="microchip">Microchip</string>
     <string name="edit_animal">MODIFICA ANIMALE</string>
     <string name="add_pathology">AGGIUNGI PATOLOGIA</string>
     <string name="add_food">AGGIUNGI CIBO</string>
     <string name="delete">Elimina</string>
-    <string name="add_warning">NUOVA SEGNALAZIONE</string>
+    <string name="add_report">NUOVA SEGNALAZIONE</string>
     <string name="add_request">NUOVA RICHIESTA</string>
     <string name="beds">Posti letto</string>
     <string name="description">Descrizione</string>
@@ -53,23 +54,55 @@
     <string name="day">Giorno</string>
     <string name="days">Giorni</string>
     <string name="born_today">nato oggi!</string>
-
     <string name="invalid_user_name">Nome non valido. Solo caratteri</string>
+    <string name="invalid_microchip">Microchip non valido. Richiesti 15 caratteri</string>
+    <string name="microchip_already_exist">Il microchip esiste già</string>
     <string name="invalid_user_surname">Cognome non valido. Solo caratteri</string>
     <string name="invalid_user_birthdate">Data di nascita non valida</string>
     <string name="invalid_user_email">Email non valida</string>
     <string name="invalid_user_password">Password non valida. Minimo 6 caratteri</string>
-    <string name="login_error">"Errore nell'accesso"</string>
-    <string name="profile_update_successful">"Profilo aggiornato con successo"</string>
+    <string name="login_error">Errore nell\'accesso</string>
+    <string name="profile_update_successful">Profilo aggiornato con successo</string>
     <string name="book_visit">Prenota visita</string>
     <string name="owner">Proprietario</string>
-    <string name="profile_delete_alert_title">"Cancellazione account"</string>
-    <string name="profile_delete_alert_mex1">"Sei sicuro di voler cancellare l'account?"</string>
-    <string name="profile_delete_alert_confirm">"Conferma"</string>
-    <string name="profile_delete_alert_cancel">"Annulla"</string>
-    <string name="profile_delete_successful">"Account cancellato con successo"</string>
-    <string name="profile_delete_failed">"Errore cancellazione account"</string>
+    <string name="profile_delete_alert_title">Cancellazione account</string>
+    <string name="profile_delete_alert_mex1">Sei sicuro di voler cancellare l\'account?</string>
+    <string name="confirm">CONFERMA</string>
+    <string name="profile_delete_alert_cancel">Annulla</string>
+    <string name="profile_delete_successful">Account cancellato con successo</string>
+    <string name="profile_delete_failed">Errore cancellazione account</string>
     <string name="photo_update_failed">"Errore caricamento foto"</string>
+    <string name="warning">ATTENZIONE</string>
+    <string name="info">INFO</string>
+    <string name="change_owner_warning">Confermando trasferirai l\'animale a</string>
+    <string name="delete_animal_warning">Questo animale verrà cancellato definitivamente</string>
+    <string name="right_owner_advice">Assicurati di selezionare un proprietario valido!</string>
+    <string name="invalid_report_description">"Inserisci una descrizione valida"</string>
+    <string name="report_name">Nome (Opzionale)</string>
+    <string name="report_create_successful">Report creato con successo</string>
+    <string name="request_create_successful">Richiesta creata con successo</string>
+    <string name="report_create_error">Errore. Report non creato</string>
+    <string name="request_create_error">Errore. Richiesta non creata</string>
+    <string name="report_animal_profile">Condividi profilo animale</string>
+    <string name="invalid_report_select_lost_option_1">Devi effettuare l\'accesso per selezionare questa opzione</string>
+    <string name="invalid_report_select_lost_option_2">Devi possedere almeno un animale per selezionare questa opzione</string>
+    <string name="invalid_report_age_1">La data deve essere composta da due parti; Esempio: "3 Mesi"</string>
+    <string name="invalid_report_age_2">La prima parte della data deve essere un numero</string>
+    <string name="invalid_report_age_3">La seconda parte della data deve essere una parola: giorno(i), mese(i), anno(i)</string>
+    <string name="invalid_report_selected_animal">Seleziona un animale dalla lista dei tuoi animali</string>
+    <string name="dog_species_name">Cane</string>
+    <string name="cat_species_name">Gatto</string>
+    <string name="fish_species_name">Pesce</string>
+    <string name="bird_species_name">Uccello</string>
+    <string name="rabbit_species_name">Coniglio</string>
+    <string name="find_animal_request_name">CERCO ANIMALE</string>
+    <string name="offer_animal_request_name">OFFRO ANIMALE</string>
+    <string name="offer_beds_request_name">OFFRO STALLO</string>
+    <string name="find_animal_report_name">TROVATO</string>
+    <string name="lost_animal_report_name">PERSO</string>
+    <string name="danger_animal_report_name">IN PERICOLO</string>
+    <string name="user_not_logged_report">Utente anonimo</string>
+    <string name="animal_name_unknown_report">Nome sconosciuto</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>
@@ -206,9 +239,9 @@
         <item>Offro animale</item>
     </string-array>
 
-    <string-array name="segnalation_type">
-        <item>Perso</item>
+    <string-array name="report_type">
         <item>Trovato</item>
+        <item>Perso</item>
         <item>In pericolo</item>
     </string-array>
 

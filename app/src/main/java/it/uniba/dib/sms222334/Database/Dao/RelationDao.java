@@ -26,6 +26,8 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Relation;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 
 public class RelationDao {
     private final String TAG="RelationDao";
@@ -99,9 +101,10 @@ public class RelationDao {
                             Timestamp timestamp = document.getTimestamp("birthdate");
                             if (timestamp != null) {
                                 Date birthDate = timestamp.toDate();
-
-                                Animal getAnimal = Animal.Builder.create(document.getId(),Animal.stateList.ADOPTED)
-                                        .setSpecies(document.getString("species"))
+                                int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
+                                AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
+                                Animal getAnimal = Animal.Builder.create(document.getId(), AnimalStates.ADOPTED)
+                                        .setSpecies(species)
                                         .setBirthDate(birthDate)
                                         .setName(document.getString("name"))
                                         .setOwner(document.getString("ownerID"))
@@ -193,9 +196,11 @@ public class RelationDao {
                         Timestamp timestamp = document.getTimestamp("birthdate");
                         if (timestamp != null) {
                             Date birthDate = timestamp.toDate();
+                            int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
                             //TODO da capire come sistemare lo stato dell'animale al suo tipo
-                            Animal getAnimal = Animal.Builder.create(document.getId(),Animal.stateList.ADOPTED)
-                                .setSpecies(document.getString("species"))
+                            AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
+                            Animal getAnimal = Animal.Builder.create(document.getId(),AnimalStates.ADOPTED)
+                                .setSpecies(species)
                                 .setBirthDate(birthDate)
                                 .setName(document.getString("name"))
                                 .setOwner(document.getString("ownerID"))

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <it.uniba.dib.sms222334.Views.Carousel.MediaContainer
+        android:id="@+id/item_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:src="@drawable/default_profile_image"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
+
+            <TextView
+                android:id="@+id/time_ago"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_alignParentTop="true"
+                android:text="3 minuti fa"
+                android:background="@drawable/rounded_container_shape"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:textStyle="bold"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/main_green"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+    </it.uniba.dib.sms222334.Views.Carousel.MediaContainer>
+</LinearLayout>

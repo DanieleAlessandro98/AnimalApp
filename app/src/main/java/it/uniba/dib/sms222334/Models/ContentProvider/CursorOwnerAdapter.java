@@ -20,7 +20,7 @@ import it.uniba.dib.sms222334.R;
 
 public class CursorOwnerAdapter extends CursorAdapter {
     private final String TAG="CursorOwnerAdapter";
-    public static final String[] COLUMNS = new String[]{BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1,SearchManager.SUGGEST_COLUMN_ICON_1};
+    public static final String[] COLUMNS = new String[]{BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1,SearchManager.SUGGEST_COLUMN_ICON_1,SearchManager.SUGGEST_COLUMN_TEXT_2};
 
     public CursorOwnerAdapter(Context context){
         super(context,null,0);

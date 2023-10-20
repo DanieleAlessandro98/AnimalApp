@@ -29,6 +29,8 @@ import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Fragmets.ListFragment;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Utils.AnimalSpecies;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class VisitDao {
@@ -275,8 +277,10 @@ public class VisitDao {
                         if (timestamp != null) {
                             Date birthDate = timestamp.toDate();
                             //TODO da capire come sistemare lo stato dell'animale al suo tipo
-                            Animal getAnimal = Animal.Builder.create(document.getId(), Animal.stateList.ADOPTED)
-                                    .setSpecies(document.getString("species"))
+                            int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
+                            AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
+                            Animal getAnimal = Animal.Builder.create(document.getId(), AnimalStates.ADOPTED)
+                                    .setSpecies(species)
                                     .setBirthDate(birthDate)
                                     .setName(document.getString("name"))
                                     .setOwner(document.getString("ownerID"))

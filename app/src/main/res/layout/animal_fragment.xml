@@ -7,6 +7,16 @@
     <RelativeLayout android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:background="@drawable/edged_container_shape">
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_picture"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:src="@drawable/default_profile_image"
+                android:background="@android:color/darker_gray"
+                android:layout_centerHorizontal="true"
+                app:strokeColor="?attr/colorAccent"
+                app:shapeAppearanceOverlay="@style/irregular"
+                android:scaleType="centerCrop"/>
             <Button
                 android:id="@+id/back_button"
                 android:layout_width="50dp"
@@ -28,54 +38,55 @@
                 android:background="@drawable/baseline_share_24"
                 android:backgroundTint="?attr/colorSecondary"/>
 
-            <Button
-                android:id="@+id/edit_button"
-                android:layout_width="27dp"
-                android:layout_height="27dp"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/name"
-                android:layout_marginTop="15dp"
-                android:background="@drawable/baseline_edit_24"
-                android:layout_marginLeft="5dp"/>
-
-
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textColor="?colorAccent"
-                android:textSize="40sp"
-                android:textStyle="bold"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentTop="true" />
-
-            <TextView
-                android:id="@+id/state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:paddingVertical="15dp"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:background="@drawable/start_end_faded_shape"
-                android:backgroundTint="@color/green"
-                android:layout_centerHorizontal="true"
-                android:elevation="10dp"
-                android:layout_below="@id/name" />
-
             <RelativeLayout
                 android:id="@+id/animal_info_container"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:background="@drawable/animal_info_bagde"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30dp"
+                android:background="@drawable/rounded_container_shape"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@+id/state"
+                android:layout_below="@+id/profile_picture"
+                android:layout_marginTop="-80dp"
                 android:elevation="10dp">
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="?colorAccent"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentTop="true" />
+
+                <Button
+                    android:id="@+id/edit_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/baseline_edit_24" />
+
+                <TextView
+                    android:id="@+id/state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:background="@drawable/start_end_faded_shape"
+                    android:backgroundTint="@color/green"
+                    android:layout_centerHorizontal="true"
+                    android:elevation="10dp"
+                    android:layout_below="@id/name" />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/state"
                     android:orientation="vertical"
                     android:layout_centerInParent="true">
 
@@ -84,14 +95,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingBottom="5dp"
                         android:gravity="center">
                         <TextView
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.3"
                             android:layout_height="wrap_content"
                             android:text="Species:"
                             android:paddingVertical="10dp"
                             android:textAlignment="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginVertical="10dp"
                             android:background="@drawable/left_rounded_container_shape"
                             android:backgroundTint="?attr/colorAccent"
                             android:textColor="@color/black"
@@ -99,11 +112,17 @@
                             android:textStyle="bold"/>
                         <TextView
                             android:id="@+id/species"
-                            android:layout_width="290dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.7"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="25dp"
                             android:paddingVertical="10dp"
-                            android:textSize="20sp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginVertical="10dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMinTextSize="12sp"
+                            android:autoSizeMaxTextSize="40sp"
+                            android:autoSizeStepGranularity="2sp"
                             android:elevation="5dp"
                             android:textAlignment="center"
                             android:background="@drawable/right_rounded_container_shape"/>
@@ -112,13 +131,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:paddingBottom="5dp"
                         android:orientation="horizontal">
                         <TextView
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="Race:"
+                            android:layout_weight="0.3"
                             android:paddingVertical="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginVertical="10dp"
                             android:textAlignment="center"
                             android:background="@drawable/left_rounded_container_shape"
                             android:backgroundTint="?attr/colorAccent"
@@ -127,11 +148,17 @@
                             android:textStyle="bold"/>
                         <TextView
                             android:id="@+id/race"
-                            android:layout_width="290dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.7"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="25dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginVertical="10dp"
                             android:textAlignment="center"
-                            android:textSize="20sp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMinTextSize="12sp"
+                            android:autoSizeMaxTextSize="40sp"
+                            android:autoSizeStepGranularity="2sp"
                             android:paddingVertical="10dp"
                             android:elevation="5dp"
                             android:background="@drawable/right_rounded_container_shape"/>
@@ -140,12 +167,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:paddingBottom="5dp"
+                        android:layout_marginBottom="10dp"
                         android:orientation="horizontal">
                         <TextView
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.3"
                             android:layout_height="wrap_content"
                             android:paddingVertical="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginVertical="10dp"
                             android:textAlignment="center"
                             android:background="@drawable/left_rounded_container_shape"
                             android:backgroundTint="?attr/colorAccent"
@@ -155,60 +185,33 @@
                             android:textStyle="bold"/>
                         <TextView
                             android:id="@+id/age"
-                            android:layout_width="290dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.7"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="25dp"
                             android:textAlignment="center"
                             android:paddingVertical="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginVertical="10dp"
                             android:elevation="5dp"
-                            android:textSize="20sp"
-                            android:text="3"
-                            android:background="@drawable/right_rounded_container_shape"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="70dp"
-                            android:layout_height="wrap_content"
-                            android:text="Owner:"
-                            android:paddingVertical="10dp"
-                            android:textAlignment="center"
-                            android:background="@drawable/left_rounded_container_shape"
-                            android:backgroundTint="?attr/colorAccent"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/owner"
-                            android:layout_width="290dp"
-                            android:layout_height="wrap_content"
-                            android:paddingHorizontal="25dp"
-                            android:textAlignment="center"
-                            android:paddingVertical="10dp"
-                            android:textSize="20sp"
-                            android:elevation="5dp"
-                            android:text="Giuseppe"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMinTextSize="12sp"
+                            android:autoSizeMaxTextSize="40sp"
+                            android:autoSizeStepGranularity="2sp"
                             android:background="@drawable/right_rounded_container_shape"/>
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
 
-
-
-            <ImageView
-                android:id="@+id/profile_picture"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginHorizontal="20dp"
-                android:background="@drawable/rounded_container_shape"
-
-                android:layout_centerHorizontal="true"
-                android:layout_below="@+id/animal_info_container"
-                android:elevation="10dp"/>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/carousel"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/edged_container_shape"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/animal_info_container"
+            android:elevation="10dp" />
 
             <LinearLayout
                 android:id="@+id/tab_layout_container"
@@ -219,7 +222,7 @@
                 android:background="@drawable/rounded_container_shape"
                 android:elevation="6dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/profile_picture"
+                android:layout_below="@id/carousel"
                 tools:layout_editor_absoluteX="20dp"
                 android:orientation="vertical">
 

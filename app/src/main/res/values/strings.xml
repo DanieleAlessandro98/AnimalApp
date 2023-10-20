@@ -34,12 +34,13 @@
     <string name="add_animal">ADD ANIMAL</string>
     <string name="add">ADD</string>
     <string name="age">Age</string>
+    <string name="report_age">Age (Optional)</string>
     <string name="microchip">Microchip</string>
     <string name="edit_animal">EDIT ANIMAL</string>
     <string name="add_pathology">ADD PATHOLOGY</string>
     <string name="add_food">ADD FOOD</string>
     <string name="delete">Delete</string>
-    <string name="add_warning">ADD WARNING</string>
+    <string name="add_report">ADD REPORT</string>
     <string name="add_request">ADD REQUEST</string>
     <string name="beds">Beds</string>
     <string name="description">Description</string>
@@ -55,21 +56,56 @@
     <string name="days">Days</string>
     <string name="born_today">born today!</string>
     <string name="invalid_user_name">Invalid name. Only characters</string>
+    <string name="invalid_microchip">Invalid microchip. Length required 15</string>
+    <string name="microchip_already_exist">Microchip already exist</string>
     <string name="invalid_user_surname">Invalid surname. Only characters</string>
     <string name="invalid_user_birthdate">Invalid date of birth</string>
     <string name="invalid_user_email">Invalid email</string>
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
-    <string name="login_error">"Access error"</string>
-    <string name="profile_update_successful">"Profile successfully updated"</string>
+    <string name="login_error">Access error</string>
+    <string name="profile_update_successful">Profile successfully updated</string>
+    <string name="invalid_user_phonenumber" translatable="false">Invalid Phone Number. Only numbers</string>
+    <string name="invalid_user_companyname" translatable="false">Invalid password. Minimum 6 characters</string>
     <string name="book_visit">Book visit</string>
     <string name="owner">Owner</string>
-    <string name="profile_delete_alert_title">"Account deletion"</string>
-    <string name="profile_delete_alert_mex1">"Are you sure you want to delete the account?"</string>
-    <string name="profile_delete_alert_confirm">"Confirm"</string>
-    <string name="profile_delete_alert_cancel">"Cancel"</string>
-    <string name="profile_delete_successful">"Account successfully deleted"</string>
+    <string name="profile_delete_alert_title">Account deletion</string>
+    <string name="profile_delete_alert_mex1">Are you sure you want to delete the account?</string>
+    <string name="confirm">CONFIRM</string>
+    <string name="profile_delete_alert_cancel">Cancel</string>
+    <string name="profile_delete_successful">Account successfully deleted</string>
     <string name="profile_delete_failed">"Account deletion error"</string>
     <string name="photo_update_failed">"Photo update error"</string>
+    <string name="warning">WARNING</string>
+    <string name="info">INFO</string>
+    <string name="change_owner_warning">Confirming you will transfer the animal to</string>
+    <string name="delete_animal_warning">This animal will be definitely cancelled</string>
+    <string name="right_owner_advice">Be sure to select a valid owner!</string>
+    <string name="invalid_report_description">"Enter a valid description"</string>
+    <string name="report_name">Name (Optional)</string>
+    <string name="report_create_successful">Report successfully created</string>
+    <string name="request_create_successful">Request successfully created</string>
+    <string name="report_create_error">Error. Report not created</string>
+    <string name="request_create_error">Error. Request not created</string>
+    <string name="report_animal_profile">Share animal profile</string>
+    <string name="invalid_report_select_lost_option_1">You must be logged in to select this option</string>
+    <string name="invalid_report_select_lost_option_2">You must own at least one animal to select this option</string>
+    <string name="invalid_report_age_1">The date must consist of two parts; Example: "3 Months"</string>
+    <string name="invalid_report_age_2">The first part of the date must be a number</string>
+    <string name="invalid_report_age_3">The second part of the date must be a word: day(s), month(s), year(s)</string>
+    <string name="invalid_report_selected_animal">Select an animal from your animal list</string>
+    <string name="dog_species_name">Dog</string>
+    <string name="cat_species_name">Cat</string>
+    <string name="fish_species_name">Fish</string>
+    <string name="bird_species_name">Bird</string>
+    <string name="rabbit_species_name">Rabbit</string>
+    <string name="find_animal_request_name">FIND ANIMAL</string>
+    <string name="offer_animal_request_name">OFFER ANIMAL</string>
+    <string name="offer_beds_request_name">OFFER BEDS</string>
+    <string name="find_animal_report_name">FOUND</string>
+    <string name="lost_animal_report_name">LOST</string>
+    <string name="danger_animal_report_name">ENDANGERED</string>
+    <string name="user_not_logged_report">Anonymous user</string>
+    <string name="animal_name_unknown_report">Unknown name</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>
@@ -231,9 +267,9 @@
         <item>Offer animal</item>
     </string-array>
 
-    <string-array name="segnalation_type">
-        <item>Losted</item>
+    <string-array name="report_type">
         <item>Find</item>
+        <item>Losted</item>
         <item>In danger</item>
     </string-array>
 

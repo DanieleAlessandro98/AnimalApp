@@ -105,7 +105,7 @@
                 android:background="@drawable/edit_text_shape"
                 android:hint="@string/name"
                 android:inputType="textPersonName"
-                android:maxLength="20"
+                android:maxLength="9"
                 android:padding="16dp"
                 android:textColorHint="#A3A3A3"
                 android:textSize="16sp" />

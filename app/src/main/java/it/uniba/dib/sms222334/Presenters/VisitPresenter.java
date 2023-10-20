@@ -57,6 +57,7 @@ public class VisitPresenter {
         }
     }
 
+
     public boolean removeVisit(String idVisit){
         if (isAlphaNumeric(idVisit)){
             System.out.println("entrato in if di removeVisit()");
@@ -67,11 +68,12 @@ public class VisitPresenter {
                 System.out.println("falso di remove visit");
                 return false;
             }
-        }else{
+        } else {
             // TODO fare qualcosa per visualizzare errore nella eliminazione
             return false;
         }
     }
+
 
     public void action_view(UserRole idProfile,final VisitDao.OnVisitListener listener){
         if (idProfile != null){

@@ -2,8 +2,8 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -36,7 +37,9 @@ import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -48,8 +51,11 @@ import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
+import it.uniba.dib.sms222334.Views.AnimalAppEditText;
+import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
 
 public class AnimalFragment extends Fragment {
 
@@ -58,13 +64,15 @@ public class AnimalFragment extends Fragment {
     Button editButton,backButton;
     TabLayout tabLayout;
 
-    TextView name,species,race,age,owner,state;
+    TextView name,species,race,age,state;
+
+    ShapeableImageView profileImage;
 
     ProfileFragment.Type profileType;
 
     boolean profilePictureFlag=false;
 
-    ImageView profilePicture; /*i added this here because it has to be passed on onActivityResult,
+    ImageView newProfilePicture; /*i added this here because it has to be passed on onActivityResult,
                                 and this must be set before fragment is created(onCreateView())*/
 
     static Animal animal;   // quest'oggetto deve rimanere statico, serve per la patologia dell'animale.
@@ -96,7 +104,7 @@ public class AnimalFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        if(true) //TODO da implementare il check della proprietà dell'animale
+        if(AnimalPresenter.checkAnimalProperty(animal))
             changeTab(ProfileFragment.TabPosition.RELATION,false);
     }
 
@@ -107,7 +115,11 @@ public class AnimalFragment extends Fragment {
 
         this.profileType= ProfileFragment.Type.ANIMAL;
 
-        if(true){ //TODO 2_da implementare il check della proprietà dell'animale
+        final String animaString=preferences.getString("animalData","");
+
+        this.animal=new Gson().fromJson(animaString, new TypeToken<Animal>() {}.getType());
+
+        if(AnimalPresenter.checkAnimalProperty(animal)){
             layout= inflater.inflate(R.layout.animal_fragment,container,false);
             tabLayout=layout.findViewById(R.id.tab_layout);
 
@@ -118,7 +130,7 @@ public class AnimalFragment extends Fragment {
                     result -> {
                         if (result.getResultCode() == RESULT_OK && result.getData()!=null) {
                             Uri selectedImage = result.getData().getData();
-                            profilePicture.setImageURI(selectedImage);
+                            newProfilePicture.setImageURI(selectedImage);
                             profilePictureFlag=true;
                         }
                     });
@@ -168,16 +180,12 @@ public class AnimalFragment extends Fragment {
             layout= inflater.inflate(R.layout.stranger_animal_fragment,container,false);
         }
 
-        final String animaString=preferences.getString("animalData","");
-
-        this.animal=new Gson().fromJson(animaString, new TypeToken<Animal>() {}.getType());
-
         this.name=layout.findViewById(R.id.name);
         this.species=layout.findViewById(R.id.species);
         this.race=layout.findViewById(R.id.race);
         this.age=layout.findViewById(R.id.age);
-        this.owner=layout.findViewById(R.id.owner);
         this.state=layout.findViewById(R.id.state);
+        this.profileImage=layout.findViewById(R.id.profile_picture);
 
 
         refresh(animal);
@@ -187,6 +195,15 @@ public class AnimalFragment extends Fragment {
 
         backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
+        ViewPager2 mViewPager = layout.findViewById(R.id.carousel);
+
+        CarouselPageAdapter mAdapter = new CarouselPageAdapter(this, animal);
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setPageTransformer(mAdapter);
+
+        mViewPager.setCurrentItem(0);
+
+        //mViewPager.setOffscreenPageLimit(3);
 
         return layout;
     }
@@ -286,6 +303,7 @@ public class AnimalFragment extends Fragment {
         transaction.replace(R.id.recycle_container,fragment).commit();
     }
 
+    @SuppressLint("ResourceType")
     private void launchEditDialog() {
 
         final AnimalAppDialog editDialog=new AnimalAppDialog(getContext());
@@ -293,26 +311,32 @@ public class AnimalFragment extends Fragment {
 
         editDialog.setContentView(R.layout.edit_animal);
 
-        TextView name,microchip,date;
+        TextView date;
+        AnimalAppEditText microchip,nameEditText;
         androidx.appcompat.widget.SearchView searchView=editDialog.findViewById(R.id.owner_chooser);
+        AnimalAppEditText owner=editDialog.findViewById(R.id.owner_chooser_edit_text);
 
-        name=editDialog.findViewById(R.id.nameEditText);
+        nameEditText=editDialog.findViewById(R.id.nameEditText);
         microchip=editDialog.findViewById(R.id.micro_chipEditText);
         date=editDialog.findViewById(R.id.date_text_view);
-        profilePicture=editDialog.findViewById(R.id.profile_picture);
+        newProfilePicture =editDialog.findViewById(R.id.profile_picture);
 
-        name.setText(this.animal.getName());
+        nameEditText.setText(this.animal.getName());
         microchip.setText(this.animal.getMicrochip());
         Calendar birthDate=Calendar.getInstance();
         birthDate.setTime(animal.getBirthDate());
         date.setText(birthDate.get(Calendar.DAY_OF_MONTH)+ "/" + (birthDate.get(Calendar.MONTH)+1) + "/" + birthDate.get(Calendar.YEAR));
-        profilePicture.setImageBitmap(animal.getPhoto());
-        searchView.setQuery(SessionManager.getInstance().getCurrentUser().getEmail(),false);
+        newProfilePicture.setImageBitmap(animal.getPhoto());
 
         final Calendar c = Calendar.getInstance();
         c.setTime(animal.getBirthDate());
 
-        boolean dateIsSetted[]=new boolean[]{false};
+        boolean[] dateIsSetted =new boolean[]{false};
+
+        String oldMicroChip=animal.getMicrochip();
+
+        final String[] newOwnerReference = new String[1];
+        newOwnerReference[0]=SessionManager.getInstance().getCurrentUser().getFirebaseID();
 
         Button editPhotoButton= editDialog.findViewById(R.id.edit_foto_button);
         Button deleteButton= editDialog.findViewById(R.id.delete_button);
@@ -324,6 +348,15 @@ public class AnimalFragment extends Fragment {
 
         if(searchManager!=null)
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+        final boolean[] isLocked = {true};
+
+        String userEmail=SessionManager.getInstance().getCurrentUser().getEmail();
+
+        owner.setHint(userEmail);
+
+        String[] newEmailOwner=new String[]{owner.getHint().toString()};
+
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
@@ -338,9 +371,18 @@ public class AnimalFragment extends Fragment {
 
                 if (cursor != null && cursor.moveToPosition(position)) {
                     int suggestionIndex = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1);
+                    int referenceIndex= cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2);
                     String suggestionText = cursor.getString(suggestionIndex);
 
-                    searchView.setQuery(suggestionText, false);
+                    newOwnerReference[0] = cursor.getString(referenceIndex);
+
+                    owner.setHint(suggestionText);
+
+                    newEmailOwner[0]=owner.getHint().toString();
+
+                    switchSearchTextView(searchView,owner,editOwner,R.drawable.baseline_lock_24);
+
+                    isLocked[0] =!isLocked[0];
                 }
 
                 return true;
@@ -348,28 +390,33 @@ public class AnimalFragment extends Fragment {
         });
 
         editOwner.setOnClickListener(v -> {
-            searchView.setEnabled(!searchView.isEnabled());
+            switchSearchTextView(searchView,owner,editOwner,isLocked[0] ?R.drawable.baseline_lock_open_24:R.drawable.baseline_lock_24);
+
+            isLocked[0] =!isLocked[0];
         });
 
         editDialog.setInputCallback(new AnimalCallbacks.inputValidate() {
             @Override
             public void InvalidName() {
-                name.setError("nome non valido");
+                nameEditText.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                nameEditText.setError(getContext().getString(R.string.invalid_user_name));
             }
 
             @Override
             public void InvalidBirthDate() {
-                date.setError("data non valida");
+                date.setError(getContext().getString(R.string.invalid_user_birthdate));
             }
 
             @Override
             public void InvalidMicrochip() {
-                microchip.setError("microchip non valido");
+                microchip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                microchip.setError(getContext().getString(R.string.invalid_microchip));
             }
 
             @Override
             public void MicrochipAlreadyUsed() {
-                microchip.setError("microchip esiste già");
+                microchip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                microchip.setError(getContext().getString(R.string.microchip_already_exist));
             }
         });
 
@@ -396,44 +443,48 @@ public class AnimalFragment extends Fragment {
         });
 
         deleteButton.setOnClickListener(view -> {
-            final Dialog deleteDialog=new AnimalAppDialog(getContext());
-            deleteDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            final AnimalAppDialog deleteDialog=new AnimalAppDialog(getContext());
 
-            deleteDialog.setContentView(R.layout.delete_dialog);
+            deleteDialog.setContentView(getContext().getString(R.string.delete_animal_warning), AnimalAppDialog.DialogType.CRITICAL);
 
-            Button undoButton,confirmButton;
+            deleteDialog.setConfirmAction(v -> {
+                AnimalPresenter presenter=new AnimalPresenter(editDialog);
+                presenter.deleteAnimal(animal);
+                deleteDialog.cancel();
+                getParentFragmentManager().popBackStack();
+            });
 
-            undoButton=deleteDialog.findViewById(R.id.undo_button);
-            confirmButton=deleteDialog.findViewById(R.id.delete_button);
+            deleteDialog.setUndoAction(v -> deleteDialog.cancel());
 
-            undoButton.setOnClickListener(v -> deleteDialog.cancel());
-
-            confirmButton.setOnClickListener(v -> {
-                        AnimalPresenter presenter=new AnimalPresenter(editDialog);
-                        presenter.deleteAnimal(animal);
-                        deleteDialog.cancel();
-                        getParentFragmentManager().popBackStack();
-                    }
-            );
-
-
-            deleteDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-            deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             deleteDialog.show();
         });
 
         saveButton.setOnClickListener(v -> {
-            AnimalPresenter presenter=new AnimalPresenter(editDialog,this);
 
-            String oldMicroChip=animal.getMicrochip();
+            if((owner.getVisibility() == View.VISIBLE) && (newEmailOwner[0].compareTo(userEmail) != 0)){
+                final AnimalAppDialog saveDialog=new AnimalAppDialog(getContext());
 
-            animal.setBirthDate(c.getTime());
-            animal.setName(name.getText().toString());
-            animal.setMicrochip(microchip.getText().toString());
-            animal.setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap());
-            animal.setOwnerReference(searchView.getQuery().toString());
+                saveDialog.setContentView(getContext().getString(R.string.change_owner_warning) +" "+ newEmailOwner[0], AnimalAppDialog.DialogType.WARNING);
 
-            presenter.editAnimal(animal,oldMicroChip,profilePictureFlag);
+                saveDialog.setConfirmAction(t -> {
+                   updateAnimal(editDialog,c,microchip,nameEditText,newEmailOwner[0],newOwnerReference,oldMicroChip);
+
+                    saveDialog.cancel();
+                });
+
+                saveDialog.setUndoAction(t -> saveDialog.cancel());
+
+                saveDialog.show();
+
+            } else if (owner.getVisibility() == View.VISIBLE) {
+                updateAnimal(editDialog,c,microchip,nameEditText,newEmailOwner[0],newOwnerReference,oldMicroChip);
+            } else{
+                Toast.makeText(getContext(), getContext().getString(R.string.right_owner_advice), Toast.LENGTH_SHORT).show();
+                switchSearchTextView(searchView,owner,editOwner,R.drawable.baseline_lock_24);
+                owner.setInputValidate(AnimalAppEditText.ValidateInput.WARNING_INPUT);
+
+                isLocked[0] =!isLocked[0];
+            }
         });
 
         Button backButton= editDialog.findViewById(R.id.back_button);
@@ -449,11 +500,40 @@ public class AnimalFragment extends Fragment {
 
     public void refresh(Animal animal){
         this.name.setText(animal.getName());
-        this.species.setText(animal.getSpecies());
+        this.species.setText(animal.getSpeciesString(animal.getSpecies(), getContext()));
         this.race.setText(animal.getRace());
         this.age.setText(DateUtilities.calculateAge(animal.getBirthDate(),getContext()));
-        this.owner.setText(animal.getOwnerReference());
-        this.state.setText(Animal.stateList.values()[animal.getState().ordinal()].toString());
+        this.state.setText(AnimalStates.values()[animal.getState().ordinal()].toString());
+        this.profileImage.setImageBitmap(animal.getPhoto());
+    }
+
+    private void updateAnimal(AnimalAppDialog editDialog, Calendar c, AnimalAppEditText microchip,AnimalAppEditText nameEditText, String newEmailOwner, String[] newOwnerReference, String oldMicroChip){
+        AnimalPresenter presenter=new AnimalPresenter(editDialog,this);
+
+        animal.setBirthDate(c.getTime());
+        animal.setName(nameEditText.getText().toString());
+        animal.setMicrochip(microchip.getText().toString());
+        animal.setPhoto(((BitmapDrawable) newProfilePicture.getDrawable()).getBitmap());
+        animal.setOwnerReference(newOwnerReference[0]);
+
+        presenter.editAnimal(animal,newEmailOwner,oldMicroChip,profilePictureFlag);
+    }
+
+    private void switchSearchTextView(SearchView search, AnimalAppEditText edit, Button editOwner,int resId){
+        edit.setVisibility(Math.abs(edit.getVisibility()-View.GONE));
+        search.setVisibility(Math.abs(search.getVisibility()-View.GONE));
+        search.setQuery(edit.getHint(),false);
+
+        if(search.isIconified()){
+            search.setIconified(false);
+            search.setIconified(false);
+            //do not delete this!! it's duplicated because the searchView on the first one clear the query text
+            //on the second one iconified it
+        }
+
+        editOwner.setBackgroundResource(resId);
+        ViewGroup.MarginLayoutParams layoutParams= (ViewGroup.MarginLayoutParams) editOwner.getLayoutParams();
+        layoutParams.topMargin=Math.abs(layoutParams.topMargin-23);
     }
 
 }
