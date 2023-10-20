@@ -1,1 +1,8 @@
 /build
+/src/main/res/drawable/edged_container_shape.xml
+/src/main/res/drawable/left_rounded_container_shape.xml
+/src/main/res/drawable/right_rounded_container_shape.xml
+/src/main/res/drawable/rounded_container_shape.xml
+/src/main/res/drawable/start_end_faded_shape.xml
+/src/main/res/drawable/top_bottom_faded_shape.xml
+/src/main/res/drawable/top_rounded_container_shape.xml
