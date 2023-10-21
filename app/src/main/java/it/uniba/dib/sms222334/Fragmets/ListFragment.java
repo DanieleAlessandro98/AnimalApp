@@ -668,7 +668,6 @@ public class ListFragment extends Fragment{
 
         pathologyList = new ArrayList<>();
         pathologyList.addAll(listPathology);
-
         pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
 
         addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );

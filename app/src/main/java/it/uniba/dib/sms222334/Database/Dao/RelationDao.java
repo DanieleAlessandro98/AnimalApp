@@ -134,11 +134,9 @@ public class RelationDao {
         getListAnimalDao(ownerID, new OnRelationListener() {
             @Override
             public void onGetAnimalListener(List<Animal> animalGetList) {
-                // Creare due query separate per "idAnimal1" e "idAnimal2"
                 Query query1 = collectionRelation.whereEqualTo("idAnimal1", idAnimal);
                 Query query2 = collectionRelation.whereEqualTo("idAnimal2", idAnimal);
 
-                // Unire i risultati delle due query
                 Task<QuerySnapshot> query1Result = query1.get();
                 Task<QuerySnapshot> query2Result = query2.get();
 
@@ -153,7 +151,6 @@ public class RelationDao {
 
                                 for (QuerySnapshot snapshot : snapshots) {
                                     for (DocumentSnapshot document : snapshot.getDocuments()) {
-                                        // Processa i risultati come hai fatto in precedenza
                                         final Relation.relationType[] relation = new Relation.relationType[1];
                                         relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
                                         String idAnimal1 = document.getString("idAnimal1");
