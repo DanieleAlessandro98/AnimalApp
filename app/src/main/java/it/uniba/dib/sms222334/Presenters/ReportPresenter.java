@@ -60,7 +60,7 @@ public class ReportPresenter {
             return;
         }
 
-        if (!Validations.isValidReportDescription(description)) {
+        if (!Validations.isValidDescription(description)) {
             reportFragment.showInvalidReportDescription();
             return;
         }

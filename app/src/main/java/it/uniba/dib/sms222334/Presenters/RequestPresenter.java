@@ -14,6 +14,8 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
+import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Utils.Validations;
 
 public class RequestPresenter {
     private final HomeFragment reportFragment;
@@ -50,6 +52,16 @@ public class RequestPresenter {
     public void onAdd(RequestType type, String description, int selectedPositionAnimalSpecies, Animal animal, String beds) {
         if (selectedPositionAnimalSpecies < 0 || selectedPositionAnimalSpecies >= AnimalSpecies.values().length)
             return;
+
+        if (!Validations.isValidDescription(description)) {
+            reportFragment.showInvalidRequestDescription();
+            return;
+        }
+
+        if (type == RequestType.OFFER_BEDS && !Validations.isValidBedsRequest(beds)) {
+            reportFragment.showInvalidRequestBeds();
+            return;
+        }
 
         AnimalSpecies species = AnimalSpecies.values()[selectedPositionAnimalSpecies];
 
@@ -90,8 +102,13 @@ public class RequestPresenter {
     }
 
     public void getRequestList(DatabaseCallbackResult callback) {
-        RequestDao requestDao = new RequestDao();
-        requestDao.getAllRequests(callback);
+        SessionManager session = SessionManager.getInstance();
+        if (!session.isLogged() || (session.isLogged() && session.getCurrentUser().getRole() != UserRole.VETERINARIAN)) {
+            boolean hideOfferBedsRequest = session.isLogged() && session.getCurrentUser().getRole() == UserRole.PUBLIC_AUTHORITY;
+
+            RequestDao requestDao = new RequestDao();
+            requestDao.getAllRequests(callback, hideOfferBedsRequest);
+        }
     }
 
 }

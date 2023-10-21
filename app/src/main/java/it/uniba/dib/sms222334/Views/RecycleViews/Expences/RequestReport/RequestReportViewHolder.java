@@ -10,8 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Date;
-
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
@@ -19,11 +17,12 @@ import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.RequestType;
 
 public class RequestReportViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="RequestReportViewHolder";
 
-        TextView Distance,Type,AnimalName,SpeciesAge,CreatorName,Description;
+        TextView Distance,Type, Name,SpeciesAge,CreatorName,Description;
         ImageView creatorPhoto,image;
 
         Float latidute,longitude;
@@ -43,7 +42,7 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             Distance=itemView.findViewById(R.id.distance_text);
             Type=itemView.findViewById(R.id.type);
-            AnimalName=itemView.findViewById(R.id.name_text);
+            Name =itemView.findViewById(R.id.name_text);
             SpeciesAge=itemView.findViewById(R.id.species_age_text);
             CreatorName=itemView.findViewById(R.id.creator_name);
             Description=itemView.findViewById(R.id.description_text);
@@ -70,12 +69,16 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             Animal animal = request.getAnimal();
             if (animal != null) {
-                this.AnimalName.setText(animal.getName());
+                this.Name.setText(animal.getName());
                 this.SpeciesAge.setText(animal.getSpeciesString(animal.getSpecies(), context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
                 this.image.setImageBitmap(animal.getPhoto());
             } else {
-                this.AnimalName.setText("");
+                this.Name.setText("");
                 this.SpeciesAge.setText("");
+            }
+
+            if (request.getType() == RequestType.OFFER_BEDS) {
+                this.Name.setText(context.getString(R.string.description_offer_beds_request) + request.getNBeds());
             }
 
             /*
@@ -102,9 +105,9 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             String animalName = report.getAnimalName();
             if (!animalName.equals(""))
-                this.AnimalName.setText(animalName);
+                this.Name.setText(animalName);
             else
-                this.AnimalName.setText(context.getString(R.string.animal_name_unknown_report));
+                this.Name.setText(context.getString(R.string.animal_name_unknown_report));
 
             /*
 

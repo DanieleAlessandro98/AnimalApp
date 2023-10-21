@@ -559,10 +559,6 @@ public class HomeFragment extends Fragment {
         return null;
     }
 
-    public void showInvalidReportDescription() {
-        Toast.makeText(getContext(), this.getString(R.string.invalid_report_description), Toast.LENGTH_SHORT).show();
-    }
-
     public void setPhotoPicked(Bitmap bitmap) {
         photoImageView.setImageBitmap(bitmap);
     }
@@ -598,6 +594,18 @@ public class HomeFragment extends Fragment {
         Toast.makeText(getContext(), this.getString(R.string.invalid_report_select_lost_option_2), Toast.LENGTH_SHORT).show();
     }
 
+    public void showInvalidReportDescription() {
+        Toast.makeText(getContext(), this.getString(R.string.invalid_report_description), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showInvalidRequestDescription() {
+        Toast.makeText(getContext(), this.getString(R.string.invalid_request_description), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showInvalidRequestBeds() {
+        Toast.makeText(requireContext(), this.getString(R.string.invalid_request_beds), Toast.LENGTH_SHORT).show();
+    }
+
     public void showInvalidAge(int validationCode) {
         switch (validationCode) {
             case 1:
@@ -628,5 +636,4 @@ public class HomeFragment extends Fragment {
     public void showRequestCreateError() {
         Toast.makeText(requireContext(), this.getString(R.string.request_create_error), Toast.LENGTH_SHORT).show();
     }
-
 }

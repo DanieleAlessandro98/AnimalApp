@@ -49,7 +49,7 @@ public class Validations {
         return (company.length() >= 4 && company.matches("[a-zA-Z]+"));
     }
 
-    public static boolean isValidReportDescription(String reportDescription) {
+    public static boolean isValidDescription(String reportDescription) {
         return (reportDescription.length() >= 2);
     }
 
@@ -84,6 +84,21 @@ public class Validations {
         }
 
         return 3;
+    }
+
+    public static boolean isValidBedsRequest(String beds) {
+        if (beds == null || beds.isEmpty())
+            return false;
+
+        try {
+            int bedsValue = Integer.parseInt(beds);
+            if (bedsValue <= 0)
+                return false;
+
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }

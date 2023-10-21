@@ -25,6 +25,7 @@ import it.uniba.dib.sms222334.Database.Dao.User.UerDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
@@ -62,12 +63,11 @@ public class RequestDao {
                 });
     }
 
-    public void getAllRequests(final DatabaseCallbackResult callback) {
+    public void getAllRequests(final DatabaseCallbackResult callback, boolean hideOfferBedsRequest) {
         collectionRequest.get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        ArrayList<Request> requests = new ArrayList<>();
                         List<QueryDocumentSnapshot> documentSnapshots = new ArrayList<>();
 
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
@@ -75,7 +75,7 @@ public class RequestDao {
                                 documentSnapshots.add((QueryDocumentSnapshot) document);
                         }
 
-                        processRequests(requests, documentSnapshots, 0, callback);
+                        processRequests(hideOfferBedsRequest, documentSnapshots, 0, callback);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -86,18 +86,18 @@ public class RequestDao {
                 });
     }
 
-    private void processRequests(ArrayList<Request> requests, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
+    private void processRequests(boolean hideOfferBedsRequest, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
         if (currentIndex >= documentSnapshots.size()) {
             callback.onDataNotFound();
             return;
         }
 
         QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
-        getRequestFromDocument(document, new DatabaseCallbackResult() {
+        getRequestFromDocument(document, hideOfferBedsRequest, new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
                 callback.onDataRetrieved(result);
-                processRequests(requests, documentSnapshots, currentIndex + 1, callback);
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
             }
 
             @Override
@@ -107,19 +107,29 @@ public class RequestDao {
 
             @Override
             public void onDataNotFound() {
-
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
             }
 
             @Override
             public void onDataQueryError(Exception e) {
-                processRequests(requests, documentSnapshots, currentIndex + 1, callback);
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
             }
         });
     }
 
-    private void getRequestFromDocument(QueryDocumentSnapshot document, DatabaseCallbackResult callback) {
+    private void getRequestFromDocument(QueryDocumentSnapshot document, boolean hideOfferBedsRequest, DatabaseCallbackResult callback) {
+        RequestType type = RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()];
+        String userID = document.getString(AnimalAppDB.Request.COLUMN_NAME_USER_ID);
+
+        if (hideOfferBedsRequest && type == RequestType.OFFER_BEDS) {
+            if (!SessionManager.getInstance().isLogged() || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(userID))  {
+                callback.onDataNotFound();
+                return;
+            }
+        }
+
         UerDao uerDao = new UerDao();
-        uerDao.findUser(document.getString(AnimalAppDB.Request.COLUMN_NAME_USER_ID), new AuthenticationDao.FindUserListenerResult() {
+        uerDao.findUser(userID, new AuthenticationDao.FindUserListenerResult() {
             @Override
             public void onUserFound(User user) {
                 AnimalDao animalDao = new AnimalDao();
@@ -128,7 +138,7 @@ public class RequestDao {
                 if (animalRef == null) {
                     Request request = Request.Builder.create(document.getId(),
                                     user,
-                                    RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()],
+                                    type,
                                     document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION))
                             .setAnimalSpecies(AnimalSpecies.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES).intValue()])
                             .setAnimal(null)
@@ -141,7 +151,7 @@ public class RequestDao {
                         public void onDataRetrieved(Animal result) {
                             Request request = Request.Builder.create(document.getId(),
                                             user,
-                                            RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()],
+                                            type,
                                             document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION))
                                     .setAnimalSpecies(AnimalSpecies.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES).intValue()])
                                     .setAnimal(result)
