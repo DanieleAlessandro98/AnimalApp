@@ -80,6 +80,7 @@ public class HomeFragment extends Fragment {
     private Animal selectedAnimal;
     private boolean isSharedAnimalProfile;
     private RequestReportAdapter adapter;
+    private ArrayList combinedList;
 
     public HomeFragment() {
     }
@@ -495,36 +496,39 @@ public class HomeFragment extends Fragment {
     }
 
     public void loadReportsAndRequests() {
+        combinedList = new ArrayList();
+        adapter = new RequestReportAdapter(combinedList, getContext());
+        recyclerView.setAdapter(adapter);
+
         reportPresenter.getReportList(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
+                combinedList.add(result);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onDataRetrieved(ArrayList results) {
-                final ArrayList combinedList = new ArrayList(results);
+            }
 
-                requestPresenter.getRequestList(new DatabaseCallbackResult() {
-                    @Override
-                    public void onDataRetrieved(Object result) {
-                    }
+            @Override
+            public void onDataNotFound() {
+            }
 
-                    @Override
-                    public void onDataRetrieved(ArrayList results) {
-                        combinedList.addAll(results); // Unisci le due liste
+            @Override
+            public void onDataQueryError(Exception e) {
+            }
+        });
 
-                        adapter = new RequestReportAdapter(combinedList, getContext());
-                        recyclerView.setAdapter(adapter);
-                    }
+        requestPresenter.getRequestList(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                combinedList.add(result);
+                adapter.notifyDataSetChanged();
+            }
 
-                    @Override
-                    public void onDataNotFound() {
-                    }
-
-                    @Override
-                    public void onDataQueryError(Exception e) {
-                    }
-                });
+            @Override
+            public void onDataRetrieved(ArrayList results) {
             }
 
             @Override

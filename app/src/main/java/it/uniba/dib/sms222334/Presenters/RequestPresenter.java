@@ -91,27 +91,7 @@ public class RequestPresenter {
 
     public void getRequestList(DatabaseCallbackResult callback) {
         RequestDao requestDao = new RequestDao();
-        requestDao.getAllRequests(new DatabaseCallbackResult() {
-            @Override
-            public void onDataRetrieved(Object result) {
-
-            }
-
-            @Override
-            public void onDataRetrieved(ArrayList results) {
-                callback.onDataRetrieved(results);
-            }
-
-            @Override
-            public void onDataNotFound() {
-
-            }
-
-            @Override
-            public void onDataQueryError(Exception e) {
-
-            }
-        });
+        requestDao.getAllRequests(callback);
     }
 
 }

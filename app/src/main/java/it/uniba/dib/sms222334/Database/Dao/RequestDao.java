@@ -87,34 +87,34 @@ public class RequestDao {
     }
 
     private void processRequests(ArrayList<Request> requests, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
-        if (currentIndex >= documentSnapshots.size())
-            callback.onDataRetrieved(requests);
-        else {
-            QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
-
-            getRequestFromDocument(document, new DatabaseCallbackResult() {
-                @Override
-                public void onDataRetrieved(Object result) {
-                    requests.add((Request) result);
-                    processRequests(requests, documentSnapshots, currentIndex + 1, callback);
-                }
-
-                @Override
-                public void onDataRetrieved(ArrayList results) {
-
-                }
-
-                @Override
-                public void onDataNotFound() {
-
-                }
-
-                @Override
-                public void onDataQueryError(Exception e) {
-
-                }
-            });
+        if (currentIndex >= documentSnapshots.size()) {
+            callback.onDataNotFound();
+            return;
         }
+
+        QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
+        getRequestFromDocument(document, new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                callback.onDataRetrieved(result);
+                processRequests(requests, documentSnapshots, currentIndex + 1, callback);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+                processRequests(requests, documentSnapshots, currentIndex + 1, callback);
+            }
+        });
     }
 
     private void getRequestFromDocument(QueryDocumentSnapshot document, DatabaseCallbackResult callback) {

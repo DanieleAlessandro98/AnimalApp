@@ -156,27 +156,7 @@ public class ReportPresenter {
 
     public void getReportList(DatabaseCallbackResult callback) {
         ReportDao reportDao = new ReportDao();
-        reportDao.getAllReports(new DatabaseCallbackResult() {
-            @Override
-            public void onDataRetrieved(Object result) {
-
-            }
-
-            @Override
-            public void onDataRetrieved(ArrayList results) {
-                callback.onDataRetrieved(results);
-            }
-
-            @Override
-            public void onDataNotFound() {
-
-            }
-
-            @Override
-            public void onDataQueryError(Exception e) {
-
-            }
-        });
+        reportDao.getAllReports(callback);
     }
 
 

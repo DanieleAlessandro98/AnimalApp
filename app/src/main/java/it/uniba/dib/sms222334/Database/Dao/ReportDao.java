@@ -115,34 +115,34 @@ public class ReportDao {
     }
 
     private void processReports(ArrayList<Report> report, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
-        if (currentIndex >= documentSnapshots.size())
-            callback.onDataRetrieved(report);
-        else {
-            QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
-
-            getReportFromDocument(document, new DatabaseCallbackResult() {
-                @Override
-                public void onDataRetrieved(Object result) {
-                    report.add((Report) result);
-                    processReports(report, documentSnapshots, currentIndex + 1, callback);
-                }
-
-                @Override
-                public void onDataRetrieved(ArrayList results) {
-
-                }
-
-                @Override
-                public void onDataNotFound() {
-
-                }
-
-                @Override
-                public void onDataQueryError(Exception e) {
-                    processReports(report, documentSnapshots, currentIndex + 1, callback);
-                }
-            });
+        if (currentIndex >= documentSnapshots.size()) {
+            callback.onDataNotFound();
+            return;
         }
+
+        QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
+        getReportFromDocument(document, new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                callback.onDataRetrieved(result);
+                processReports(report, documentSnapshots, currentIndex + 1, callback);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+                processReports(report, documentSnapshots, currentIndex + 1, callback);
+            }
+        });
     }
 
     private void getReportFromDocument(QueryDocumentSnapshot document, DatabaseCallbackResult callback) {
@@ -158,13 +158,13 @@ public class ReportDao {
 
                 if (userID.equals("")) {
                     Report report = Report.Builder.create(document.getId(),
-                            null,
-                            ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
-                            AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
-                            document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                            0f,
-                            0f,
-                            BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                                    null,
+                                    ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                    AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                    document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                    0f,
+                                    0f,
+                                    BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
                             .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
                             .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
                             .setAnimalID(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID))
@@ -178,11 +178,11 @@ public class ReportDao {
                         @Override
                         public void onUserFound(User user) {
                             Report report = Report.Builder.create(document.getId(),
-                                    user,
-                                    ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
-                                    AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
-                                    document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                                    0f,
+                                            user,
+                                            ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                            AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                            document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                            0f,
                                             0f,
                                             BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
                                     .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
