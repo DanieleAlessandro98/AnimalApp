@@ -625,14 +625,11 @@ public class ListFragment extends Fragment{
             public void onRelationAnimalListener(ArrayList<Relation> relationListGet, List<Animal> animalListGet) {
                 relationList=new ArrayList<>();
                 relationList.addAll(relationListGet);
-
-
                 final Calendar c = Calendar.getInstance();
                 c.add(Calendar.DAY_OF_MONTH,-1600);
-
                 relationAdapter=new RelationAdapter(relationList,getContext());
-
                 addButton.setOnClickListener(v -> launchAddDialog(animalListGet));
+
                 recyclerView.setAdapter(relationAdapter);
             }
         });
@@ -668,6 +665,7 @@ public class ListFragment extends Fragment{
 
         pathologyList = new ArrayList<>();
         pathologyList.addAll(listPathology);
+
         pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
 
         addButton.setOnClickListener(v -> launchAddDialog(new ArrayList<>()) );
@@ -682,7 +680,8 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 PathologyPresenter pathology = new PathologyPresenter();
-                                if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getFirebaseID(),pathologyAdapter.simpleItemList.get(pos).getName())) {
+                                if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getIdAnimal(),
+                                        pathologyAdapter.simpleItemList.get(pos).getName())) {
                                     pathologyAdapter.removeSimpleElement(pos);
                                 }else{
                                     Log.w(TAG,"remove pathology failure");

@@ -81,7 +81,43 @@ public class RelationDao {
                                             valueReturn = false;
                                         }
                                     });
+                        }else{
+                            System.out.println("non trovato");
                         }
+                    }
+                });
+
+        collectionRelation
+                .whereEqualTo("idAnimal1",idAnimal2)
+                .whereEqualTo("idAnimal2",idAnimal1)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+                            collectionRelation.document(document.getId())
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                            valueReturn = true;
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error deleting document", e);
+                                            valueReturn = false;
+                                        }
+                                    });
+                        }else{
+                            System.out.println("non trovato");
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG,"fallito",e);
                     }
                 });
     }
@@ -101,6 +137,7 @@ public class RelationDao {
                             Timestamp timestamp = document.getTimestamp("birthdate");
                             if (timestamp != null) {
                                 Date birthDate = timestamp.toDate();
+
                                 int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
                                 AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
                                 Animal getAnimal = Animal.Builder.create(document.getId(), AnimalStates.ADOPTED)
@@ -137,48 +174,66 @@ public class RelationDao {
                 Query query1 = collectionRelation.whereEqualTo("idAnimal1", idAnimal);
                 Query query2 = collectionRelation.whereEqualTo("idAnimal2", idAnimal);
 
-                Task<QuerySnapshot> query1Result = query1.get();
-                Task<QuerySnapshot> query2Result = query2.get();
+                List<DocumentSnapshot> resultList = new ArrayList<>();
 
-                Tasks.whenAllSuccess(query1Result, query2Result)
-                        .addOnSuccessListener(new OnSuccessListener<List<Object>>() {
-                            @Override
-                            public void onSuccess(List<Object> results) {
-                                List<QuerySnapshot> snapshots = new ArrayList<>();
-                                for (Object result : results) {
-                                    snapshots.add((QuerySnapshot) result);
-                                }
+                query1.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task1) {
+                        System.out.println("entrato in 1");
+                        if (task1.isSuccessful()) {
+                            System.out.println("successo in 1");
+                            resultList.addAll(task1.getResult().getDocuments());
+                            query2.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(Task<QuerySnapshot> task2) {
+                                    System.out.println("entrato in 2");
+                                    if (task2.isSuccessful()) {
+                                        System.out.println("successo in 2");
+                                        resultList.addAll(task2.getResult().getDocuments());
 
-                                for (QuerySnapshot snapshot : snapshots) {
-                                    for (DocumentSnapshot document : snapshot.getDocuments()) {
-                                        final Relation.relationType[] relation = new Relation.relationType[1];
-                                        relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
-                                        String idAnimal1 = document.getString("idAnimal1");
-                                        String idAnimal2 = document.getString("idAnimal2");
-                                        String searchAnimalId;
-
-                                        if (idAnimal.equals(idAnimal1)){
-                                            searchAnimalId = idAnimal2;
-                                        }else{
-                                            searchAnimalId = idAnimal1;
-                                        }
-
-                                        getAnimalClass(searchAnimalId, new OnRelationClassAnimalListener() {
-                                            @Override
-                                            public void onRelationClassAnimalListener(Animal animalList) {
-                                                assert searchAnimalId != null;
-                                                if (searchAnimalId.equals(idAnimal1)) {
-                                                    listRelation.add(Relation.Builder.create(idAnimal2, relation[0], animalList).build());
-                                                }else{
-                                                    listRelation.add(Relation.Builder.create(idAnimal1, relation[0], animalList).build());
+                                        if (resultList.size()>0) {
+                                            for (DocumentSnapshot document : resultList) {
+                                                final Relation.relationType[] relation = new Relation.relationType[1];
+                                                relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
+                                                String idAnimal1 = document.getString("idAnimal1");
+                                                String idAnimal2 = document.getString("idAnimal2");
+                                                String searchAnimalId;
+                                                if (idAnimal.equals(idAnimal1)) {
+                                                    searchAnimalId = idAnimal2;
+                                                } else {
+                                                    searchAnimalId = idAnimal1;
                                                 }
-                                                listener.onRelationAnimalListener(listRelation, animalGetList);
+
+
+                                                getAnimalClass(searchAnimalId, new OnRelationClassAnimalListener() {
+                                                    @Override
+                                                    public void onRelationClassAnimalListener(Animal animalClass) {
+                                                        assert searchAnimalId != null;
+                                                        if (searchAnimalId.equals(idAnimal1)) {
+                                                            listRelation.add(Relation.Builder.create(idAnimal2, relation[0], animalClass).build());
+                                                        } else {
+                                                            listRelation.add(Relation.Builder.create(idAnimal1, relation[0], animalClass).build());
+                                                        }
+                                                        listener.onRelationAnimalListener(listRelation, animalGetList);
+                                                    }
+                                                });
                                             }
-                                        });
+                                        }else{
+                                            System.out.println("vuoto");
+                                            listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
+                                        }
+                                    } else {
+                                        Log.w(TAG,"fallito 2");
+                                        listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
                                     }
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            Log.w(TAG,"fallito 1");
+                            listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
+                        }
+                    }
+                });
             }
         });
     }
@@ -194,14 +249,13 @@ public class RelationDao {
                         if (timestamp != null) {
                             Date birthDate = timestamp.toDate();
                             int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
-                            //TODO da capire come sistemare lo stato dell'animale al suo tipo
                             AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
-                            Animal getAnimal = Animal.Builder.create(document.getId(),AnimalStates.ADOPTED)
-                                .setSpecies(species)
-                                .setBirthDate(birthDate)
-                                .setName(document.getString("name"))
-                                .setOwner(document.getString("ownerID"))
-                                .build();
+                            Animal getAnimal = Animal.Builder.create(document.getId(), AnimalStates.ADOPTED)
+                                    .setSpecies(species)
+                                    .setBirthDate(birthDate)
+                                    .setName(document.getString("name"))
+                                    .setOwner(document.getString("ownerID"))
+                                    .build();
                             listener.onRelationClassAnimalListener(getAnimal);
                         }
                     }else{
@@ -223,6 +277,6 @@ public class RelationDao {
     }
 
     public interface OnRelationClassAnimalListener{
-        void onRelationClassAnimalListener(Animal animalList);
+        void onRelationClassAnimalListener(Animal animalClass);
     }
 }
