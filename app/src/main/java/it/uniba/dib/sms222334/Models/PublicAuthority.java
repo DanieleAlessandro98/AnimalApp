@@ -117,7 +117,7 @@ public class PublicAuthority extends User implements Owner, Parcelable {
     }
 
     @Override
-    public void updateProfile() {
+    public void updateProfile(final Private.CallBackListener callBack) {
 
     }
 

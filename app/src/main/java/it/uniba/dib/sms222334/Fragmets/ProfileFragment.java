@@ -105,7 +105,7 @@ public class ProfileFragment extends Fragment {
     private Button deleteButton;
     private Button editPhotoButton;
 
-    private Dialog editDialog;
+    public Dialog editDialog;
     private TextView nameView;
     private TextView emailView;
 
@@ -132,6 +132,10 @@ public class ProfileFragment extends Fragment {
         changeTab(TabPosition.ANIMAL,false);
     }
 
+    public void reflesh(User profile){
+        nameView.setText(profile.getName());
+        emailView.setText(profile.getEmail());
+    }
 
     @Nullable
     @Override

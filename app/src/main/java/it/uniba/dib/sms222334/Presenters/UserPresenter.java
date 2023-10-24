@@ -96,13 +96,19 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 @Override
                 public void onPhotoUploaded() {
                     profileModel.setPhoto(profileView.getPhotoPicked());
-                    profileModel.updateProfile();
+                    profileModel.updateProfile(new Private.CallBackListener() {
+                        @Override
+                        public void onCallBackReady(boolean value) {
+
+                        }
+                    });
                     profileView.showUpdateSuccessful();
                 }
 
                 @Override
                 public void onPhotoUploadFailed(Exception exception) {
                     profileView.showPhotoUpdateError();
+
                 }
             };
 
@@ -110,8 +116,19 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
         }
         else {
-            profileModel.updateProfile();
-            profileView.showUpdateSuccessful();
+            profileModel.updateProfile(new Private.CallBackListener() {
+                @Override
+                public void onCallBackReady(boolean value) {
+                    if (value){
+                        System.out.println("modificato");
+                        profileView.showUpdateSuccessful();
+                        profileView.editDialog.cancel();
+                        profileView.reflesh(profileModel);
+                    }else{
+                        System.out.println("errore modifica");
+                    }
+                }
+            });
         }
     }
 

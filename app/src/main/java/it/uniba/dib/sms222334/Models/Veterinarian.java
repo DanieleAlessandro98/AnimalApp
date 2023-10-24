@@ -149,7 +149,7 @@ public class Veterinarian extends User implements Parcelable{
         }
     };
 
-    public void updateProfile() {
+    public void updateProfile(final Private.CallBackListener callBack) {
 
     }
     public void registerVeterinarian(UserCallback.UserRegisterCallback callback) {
