@@ -109,6 +109,11 @@
     <string name="user_not_logged_report">Anonymous user</string>
     <string name="animal_name_unknown_report">Unknown name</string>
     <string name="description_offer_beds_request">Available beds: </string>
+    <string name="permission_explanation_dialog_grant">Grant</string>
+    <string name="permission_explanation_dialog_cancel">Cancel</string>
+    <string name="permission_location_explanation_title_for_report">Permission needed</string>
+    <string name="permission_location_explanation_description_for_report">To continue, permission must be granted to access the position</string>
+    <string name="permission_location_not_granted_description_for_report">You cannot use this functionality because you have not granted localization permission</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

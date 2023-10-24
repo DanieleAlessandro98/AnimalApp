@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -43,24 +44,22 @@ import java.util.List;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Document;
-import it.uniba.dib.sms222334.Models.Report;
-import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Utils.AnimalSpecies;
-import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.Permissions.AndroidPermission;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
-import it.uniba.dib.sms222334.Utils.ReportType;
+import it.uniba.dib.sms222334.Utils.Permissions.PermissionInterface;
+import it.uniba.dib.sms222334.Utils.Permissions.PermissionManager;
 import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
 import it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport.RequestReportAdapter;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements PermissionInterface<AndroidPermission> {
 
     final static String TAG="HomeFragment";
 
@@ -81,6 +80,8 @@ public class HomeFragment extends Fragment {
     private boolean isSharedAnimalProfile;
     private RequestReportAdapter adapter;
     private ArrayList combinedList;
+
+    private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     public HomeFragment() {
     }
@@ -117,6 +118,8 @@ public class HomeFragment extends Fragment {
         reportPresenter = new ReportPresenter(this);
         requestPresenter = new RequestPresenter(this);
 
+        registerPermissionLauncher();
+
         final View layout= inflater.inflate(R.layout.home_fragment,container,false);
 
         recyclerView = layout.findViewById(R.id.list_item);
@@ -143,6 +146,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void launchReportDialog() {
+        launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+    }
+
+    public void openReportDialog() {
         selectedAnimal = null;
 
         editDialog = new Dialog(getContext());
@@ -635,5 +642,66 @@ public class HomeFragment extends Fragment {
 
     public void showRequestCreateError() {
         Toast.makeText(requireContext(), this.getString(R.string.request_create_error), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Fragment getFragment() {
+        return this;
+    }
+
+    @Override
+    public void registerPermissionLauncher() {
+        requestPermissionLauncher = PermissionManager.getInstance().registerPermissionLauncher(this);
+    }
+
+    @Override
+    public void requestPermission(AndroidPermission permission) {
+        String permissionString = AndroidPermission.findManifestStringFromAndroidPermission(permission);
+        requestPermissionLauncher.launch(new String[]{permissionString});
+    }
+
+    @Override
+    public void launchPermissionHandler(AndroidPermission permission) {
+        PermissionManager.getInstance().checkAndRequestPermission(getActivity(), this, permission);
+    }
+
+    @Override
+    public void showPermissionExplanation(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(this.getString(R.string.permission_location_explanation_title_for_report));
+                builder.setMessage(this.getString(R.string.permission_location_explanation_description_for_report));
+                builder.setPositiveButton(this.getString(R.string.permission_explanation_dialog_grant), (dialog, which) -> {
+                    requestPermission(permission);
+                    dialog.dismiss();
+                });
+
+                builder.setNegativeButton(this.getString(R.string.permission_explanation_dialog_cancel), null);
+                builder.show();
+                break;
+        }
+    }
+
+    @Override
+    public void permissionGranted(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                openReportDialog();
+                break;
+        }
+    }
+
+    @Override
+    public void permissionNotGranted(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                AnimalAppDialog dialog = new AnimalAppDialog(getContext());
+                dialog.setContentView(this.getString(R.string.permission_location_not_granted_description_for_report), AnimalAppDialog.DialogType.CRITICAL);
+                dialog.setBannerText(this.getString(R.string.warning));
+                dialog.hideButtons();
+                dialog.show();
+                break;
+        }
     }
 }
