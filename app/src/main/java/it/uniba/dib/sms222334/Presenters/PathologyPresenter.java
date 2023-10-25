@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,25 +25,21 @@ public class PathologyPresenter {
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
             pathology = Pathology.Builder.create("",idAnimal,name).build();
-            //TODO ho fatto passare per parametro perché non sto capendo come prendere i paramentri dalla Build
-            if(Pathology.createPathology(idAnimal,name)) {
+            if(pathology.createPathology(idAnimal,name)) {
                 return pathology;
             }
         }else{
-            System.out.println(name+"   the string is not currect");
+            Log.w("W","The creation is failure");
         }
         return null;
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public boolean action_delete(String idAnimal, String name){
-        if (idAnimal != null && name != null){
-            boolean value =Pathology.deletePathology(idAnimal,name);
-            System.out.println("return value "+value);
-            return value;
+    public void action_delete(String idPathology){
+        if (idPathology != null){
+            Pathology.deletePathology(idPathology);
         }else{
             System.out.println("the Pathology is not Exist");
-            return false;
         }
     }
 

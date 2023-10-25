@@ -44,59 +44,37 @@ public class PathologyDao {
                 });
     }
 
-    private boolean value = true;
-
-    public boolean deleteAnimalPathology(String idAnimal,String name) {
-        collectionPathology
-                .whereEqualTo("ID animal",idAnimal)
-                .whereEqualTo("Type pathology",name)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                        collectionPathology.document(document.getId()).delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error deleting document", e);
-                                    }
-                                });
+    public void deleteAnimalPathology(String idPathology) {
+        collectionPathology.document(idPathology)
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
                     }
-                }
-            }
-        });
-        return value;
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
     }
 
 
     private static boolean valueReturn = true;
 
-    public boolean createPathology(String IdAnimal, String TypePathology){
+    public boolean createPathology(String IdAnimal, String TypePathology, Pathology pathology){
         Map<String,String> newAnimal = new HashMap<>();
 
         newAnimal.put("ID animal",IdAnimal);
         newAnimal.put("Type pathology",TypePathology);
 
-        collectionPathology.add(newAnimal).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(TAG,"Creazione avenuta");
-                valueReturn = true;
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG,"Creazione patologia fallita");
-                valueReturn = false;
-            }
+        collectionPathology.add(newAnimal).addOnSuccessListener(documentReference -> {
+            Log.d(TAG,"Creazione avenuta");
+            pathology.setId(documentReference.getId());
+            valueReturn = true;
+        }).addOnFailureListener(e -> {
+            Log.d(TAG,"Creazione patologia fallita");
+            valueReturn = false;
         });
         return valueReturn;
     }

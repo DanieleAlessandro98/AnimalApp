@@ -12,21 +12,21 @@ import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 public class Pathology extends Document implements Parcelable{
     private String name;
     private String idAnimal;
-    //TODO chiedere come si crea la classe nel present
+    private String id;
     private Pathology(String id,String idAnimal,String name) {
         super(id);
         this.idAnimal = idAnimal;
         this.name = name;
     }
 
-    public static boolean createPathology (String idAnimal, String name){
+    public boolean createPathology (String idAnimal, String name){
         PathologyDao dao = new PathologyDao();
-        return dao.createPathology(idAnimal,name);
+        return dao.createPathology(idAnimal,name,this);
     }
 
-    public static boolean deletePathology(String idAnimal,String name){
+    public static void deletePathology(String idPathology){
         PathologyDao dao = new PathologyDao();
-        return dao.deleteAnimalPathology(idAnimal,name);
+        dao.deleteAnimalPathology(idPathology);
     }
 
 
@@ -43,17 +43,20 @@ public class Pathology extends Document implements Parcelable{
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getIdAnimal() {
         return idAnimal;
     }
-
     public void setIdAnimal(String idAnimal) {
         this.idAnimal = idAnimal;
+    }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
     public static class Builder {

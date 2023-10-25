@@ -403,23 +403,15 @@ public class ListFragment extends Fragment{
 
                         }
                     });
-                    /**
-                     * ho creato e inizializzato la classe present, poi ho chiamato il metodo del present
-                     * per creare una patologia e ritorna la classe patologia del model se la creazione è
-                     * andata a buon fine, infine ho cancellato il dialogo e ho aggiunto la classe patologia
-                     * alla lista delle patologie con inseguito un aggiornameto della view.
-                     */
-                    save.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            PathologyPresenter pathology = new PathologyPresenter();
-                            Pathology pathologyValue = pathology.action_create(animal.getFirebaseID(),getValue[0]);
-                            if (pathologyValue != null) {
-                                addDialog.cancel();
 
-                                pathologyList.add(pathologyValue);
-                                recyclerView.setAdapter(pathologyAdapter);
-                            }
+                    save.setOnClickListener(view -> {
+                        PathologyPresenter pathology = new PathologyPresenter();
+                        Pathology pathologyValue = pathology.action_create(animal.getFirebaseID(),getValue[0]);
+                        if (pathologyValue != null) {
+                            addDialog.cancel();
+
+                            pathologyList.add(pathologyValue);
+                            recyclerView.setAdapter(pathologyAdapter);
                         }
                     });
                     ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_pathologies,
@@ -680,12 +672,9 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 PathologyPresenter pathology = new PathologyPresenter();
-                                if (pathology.action_delete(pathologyAdapter.simpleItemList.get(pos).getIdAnimal(),
-                                        pathologyAdapter.simpleItemList.get(pos).getName())) {
-                                    pathologyAdapter.removeSimpleElement(pos);
-                                }else{
-                                    Log.w(TAG,"remove pathology failure");
-                                }
+                                String idPathology = pathologyAdapter.simpleItemList.get(pos).getFirebaseID();
+                                pathology.action_delete(idPathology);
+                                pathologyAdapter.removeSimpleElement(pos);
                                 return null;
                             });
                         }
