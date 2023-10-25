@@ -48,16 +48,6 @@ public class Relation extends Document implements Parcelable{
         return true;
     }
 
-    public static void getListAnimal(String ownerID, final RelationDao.OnRelationListener listener){
-        RelationDao dao = new RelationDao();
-        dao.getListAnimalDao(ownerID, new RelationDao.OnRelationListener() {
-            @Override
-            public void onGetAnimalListener(List<Animal> animalList) {
-                listener.onGetAnimalListener(animalList);
-            }
-        });
-    }
-
     public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
         RelationDao dao = new RelationDao();
         dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {

@@ -36,15 +36,6 @@ public class RelationPresenter {
         }
     }
 
-    public void action_getAnimal(String ownerID,final RelationDao.OnRelationListener listener){
-        Relation.getListAnimal(ownerID, new RelationDao.OnRelationListener() {
-            @Override
-            public void onGetAnimalListener(List<Animal> animalList) {
-                listener.onGetAnimalListener(animalList);
-            }
-        });
-    }
-
     public void action_getRelation(String ownerID,String idAnimal,final RelationDao.OnRelationAnimalListener listener){
         Relation.getListRelation(ownerID,idAnimal, new RelationDao.OnRelationAnimalListener() {
             @Override

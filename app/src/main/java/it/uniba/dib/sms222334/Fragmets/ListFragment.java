@@ -639,7 +639,7 @@ public class ListFragment extends Fragment{
                                 String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
                                 if (relation.deleteRelation(idAnimal1,idAnimal2)) {
                                     relationAdapter.removeRelation(pos);
-                                    System.out.println("eliminato");
+                                    System.out.println("delete the relation");
                                 }
                                 return null;
                             });
