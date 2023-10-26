@@ -13,8 +13,8 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import it.uniba.dib.sms222334.R;
 
-public class MyLocationManager {
-    private static MyLocationManager instance;
+public class LocationTracker {
+    private static LocationTracker instance;
 
     private Context context;
     private boolean isTracking;
@@ -22,7 +22,7 @@ public class MyLocationManager {
     private LocationListener locationListener;
     private LocationManager locationManager;
 
-    private MyLocationManager(Context context) {
+    private LocationTracker(Context context) {
         this.context = context;
         isTracking = false;
 
@@ -35,9 +35,9 @@ public class MyLocationManager {
         };
     }
 
-    public static MyLocationManager getInstance(Context context) {
+    public static LocationTracker getInstance(Context context) {
         if (instance == null)
-            instance = new MyLocationManager(context);
+            instance = new LocationTracker(context);
 
         return instance;
     }
