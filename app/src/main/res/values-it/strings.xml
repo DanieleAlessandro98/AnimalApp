@@ -111,6 +111,10 @@
     <string name="permission_location_explanation_title_for_report">Permesso necessario</string>
     <string name="permission_location_explanation_description_for_report">Per continuare, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
     <string name="permission_location_not_granted_description_for_report">Non puoi utilizzare questa funzionalità perchè non hai concesso i permessi di localizzazione</string>
+    <string name="location_not_available">La tua posizione non è al momento disponibile</string>
+    <string name="location_gps_disabled_message">Per utilizzare questa funzionalità, è necessario attivare il GPS. Vuoi attivarlo?</string>
+    <string name="settings">Impostazioni</string>
+    <string name="location_gps_disabled_cancel">Annulla</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

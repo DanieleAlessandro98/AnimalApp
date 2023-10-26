@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -48,6 +49,7 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.LocationTracker;
 import it.uniba.dib.sms222334.Utils.Permissions.AndroidPermission;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Utils.Permissions.PermissionInterface;
@@ -61,7 +63,7 @@ import it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport.RequestR
 
 public class HomeFragment extends Fragment implements PermissionInterface<AndroidPermission> {
 
-    final static String TAG="HomeFragment";
+    final static String TAG = "HomeFragment";
 
     UserRole role;
     Button requestButton;
@@ -90,6 +92,8 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     public void onResume() {
         super.onResume();
 
+        LocationTracker.getInstance(getContext()).startLocationUpdates();
+
         this.isLogged = SessionManager.getInstance().isLogged();
 
         if (isLogged)
@@ -99,15 +103,14 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             launchReportDialog();
         });
 
-        if(role == UserRole.VETERINARIAN){
+        if (role == UserRole.VETERINARIAN) {
             requestButton.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             requestButton.setOnClickListener(v -> {
-                if(isLogged)
+                if (isLogged)
                     launchRequestDialog();
                 else
-                    ((MainActivity)getActivity()).forceLogin();
+                    ((MainActivity) getActivity()).forceLogin();
             });
         }
     }
@@ -118,9 +121,11 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         reportPresenter = new ReportPresenter(this);
         requestPresenter = new RequestPresenter(this);
 
+        LocationTracker.getInstance(getContext()).startLocationUpdates();
+
         registerPermissionLauncher();
 
-        final View layout= inflater.inflate(R.layout.home_fragment,container,false);
+        final View layout = inflater.inflate(R.layout.home_fragment, container, false);
 
         recyclerView = layout.findViewById(R.id.list_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -128,7 +133,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
         loadReportsAndRequests();
 
-        Log.d(TAG,recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item)+"");
+        Log.d(TAG, recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item) + "");
 
         requestButton = layout.findViewById(R.id.add_request);
         reportButton = layout.findViewById(R.id.add_report);
@@ -158,8 +163,8 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
         photoImageView = editDialog.findViewById(R.id.image_view);
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
-        Button saveButton= editDialog.findViewById(R.id.save_button);
+        Button backButton = editDialog.findViewById(R.id.back_button);
+        Button saveButton = editDialog.findViewById(R.id.save_button);
         ImageButton photoButton = editDialog.findViewById(R.id.image_button);
 
         AnimalAppEditText name = editDialog.findViewById(R.id.nameEditText);
@@ -167,11 +172,11 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         AnimalAppEditText age = editDialog.findViewById(R.id.ageEditText);
         Switch shareAnimalProfile = editDialog.findViewById(R.id.share_profile_switch);
 
-        Spinner reportSpinner= editDialog.findViewById(R.id.report_spinner);
+        Spinner reportSpinner = editDialog.findViewById(R.id.report_spinner);
         Spinner myAnimalSpinner = editDialog.findViewById(R.id.my_animal_spinner);
-        Spinner speciesSpinner= editDialog.findViewById(R.id.species_spinner);
+        Spinner speciesSpinner = editDialog.findViewById(R.id.species_spinner);
 
-        ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> speciesAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
@@ -183,7 +188,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 myAnimalNames);
         myAnimalSpinner.setAdapter(myAnimalAdapter);
 
-        ArrayAdapter<CharSequence> reportAdapter= ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> reportAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.report_type,
                 android.R.layout.simple_list_item_1);
         reportSpinner.setAdapter(reportAdapter);
@@ -237,18 +242,25 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
         backButton.setOnClickListener(v -> editDialog.cancel());
 
-        saveButton.setOnClickListener(v -> reportPresenter.onAdd(
-                reportSpinner.getSelectedItemPosition(),
-                speciesSpinner.getSelectedItemPosition(),
-                description.getText().toString(),
-                name.getText().toString(),
-                age.getText().toString(),
-                selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
-                isSharedAnimalProfile
-                ));
+        saveButton.setOnClickListener(v -> {
+            Location location = LocationTracker.getInstance(getContext()).getLocation();
+            if (location != null) {
+                reportPresenter.onAdd(
+                        reportSpinner.getSelectedItemPosition(),
+                        speciesSpinner.getSelectedItemPosition(),
+                        description.getText().toString(),
+                        name.getText().toString(),
+                        age.getText().toString(),
+                        (float) location.getLatitude(),
+                        (float) location.getLongitude(),
+                        selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                        isSharedAnimalProfile
+                );
+            }
+        });
 
         editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
@@ -388,18 +400,18 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     private void launchRequestDialog() {
         selectedAnimal = null;
 
-        editDialog=new Dialog(getContext());
+        editDialog = new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_request);
 
-        Spinner requestSpinner= editDialog.findViewById(R.id.request_spinner);
-        Spinner animalSpinner= editDialog.findViewById(R.id.animal_chooser);
-        Spinner speciesSpinner= editDialog.findViewById(R.id.species_chooser);
-        AnimalAppEditText beds= editDialog.findViewById(R.id.beds);
-        AnimalAppEditText description= editDialog.findViewById(R.id.description);
+        Spinner requestSpinner = editDialog.findViewById(R.id.request_spinner);
+        Spinner animalSpinner = editDialog.findViewById(R.id.animal_chooser);
+        Spinner speciesSpinner = editDialog.findViewById(R.id.species_chooser);
+        AnimalAppEditText beds = editDialog.findViewById(R.id.beds);
+        AnimalAppEditText description = editDialog.findViewById(R.id.description);
 
         ArrayAdapter<CharSequence> requestAdapter;
-        ArrayAdapter<CharSequence> speciesAdapter=ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> speciesAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
@@ -411,8 +423,8 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 myAnimalNames);
         animalSpinner.setAdapter(animalAdapter);
 
-        if(role== UserRole.PRIVATE){
-            requestAdapter= ArrayAdapter.createFromResource(getContext(),
+        if (role == UserRole.PRIVATE) {
+            requestAdapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.private_request_type,
                     android.R.layout.simple_list_item_1);
 
@@ -421,7 +433,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             requestSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    switch (position){
+                    switch (position) {
                         case 0:
                             speciesSpinner.setVisibility(View.VISIBLE);
                             animalSpinner.setVisibility(View.GONE);
@@ -438,16 +450,15 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
                 }
             });
-        }
-        else{
-            requestAdapter= ArrayAdapter.createFromResource(getContext(),
+        } else {
+            requestAdapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.authority_request_type,
                     android.R.layout.simple_list_item_1);
 
             requestSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    switch (position){
+                    switch (position) {
                         case 0:
                             speciesSpinner.setVisibility(View.VISIBLE);
                             beds.setVisibility(View.VISIBLE);
@@ -483,10 +494,10 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         requestSpinner.setAdapter(requestAdapter);
         requestSpinner.setSelection(0);
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
+        Button backButton = editDialog.findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> editDialog.cancel());
 
-        Button createButton= editDialog.findViewById(R.id.create_button);
+        Button createButton = editDialog.findViewById(R.id.create_button);
         createButton.setOnClickListener(v -> requestPresenter.onAdd(
                 findRequestType(requestSpinner),
                 description.getText().toString(),
@@ -496,7 +507,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         ));
 
         editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
@@ -703,5 +714,17 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 dialog.show();
                 break;
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocationTracker.getInstance(getContext()).stopLocationUpdates();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LocationTracker.getInstance(getContext()).stopLocationUpdates();
     }
 }
