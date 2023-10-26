@@ -149,7 +149,7 @@ public class Private extends User implements Owner, Parcelable {
     @Override
     public void deleteProfile() {
         for (Animal animal : listAnimal) {
-            animal.delete();
+            animal.delete(null);
         }
 
         PrivateDao privateDao = new PrivateDao();

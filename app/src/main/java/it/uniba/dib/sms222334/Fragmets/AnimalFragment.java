@@ -66,6 +66,8 @@ public class AnimalFragment extends Fragment {
 
     TextView name,species,race,age,state;
 
+    public ViewPager2 mViewPager;
+
     ShapeableImageView profileImage;
 
     ProfileFragment.Type profileType;
@@ -187,21 +189,13 @@ public class AnimalFragment extends Fragment {
         this.state=layout.findViewById(R.id.state);
         this.profileImage=layout.findViewById(R.id.profile_picture);
 
+        this.mViewPager=layout.findViewById(R.id.carousel);
 
         refresh(animal);
-
 
         backButton=layout.findViewById(R.id.back_button);
 
         backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
-
-        ViewPager2 mViewPager = layout.findViewById(R.id.carousel);
-
-        CarouselPageAdapter mAdapter = new CarouselPageAdapter(this, animal);
-        mViewPager.setAdapter(mAdapter);
-        mViewPager.setPageTransformer(mAdapter);
-
-        mViewPager.setCurrentItem(0);
 
         //mViewPager.setOffscreenPageLimit(3);
 
@@ -209,8 +203,8 @@ public class AnimalFragment extends Fragment {
     }
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
-        Fragment fragment=null;
-        int enterAnimation=0,exitAnimation=0;
+        Fragment fragment;
+        int enterAnimation,exitAnimation;
 
         switch (tabType){
             case RELATION:
@@ -505,6 +499,12 @@ public class AnimalFragment extends Fragment {
         this.age.setText(DateUtilities.calculateAge(animal.getBirthDate(),getContext()));
         this.state.setText(AnimalStates.values()[animal.getState().ordinal()].toString());
         this.profileImage.setImageBitmap(animal.getPhoto());
+
+        CarouselPageAdapter mAdapter = new CarouselPageAdapter(this, animal);
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setPageTransformer(mAdapter);
+
+        mViewPager.setCurrentItem(0);
     }
 
     private void updateAnimal(AnimalAppDialog editDialog, Calendar c, AnimalAppEditText microchip,AnimalAppEditText nameEditText, String newEmailOwner, String[] newOwnerReference, String oldMicroChip){

@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
@@ -53,7 +55,7 @@ public class AnimalDao {
     final public static StorageReference animalStorage = FirebaseStorage.getInstance().getReference().child("images/profiles/animals/");
 
 
-    public void createAnimal(Animal animal ,AnimalCallbacks.creationCallback callback){ //TODO risolvere problema accesso
+    public void createAnimal(@NonNull Animal animal , AnimalCallbacks.creationCallback callback){ //TODO risolvere problema accesso
         Map<String, Object> new_animal = new HashMap<>();
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_NAME, animal.getName());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE, new Timestamp(animal.getBirthDate()));
@@ -132,19 +134,19 @@ public class AnimalDao {
                 });
     }
     
-    public void editAnimal(Animal animal,String ownerEmail, AnimalCallbacks.updateCallback callback,boolean profilePictureFlag) {
+    public void editAnimal(@NonNull Animal animal, String ownerEmail, @Nullable AnimalCallbacks.updateCallback callback, boolean profilePictureFlag) {
 
         Map<String, Object> editedAnimal = new HashMap<>();
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_NAME, animal.getName());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE, new Timestamp(animal.getBirthDate()));
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP, animal.getMicrochip());
-        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_IMAGES, new ArrayList<>());
+        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_IMAGES, animal.getPhotos());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_RACE, animal.getRace());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, animal.getOwnerReference());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_PHOTO, "");
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies().ordinal());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animal.getState().ordinal());
-        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, new ArrayList<>());
+        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, animal.getVideos());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         animal.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -167,7 +169,8 @@ public class AnimalDao {
                         editAnimalOwners(animal,ownerEmail, new UserCallback.UserUpdateCallback() {
                             @Override
                             public void notifyUpdateSuccesfull() {
-                                callback.updatedSuccesfully();
+                                if(callback!=null)
+                                    callback.updatedSuccesfully();
                             }
 
                             @Override
@@ -175,7 +178,9 @@ public class AnimalDao {
                                 editedAnimal.remove(AnimalAppDB.Animal.COLUMN_NAME_OWNER);
                                 editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, animal.getOwnerReference());
                                 collectionAnimal.document(animal.getFirebaseID()).update(editedAnimal);
-                                callback.failedUpdate();
+
+                                if(callback!=null)
+                                    callback.failedUpdate();
                             }
                         });
                     }
@@ -184,15 +189,15 @@ public class AnimalDao {
                                 .getInstance()
                                 .getCurrentUser())
                                 .updateAnimal(animal,profilePictureFlag);
-
-                        callback.updatedSuccesfully();
+                        if(callback!=null)
+                            callback.updatedSuccesfully();
                     }
                 })
                 .addOnFailureListener(command -> {
-                    callback.failedUpdate();
+                    if(callback!=null)
+                        callback.failedUpdate();
                 });
     }
-
 
     private void updateNewOwner(Animal animal,String ownerEmail,UserCallback.UserUpdateCallback callback){
         PrivateDao privateDao= new PrivateDao();
@@ -276,7 +281,6 @@ public class AnimalDao {
         });
     }
 
-
     private void editAnimalOwners(Animal animal,String ownerEmail,UserCallback.UserUpdateCallback callback){
         Owner user= (Owner) SessionManager.getInstance().getCurrentUser();
 
@@ -312,7 +316,7 @@ public class AnimalDao {
         }
     }
 
-    public void getAnimalByReference(DocumentReference animalRef, final String resultPrivateReference, final DatabaseCallbackResult<Animal> listener) {
+    public void getAnimalByReference(@NonNull DocumentReference animalRef, final String resultPrivateReference, final DatabaseCallbackResult<Animal> listener) {
         animalRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -321,7 +325,7 @@ public class AnimalDao {
                     Animal resultAnimal = findAnimal(document, resultPrivateReference);
 
                     //TODO togliere da qui
-                    final long MAX_SIZE = 4096 * 4096; // dimensione massima dell'immagine in byte
+                    final long MAX_SIZE = 4096 * 4096; //dimensione massima dell'immagine in byte
 
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageRef = storage.getReference().child(Animal.PHOTO_PATH+document.getId()+".jpg");
@@ -368,25 +372,25 @@ public class AnimalDao {
                 });
     }
 
-    private void findAnimalImages(DocumentSnapshot document, Animal animal) {
+    private void findAnimalImages(@NonNull DocumentSnapshot document, Animal animal) {
         ArrayList<HashMap<String, Object>> images=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.COLUMN_NAME_IMAGES));
 
         for (HashMap<String, Object> image : images) {
             Log.d(TAG,"image: "+ image.get("photo")+"\ntimestamp: "+image.get("timestamp"));
-            animal.addImage(new Photo((String) image.get("photo"),(Timestamp) image.get("timestamp")));
+            animal.addImage(new Photo((String) image.get("path"),(Timestamp) image.get("timestamp")));
         }
     }
 
-    private void findAnimalVideos(DocumentSnapshot document, Animal animal) {
+    private void findAnimalVideos(@NonNull DocumentSnapshot document, Animal animal) {
         ArrayList<HashMap<String, Object>> videos=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS));
 
         for (HashMap<String, Object> video : videos) {
             Log.d(TAG,"video: "+ video.get("video")+"\ntimestamp: "+video.get("timestamp"));
-            animal.addVideo(new Video((String) video.get("video"),(Timestamp) video.get("timestamp")));
+            animal.addVideo(new Video((String) video.get("path"),(Timestamp) video.get("timestamp")));
         }
     }
 
-    private Animal findAnimal(DocumentSnapshot document, final String resultPrivateRefernce) {
+    private Animal findAnimal(@NonNull DocumentSnapshot document, final String resultPrivateRefernce) {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
         AnimalStates state = AnimalStates.values()[stateInteger];
 
@@ -404,7 +408,7 @@ public class AnimalDao {
         return animal_find.build();
     }
 
-    public void deleteAnimal(Animal animal, AnimalCallbacks.eliminationCallback callback) {
+    public void deleteAnimal(Animal animal, @Nullable AnimalCallbacks.eliminationCallback callback) {
 
         User user=SessionManager.getInstance().getCurrentUser();
 
@@ -423,15 +427,16 @@ public class AnimalDao {
 
                         animalStorage.child(firebaseID+".jpg").delete().addOnSuccessListener(command ->
                                 {
-                                    callback.eliminatedSuccesfully();
+                                    if(callback!=null)
+                                        callback.eliminatedSuccesfully();
                                 }
                         );
-
                     }
 
                     @Override
                     public void notifyUpdateFailed() {
-                        callback.failedElimination();
+                        if(callback!=null)
+                            callback.failedElimination();
                         ((Private) user).addAnimal(animal);
                     }
                 });
@@ -445,11 +450,10 @@ public class AnimalDao {
 
                         collectionAnimal.document(firebaseID).delete();
 
-                        collectionAnimal.document(firebaseID).delete();
-
                         animalStorage.child(firebaseID+".jpg").delete().addOnSuccessListener(command ->
                                 {
-                                    callback.eliminatedSuccesfully();
+                                    if(callback!=null)
+                                        callback.eliminatedSuccesfully();
                                 }
                         );
 
@@ -457,7 +461,8 @@ public class AnimalDao {
 
                     @Override
                     public void notifyUpdateFailed() {
-                        callback.failedElimination();
+                        if(callback!=null)
+                            callback.failedElimination();
                         ((PublicAuthority) user).addAnimal(animal);
                     }
                 });
@@ -493,7 +498,7 @@ public class AnimalDao {
                 });
     }
 
-    public DocumentReference findAnimalRef(String animalID) {
+    public DocumentReference findAnimalRef(@NonNull String animalID) {
         if (animalID.equals(""))
             return null;
 

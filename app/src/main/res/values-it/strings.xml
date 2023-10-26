@@ -51,8 +51,17 @@
     <string name="years">Anni</string>
     <string name="month">Mese</string>
     <string name="months">Mesi</string>
+    <string name="week">Settimana</string>
+    <string name="weeks">Settimane</string>
     <string name="day">Giorno</string>
     <string name="days">Giorni</string>
+    <string name="hour">Ora</string>
+    <string name="hours">Ore</string>
+    <string name="minute">Minuto</string>
+    <string name="minutes">Minuti</string>
+    <string name="seconds">Secondi</string>
+    <string name="ago">fa</string>
+    <string name="now">Ora</string>
     <string name="born_today">nato oggi!</string>
     <string name="invalid_user_name">Nome non valido. Solo caratteri</string>
     <string name="invalid_microchip">Microchip non valido. Richiesti 15 caratteri</string>

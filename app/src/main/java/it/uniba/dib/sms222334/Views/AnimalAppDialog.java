@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import java.util.concurrent.Callable;
+
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.R;
 
@@ -100,5 +102,24 @@ public class AnimalAppDialog extends Dialog implements AnimalCallbacks.inputVali
         if(this.inputCallback!=null) {
             inputCallback.MicrochipAlreadyUsed();
         }
+    }
+
+    public static void launchConfirmDialog(Callable<Void> confirmAction,Context context){
+        final AnimalAppDialog deleteDialog=new AnimalAppDialog(context);
+
+        deleteDialog.setContentView(context.getString(R.string.this_element_will_be), AnimalAppDialog.DialogType.CRITICAL);
+
+        deleteDialog.setConfirmAction(t -> {
+            try {
+                confirmAction.call();
+                deleteDialog.cancel();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        deleteDialog.setUndoAction(t -> deleteDialog.cancel());
+
+        deleteDialog.show();
     }
 }

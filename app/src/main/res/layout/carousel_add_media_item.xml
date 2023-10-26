@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:gravity="center"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <it.uniba.dib.sms222334.Views.Carousel.MediaContainer
         android:id="@+id/item_root"
@@ -12,20 +10,39 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <ImageButton
-                android:id="@+id/add_media_button"
+                android:id="@+id/add_photo_button"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:layout_centerInParent="true"
                 android:background="@drawable/circular_container_shape"
                 android:src="@drawable/baseline_add_a_photo_24"
+                app:tint="?attr/colorPrimary"
+                android:layout_marginBottom="5dp"/>
+            <ImageButton
+                android:id="@+id/add_video_button"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/circular_container_shape"
+                android:src="@drawable/baseline_video_call_24"
                 app:tint="?attr/colorPrimary" />
-        </RelativeLayout>
+        </LinearLayout>
 
     </it.uniba.dib.sms222334.Views.Carousel.MediaContainer>
-</LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/uploadProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        style="@style/irregular"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"/>
+</RelativeLayout>

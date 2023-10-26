@@ -52,8 +52,17 @@
     <string name="years">Years</string>
     <string name="month">Month</string>
     <string name="months">Months</string>
+    <string name="week">Week</string>
+    <string name="weeks">Weeks</string>
     <string name="day">Day</string>
     <string name="days">Days</string>
+    <string name="ago">ago</string>
+    <string name="hour">Hour</string>
+    <string name="hours">Hours</string>
+    <string name="minute">Minute</string>
+    <string name="minutes">Minutes</string>
+    <string name="seconds">Seconds</string>
+    <string name="now">Now</string>
     <string name="born_today">born today!</string>
     <string name="invalid_user_name">Invalid name. Only characters</string>
     <string name="invalid_microchip">Invalid microchip. Length required 15</string>

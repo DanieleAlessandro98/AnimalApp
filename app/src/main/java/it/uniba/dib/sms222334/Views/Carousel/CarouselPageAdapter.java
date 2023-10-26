@@ -1,18 +1,17 @@
 package it.uniba.dib.sms222334.Views.Carousel;
 
 import android.content.Context;
-import android.media.Image;
-import android.util.Log;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
+import it.uniba.dib.sms222334.Fragmets.AnimalFragment;
 import it.uniba.dib.sms222334.Models.*;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.R;
@@ -29,17 +28,25 @@ public class CarouselPageAdapter extends FragmentStateAdapter implements ViewPag
     private float mScale;
 
     private final boolean IS_MY_ANIMAL;
-    private final int pages;
+    private int pages;
+
+    Animal animal;
 
     LinkedList<Media> mediaList;
 
+    AnimalFragment fragment;
+
     Context context;
 
-    public CarouselPageAdapter(Fragment fragment, Animal animal) {
+    public CarouselPageAdapter(AnimalFragment fragment, Animal animal) {
         super(fragment);
 
 
         context=fragment.getContext();
+
+        this.fragment=fragment;
+
+        this.animal=animal;
 
         IS_MY_ANIMAL =AnimalPresenter.checkAnimalProperty(animal);
 
@@ -53,6 +60,8 @@ public class CarouselPageAdapter extends FragmentStateAdapter implements ViewPag
 
         orderMediaByTimeStamp();
     }
+
+
 
     @Override
     public void transformPage(View page, float position) {
@@ -74,13 +83,7 @@ public class CarouselPageAdapter extends FragmentStateAdapter implements ViewPag
     public Fragment createFragment(int position){
 
         if(IS_MY_ANIMAL && (position == pages-1)) {
-            try {
-                return AddMediaPageFragment.newInstance();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            }
+            return new AddMediaPageFragment(this);
         }
 
         // make the first mViewPager bigger than others
@@ -90,12 +93,52 @@ public class CarouselPageAdapter extends FragmentStateAdapter implements ViewPag
             mScale = SMALL_SCALE;
 
         try {
-            return MediaPageFragment.newInstance(context,position,mediaList.get(position), mScale);
+           MediaPageFragment fragment=MediaPageFragment.newInstance(context,IS_MY_ANIMAL,this.mediaList.get(position), mScale);
+
+           fragment.setMediaDeleteListener(new MediaDao.MediaDeleteListener() {
+               @Override
+               public void mediaDeletedSuccessfully() {
+                   removeMedia(mediaList.get(position));
+
+                   new AnimalDao().editAnimal(animal
+                           , SessionManager.getInstance().getCurrentUser().getEmail()
+                           ,null,false);
+               }
+
+               @Override
+               public void mediaDeletedFailed(Exception exception) {
+
+               }
+           });
+
+           return fragment;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void notifyMediaEdits(){
+        fragment.refresh(this.animal);
+    }
+
+    public void addMedia(Media media){
+        if(media instanceof Photo)
+            this.animal.addImage((Photo) media);
+        else if(media instanceof Video)
+            this.animal.addVideo((Video) media);
+
+        notifyMediaEdits();
+    }
+
+    public void removeMedia(Media media){
+        if(media instanceof Photo)
+            this.animal.getPhotos().remove(media);
+        else if(media instanceof Video)
+            this.animal.getVideos().remove(media);
+
+        notifyMediaEdits();
     }
 
     @Override

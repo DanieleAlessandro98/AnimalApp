@@ -15,7 +15,7 @@ public final class SortingAlgo {
         int i = (low - 1);
 
         for (int j = low; j <= high - 1; j++) {
-            if (arr.get(j).compareTo(pivot) < 0) {
+            if (arr.get(j).compareTo(pivot) > 0) {
                 i++;
                 swap(arr, i, j);
             }

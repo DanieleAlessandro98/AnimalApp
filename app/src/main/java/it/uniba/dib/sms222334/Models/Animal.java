@@ -15,6 +15,7 @@ import java.util.Date;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
@@ -22,6 +23,8 @@ import it.uniba.dib.sms222334.Utils.AnimalStates;
 public class Animal extends Document implements Parcelable {
 
     public final static String PHOTO_PATH="/images/profiles/animals/";
+
+    public final static String VIDEO_PATH="/videos/";
     private String name;
 
     private String ownerReference;
@@ -392,7 +395,10 @@ public class Animal extends Document implements Parcelable {
         }
     };
 
-    public void delete() {
+    public void delete(@Nullable AnimalCallbacks.eliminationCallback callback) {
+        AnimalDao animalDao = new AnimalDao();
+        animalDao.deleteAnimal(this, callback);
+
         for (Visit visit : visits) {
             visit.delete();
         }
@@ -409,21 +415,35 @@ public class Animal extends Document implements Parcelable {
             expense.delete();
         }
 
-        // TODO: Cancellare relazioni
-        // TODO: Cancellare foto e video (dal repo di firebase)
+        for(Relation relation: relations){
+            // TODO: Cancellare relazioni
+        }
 
-        AnimalDao animalDao = new AnimalDao();
-        animalDao.deleteAnimal(this, new AnimalCallbacks.eliminationCallback() {
-            @Override
-            public void eliminatedSuccesfully() {
+        for(Video video: videos)
+            video.delete(new MediaDao.MediaDeleteListener() {
+                @Override
+                public void mediaDeletedSuccessfully() {
 
-            }
+                }
 
-            @Override
-            public void failedElimination() {
+                @Override
+                public void mediaDeletedFailed(Exception exception) {
 
-            }
-        });
+                }
+            });
+
+        for(Photo photo: photos)
+            photo.delete(new MediaDao.MediaDeleteListener() {
+                @Override
+                public void mediaDeletedSuccessfully() {
+
+                }
+
+                @Override
+                public void mediaDeletedFailed(Exception exception) {
+
+                }
+            });
     }
 
     @Override

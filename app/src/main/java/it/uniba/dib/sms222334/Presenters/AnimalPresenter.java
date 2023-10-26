@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.os.Environment;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -78,7 +79,7 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
     }
 
     public void deleteAnimal(Animal animal) {
-        this.animalDao.deleteAnimal(animal,this);
+        animal.delete(this);
     }
 
     private boolean validateInput() {

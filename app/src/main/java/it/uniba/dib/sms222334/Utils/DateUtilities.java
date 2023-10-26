@@ -1,11 +1,16 @@
 package it.uniba.dib.sms222334.Utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+
+import com.google.firebase.Timestamp;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import it.uniba.dib.sms222334.R;
 
@@ -107,4 +112,62 @@ public final class DateUtilities {
 
         return today.getTime();
     }
+
+    public static String getTimeAgoString(@NonNull Timestamp timestamp,Context context) {
+        long timestampSeconds = timestamp.getSeconds()*1000;
+        long currentTime = System.currentTimeMillis();
+        long timeDifference = currentTime - timestampSeconds;
+
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDifference);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeDifference);
+        long days = TimeUnit.MILLISECONDS.toDays(timeDifference);
+        long weeks = days/7;
+        long months = weeks/4;
+        long years = months/12;
+
+        if(seconds <= 1){
+            return context.getString(R.string.now);
+        }
+        else if (seconds < 60) {
+            return seconds+" "+context.getString(R.string.seconds)+" "+context.getString(R.string.ago);
+        }
+        else if (minutes == 1) {
+            return minutes+" "+context.getString(R.string.minute)+" "+context.getString(R.string.ago);
+        }
+        else if (minutes < 60) {
+            return minutes+" "+context.getString(R.string.minutes)+" "+context.getString(R.string.ago);
+        }
+        else if (hours == 1) {
+            return hours+" "+context.getString(R.string.hour)+" "+context.getString(R.string.ago);
+        }
+        else if (hours < 24) {
+            return hours+" "+context.getString(R.string.hours)+" "+context.getString(R.string.ago);
+        }
+        else if(days == 1){
+            return days+" "+context.getString(R.string.day)+" "+context.getString(R.string.ago);
+        }
+        else if(days < 30){
+            return days+" "+context.getString(R.string.days)+" "+context.getString(R.string.ago);
+        }
+        else if(weeks == 1){
+            return weeks+" "+context.getString(R.string.week)+" "+context.getString(R.string.ago);
+        }
+        else if(weeks < 4){
+            return weeks+" "+context.getString(R.string.weeks)+" "+context.getString(R.string.ago);
+        }
+        else if(months == 1){
+            return months+" "+context.getString(R.string.month)+" "+context.getString(R.string.ago);
+        }
+        else if(months < 12){
+            return months+" "+context.getString(R.string.months)+" "+context.getString(R.string.ago);
+        }
+        else if(years == 1){
+            return years+" "+context.getString(R.string.year)+" "+context.getString(R.string.ago);
+        }
+        else{
+            return years+" "+context.getString(R.string.years)+" "+context.getString(R.string.ago);
+        }
+    }
+
 }
