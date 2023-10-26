@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Presenters;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +81,7 @@ public class ReportPresenter {
                 SessionManager.getInstance().getCurrentUser(),
                 type,
                 species,
-                description,latitude, longitude,
+                description, new GeoPoint(latitude, longitude),
                 reportFragment.getPhotoPicked())
                 .setAnimalName(name)
                 .setAnimalAge(DateUtilities.parseAgeString(age, reportFragment.getContext()))

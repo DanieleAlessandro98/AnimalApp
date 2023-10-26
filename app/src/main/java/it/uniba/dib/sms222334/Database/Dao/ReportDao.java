@@ -162,8 +162,7 @@ public class ReportDao {
                                     ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
                                     AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
                                     document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                                    0f,
-                                    0f,
+                                    document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
                                     BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
                             .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
                             .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
@@ -182,8 +181,7 @@ public class ReportDao {
                                             ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
                                             AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
                                             document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                                            0f,
-                                            0f,
+                                            document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
                                             BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
                                     .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
                                     .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))

@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
@@ -72,11 +75,27 @@ public class RequestPresenter {
             bedsValue = 0;
         }
 
-        Request requestModel = Request.Builder.create("", SessionManager.getInstance().getCurrentUser(), type, description)
+        GeoPoint position;
+        User user = SessionManager.getInstance().getCurrentUser();
+
+        if (user.getRole() == UserRole.VETERINARIAN)
+            position = ((Veterinarian) user).getLegalSite();
+        else if (user.getRole() == UserRole.PUBLIC_AUTHORITY)
+            position = ((PublicAuthority) user).getLegalSite();
+        else
+            position = new GeoPoint(0, 0);  //Perchè privato non ha residenza?
+
+        Request requestModel = Request.Builder.create("",
+                        SessionManager.getInstance().getCurrentUser(),
+                        type,
+                        description,
+                        position
+                )
                 .setAnimalSpecies(species)
                 .setAnimal(animal)
                 .setNBeds(bedsValue)
                 .build();
+
         requestModel.createRequest(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
