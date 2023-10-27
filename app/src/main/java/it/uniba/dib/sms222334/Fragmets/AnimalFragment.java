@@ -60,6 +60,7 @@ import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
 public class AnimalFragment extends Fragment {
 
     final static String TAG="AnimalFragment";
+    static Animal animal;
 
     Button editButton,backButton;
     TabLayout tabLayout;
@@ -77,9 +78,6 @@ public class AnimalFragment extends Fragment {
     ImageView newProfilePicture; /*i added this here because it has to be passed on onActivityResult,
                                 and this must be set before fragment is created(onCreateView())*/
 
-    static Animal animal;   // quest'oggetto deve rimanere statico, serve per la patologia dell'animale.
-
-
     private ProfileFragment.Tab previousTab;
 
     public SharedPreferences.Editor editor;
@@ -91,13 +89,12 @@ public class AnimalFragment extends Fragment {
 
     }
 
-    public static AnimalFragment newInstance(Animal animal, Context context) {
+    public static AnimalFragment newInstance(Animal animal) {
         AnimalFragment myFragment = new AnimalFragment();
 
-        preferences= PreferenceManager.getDefaultSharedPreferences(context);
-        myFragment.editor= preferences.edit();
-        myFragment.editor.putString("animalData", new Gson().toJson(animal));
-        myFragment.editor.commit();
+        Bundle args = new Bundle();
+        args.putParcelable("animalData", animal);
+        myFragment.setArguments(args);
 
         return myFragment;
     }
@@ -117,9 +114,10 @@ public class AnimalFragment extends Fragment {
 
         this.profileType= ProfileFragment.Type.ANIMAL;
 
-        final String animaString=preferences.getString("animalData","");
-
-        this.animal=new Gson().fromJson(animaString, new TypeToken<Animal>() {}.getType());
+        Bundle args = getArguments();
+        if (args != null) {
+            animal = args.getParcelable("animalData");
+        }
 
         if(AnimalPresenter.checkAnimalProperty(animal)){
             layout= inflater.inflate(R.layout.animal_fragment,container,false);

@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -20,7 +21,7 @@ import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 
-public class Animal extends Document implements Parcelable {
+public class Animal extends Document implements Parcelable,AnimalCallbacks.foodCallback,AnimalCallbacks.expensesCallback {
 
     public final static String PHOTO_PATH="/images/profiles/animals/";
 
@@ -246,6 +247,50 @@ public class Animal extends Document implements Parcelable {
         setVisits(animal.getVisits());
     }
 
+    WeakReference<AnimalCallbacks.foodCallback> foodCallback= new WeakReference<>(null);
+
+    WeakReference<AnimalCallbacks.expensesCallback> expensesCallback=new WeakReference<>(null);
+
+    public void setFoodCallback(AnimalCallbacks.foodCallback foodCallback){
+        this.foodCallback= new WeakReference<>(foodCallback);
+    }
+
+    public void setExpensesCallback(AnimalCallbacks.expensesCallback expensesCallback){
+        this.expensesCallback= new WeakReference<>(expensesCallback);
+    }
+
+    @Override
+    public void notifyFoodLoaded() {
+        AnimalCallbacks.foodCallback callback=this.foodCallback.get();
+
+        if(callback!=null)
+            callback.notifyFoodLoaded();
+    }
+
+    @Override
+    public void notifyFoodRemoved(int position) {
+        AnimalCallbacks.foodCallback callback=this.foodCallback.get();
+
+        if(callback!=null)
+            callback.notifyFoodRemoved(position);
+    }
+
+    @Override
+    public void notifyExpensesLoaded() {
+        AnimalCallbacks.expensesCallback callback=this.expensesCallback.get();
+
+        if(callback!=null)
+            callback.notifyExpensesLoaded();
+    }
+
+    @Override
+    public void notifyExpensesRemoved(int position) {
+        AnimalCallbacks.expensesCallback callback=this.expensesCallback.get();
+
+        if(callback!=null)
+            callback.notifyExpensesRemoved(position);
+    }
+
     public static class Builder{
         private String bID;
         private String bname;
@@ -335,6 +380,28 @@ public class Animal extends Document implements Parcelable {
         videos.add(video);
     }
 
+    public void addFood(Food food) {
+        foods.add(0,food);
+        notifyFoodLoaded();
+    }
+
+    public void addExpense(Expense expense) {
+        expenses.add(0,expense);
+        notifyExpensesLoaded();
+    }
+
+    public void removeFood(Food food){
+        final int index=foods.indexOf(food);
+        foods.remove(food);
+        notifyFoodRemoved(index);
+    }
+
+    public void removeExpense(Expense expense){
+        final int index=expenses.indexOf(expense);
+        expenses.remove(expense);
+        notifyExpensesRemoved(index);
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -344,9 +411,6 @@ public class Animal extends Document implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getFirebaseID());
         dest.writeString(getName());
-
-
-
         dest.writeString(getOwnerReference());
         dest.writeSerializable(birthDate);
         dest.writeInt(getState().ordinal());
@@ -396,6 +460,7 @@ public class Animal extends Document implements Parcelable {
     };
 
     public void delete(@Nullable AnimalCallbacks.eliminationCallback callback) {
+
         AnimalDao animalDao = new AnimalDao();
         animalDao.deleteAnimal(this, callback);
 
@@ -408,11 +473,11 @@ public class Animal extends Document implements Parcelable {
         }
 
         for (Food food : foods) {
-            food.delete();
+            food.delete(null);
         }
 
         for (Expense expense : expenses) {
-            expense.delete();
+            expense.delete(null);
         }
 
         for(Relation relation: relations){

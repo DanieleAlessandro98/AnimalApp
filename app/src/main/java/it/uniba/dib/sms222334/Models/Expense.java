@@ -2,7 +2,10 @@ package it.uniba.dib.sms222334.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import it.uniba.dib.sms222334.Database.Dao.ExpenseDao;
+
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
+import it.uniba.dib.sms222334.Database.Dao.Animal.ExpenseDao;
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 
 public class Expense extends Document implements Parcelable{
 
@@ -11,19 +14,22 @@ public class Expense extends Document implements Parcelable{
     private Double price;
     private expenseType category; //categorie per le spese
 
-    private Expense(String id, String note, Double price, expenseType category) {
+    private String animalID;
+
+    private Expense(String id, String note, Double price, expenseType category, String animalID) {
         super(id);
 
         this.note = note;
         this.price = price;
         this.category = category;
+        this.animalID = animalID;
     }
 
-    public String getnote() {
+    public String getNote() {
         return note;
     }
 
-    public void setnote(String note) {
+    public void setNote(String note) {
         this.note = note;
     }
 
@@ -43,11 +49,21 @@ public class Expense extends Document implements Parcelable{
         this.category = category;
     }
 
+    public String getAnimalID() {
+        return animalID;
+    }
+
+    public void setAnimalID(String animalID) {
+        this.animalID = animalID;
+    }
+
     public static class Builder {
         private String bID;
         private String bnote;
         private Double bprice;
         private expenseType bcategory;
+
+        private String banimalID;
 
         private Builder(final String id, final Double price){
             this.bID = id;
@@ -65,14 +81,19 @@ public class Expense extends Document implements Parcelable{
             return this;
         }
 
-        public Builder setnote(final String note){
+        public Builder setNote(final String note){
             this.bnote=note;
+            return this;
+        }
+
+        public Builder setAnimalID(final String animalID){
+            this.banimalID=animalID;
             return this;
         }
 
 
         public Expense build(){
-            return new Expense(bID, bnote,bprice,bcategory);
+            return new Expense(bID, bnote,bprice,bcategory,banimalID);
         }
     }
 
@@ -84,9 +105,10 @@ public class Expense extends Document implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getFirebaseID());
-        dest.writeString(getnote());
+        dest.writeString(getNote());
         dest.writeDouble(getPrice());
         dest.writeInt(getCategory().ordinal());
+        dest.writeString(getAnimalID());
     }
 
     protected Expense(Parcel in) {
@@ -95,6 +117,7 @@ public class Expense extends Document implements Parcelable{
         this.note = in.readString();
         this.price = in.readDouble();
         this.category = expenseType.values()[in.readInt()];
+        this.animalID= in.readString();
     }
 
     public static final Parcelable.Creator<Expense> CREATOR = new Parcelable.Creator<Expense>() {
@@ -109,8 +132,7 @@ public class Expense extends Document implements Parcelable{
         }
     };
 
-    public void delete() {
-        ExpenseDao expenseDao = new ExpenseDao();
-        expenseDao.deleteExpense(this);
+    public void delete(AnimalCallbacks.eliminationCallback callback) {
+        new ExpenseDao().deleteExpense(this,callback);
     }
 }

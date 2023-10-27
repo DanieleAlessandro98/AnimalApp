@@ -154,7 +154,7 @@ public final class PrivateDao {
 
                     if(((animalRefs.indexOf(animalRef)+1) == animalRefs.size()) && (userCallback!=null))
                     {
-                        userCallback.notifyItemLoaded();
+                        userCallback.notifyItemLoaded(); //questo callback serve solo per il passaggio della proprietà
                     }
 
                 }

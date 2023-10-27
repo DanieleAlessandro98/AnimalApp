@@ -24,7 +24,7 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
-import it.uniba.dib.sms222334.Database.Dao.User.UerDao;
+import it.uniba.dib.sms222334.Database.Dao.User.UserDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.User;
@@ -173,8 +173,8 @@ public class ReportDao {
 
                     callback.onDataRetrieved(report);
                 } else {
-                    UerDao uerDao = new UerDao();
-                    uerDao.findUser(document.getString(AnimalAppDB.Report.COLUMN_NAME_USER_ID), new AuthenticationDao.FindUserListenerResult() {
+                    UserDao userDao = new UserDao();
+                    userDao.findUser(document.getString(AnimalAppDB.Report.COLUMN_NAME_USER_ID), new AuthenticationDao.FindUserListenerResult() {
                         @Override
                         public void onUserFound(User user) {
                             Report report = Report.Builder.create(document.getId(),

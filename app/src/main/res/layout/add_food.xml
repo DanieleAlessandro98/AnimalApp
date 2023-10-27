@@ -50,6 +50,7 @@
             android:layout_marginHorizontal="20dp"
             android:background="@drawable/edit_text_shape"
             android:hint="@string/name"
+            android:maxLength="20"
             android:inputType="textPersonName"
             android:padding="16dp"
             android:textColorHint="#A3A3A3"

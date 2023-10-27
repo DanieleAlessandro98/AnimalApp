@@ -39,7 +39,7 @@ public class ExpenseViewHolder extends RecyclerView.ViewHolder{
         public void bind(Expense expense){
              this.expenseType.setText(expenseTypeArray[expense.getCategory().ordinal()]);
 
-             this.note.setText(expense.getnote());
+             this.note.setText(expense.getNote());
 
              this.price.setText(expense.getPrice()+"€");
         }

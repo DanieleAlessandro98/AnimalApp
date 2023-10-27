@@ -1,5 +1,10 @@
 package it.uniba.dib.sms222334.Database.Dao.Animal;
 
+import javax.annotation.Nullable;
+
+import it.uniba.dib.sms222334.Models.Expense;
+import it.uniba.dib.sms222334.Models.Food;
+
 public final class AnimalCallbacks {
 
     public interface alreadyExistCallBack{
@@ -32,5 +37,17 @@ public final class AnimalCallbacks {
         void eliminatedSuccesfully();
 
         void failedElimination();
+    }
+
+    public interface foodCallback{
+        void notifyFoodLoaded();
+
+        void notifyFoodRemoved(int position);
+    }
+
+    public interface expensesCallback{
+        void notifyExpensesLoaded();
+
+        void notifyExpensesRemoved(@Nullable int position);
     }
 }

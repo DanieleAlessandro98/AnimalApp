@@ -36,6 +36,9 @@ import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Document;
+import it.uniba.dib.sms222334.Models.Expense;
+import it.uniba.dib.sms222334.Models.Food;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Photo;
 import it.uniba.dib.sms222334.Models.Private;
@@ -337,17 +340,21 @@ public class AnimalDao {
                         // Utilizza il bitmap come desideri, ad esempio, impostalo in un'ImageView
                         resultAnimal.setPhoto(bitmap);
 
+                        listener.onDataRetrieved(resultAnimal);
+
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
-
-                        listener.onDataRetrieved(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
                     }).addOnFailureListener(exception -> {
                         Log.d(TAG,"Foto non caricata: "+exception.getMessage());
 
+                        listener.onDataRetrieved(resultAnimal);
+
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
-
-                        listener.onDataRetrieved(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
                     });
                 } else {
                     listener.onDataNotFound();
@@ -356,6 +363,46 @@ public class AnimalDao {
                 listener.onDataQueryError(task.getException());
             }
         });
+    }
+
+    private void findAnimalExpences(Animal resultAnimal) {
+        ExpenseDao.collectionExpense.whereEqualTo(AnimalAppDB.Expense.COLUMN_NAME_ANIMAL,AnimalDao.collectionAnimal.document(resultAnimal.getFirebaseID()))
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> snapshotList=queryDocumentSnapshots.getDocuments();
+
+                    for (DocumentSnapshot snapshot: snapshotList){
+                        resultAnimal.addExpense(Expense.Builder.create(snapshot.getId(),
+                                snapshot.getDouble(AnimalAppDB.Expense.COLUMN_NAME_PRICE))
+                                .setCategory(Expense.expenseType.values()[Math.toIntExact(snapshot.getLong(AnimalAppDB.Expense.COLUMN_NAME_CATEGORY))])
+                                .setNote(snapshot.getString(AnimalAppDB.Expense.COLUMN_NAME_NOTE))
+                                .setAnimalID(snapshot.getDocumentReference(AnimalAppDB.Expense.COLUMN_NAME_ANIMAL).getId())
+                                .build());
+                    }
+                })
+                .addOnFailureListener(e -> {
+
+                });
+    }
+
+    private void findAnimalFoods(Animal resultAnimal) {
+        FoodDao.collectionFood.whereEqualTo(AnimalAppDB.Food.COLUMN_NAME_ANIMAL,AnimalDao.collectionAnimal.document(resultAnimal.getFirebaseID()))
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> snapshotList=queryDocumentSnapshots.getDocuments();
+
+                    for (DocumentSnapshot snapshot: snapshotList){
+                        resultAnimal.addFood(Food.Builder.create(
+                                snapshot.getId(),
+                                        snapshot.getString(AnimalAppDB.Food.COLUMN_NAME_NAME))
+                                        .setAnimalID(snapshot.getDocumentReference(AnimalAppDB.Food.COLUMN_NAME_ANIMAL).getId())
+                                            .build());
+                    }
+                })
+                .addOnFailureListener(e -> {
+
+                });
+
     }
 
     public void checkAnimalExist(String microchip, final AnimalCallbacks.alreadyExistCallBack listener) {
@@ -486,15 +533,9 @@ public class AnimalDao {
 
         collectionAnimal.document(documentID)
                 .update(animal)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                    }
+                .addOnSuccessListener(aVoid -> {
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
+                .addOnFailureListener(e -> {
                 });
     }
 
