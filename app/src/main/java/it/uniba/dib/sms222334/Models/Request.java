@@ -23,6 +23,8 @@ public class Request extends Document{
     private Animal animal;
     private int nBeds;
 
+    private float distance;
+
     public User getUser() {
         return user;
     }
@@ -77,6 +79,14 @@ public class Request extends Document{
 
     public void setNBeds(int nBeds) {
         this.nBeds = nBeds;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 
     private Request(String id, User user, RequestType type, String description, GeoPoint location, AnimalSpecies animalSpecies, Animal animal, int nBeds) {

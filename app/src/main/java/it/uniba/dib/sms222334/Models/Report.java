@@ -27,6 +27,8 @@ public class Report extends Document {
     private String animalID;
     private boolean showAnimalProfile;
 
+    private float distance;
+
     public User getUser() {
         return user;
     }
@@ -105,6 +107,14 @@ public class Report extends Document {
 
     public void setShowAnimalProfile(boolean showAnimalProfile) {
         this.showAnimalProfile = showAnimalProfile;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 
     private Report(String firebaseID, User user, ReportType type, AnimalSpecies animalSpecies, String description, GeoPoint location, Bitmap reportPhoto, String animalName, Date animalAge, String animalID, boolean isShowAnimalProfile) {

@@ -10,13 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.LocationTracker;
 import it.uniba.dib.sms222334.Utils.RequestType;
 
 public class RequestReportViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -25,7 +29,7 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
         TextView Distance,Type, Name,SpeciesAge,CreatorName,Description;
         ImageView creatorPhoto,image;
 
-        Float latidute,longitude;
+        Document requestReport;
 
         Context context;
 
@@ -80,12 +84,6 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
             if (request.getType() == RequestType.OFFER_BEDS) {
                 this.Name.setText(context.getString(R.string.description_offer_beds_request) + request.getNBeds());
             }
-
-            /*
-             this.latidute=request.getLatitude();
-             this.longitude=request.getLongitude();
-
-             */
         }
 
         public void bind(Report report){
@@ -108,23 +106,24 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
                 this.Name.setText(animalName);
             else
                 this.Name.setText(context.getString(R.string.animal_name_unknown_report));
-
-            /*
-
-            this.latidute=report.getLatitude();
-            this.longitude=report.getLongitude();
-
-             */
         }
 
-        public void setDistance(Location devicePosition) {
-            if(devicePosition!=null){
-                this.Distance.setText(CoordinateUtilities.calculateDistance(this.latidute
-                        ,devicePosition.getLatitude()
-                        ,this.longitude
-                        ,devicePosition.getLongitude(),CoordinateUtilities.WITH_METRICS));
+    public void updateDistance() {
+        Location devicePosition = LocationTracker.getInstance(context).getLocation();
+        if (devicePosition != null) {
+            float distance;
+
+            if (requestReport instanceof Request) {
+                distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((Request) requestReport).getLocation());
+                ((Request) requestReport).setDistance(distance);
+            } else {
+                distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((Report) requestReport).getLocation());
+                ((Report) requestReport).setDistance(distance);
             }
+
+            this.Distance.setText(CoordinateUtilities.formatDistance(distance));
         }
+    }
 
 
         @Override

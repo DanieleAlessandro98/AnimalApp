@@ -3,6 +3,7 @@ package it.uniba.dib.sms222334.Utils;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.util.Log;
 
 import com.google.firebase.firestore.GeoPoint;
@@ -69,5 +70,30 @@ public final class CoordinateUtilities {
         }
 
         return address;
+    }
+
+    public static float calculateDistance(GeoPoint firstGeoPoint, GeoPoint secondGeoPoint) {
+        Location firstLocation = new Location("firstLocation");
+        firstLocation.setLatitude(firstGeoPoint.getLatitude());
+        firstLocation.setLongitude(firstGeoPoint.getLongitude());
+
+        Location secondLocation = new Location("secondLocation");
+        secondLocation.setLatitude(secondGeoPoint.getLatitude());
+        secondLocation.setLongitude(secondGeoPoint.getLongitude());
+
+        float distanceInMeters = firstLocation.distanceTo(secondLocation);
+        float distanceInKilometers = distanceInMeters / 1000;
+
+        return distanceInKilometers;
+    }
+
+    public static String formatDistance(float distance) {
+        String formattedDistance;
+        if (distance > 1)
+            formattedDistance = String.format("%.0f km", distance);
+        else
+            formattedDistance = String.format("%.2f km", distance);
+
+        return formattedDistance;
     }
 }

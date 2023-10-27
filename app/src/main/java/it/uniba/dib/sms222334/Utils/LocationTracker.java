@@ -21,6 +21,7 @@ public class LocationTracker {
     private Location currentLocation;
     private LocationListener locationListener;
     private LocationManager locationManager;
+    private NotifyLocationChanged notifyLocationChanged;
 
     private LocationTracker(Context context) {
         this.context = context;
@@ -31,6 +32,9 @@ public class LocationTracker {
             @Override
             public void onLocationChanged(Location location) {
                 currentLocation = location;
+
+                if (notifyLocationChanged != null)
+                    notifyLocationChanged.locationChanged();
             }
         };
     }
@@ -54,6 +58,10 @@ public class LocationTracker {
 
         isTracking = true;
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListener);
+    }
+
+    public void setNotifyLocationChangedListener(NotifyLocationChanged notifyLocationChanged) {
+        this.notifyLocationChanged = notifyLocationChanged;
     }
 
     public Location getLocation() {
@@ -98,5 +106,9 @@ public class LocationTracker {
         });
         alertDialog.setNegativeButton(context.getString(R.string.location_gps_disabled_cancel), (dialog, which) -> {});
         alertDialog.show();
+    }
+
+    public interface NotifyLocationChanged {
+        void locationChanged();
     }
 }

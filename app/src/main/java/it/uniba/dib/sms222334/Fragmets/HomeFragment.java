@@ -60,6 +60,7 @@ import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
 import it.uniba.dib.sms222334.Views.RecycleViews.RequestReport.RequestReportAdapter;
+import it.uniba.dib.sms222334.Views.RecycleViews.RequestReport.RequestReportViewHolder;
 
 public class HomeFragment extends Fragment implements PermissionInterface<AndroidPermission> {
 
@@ -120,6 +121,21 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         reportPresenter = new ReportPresenter(this);
         requestPresenter = new RequestPresenter(this);
+
+        LocationTracker.getInstance(getContext()).setNotifyLocationChangedListener(new LocationTracker.NotifyLocationChanged() {
+            @Override
+            public void locationChanged() {
+                if (adapter != null) {
+                    for (int i = 0; i < adapter.getItemCount(); i++) {
+                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
+                        RequestReportViewHolder requestReportViewHolder = (RequestReportViewHolder) viewHolder;
+                        requestReportViewHolder.updateDistance();
+                    }
+
+                    adapter.sortByDistance();
+                }
+            }
+        });
 
         LocationTracker.getInstance(getContext()).startLocationUpdates();
 
