@@ -15,6 +15,8 @@ import java.util.Comparator;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
+import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 
 public class RequestReportAdapter extends RecyclerView.Adapter<RequestReportViewHolder>{
@@ -66,26 +68,37 @@ public class RequestReportAdapter extends RecyclerView.Adapter<RequestReportView
     }
 
     public void sortByDistance() {
-        Collections.sort(requestReportList, new Comparator<Document>() {
+        ArrayList<Document> userDocuments = new ArrayList<>();
+        ArrayList<Document> otherDocuments = new ArrayList<>();
+
+        String loggedUserID = SessionManager.getInstance().isLogged() ? SessionManager.getInstance().getCurrentUser().getFirebaseID() : null;
+
+        for (Document document : requestReportList) {
+            User documentUser = (document instanceof Report) ? ((Report) document).getUser() : ((Request) document).getUser();
+
+            if (documentUser != null && documentUser.getFirebaseID().equals(loggedUserID))
+                userDocuments.add(document);
+            else
+                otherDocuments.add(document);
+        }
+
+        Comparator<Document> distanceComparator = new Comparator<Document>() {
             @Override
             public int compare(Document document1, Document document2) {
-                float distance1;
-                float distance2;
-
-                if (document1 instanceof Report)
-                    distance1 = ((Report) document1).getDistance();
-                else
-                    distance1 = ((Request) document1).getDistance();
-
-                if (document2 instanceof Report)
-                    distance2 = ((Report) document2).getDistance();
-                else
-                    distance2 = ((Request) document2).getDistance();
+                float distance1 = (document1 instanceof Report) ? ((Report) document1).getDistance() : ((Request) document1).getDistance();
+                float distance2 = (document2 instanceof Report) ? ((Report) document2).getDistance() : ((Request) document2).getDistance();
 
                 return Float.compare(distance1, distance2);
             }
-        });
+        };
 
+        Collections.sort(userDocuments, distanceComparator);
+        Collections.sort(otherDocuments, distanceComparator);
+
+        requestReportList.clear();
+        requestReportList.addAll(userDocuments);
+        requestReportList.addAll(otherDocuments);
         notifyDataSetChanged();
     }
+
 }
