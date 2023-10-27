@@ -59,7 +59,7 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
-import it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport.RequestReportAdapter;
+import it.uniba.dib.sms222334.Views.RecycleViews.RequestReport.RequestReportAdapter;
 
 public class HomeFragment extends Fragment implements PermissionInterface<AndroidPermission> {
 
