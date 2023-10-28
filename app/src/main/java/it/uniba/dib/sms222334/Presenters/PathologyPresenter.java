@@ -25,9 +25,8 @@ public class PathologyPresenter {
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
             pathology = Pathology.Builder.create("",idAnimal,name).build();
-            if(pathology.createPathology(idAnimal,name)) {
-                return pathology;
-            }
+            pathology.createPathology(idAnimal,name);
+            return pathology;
         }else{
             Log.w("W","The creation is failure");
         }
@@ -35,9 +34,9 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public void action_delete(String idPathology){
-        if (idPathology != null){
-            Pathology.deletePathology(idPathology);
+    public void action_delete(String idAnimal, String name){
+        if (idAnimal != null && name != null){
+            Pathology.deletePathology(idAnimal,name);
         }else{
             System.out.println("the Pathology is not Exist");
         }

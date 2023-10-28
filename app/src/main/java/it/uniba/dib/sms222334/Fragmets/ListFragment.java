@@ -672,8 +672,9 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 PathologyPresenter pathology = new PathologyPresenter();
-                                String idPathology = pathologyAdapter.simpleItemList.get(pos).getFirebaseID();
-                                pathology.action_delete(idPathology);
+                                String idAnimal = pathologyAdapter.simpleItemList.get(pos).getIdAnimal();
+                                String pathologyName = pathologyAdapter.simpleItemList.get(pos).getName();
+                                pathology.action_delete(idAnimal,pathologyName);
                                 pathologyAdapter.removeSimpleElement(pos);
                                 return null;
                             });

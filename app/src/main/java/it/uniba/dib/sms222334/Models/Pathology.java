@@ -19,14 +19,14 @@ public class Pathology extends Document implements Parcelable{
         this.name = name;
     }
 
-    public boolean createPathology (String idAnimal, String name){
+    public void createPathology (String idAnimal, String name){
         PathologyDao dao = new PathologyDao();
-        return dao.createPathology(idAnimal,name,this);
+        dao.createPathology(idAnimal,name,this);
     }
 
-    public static void deletePathology(String idPathology){
+    public static void deletePathology(String idAnimal,String name){
         PathologyDao dao = new PathologyDao();
-        dao.deleteAnimalPathology(idPathology);
+        dao.deleteAnimalPathology(idAnimal,name);
     }
 
 
