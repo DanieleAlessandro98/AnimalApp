@@ -131,23 +131,19 @@ public class Private extends User implements Owner, Parcelable {
     }
 
     @Override
-    public void updateProfile(final CallBackListener callBack) {
+    public void updateProfile() {
         PrivateDao privateDao = new PrivateDao();
         privateDao.updatePrivate(this, new UserCallback.UserUpdateCallback() {
             @Override
             public void notifyUpdateSuccesfull() {
-                callBack.onCallBackReady(true);
+
             }
 
             @Override
             public void notifyUpdateFailed() {
-                callBack.onCallBackReady(false);
+
             }
         });
-    }
-
-    public interface CallBackListener {
-        void onCallBackReady(boolean value);
     }
 
     @Override

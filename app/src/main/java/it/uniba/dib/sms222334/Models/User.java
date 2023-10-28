@@ -108,6 +108,6 @@ public abstract class User extends Document implements UserCallback.UserStateLis
     }
 
     public abstract UserRole getRole();
-    public abstract void updateProfile(final Private.CallBackListener callBack);
+    public abstract void updateProfile();
     public abstract void deleteProfile();
 }

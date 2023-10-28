@@ -571,6 +571,8 @@ public class ProfileFragment extends Fragment {
 
     public void showUpdateSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
+        reflesh(SessionManager.getInstance().getCurrentUser());
+        editDialog.cancel();
     }
 
     private void showDeleteConfirm() {
