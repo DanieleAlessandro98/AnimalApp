@@ -93,6 +93,8 @@ public class ListFragment extends Fragment{
     public static User currentUser; //profile of the user logged
     UserRole currentUserRole;
 
+    private Animal animal;
+
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
     public ListFragment() {
@@ -111,6 +113,18 @@ public class ListFragment extends Fragment{
         return myFragment;
     }
 
+    //per l'animale
+    public static ListFragment newInstance(ProfileFragment.Tab tabPosition,ProfileFragment.Type profileType,Animal animal) {
+        ListFragment myFragment = new ListFragment();
+        Bundle args = new Bundle();
+        args.putInt("tab_position", tabPosition.tabPosition.ordinal());
+        args.putInt("profile_type", profileType.ordinal());
+        args.putParcelable("animalData", animal);
+        myFragment.setArguments(args);
+
+        return myFragment;
+    }
+
 
 
     @Nullable
@@ -120,6 +134,7 @@ public class ListFragment extends Fragment{
 
         this.tabPosition = ProfileFragment.TabPosition.values()[getArguments().getInt("tab_position")];
         this.profileType = ProfileFragment.Type.values()[getArguments().getInt("profile_type")];
+        animal = getArguments().getParcelable("animalData");
 
         getArguments().clear();
 
@@ -127,8 +142,6 @@ public class ListFragment extends Fragment{
         recyclerView=layout.findViewById(R.id.list_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
-
-        System.out.println("swip 3");
 
         switch (this.tabPosition){
             case ANIMAL:
@@ -437,7 +450,7 @@ public class ListFragment extends Fragment{
 
                     createFood.setOnClickListener(v -> {
                         Food newFood=Food.Builder.create("", nameFood.getText().toString())
-                                .setAnimalID(AnimalFragment.animal.getFirebaseID())
+                                .setAnimalID(this.animal.getFirebaseID())
                                 .build();
 
                         boolean validName=new FoodPresenter().addFood(
@@ -445,7 +458,7 @@ public class ListFragment extends Fragment{
                                 new AnimalCallbacks.creationCallback() {
                                     @Override
                                     public void createdSuccesfully() {
-                                        AnimalFragment.animal.addFood(newFood);
+                                        animal.addFood(newFood);
 
                                         addDialog.cancel();
                                     }
@@ -488,26 +501,35 @@ public class ListFragment extends Fragment{
                     });
 
                     createExpense.setOnClickListener(v -> {
-                        Expense newExpense = Expense.Builder.create("", Double.valueOf(expense.getText().toString()))
-                                .setAnimalID(AnimalFragment.animal.getFirebaseID())
-                                .setNote(note.getText().toString())
-                                .setCategory(expenseType[0])
-                                .build();
 
-                        new ExpensePresenter().addExpense(
-                                newExpense,
-                                new AnimalCallbacks.creationCallback() {
-                                    @Override
-                                    public void createdSuccesfully() {
-                                        AnimalFragment.animal.addExpense(newExpense);
+                        String expenseValue=expense.getText().toString();
 
-                                        addDialog.cancel();
-                                    }
+                        if(expenseValue.isEmpty()){
+                            expense.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                            expense.setError("inserisci prezzo");
+                        }
+                        else{
+                            Expense newExpense = Expense.Builder.create("", Double.valueOf(expenseValue))
+                                    .setAnimalID(this.animal.getFirebaseID())
+                                    .setNote(note.getText().toString())
+                                    .setCategory(expenseType[0])
+                                    .build();
 
-                                    @Override
-                                    public void failedCreation() {
-                                    }
-                                });
+                            new ExpensePresenter().addExpense(
+                                    newExpense,
+                                    new AnimalCallbacks.creationCallback() {
+                                        @Override
+                                        public void createdSuccesfully() {
+                                            animal.addExpense(newExpense);
+
+                                            addDialog.cancel();
+                                        }
+
+                                        @Override
+                                        public void failedCreation() {
+                                        }
+                                    });
+                        }
                     });
                     break;
             }
@@ -647,20 +669,32 @@ public class ListFragment extends Fragment{
         if(profileType != ProfileFragment.Type.ANIMAL) {
             addButton.setVisibility(View.GONE);
 
+            expenseAdapter=new ExpenseAdapter(expensesList,getContext());
+
             for (Animal animal : ((Owner) SessionManager.getInstance().getCurrentUser()).getAnimalList()) {
                 expensesList.addAll(animal.getExpenses());
-            }
 
-            expenseAdapter=new ExpenseAdapter(expensesList,getContext());
+                animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
+                    @Override
+                    public void notifyExpensesLoaded() {
+                        expenseAdapter.notifyItemInserted(0);
+                    }
+
+                    @Override
+                    public void notifyExpensesRemoved(int position) {
+                        expenseAdapter.notifyItemRemoved(position);
+                    }
+                });
+            }
         }
         else{
-            expensesList=AnimalFragment.animal.getExpenses();
+            expensesList=this.animal.getExpenses();
 
             expenseAdapter=new ExpenseAdapter(expensesList,getContext());;
 
             addButton.setOnClickListener(v -> launchAddDialog(null) );
 
-            AnimalFragment.animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
+            this.animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
                 @Override
                 public void notifyExpensesLoaded() {
                     expenseAdapter.notifyItemInserted(0);
@@ -691,19 +725,14 @@ public class ListFragment extends Fragment{
                                         if(profileType != ProfileFragment.Type.ANIMAL) {
                                             for (Animal animal : ((Owner) SessionManager.getInstance().getCurrentUser()).getAnimalList()) {
                                                 if(animal.getFirebaseID().compareTo(expense.getAnimalID())==0){
-                                                    for(Expense expensee:animal.getExpenses()){
-                                                        if(expense.getFirebaseID().compareTo(expensee.getFirebaseID())==0){
-                                                            animal.getExpenses().remove(expense);
-                                                            expenseAdapter.removeExpense(pos);
-                                                        }
-                                                    }
-
+                                                    animal.removeExpense(expense);
+                                                    expenseAdapter.removeExpense(pos);
                                                     break;
                                                 }
                                             }
                                         }
                                         else{
-                                            AnimalFragment.animal.removeExpense(expense);
+                                            animal.removeExpense(expense);
                                         }
                                     }
 
@@ -807,13 +836,13 @@ public class ListFragment extends Fragment{
 
 
     public void setFoodList(){
-        ArrayList<Food> foodList=AnimalFragment.animal.getFoods();
+        ArrayList<Food> foodList=this.animal.getFoods();
 
         SimpleTextAdapter<Food> foodAdapter=new SimpleTextAdapter<>(foodList);
 
         addButton.setOnClickListener(v -> launchAddDialog(null));
 
-        AnimalFragment.animal.setFoodCallback(new AnimalCallbacks.foodCallback() {
+        this.animal.setFoodCallback(new AnimalCallbacks.foodCallback() {
             @Override
             public void notifyFoodLoaded() {
                 foodAdapter.notifyItemInserted(0);
@@ -838,7 +867,7 @@ public class ListFragment extends Fragment{
                                 food.delete(new AnimalCallbacks.eliminationCallback() {
                                     @Override
                                     public void eliminatedSuccesfully() {
-                                        AnimalFragment.animal.removeFood(food);
+                                        animal.removeFood(food);
                                     }
 
                                     @Override

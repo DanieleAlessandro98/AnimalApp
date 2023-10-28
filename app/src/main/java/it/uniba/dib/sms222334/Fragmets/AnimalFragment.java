@@ -85,10 +85,6 @@ public class AnimalFragment extends Fragment {
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
-    public AnimalFragment(){
-
-    }
-
     public static AnimalFragment newInstance(Animal animal) {
         AnimalFragment myFragment = new AnimalFragment();
 
@@ -246,7 +242,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                 }
                 else{
                     return;
@@ -274,7 +270,7 @@ public class AnimalFragment extends Fragment {
             case EXPENSE:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
 

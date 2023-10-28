@@ -50,7 +50,6 @@ public class Authentication implements AuthenticationCallbackResult.Login, Authe
 
     @Override
     public void onLogoutSuccessful() {
-        SessionManager.getInstance().logoutUser();
         listenerLogout.onLogoutCompleted(true);
     }
 

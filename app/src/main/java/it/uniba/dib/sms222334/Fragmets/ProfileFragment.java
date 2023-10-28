@@ -242,8 +242,6 @@ public class ProfileFragment extends Fragment {
 
         Log.d(TAG,"qui teoricamente");
 
-        changeTab(TabPosition.ANIMAL,false);
-
         return layout;
     }
 
