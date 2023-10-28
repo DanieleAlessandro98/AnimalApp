@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Presenters;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,7 @@ public class ReportPresenter {
         }
     }
 
-    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, String animalID, boolean isShowAnimalProfile) {
+    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, float latitude, float longitude, String animalID, boolean isShowAnimalProfile) {
         if (selectedPositionReport < 0 || selectedPositionReport >= ReportType.values().length)
             return;
 
@@ -60,7 +62,7 @@ public class ReportPresenter {
             return;
         }
 
-        if (!Validations.isValidReportDescription(description)) {
+        if (!Validations.isValidDescription(description)) {
             reportFragment.showInvalidReportDescription();
             return;
         }
@@ -79,9 +81,7 @@ public class ReportPresenter {
                 SessionManager.getInstance().getCurrentUser(),
                 type,
                 species,
-                description,
-                0f,
-                0f,
+                description, new GeoPoint(latitude, longitude),
                 reportFragment.getPhotoPicked())
                 .setAnimalName(name)
                 .setAnimalAge(DateUtilities.parseAgeString(age, reportFragment.getContext()))
@@ -156,27 +156,7 @@ public class ReportPresenter {
 
     public void getReportList(DatabaseCallbackResult callback) {
         ReportDao reportDao = new ReportDao();
-        reportDao.getAllReports(new DatabaseCallbackResult() {
-            @Override
-            public void onDataRetrieved(Object result) {
-
-            }
-
-            @Override
-            public void onDataRetrieved(ArrayList results) {
-                callback.onDataRetrieved(results);
-            }
-
-            @Override
-            public void onDataNotFound() {
-
-            }
-
-            @Override
-            public void onDataQueryError(Exception e) {
-
-            }
-        });
+        reportDao.getAllReports(callback);
     }
 
 

@@ -2,6 +2,8 @@ package it.uniba.dib.sms222334.Models;
 
 import android.content.Context;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 
 import it.uniba.dib.sms222334.Database.Dao.RequestDao;
@@ -15,10 +17,13 @@ public class Request extends Document{
     private User user;
     private RequestType type;
     private String description;
+    private GeoPoint location;
 
     private AnimalSpecies animalSpecies;
     private Animal animal;
     private int nBeds;
+
+    private float distance;
 
     public User getUser() {
         return user;
@@ -42,6 +47,14 @@ public class Request extends Document{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public GeoPoint getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoPoint location) {
+        this.location = location;
     }
 
     public AnimalSpecies getAnimalSpecies() {
@@ -68,12 +81,21 @@ public class Request extends Document{
         this.nBeds = nBeds;
     }
 
-    private Request(String id, User user, RequestType type, String description, AnimalSpecies animalSpecies, Animal animal, int nBeds) {
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
+    }
+
+    private Request(String id, User user, RequestType type, String description, GeoPoint location, AnimalSpecies animalSpecies, Animal animal, int nBeds) {
         super(id);
 
         this.user = user;
         this.type = type;
         this.description = description;
+        this.location = location;
         this.animalSpecies = animalSpecies;
         this.animal = animal;
         this.nBeds = nBeds;
@@ -84,20 +106,22 @@ public class Request extends Document{
         private User bUser;
         RequestType bType;
         private String bDescription;
+        private GeoPoint bLocation;
 
         private AnimalSpecies bAnimalSpecies;
         private Animal bAnimal;
         private int bNBeds;
 
-        private Builder(String bID, User bUser, RequestType bType, String bDescription) {
+        private Builder(String bID, User bUser, RequestType bType, String bDescription, GeoPoint bLocation) {
             this.bID = bID;
             this.bUser = bUser;
             this.bType = bType;
             this.bDescription = bDescription;
+            this.bLocation = bLocation;
         }
 
-        public static Builder create(final String bID, User bUser, final RequestType bType, String bDescription) {
-            return new Builder(bID, bUser, bType, bDescription);
+        public static Builder create(final String bID, User bUser, final RequestType bType, String bDescription, GeoPoint bLocation) {
+            return new Builder(bID, bUser, bType, bDescription, bLocation);
         }
 
         public Builder setAnimalSpecies(AnimalSpecies bAnimalSpecies) {
@@ -116,7 +140,7 @@ public class Request extends Document{
         }
 
         public Request build() {
-            return new Request(bID, bUser, bType, bDescription, bAnimalSpecies, bAnimal, bNBeds);
+            return new Request(bID, bUser, bType, bDescription, bLocation, bAnimalSpecies, bAnimal, bNBeds);
         }
     }
 
@@ -156,5 +180,4 @@ public class Request extends Document{
                 return "";
         }
     }
-
 }

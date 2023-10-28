@@ -99,6 +99,8 @@
     <string name="invalid_report_age_2">La prima parte della data deve essere un numero</string>
     <string name="invalid_report_age_3">La seconda parte della data deve essere una parola: giorno(i), mese(i), anno(i)</string>
     <string name="invalid_report_selected_animal">Seleziona un animale dalla lista dei tuoi animali</string>
+    <string name="invalid_request_description">"Inserisci una descrizione valida"</string>
+    <string name="invalid_request_beds">"Inserisci un numero valido di letti disponibili"</string>
     <string name="dog_species_name">Cane</string>
     <string name="cat_species_name">Gatto</string>
     <string name="fish_species_name">Pesce</string>
@@ -112,6 +114,16 @@
     <string name="danger_animal_report_name">IN PERICOLO</string>
     <string name="user_not_logged_report">Utente anonimo</string>
     <string name="animal_name_unknown_report">Nome sconosciuto</string>
+    <string name="description_offer_beds_request">Posti disponibili: </string>
+    <string name="permission_explanation_dialog_grant">Concedi</string>
+    <string name="permission_explanation_dialog_cancel">Annulla</string>
+    <string name="permission_location_explanation_title_for_report">Permesso necessario</string>
+    <string name="permission_location_explanation_description_for_report">Per continuare, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
+    <string name="permission_location_not_granted_description_for_report">Non puoi utilizzare questa funzionalità perchè non hai concesso i permessi di localizzazione</string>
+    <string name="location_not_available">La tua posizione non è al momento disponibile</string>
+    <string name="location_gps_disabled_message">Per utilizzare questa funzionalità, è necessario attivare il GPS. Vuoi attivarlo?</string>
+    <string name="settings">Impostazioni</string>
+    <string name="location_gps_disabled_cancel">Annulla</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

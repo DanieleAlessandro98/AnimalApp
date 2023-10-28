@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -20,6 +21,10 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.R;
 
 public class AnimalAppDialog extends Dialog implements AnimalCallbacks.inputValidate{
+
+    public void setBannerText(String message) {
+        ((TextView) findViewById(R.id.dialog_banner_text)).setText(message);
+    }
 
     public enum DialogType{WARNING,CRITICAL,INFO};
 
@@ -74,6 +79,11 @@ public class AnimalAppDialog extends Dialog implements AnimalCallbacks.inputVali
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    }
+
+    public void hideButtons() {
+        findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+        findViewById(R.id.undo_button).setVisibility(View.INVISIBLE);
     }
 
     @Override

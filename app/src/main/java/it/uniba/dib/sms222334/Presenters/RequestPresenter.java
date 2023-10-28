@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +14,11 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
+import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Utils.Validations;
 
 public class RequestPresenter {
     private final HomeFragment reportFragment;
@@ -51,6 +56,16 @@ public class RequestPresenter {
         if (selectedPositionAnimalSpecies < 0 || selectedPositionAnimalSpecies >= AnimalSpecies.values().length)
             return;
 
+        if (!Validations.isValidDescription(description)) {
+            reportFragment.showInvalidRequestDescription();
+            return;
+        }
+
+        if (type == RequestType.OFFER_BEDS && !Validations.isValidBedsRequest(beds)) {
+            reportFragment.showInvalidRequestBeds();
+            return;
+        }
+
         AnimalSpecies species = AnimalSpecies.values()[selectedPositionAnimalSpecies];
 
         int bedsValue;
@@ -60,11 +75,27 @@ public class RequestPresenter {
             bedsValue = 0;
         }
 
-        Request requestModel = Request.Builder.create("", SessionManager.getInstance().getCurrentUser(), type, description)
+        GeoPoint position;
+        User user = SessionManager.getInstance().getCurrentUser();
+
+        if (user.getRole() == UserRole.VETERINARIAN)
+            position = ((Veterinarian) user).getLegalSite();
+        else if (user.getRole() == UserRole.PUBLIC_AUTHORITY)
+            position = ((PublicAuthority) user).getLegalSite();
+        else
+            position = new GeoPoint(0, 0);  //Perchè privato non ha residenza?
+
+        Request requestModel = Request.Builder.create("",
+                        SessionManager.getInstance().getCurrentUser(),
+                        type,
+                        description,
+                        position
+                )
                 .setAnimalSpecies(species)
                 .setAnimal(animal)
                 .setNBeds(bedsValue)
                 .build();
+
         requestModel.createRequest(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
@@ -90,28 +121,13 @@ public class RequestPresenter {
     }
 
     public void getRequestList(DatabaseCallbackResult callback) {
-        RequestDao requestDao = new RequestDao();
-        requestDao.getAllRequests(new DatabaseCallbackResult() {
-            @Override
-            public void onDataRetrieved(Object result) {
+        SessionManager session = SessionManager.getInstance();
+        if (!session.isLogged() || (session.isLogged() && session.getCurrentUser().getRole() != UserRole.VETERINARIAN)) {
+            boolean hideOfferBedsRequest = session.isLogged() && session.getCurrentUser().getRole() == UserRole.PUBLIC_AUTHORITY;
 
-            }
-
-            @Override
-            public void onDataRetrieved(ArrayList results) {
-                callback.onDataRetrieved(results);
-            }
-
-            @Override
-            public void onDataNotFound() {
-
-            }
-
-            @Override
-            public void onDataQueryError(Exception e) {
-
-            }
-        });
+            RequestDao requestDao = new RequestDao();
+            requestDao.getAllRequests(callback, hideOfferBedsRequest);
+        }
     }
 
 }

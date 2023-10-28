@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -43,26 +45,26 @@ import java.util.List;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.Document;
-import it.uniba.dib.sms222334.Models.Report;
-import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
-import it.uniba.dib.sms222334.Utils.AnimalSpecies;
-import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.LocationTracker;
+import it.uniba.dib.sms222334.Utils.Permissions.AndroidPermission;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
-import it.uniba.dib.sms222334.Utils.ReportType;
+import it.uniba.dib.sms222334.Utils.Permissions.PermissionInterface;
+import it.uniba.dib.sms222334.Utils.Permissions.PermissionManager;
 import it.uniba.dib.sms222334.Utils.RequestType;
 import it.uniba.dib.sms222334.Utils.UserRole;
+import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.RecycleViews.ItemDecorator;
-import it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport.RequestReportAdapter;
+import it.uniba.dib.sms222334.Views.RecycleViews.RequestReport.RequestReportAdapter;
+import it.uniba.dib.sms222334.Views.RecycleViews.RequestReport.RequestReportViewHolder;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements PermissionInterface<AndroidPermission> {
 
-    final static String TAG="HomeFragment";
+    final static String TAG = "HomeFragment";
 
     UserRole role;
     Button requestButton;
@@ -80,6 +82,9 @@ public class HomeFragment extends Fragment {
     private Animal selectedAnimal;
     private boolean isSharedAnimalProfile;
     private RequestReportAdapter adapter;
+    private ArrayList combinedList;
+
+    private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     public HomeFragment() {
     }
@@ -87,6 +92,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        LocationTracker.getInstance(getContext()).startLocationUpdates();
 
         this.isLogged = SessionManager.getInstance().isLogged();
 
@@ -97,15 +104,14 @@ public class HomeFragment extends Fragment {
             launchReportDialog();
         });
 
-        if(role == UserRole.VETERINARIAN){
+        if (role == UserRole.VETERINARIAN) {
             requestButton.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             requestButton.setOnClickListener(v -> {
-                if(isLogged)
+                if (isLogged)
                     launchRequestDialog();
                 else
-                    ((MainActivity)getActivity()).forceLogin();
+                    ((MainActivity) getActivity()).forceLogin();
             });
         }
     }
@@ -116,7 +122,26 @@ public class HomeFragment extends Fragment {
         reportPresenter = new ReportPresenter(this);
         requestPresenter = new RequestPresenter(this);
 
-        final View layout= inflater.inflate(R.layout.home_fragment,container,false);
+        LocationTracker.getInstance(getContext()).setNotifyLocationChangedListener(new LocationTracker.NotifyLocationChanged() {
+            @Override
+            public void locationChanged() {
+                if (adapter != null) {
+                    for (int i = 0; i < adapter.getItemCount(); i++) {
+                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
+                        RequestReportViewHolder requestReportViewHolder = (RequestReportViewHolder) viewHolder;
+                        requestReportViewHolder.updateDistance();
+                    }
+
+                    adapter.sortByDistance();
+                }
+            }
+        });
+
+        LocationTracker.getInstance(getContext()).startLocationUpdates();
+
+        registerPermissionLauncher();
+
+        final View layout = inflater.inflate(R.layout.home_fragment, container, false);
 
         recyclerView = layout.findViewById(R.id.list_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -124,7 +149,7 @@ public class HomeFragment extends Fragment {
 
         loadReportsAndRequests();
 
-        Log.d(TAG,recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item)+"");
+        Log.d(TAG, recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item) + "");
 
         requestButton = layout.findViewById(R.id.add_request);
         reportButton = layout.findViewById(R.id.add_report);
@@ -142,6 +167,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void launchReportDialog() {
+        launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+    }
+
+    public void openReportDialog() {
         selectedAnimal = null;
 
         editDialog = new Dialog(getContext());
@@ -150,8 +179,8 @@ public class HomeFragment extends Fragment {
 
         photoImageView = editDialog.findViewById(R.id.image_view);
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
-        Button saveButton= editDialog.findViewById(R.id.save_button);
+        Button backButton = editDialog.findViewById(R.id.back_button);
+        Button saveButton = editDialog.findViewById(R.id.save_button);
         ImageButton photoButton = editDialog.findViewById(R.id.image_button);
 
         AnimalAppEditText name = editDialog.findViewById(R.id.nameEditText);
@@ -159,11 +188,11 @@ public class HomeFragment extends Fragment {
         AnimalAppEditText age = editDialog.findViewById(R.id.ageEditText);
         Switch shareAnimalProfile = editDialog.findViewById(R.id.share_profile_switch);
 
-        Spinner reportSpinner= editDialog.findViewById(R.id.report_spinner);
+        Spinner reportSpinner = editDialog.findViewById(R.id.report_spinner);
         Spinner myAnimalSpinner = editDialog.findViewById(R.id.my_animal_spinner);
-        Spinner speciesSpinner= editDialog.findViewById(R.id.species_spinner);
+        Spinner speciesSpinner = editDialog.findViewById(R.id.species_spinner);
 
-        ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> speciesAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
@@ -175,7 +204,7 @@ public class HomeFragment extends Fragment {
                 myAnimalNames);
         myAnimalSpinner.setAdapter(myAnimalAdapter);
 
-        ArrayAdapter<CharSequence> reportAdapter= ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> reportAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.report_type,
                 android.R.layout.simple_list_item_1);
         reportSpinner.setAdapter(reportAdapter);
@@ -229,18 +258,25 @@ public class HomeFragment extends Fragment {
 
         backButton.setOnClickListener(v -> editDialog.cancel());
 
-        saveButton.setOnClickListener(v -> reportPresenter.onAdd(
-                reportSpinner.getSelectedItemPosition(),
-                speciesSpinner.getSelectedItemPosition(),
-                description.getText().toString(),
-                name.getText().toString(),
-                age.getText().toString(),
-                selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
-                isSharedAnimalProfile
-                ));
+        saveButton.setOnClickListener(v -> {
+            Location location = LocationTracker.getInstance(getContext()).getLocation();
+            if (location != null) {
+                reportPresenter.onAdd(
+                        reportSpinner.getSelectedItemPosition(),
+                        speciesSpinner.getSelectedItemPosition(),
+                        description.getText().toString(),
+                        name.getText().toString(),
+                        age.getText().toString(),
+                        (float) location.getLatitude(),
+                        (float) location.getLongitude(),
+                        selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                        isSharedAnimalProfile
+                );
+            }
+        });
 
         editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
@@ -380,18 +416,18 @@ public class HomeFragment extends Fragment {
     private void launchRequestDialog() {
         selectedAnimal = null;
 
-        editDialog=new Dialog(getContext());
+        editDialog = new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         editDialog.setContentView(R.layout.add_request);
 
-        Spinner requestSpinner= editDialog.findViewById(R.id.request_spinner);
-        Spinner animalSpinner= editDialog.findViewById(R.id.animal_chooser);
-        Spinner speciesSpinner= editDialog.findViewById(R.id.species_chooser);
-        AnimalAppEditText beds= editDialog.findViewById(R.id.beds);
-        AnimalAppEditText description= editDialog.findViewById(R.id.description);
+        Spinner requestSpinner = editDialog.findViewById(R.id.request_spinner);
+        Spinner animalSpinner = editDialog.findViewById(R.id.animal_chooser);
+        Spinner speciesSpinner = editDialog.findViewById(R.id.species_chooser);
+        AnimalAppEditText beds = editDialog.findViewById(R.id.beds);
+        AnimalAppEditText description = editDialog.findViewById(R.id.description);
 
         ArrayAdapter<CharSequence> requestAdapter;
-        ArrayAdapter<CharSequence> speciesAdapter=ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> speciesAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.animal_species,
                 android.R.layout.simple_list_item_1);
         speciesSpinner.setAdapter(speciesAdapter);
@@ -403,8 +439,8 @@ public class HomeFragment extends Fragment {
                 myAnimalNames);
         animalSpinner.setAdapter(animalAdapter);
 
-        if(role== UserRole.PRIVATE){
-            requestAdapter= ArrayAdapter.createFromResource(getContext(),
+        if (role == UserRole.PRIVATE) {
+            requestAdapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.private_request_type,
                     android.R.layout.simple_list_item_1);
 
@@ -413,7 +449,7 @@ public class HomeFragment extends Fragment {
             requestSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    switch (position){
+                    switch (position) {
                         case 0:
                             speciesSpinner.setVisibility(View.VISIBLE);
                             animalSpinner.setVisibility(View.GONE);
@@ -430,16 +466,15 @@ public class HomeFragment extends Fragment {
 
                 }
             });
-        }
-        else{
-            requestAdapter= ArrayAdapter.createFromResource(getContext(),
+        } else {
+            requestAdapter = ArrayAdapter.createFromResource(getContext(),
                     R.array.authority_request_type,
                     android.R.layout.simple_list_item_1);
 
             requestSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    switch (position){
+                    switch (position) {
                         case 0:
                             speciesSpinner.setVisibility(View.VISIBLE);
                             beds.setVisibility(View.VISIBLE);
@@ -475,10 +510,10 @@ public class HomeFragment extends Fragment {
         requestSpinner.setAdapter(requestAdapter);
         requestSpinner.setSelection(0);
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
+        Button backButton = editDialog.findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> editDialog.cancel());
 
-        Button createButton= editDialog.findViewById(R.id.create_button);
+        Button createButton = editDialog.findViewById(R.id.create_button);
         createButton.setOnClickListener(v -> requestPresenter.onAdd(
                 findRequestType(requestSpinner),
                 description.getText().toString(),
@@ -488,43 +523,46 @@ public class HomeFragment extends Fragment {
         ));
 
         editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
     public void loadReportsAndRequests() {
+        combinedList = new ArrayList();
+        adapter = new RequestReportAdapter(combinedList, getContext());
+        recyclerView.setAdapter(adapter);
+
         reportPresenter.getReportList(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
+                combinedList.add(result);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onDataRetrieved(ArrayList results) {
-                final ArrayList combinedList = new ArrayList(results);
+            }
 
-                requestPresenter.getRequestList(new DatabaseCallbackResult() {
-                    @Override
-                    public void onDataRetrieved(Object result) {
-                    }
+            @Override
+            public void onDataNotFound() {
+            }
 
-                    @Override
-                    public void onDataRetrieved(ArrayList results) {
-                        combinedList.addAll(results); // Unisci le due liste
+            @Override
+            public void onDataQueryError(Exception e) {
+            }
+        });
 
-                        adapter = new RequestReportAdapter(combinedList, getContext());
-                        recyclerView.setAdapter(adapter);
-                    }
+        requestPresenter.getRequestList(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                combinedList.add(result);
+                adapter.notifyDataSetChanged();
+            }
 
-                    @Override
-                    public void onDataNotFound() {
-                    }
-
-                    @Override
-                    public void onDataQueryError(Exception e) {
-                    }
-                });
+            @Override
+            public void onDataRetrieved(ArrayList results) {
             }
 
             @Override
@@ -553,10 +591,6 @@ public class HomeFragment extends Fragment {
         }
 
         return null;
-    }
-
-    public void showInvalidReportDescription() {
-        Toast.makeText(getContext(), this.getString(R.string.invalid_report_description), Toast.LENGTH_SHORT).show();
     }
 
     public void setPhotoPicked(Bitmap bitmap) {
@@ -594,6 +628,18 @@ public class HomeFragment extends Fragment {
         Toast.makeText(getContext(), this.getString(R.string.invalid_report_select_lost_option_2), Toast.LENGTH_SHORT).show();
     }
 
+    public void showInvalidReportDescription() {
+        Toast.makeText(getContext(), this.getString(R.string.invalid_report_description), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showInvalidRequestDescription() {
+        Toast.makeText(getContext(), this.getString(R.string.invalid_request_description), Toast.LENGTH_SHORT).show();
+    }
+
+    public void showInvalidRequestBeds() {
+        Toast.makeText(requireContext(), this.getString(R.string.invalid_request_beds), Toast.LENGTH_SHORT).show();
+    }
+
     public void showInvalidAge(int validationCode) {
         switch (validationCode) {
             case 1:
@@ -625,4 +671,76 @@ public class HomeFragment extends Fragment {
         Toast.makeText(requireContext(), this.getString(R.string.request_create_error), Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public Fragment getFragment() {
+        return this;
+    }
+
+    @Override
+    public void registerPermissionLauncher() {
+        requestPermissionLauncher = PermissionManager.getInstance().registerPermissionLauncher(this);
+    }
+
+    @Override
+    public void requestPermission(AndroidPermission permission) {
+        String permissionString = AndroidPermission.findManifestStringFromAndroidPermission(permission);
+        requestPermissionLauncher.launch(new String[]{permissionString});
+    }
+
+    @Override
+    public void launchPermissionHandler(AndroidPermission permission) {
+        PermissionManager.getInstance().checkAndRequestPermission(getActivity(), this, permission);
+    }
+
+    @Override
+    public void showPermissionExplanation(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(this.getString(R.string.permission_location_explanation_title_for_report));
+                builder.setMessage(this.getString(R.string.permission_location_explanation_description_for_report));
+                builder.setPositiveButton(this.getString(R.string.permission_explanation_dialog_grant), (dialog, which) -> {
+                    requestPermission(permission);
+                    dialog.dismiss();
+                });
+
+                builder.setNegativeButton(this.getString(R.string.permission_explanation_dialog_cancel), null);
+                builder.show();
+                break;
+        }
+    }
+
+    @Override
+    public void permissionGranted(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                openReportDialog();
+                break;
+        }
+    }
+
+    @Override
+    public void permissionNotGranted(AndroidPermission permission) {
+        switch (permission) {
+            case ACCESS_FINE_LOCATION:
+                AnimalAppDialog dialog = new AnimalAppDialog(getContext());
+                dialog.setContentView(this.getString(R.string.permission_location_not_granted_description_for_report), AnimalAppDialog.DialogType.CRITICAL);
+                dialog.setBannerText(this.getString(R.string.warning));
+                dialog.hideButtons();
+                dialog.show();
+                break;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocationTracker.getInstance(getContext()).stopLocationUpdates();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LocationTracker.getInstance(getContext()).stopLocationUpdates();
+    }
 }

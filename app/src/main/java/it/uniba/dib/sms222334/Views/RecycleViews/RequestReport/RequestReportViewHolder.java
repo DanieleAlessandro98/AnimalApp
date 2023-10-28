@@ -1,4 +1,4 @@
-package it.uniba.dib.sms222334.Views.RecycleViews.Expences.RequestReport;
+package it.uniba.dib.sms222334.Views.RecycleViews.RequestReport;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,23 +10,26 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Date;
+import com.google.firebase.firestore.GeoPoint;
 
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.LocationTracker;
+import it.uniba.dib.sms222334.Utils.RequestType;
 
 public class RequestReportViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="RequestReportViewHolder";
 
-        TextView Distance,Type,AnimalName,SpeciesAge,CreatorName,Description;
+        TextView Distance,Type, Name,SpeciesAge,CreatorName,Description;
         ImageView creatorPhoto,image;
 
-        Float latidute,longitude;
+        Document requestReport;
 
         Context context;
 
@@ -43,7 +46,7 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             Distance=itemView.findViewById(R.id.distance_text);
             Type=itemView.findViewById(R.id.type);
-            AnimalName=itemView.findViewById(R.id.name_text);
+            Name =itemView.findViewById(R.id.name_text);
             SpeciesAge=itemView.findViewById(R.id.species_age_text);
             CreatorName=itemView.findViewById(R.id.creator_name);
             Description=itemView.findViewById(R.id.description_text);
@@ -70,19 +73,17 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             Animal animal = request.getAnimal();
             if (animal != null) {
-                this.AnimalName.setText(animal.getName());
+                this.Name.setText(animal.getName());
                 this.SpeciesAge.setText(animal.getSpeciesString(animal.getSpecies(), context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
                 this.image.setImageBitmap(animal.getPhoto());
             } else {
-                this.AnimalName.setText("");
+                this.Name.setText("");
                 this.SpeciesAge.setText("");
             }
 
-            /*
-             this.latidute=request.getLatitude();
-             this.longitude=request.getLongitude();
-
-             */
+            if (request.getType() == RequestType.OFFER_BEDS) {
+                this.Name.setText(context.getString(R.string.description_offer_beds_request) + request.getNBeds());
+            }
         }
 
         public void bind(Report report){
@@ -102,26 +103,27 @@ public class RequestReportViewHolder extends RecyclerView.ViewHolder implements 
 
             String animalName = report.getAnimalName();
             if (!animalName.equals(""))
-                this.AnimalName.setText(animalName);
+                this.Name.setText(animalName);
             else
-                this.AnimalName.setText(context.getString(R.string.animal_name_unknown_report));
-
-            /*
-
-            this.latidute=report.getLatitude();
-            this.longitude=report.getLongitude();
-
-             */
+                this.Name.setText(context.getString(R.string.animal_name_unknown_report));
         }
 
-        public void setDistance(Location devicePosition) {
-            if(devicePosition!=null){
-                this.Distance.setText(CoordinateUtilities.calculateDistance(this.latidute
-                        ,devicePosition.getLatitude()
-                        ,this.longitude
-                        ,devicePosition.getLongitude(),CoordinateUtilities.WITH_METRICS));
+    public void updateDistance() {
+        Location devicePosition = LocationTracker.getInstance(context).getLocation();
+        if (devicePosition != null) {
+            float distance;
+
+            if (requestReport instanceof Request) {
+                distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((Request) requestReport).getLocation());
+                ((Request) requestReport).setDistance(distance);
+            } else {
+                distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((Report) requestReport).getLocation());
+                ((Report) requestReport).setDistance(distance);
             }
+
+            this.Distance.setText(CoordinateUtilities.formatDistance(distance));
         }
+    }
 
 
         @Override

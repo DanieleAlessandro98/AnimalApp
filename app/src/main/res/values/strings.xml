@@ -102,6 +102,8 @@
     <string name="invalid_report_age_2">The first part of the date must be a number</string>
     <string name="invalid_report_age_3">The second part of the date must be a word: day(s), month(s), year(s)</string>
     <string name="invalid_report_selected_animal">Select an animal from your animal list</string>
+    <string name="invalid_request_description">"Enter a valid description"</string>
+    <string name="invalid_request_beds">"Enter a valid number of available beds"</string>
     <string name="dog_species_name">Dog</string>
     <string name="cat_species_name">Cat</string>
     <string name="fish_species_name">Fish</string>
@@ -115,6 +117,16 @@
     <string name="danger_animal_report_name">ENDANGERED</string>
     <string name="user_not_logged_report">Anonymous user</string>
     <string name="animal_name_unknown_report">Unknown name</string>
+    <string name="description_offer_beds_request">Available beds: </string>
+    <string name="permission_explanation_dialog_grant">Grant</string>
+    <string name="permission_explanation_dialog_cancel">Cancel</string>
+    <string name="permission_location_explanation_title_for_report">Permission needed</string>
+    <string name="permission_location_explanation_description_for_report">To continue, permission must be granted to access the position</string>
+    <string name="permission_location_not_granted_description_for_report">You cannot use this functionality because you have not granted localization permission</string>
+    <string name="location_not_available">Your position is currently not available</string>
+    <string name="location_gps_disabled_message">To use this function, GPS must be activated. Do you want to activate it?</string>
+    <string name="settings">Settings</string>
+    <string name="location_gps_disabled_cancel">Cancel</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

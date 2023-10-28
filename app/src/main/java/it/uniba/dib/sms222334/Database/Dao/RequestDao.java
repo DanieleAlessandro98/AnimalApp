@@ -10,6 +10,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -24,10 +25,14 @@ import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class RequestDao {
     private final String TAG="RequestDao";
@@ -39,6 +44,7 @@ public class RequestDao {
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_USER_ID, request.getUser().getFirebaseID());
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_TYPE, request.getType().ordinal());
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION, request.getDescription());
+        new_request.put(AnimalAppDB.Request.COLUMN_NAME_LOCATION, request.getLocation());
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES, request.getAnimalSpecies().ordinal());
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_ID, (request.getAnimal() != null) ? request.getAnimal().getFirebaseID() : "");
         new_request.put(AnimalAppDB.Request.COLUMN_NAME_BEDS_NUMBER, request.getNBeds());
@@ -62,12 +68,11 @@ public class RequestDao {
                 });
     }
 
-    public void getAllRequests(final DatabaseCallbackResult callback) {
+    public void getAllRequests(final DatabaseCallbackResult callback, boolean hideOfferBedsRequest) {
         collectionRequest.get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        ArrayList<Request> requests = new ArrayList<>();
                         List<QueryDocumentSnapshot> documentSnapshots = new ArrayList<>();
 
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
@@ -75,7 +80,7 @@ public class RequestDao {
                                 documentSnapshots.add((QueryDocumentSnapshot) document);
                         }
 
-                        processRequests(requests, documentSnapshots, 0, callback);
+                        processRequests(hideOfferBedsRequest, documentSnapshots, 0, callback);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -86,40 +91,51 @@ public class RequestDao {
                 });
     }
 
-    private void processRequests(ArrayList<Request> requests, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
-        if (currentIndex >= documentSnapshots.size())
-            callback.onDataRetrieved(requests);
-        else {
-            QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
-
-            getRequestFromDocument(document, new DatabaseCallbackResult() {
-                @Override
-                public void onDataRetrieved(Object result) {
-                    requests.add((Request) result);
-                    processRequests(requests, documentSnapshots, currentIndex + 1, callback);
-                }
-
-                @Override
-                public void onDataRetrieved(ArrayList results) {
-
-                }
-
-                @Override
-                public void onDataNotFound() {
-
-                }
-
-                @Override
-                public void onDataQueryError(Exception e) {
-
-                }
-            });
+    private void processRequests(boolean hideOfferBedsRequest, List<QueryDocumentSnapshot> documentSnapshots, int currentIndex, DatabaseCallbackResult callback) {
+        if (currentIndex >= documentSnapshots.size()) {
+            callback.onDataNotFound();
+            return;
         }
+
+        QueryDocumentSnapshot document = documentSnapshots.get(currentIndex);
+        getRequestFromDocument(document, hideOfferBedsRequest, new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                callback.onDataRetrieved(result);
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+                processRequests(hideOfferBedsRequest, documentSnapshots, currentIndex + 1, callback);
+            }
+        });
     }
 
-    private void getRequestFromDocument(QueryDocumentSnapshot document, DatabaseCallbackResult callback) {
+    private void getRequestFromDocument(QueryDocumentSnapshot document, boolean hideOfferBedsRequest, DatabaseCallbackResult callback) {
+        RequestType type = RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()];
+        String userID = document.getString(AnimalAppDB.Request.COLUMN_NAME_USER_ID);
+
+        if (hideOfferBedsRequest && type == RequestType.OFFER_BEDS) {
+            if (!SessionManager.getInstance().isLogged() || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(userID))  {
+                callback.onDataNotFound();
+                return;
+            }
+        }
+
         UserDao userDao = new UserDao();
-        userDao.findUser(document.getString(AnimalAppDB.Request.COLUMN_NAME_USER_ID), new AuthenticationDao.FindUserListenerResult() {
+        userDao.findUser(userID, new AuthenticationDao.FindUserListenerResult() {
+
             @Override
             public void onUserFound(User user) {
                 AnimalDao animalDao = new AnimalDao();
@@ -128,8 +144,10 @@ public class RequestDao {
                 if (animalRef == null) {
                     Request request = Request.Builder.create(document.getId(),
                                     user,
-                                    RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()],
-                                    document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION))
+                                    type,
+                                    document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION),
+                                    document.getGeoPoint(AnimalAppDB.Request.COLUMN_NAME_LOCATION)
+                            )
                             .setAnimalSpecies(AnimalSpecies.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES).intValue()])
                             .setAnimal(null)
                             .setNBeds(document.getLong(AnimalAppDB.Request.COLUMN_NAME_BEDS_NUMBER).intValue()).build();
@@ -141,8 +159,10 @@ public class RequestDao {
                         public void onDataRetrieved(Animal result) {
                             Request request = Request.Builder.create(document.getId(),
                                             user,
-                                            RequestType.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_TYPE).intValue()],
-                                            document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION))
+                                            type,
+                                            document.getString(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION),
+                                            document.getGeoPoint(AnimalAppDB.Request.COLUMN_NAME_LOCATION)
+                                    )
                                     .setAnimalSpecies(AnimalSpecies.values()[document.getLong(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES).intValue()])
                                     .setAnimal(result)
                                     .setNBeds(document.getLong(AnimalAppDB.Request.COLUMN_NAME_BEDS_NUMBER).intValue()).build();
