@@ -15,24 +15,23 @@ public class RelationPresenter {
     private Relation relation;
 
 
-    public Relation createRelation(String id, Relation.relationType relationCategory, Animal animal) {
-        if (animal != null  && isAlphaNumeric(id) && relationCategory != null) {
-            relation = Relation.Builder.create(id, relationCategory, animal).build();
-            if (relation.createRelation(id,animal.getFirebaseID())) {
-                return relation;
-            }else{
-                return null;
-            }
+    public Relation createRelation(String idMyAnimal, Relation.relationType relationCategory, Animal animal) {
+        if (animal != null   && relationCategory != null) {
+            relation = Relation.Builder.create("", relationCategory, animal).build();
+            relation.createRelation(relation, idMyAnimal, new RelationDao.OnRelationCreated() {
+                @Override
+                public void onRelationCreatedListener(Relation relation) {
+                }
+            });
+            return relation;
         }else{
             return null;
         }
     }
 
-    public boolean deleteRelation(String idAnimal1,String idAnimal2){
-        if (isAlphaNumeric(idAnimal1)) {
-            return Relation.deleteRelation(idAnimal1,idAnimal2);
-        }else{
-            return false;
+    public void deleteRelation(Relation relation){
+        if (relation != null) {
+            Relation.deleteRelation(relation);
         }
     }
 
@@ -44,7 +43,6 @@ public class RelationPresenter {
             }
         });
     }
-
 
     public static boolean isAlphaNumeric(String s) {
         return s != null && s.matches("^[a-zA-Z0-9]*$");

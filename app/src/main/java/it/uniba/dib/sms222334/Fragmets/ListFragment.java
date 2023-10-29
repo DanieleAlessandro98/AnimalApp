@@ -635,12 +635,12 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 RelationPresenter relation = new RelationPresenter();
-                                String idAnimal1 = relationAdapter.getRelationList().get(pos).getFirebaseID();
-                                String idAnimal2 = relationAdapter.getRelationList().get(pos).getAnimal().getFirebaseID();
-                                if (relation.deleteRelation(idAnimal1,idAnimal2)) {
-                                    relationAdapter.removeRelation(pos);
-                                    System.out.println("delete the relation");
-                                }
+                                Relation relationClass = relationAdapter.getRelationList().get(pos);
+
+                                relation.deleteRelation(relationClass);
+                                relationAdapter.removeRelation(pos);
+                                System.out.println("delete the relation");
+
                                 return null;
                             });
                         }

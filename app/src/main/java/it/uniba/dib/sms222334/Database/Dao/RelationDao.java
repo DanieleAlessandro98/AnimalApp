@@ -34,72 +34,33 @@ public class RelationDao {
     private final String TAG="RelationDao";
     final private CollectionReference collectionRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Relation.TABLE_NAME);
     final private CollectionReference collectionAnimalRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
-    private boolean valueReturn = true;
-    public boolean createRelation(Relation.relationType tipo,String MyIdAnimal,String TheyIdAnimal){
+
+    public void createRelation(Relation relation,String idMyAnimal,OnRelationCreated callBack){
         Map<String,String> newRelation = new HashMap<>();
-        newRelation.put("idAnimal1",MyIdAnimal);
-        newRelation.put("idAnimal2",TheyIdAnimal);
-        newRelation.put("Relation",tipo.toString());
+        newRelation.put("idAnimal1",idMyAnimal);
+        newRelation.put("idAnimal2",relation.getAnimal().getFirebaseID());
+        newRelation.put("Relation",relation.getRelationType().toString());
 
         collectionRelation.add(newRelation).addOnSuccessListener(documentReference -> {
             Log.d(TAG,"the relation is create");
-            valueReturn = true;
+            relation.setFirebaseID(documentReference.getId());
+            callBack.onRelationCreatedListener(relation);
         }).addOnFailureListener(e -> {
             Log.d(TAG,"Failure to create relation");
-            valueReturn = false;
         });
-
-        return valueReturn;
     }
-    public void deleteRelation(String idAnimal1, String idAnimal2){
-        collectionRelation
-                .whereEqualTo("idAnimal1",idAnimal1)
-                .whereEqualTo("idAnimal2",idAnimal2)
-                .get().addOnCompleteListener(task -> {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                        collectionRelation.document(document.getId())
-                                .delete().addOnSuccessListener(unused -> {
-                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                    valueReturn = true;
-                                }).addOnFailureListener(e -> {
-                                    Log.w(TAG, "Error deleting document", e);
-                                    valueReturn = false;
-                                });
-                    }else{
-                        System.out.println("non trovato");
-                    }
-                });
-
-        collectionRelation
-                .whereEqualTo("idAnimal1",idAnimal2)
-                .whereEqualTo("idAnimal2",idAnimal1)
-                .get().addOnCompleteListener(task -> {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                        collectionRelation.document(document.getId())
-                                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                        valueReturn = true;
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error deleting document", e);
-                                        valueReturn = false;
-                                    }
-                                });
-                    }else{
-                        System.out.println("non trovato");
+    public void deleteRelation(Relation relation){
+        System.out.println("firebase id"+relation.getFirebaseID());
+        collectionRelation.document(relation.getFirebaseID())
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.i("I","eliminato la relazione di animali");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG,"fallito",e);
+                        Log.w("W","eliminazione fallita");
                     }
                 });
     }
@@ -143,7 +104,6 @@ public class RelationDao {
             }
         });
     }
-
     public ArrayList <Relation> listRelation;
     public void getRelation(String ownerID, String idAnimal, final OnRelationAnimalListener listener) {
         listRelation = new ArrayList<>();
@@ -166,6 +126,7 @@ public class RelationDao {
                                     relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
                                     String idAnimal1 = document.getString("idAnimal1");
                                     String idAnimal2 = document.getString("idAnimal2");
+                                    String documentID = document.getId();
                                     String searchAnimalId;
                                     if (idAnimal.equals(idAnimal1)) {
                                         searchAnimalId = idAnimal2;
@@ -177,9 +138,9 @@ public class RelationDao {
                                     getAnimalClass(searchAnimalId, animalClass -> {
                                         assert searchAnimalId != null;
                                         if (searchAnimalId.equals(idAnimal1)) {
-                                            listRelation.add(Relation.Builder.create(idAnimal2, relation[0], animalClass).build());
+                                            listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
                                         } else {
-                                            listRelation.add(Relation.Builder.create(idAnimal1, relation[0], animalClass).build());
+                                            listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
                                         }
                                         listener.onRelationAnimalListener(listRelation, animalGetList);
                                     });
@@ -230,6 +191,9 @@ public class RelationDao {
 
     public interface OnRelationListener {
         void onGetAnimalListener(List <Animal> animalList);
+    }
+    public interface OnRelationCreated{
+        void onRelationCreatedListener(Relation relation);
     }
 
     public interface OnRelationAnimalListener{
