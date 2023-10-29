@@ -91,28 +91,40 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 break;
         }
 
-        if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
-            MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
-                @Override
-                public void onPhotoUploaded() {
-                    profileModel.setPhoto(profileView.getPhotoPicked());
+        Authentication authentication = new Authentication(new AuthenticationCallbackResult.UpdateAuthentication() {
+            @Override
+            public void onUpdateSuccessful() {
+                if (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked())) {
+                    MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                        @Override
+                        public void onPhotoUploaded() {
+                            profileModel.setPhoto(profileView.getPhotoPicked());
+                            profileModel.updateProfile();
+                            profileView.showUpdateSuccessful();
+                        }
+
+                        @Override
+                        public void onPhotoUploadFailed(Exception exception) {
+                            profileView.showPhotoUpdateError();
+                        }
+                    };
+
+                    MediaDao mediaDao = new MediaDao();
+                    mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+                }
+                else {
                     profileModel.updateProfile();
                     profileView.showUpdateSuccessful();
                 }
+            }
 
-                @Override
-                public void onPhotoUploadFailed(Exception exception) {
-                    profileView.showPhotoUpdateError();
-                }
-            };
+            @Override
+            public void onUpdateFailure() {
+                profileView.showUpdateError();
+            }
+        });
 
-            MediaDao mediaDao = new MediaDao();
-            mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
-        }
-        else {
-            profileModel.updateProfile();
-            profileView.showUpdateSuccessful();
-        }
+        authentication.updateUserAuth(email, password);
     }
 
     public void deleteProfile() {

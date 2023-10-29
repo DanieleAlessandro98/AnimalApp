@@ -247,7 +247,6 @@ public final class PrivateDao {
     }
 
     public void updatePrivate(Private updatePrivate,UserCallback.UserUpdateCallback callback) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         List<DocumentReference> dr= new ArrayList<>();
 
@@ -256,9 +255,6 @@ public final class PrivateDao {
             DocumentReference documentReference = AnimalDao.collectionAnimal.document(a.getFirebaseID());
             dr.add(documentReference);
         }
-
-        user.updateEmail(updatePrivate.getEmail())
-                .addOnCompleteListener(task -> {});
 
         Map<String, Object> newPrivateData = new HashMap<>();
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());

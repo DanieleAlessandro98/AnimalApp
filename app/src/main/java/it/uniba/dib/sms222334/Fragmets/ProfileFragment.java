@@ -569,6 +569,10 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
     }
 
+    public void showUpdateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_update_error), Toast.LENGTH_SHORT).show();
+    }
+
     private void showDeleteConfirm() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(this.getString(R.string.profile_delete_alert_title));

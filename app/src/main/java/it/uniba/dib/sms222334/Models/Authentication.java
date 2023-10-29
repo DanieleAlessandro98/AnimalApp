@@ -5,11 +5,12 @@ import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Authentication implements AuthenticationCallbackResult.Login, AuthenticationCallbackResult.Logout {
+public class Authentication implements AuthenticationCallbackResult.Login, AuthenticationCallbackResult.Logout, AuthenticationCallbackResult.UpdateAuthentication {
 
     private final AuthenticationDao authenticationDao;
     private AuthenticationCallbackResult.LoginCompletedListener listenerLogin;
     private AuthenticationCallbackResult.LogoutCompletedListener listenerLogout;
+    private AuthenticationCallbackResult.UpdateAuthentication listenerUpdate;
 
     public Authentication(AuthenticationCallbackResult.LoginCompletedListener listenerLogin) {
         authenticationDao = new AuthenticationDao();
@@ -21,12 +22,21 @@ public class Authentication implements AuthenticationCallbackResult.Login, Authe
         this.listenerLogout = listenerLogout;
     }
 
+    public Authentication(AuthenticationCallbackResult.UpdateAuthentication listenerUpdate) {
+        authenticationDao = new AuthenticationDao();
+        this.listenerUpdate = listenerUpdate;
+    }
+
     public void login(String email, String password) {
         authenticationDao.login(email, password, this);
     }
 
     public void delete() {
         authenticationDao.delete(this);
+    }
+
+    public void updateUserAuth(String email, String password) {
+        authenticationDao.updateUserAuth(email, password, this);
     }
 
     public boolean isLogged() {
@@ -57,5 +67,15 @@ public class Authentication implements AuthenticationCallbackResult.Login, Authe
     @Override
     public void onLogoutFailure() {
         listenerLogout.onLogoutCompleted(false);
+    }
+
+    @Override
+    public void onUpdateSuccessful() {
+        listenerUpdate.onUpdateSuccessful();
+    }
+
+    @Override
+    public void onUpdateFailure() {
+        listenerUpdate.onUpdateFailure();
     }
 }
