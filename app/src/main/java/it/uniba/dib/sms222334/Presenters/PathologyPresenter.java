@@ -14,8 +14,6 @@ import it.uniba.dib.sms222334.Models.Pathology;
  * this class handles the create, view, remove and check the date for Pathology
  */
 public class PathologyPresenter {
-
-    private String idAnimal,name;
     public static Pathology pathology;
 
     public PathologyPresenter() {
@@ -25,7 +23,7 @@ public class PathologyPresenter {
     public Pathology action_create(String idAnimal, String name){
         if(name != null && isAlphaNumeric(idAnimal)){
             pathology = Pathology.Builder.create("",idAnimal,name).build();
-            pathology.createPathology(idAnimal,name);
+            pathology.createPathology(pathology,name);
             return pathology;
         }else{
             Log.w("W","The creation is failure");
@@ -34,9 +32,9 @@ public class PathologyPresenter {
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method
-    public void action_delete(String idAnimal, String name){
-        if (idAnimal != null && name != null){
-            Pathology.deletePathology(idAnimal,name);
+    public void action_delete(Pathology pathology){
+        if (pathology != null){
+            pathology.delete();
         }else{
             System.out.println("the Pathology is not Exist");
         }
@@ -53,39 +51,7 @@ public class PathologyPresenter {
         }
     }
 
-    private boolean isAlphabet(String s){
-        return s != null && s.matches("^[a-zA-Z]*$");
-    }
-
     public static boolean isAlphaNumeric(String s) {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
-    }
-
-    private boolean checkIfExist(String idAnimal){
-        //TODO chiamare un metodo del model per verificare l'esistenza della patologia
-        boolean value = true;
-        if (value){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-
-
-    public String getIdAnimal() {
-        return idAnimal;
-    }
-
-    public void setIdAnimal(String idAnimal) {
-        this.idAnimal = idAnimal;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

@@ -44,33 +44,15 @@ public class PathologyDao {
                 });
     }
 
-    public void deleteAnimalPathology(String idAnimal,String name) {
-        collectionPathology
-                .whereEqualTo("ID animal",idAnimal)
-                .whereEqualTo("Type pathology",name)
-                .get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                            collectionPathology.document(document.getId()).delete()
-                                    .addOnSuccessListener(unused -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
-                                    .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
-                        }else{
-                            Log.w("W","dati vuoti");
-                        }
-                    }
-                });
-    }
-
-    public void createPathology(String IdAnimal, String TypePathology, Pathology pathology){
+    public void createPathology(Pathology pathology,String TypePathology){
         Map<String,String> newAnimal = new HashMap<>();
 
-        newAnimal.put("ID animal",IdAnimal);
+        newAnimal.put("ID animal",pathology.getIdAnimal());
         newAnimal.put("Type pathology",TypePathology);
 
         collectionPathology.add(newAnimal).addOnSuccessListener(documentReference -> {
             Log.d(TAG,"Creazione avenuta");
+            pathology.setFirebaseID(documentReference.getId());
         }).addOnFailureListener(e -> {
             Log.d(TAG,"Creazione patologia fallita");
         });
