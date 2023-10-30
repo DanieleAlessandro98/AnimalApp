@@ -7,6 +7,8 @@ import com.google.android.gms.tasks.Tasks;
 import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -19,9 +21,13 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
+import it.uniba.dib.sms222334.Utils.Media;
 
 public class VeterinarianDao {
     private final String TAG = "VeterinarianDao";
@@ -35,7 +41,7 @@ public class VeterinarianDao {
                         document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PHOTO))
                 .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
                 .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER).intValue())
+                .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER))
                 //.setLatitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
                 //.setLongitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude
                 ;
@@ -57,6 +63,8 @@ public class VeterinarianDao {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                        // L'inserimento del DocumentSnapshot ha avuto successo, quindi procedi con l'autenticazione
+                        AuthenticationDao.fireAuth(Veterinarian.getEmail(), Veterinarian.getPassword(), documentReference, callback);
                         callback.onRegisterSuccess();
                     }
                 })
@@ -127,4 +135,49 @@ public class VeterinarianDao {
                     listener.onGetCombinedData(new ArrayList<>());
                 });
     }
+    public void updateVeterinarian(Veterinarian updateVeterinarian, UserCallback.UserUpdateCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        /*
+        List<DocumentReference> dr= new ArrayList<>();
+
+
+        for(Animal a: updateVeterinarian.getAnimalList()){
+            DocumentReference documentReference = AnimalDao.collectionAnimal.document(a.getFirebaseID());
+            dr.add(documentReference);
+        }
+        */
+
+        user.updateEmail(updateVeterinarian.getEmail())
+                .addOnCompleteListener(task -> {});
+
+        Map<String, Object> newVeterinarianData = new HashMap<>();
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME, updateVeterinarian.getName());
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL, updateVeterinarian.getEmail());
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD, updateVeterinarian.getPassword());
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + updateVeterinarian.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER, updateVeterinarian.getPhone());
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, updateVeterinarian.getLegalSite());
+
+        collectionVeterinarian.document(updateVeterinarian.getFirebaseID())
+                .update(newVeterinarianData)
+                .addOnSuccessListener(
+                        aVoid -> {
+                            callback.notifyUpdateSuccesfull();
+                            Log.d(TAG, "update fatto");
+                        })
+                .addOnFailureListener(
+                        e -> {
+                            callback.notifyUpdateFailed();
+                            Log.d(TAG, "errore update");
+                        });
+    }
+
+    public void deleteVeterinarian(Veterinarian veterinarian){
+        collectionVeterinarian.document(veterinarian.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+    }
+
 }

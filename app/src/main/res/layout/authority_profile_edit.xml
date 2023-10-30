@@ -167,6 +167,27 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="18sp" />
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_container_shape"
+                android:backgroundTint="@color/soft_red_200"
+                android:paddingVertical="10dp">
+                <Button
+                    android:id="@+id/delete_button"
+                    android:layout_width="254dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/button_shape"
+                    android:backgroundTint="?attr/errorShown"
+                    android:paddingHorizontal="10dp"
+                    android:text="@string/delete"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="18sp" />
+            </FrameLayout>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

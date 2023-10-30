@@ -1,16 +1,20 @@
 package it.uniba.dib.sms222334.Database.Dao.Authentication;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
@@ -130,6 +134,30 @@ public class AuthenticationDao {
                         }
                     });
         }
+    }
+
+    public static void fireAuth(String email, String password, DocumentReference documentReference, UserCallback.UserRegisterCallback callback) {
+        // Esegui l'autenticazione dell'utente
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    Log.d(TAG, "Autenticazione riuscita");
+                    callback.onRegisterSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Errore durante l'autenticazione", e);
+
+                    // Se l'autenticazione fallisce, elimina il documento creato
+                    documentReference.delete().addOnCompleteListener(deleteTask -> {
+                        if (deleteTask.isSuccessful()) {
+                            Log.d(TAG, "Documento eliminato con successo");
+                        } else {
+                            Log.w(TAG, "Errore durante l'eliminazione del documento", deleteTask.getException());
+                        }
+
+                        // Chiamare il callback di registrazione fallita dopo aver gestito l'eliminazione
+                        callback.onRegisterFail();
+                    });
+                });
     }
 
     public interface FindUserListenerResult {

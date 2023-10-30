@@ -20,7 +20,7 @@ public class Validations {
 
     public static boolean isValidEmail(String email) {
         return (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches());
-    }
+    } //todo: creare controllo sull'unicità dell'email
     public static boolean isValidPassword(String password) {
         return (password.length() >= 6);
     }

@@ -405,6 +405,10 @@ public class AnimalDao {
         return animal_find.build();
     }
 
+    public void deleteAnimal(Animal animal){
+        collectionAnimal.document(animal.getFirebaseID()).delete();
+    }
+
     public void deleteAnimal(Animal animal, AnimalCallbacks.eliminationCallback callback) {
 
         User user=SessionManager.getInstance().getCurrentUser();

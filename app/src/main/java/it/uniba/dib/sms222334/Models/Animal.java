@@ -413,7 +413,10 @@ public class Animal extends Document implements Parcelable {
         // TODO: Cancellare foto e video (dal repo di firebase)
 
         AnimalDao animalDao = new AnimalDao();
-        animalDao.deleteAnimal(this, new AnimalCallbacks.eliminationCallback() {
+        if (SessionManager.getInstance().isLogged())
+        {
+            animalDao.deleteAnimal(this, new AnimalCallbacks.eliminationCallback() {
+
             @Override
             public void eliminatedSuccesfully() {
 
@@ -424,7 +427,13 @@ public class Animal extends Document implements Parcelable {
 
             }
         });
-    }
+        }else
+        {
+            animalDao.deleteAnimal(this);
+        }
+}
+
+
 
     @Override
     public String toString() {
