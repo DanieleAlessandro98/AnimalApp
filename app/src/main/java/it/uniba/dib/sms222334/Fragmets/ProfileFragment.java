@@ -370,6 +370,8 @@ public class ProfileFragment extends Fragment {
                     ListFragment.visitList.add(value);
                     editDialog.cancel();
                     ListFragment.recyclerView.setAdapter(ListFragment.visitAdapter);
+                }else{
+                    System.out.println("value è una classe nulla");
                 }
             }
         });

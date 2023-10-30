@@ -547,8 +547,8 @@ public class ListFragment extends Fragment{
                         pos -> {
                             launchConfirmDialog(() -> {
                                 VisitPresenter visit = new VisitPresenter();
-                                System.out.println("entrato in click");
-                                if (visit.removeVisit(visitAdapter.getVisitList().get(pos).getFirebaseID())) {
+                                System.out.println("id remove visit: "+visitAdapter.getVisitList().get(pos).getFirebaseID());
+                                if (visit.removeVisit(visitAdapter.getVisitList().get(pos))) {
                                     System.out.println("eliminato visita");
                                     visitAdapter.removeVisit(pos);
                                 }else{

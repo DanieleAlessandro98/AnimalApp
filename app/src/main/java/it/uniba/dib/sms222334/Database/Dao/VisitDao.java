@@ -41,18 +41,16 @@ public class VisitDao {
     public boolean createVisit(Visit visit){
         Map<String, Object> newVisit = new HashMap<>();
 
-        // Creazione di un riferimento all'animale usando il suo firebaseID
         DocumentReference animalReference = FirebaseFirestore.getInstance()
                 .collection(AnimalAppDB.Animal.TABLE_NAME)
                 .document(visit.getAnimal().getFirebaseID());
-
-        System.out.println("animal reference: "+animalReference);
 
         newVisit.put("animalID", animalReference);
         newVisit.put("Visit Type", visit.getType().toString());
         newVisit.put("Date", visit.getDate().toString());
         newVisit.put("name", visit.getName());
         newVisit.put("diagnosis", "");
+        newVisit.put("doctor name","");
         newVisit.put("medical_note", "");
         newVisit.put("state", "");
         newVisit.put("idDoctor",visit.getDoctorFirebaseID());
@@ -62,6 +60,7 @@ public class VisitDao {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Log.d(TAG,"Visit is create");
+                visit.setFirebaseID(documentReference.getId());
                 returnValue = true;
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -72,31 +71,6 @@ public class VisitDao {
             }
         });
         return returnValue;
-    }
-
-    private boolean value = true;
-
-    public boolean removeVisit(String idVisita){
-
-        collectionVisit.document(idVisita)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        System.out.println("eliminato");
-                        Log.d(TAG, "Visit successfully deleted!");
-                        value = true;
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        System.out.println("non eliminato");
-                        Log.w(TAG, "Error deleting Visit", e);
-                        value = false;
-                    }
-                });
-        return value;
     }
 
     public void deleteVisit(Visit visit){
@@ -135,8 +109,6 @@ public class VisitDao {
                             visit.setName(document.getString("name"));
 
                             Map<String,Object> updateMap = new HashMap<>();
-
-                            System.out.println("Diagnosi   "+visit.getDiagnosis());
 
                             updateMap.put("Date",visit.getDate().toString());
                             updateMap.put("Visit Type",visit.getType().toString());

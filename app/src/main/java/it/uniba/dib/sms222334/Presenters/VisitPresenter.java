@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.util.Log;
+
 import java.util.Date;
 import java.util.List;
 
@@ -28,12 +30,11 @@ public class VisitPresenter {
 
     public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName,String doctorID){
         if(visit_type != null && date != null && visitName != null && animal != null && doctorID != null){
-            Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
+            Visit visit = Visit.Builder.create("",visitName,visit_type,date).build();
             visit.setAnimal(animal);
             visit.setDoctorFirebaseID(doctorID);
 
             if(visit.createVisit(visit)){
-                System.out.println("creazione finita");
                 return visit;
             }else{
                 return null;
@@ -47,7 +48,7 @@ public class VisitPresenter {
     public boolean action_edit(Visit visit,String idAnimal,String name){
 
         if(visit != null){
-            if (Visit.editVisit(visit,idAnimal,name)) {
+            if (visit.editVisit(idAnimal,name)) {
                 return true;
             }else{
                 return false;
@@ -58,18 +59,12 @@ public class VisitPresenter {
     }
 
 
-    public boolean removeVisit(String idVisit){
-        if (isAlphaNumeric(idVisit)){
-            System.out.println("entrato in if di removeVisit()");
-            if (Visit.removeVisit(idVisit)) {
-                System.out.println("vero di remove visit");
-                return true;
-            }else{
-                System.out.println("falso di remove visit");
-                return false;
-            }
+    public boolean removeVisit(Visit visit){
+        if (visit != null){
+            visit.delete();
+            return true;
         } else {
-            // TODO fare qualcosa per visualizzare errore nella eliminazione
+            Log.w("W","the class visit is null");
             return false;
         }
     }
