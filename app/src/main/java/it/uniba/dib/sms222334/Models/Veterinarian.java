@@ -150,7 +150,18 @@ public class Veterinarian extends User implements Parcelable{
     };
 
     public void updateProfile() {
+        VeterinarianDao veterinarianDao = new VeterinarianDao();
+        veterinarianDao.updateVeterinarian(this, new UserCallback.UserUpdateCallback() {
+            @Override
+            public void notifyUpdateSuccesfull() {
 
+            }
+
+            @Override
+            public void notifyUpdateFailed() {
+
+            }
+        });
     }
     public void registerVeterinarian(UserCallback.UserRegisterCallback callback) {
 
@@ -162,6 +173,11 @@ public class Veterinarian extends User implements Parcelable{
     }
     @Override
     public void deleteProfile() {
+        for (Visit visit : visitList) {
+            visit.delete();
+        }
 
+        VeterinarianDao veterinarianDao = new VeterinarianDao();
+        veterinarianDao.deleteVeterinarian(this);
     }
 }

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
@@ -198,7 +199,9 @@ public final class PrivateDao {
         collectionPrivate.add(new_private)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                    callback.onRegisterSuccess();
+
+                    // L'inserimento del DocumentSnapshot ha avuto successo, quindi procedi con l'autenticazione
+                    AuthenticationDao.fireAuth(Private.getEmail(), Private.getPassword(), documentReference, callback);
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error adding document", e);
@@ -251,6 +254,7 @@ public final class PrivateDao {
 
         List<DocumentReference> dr= new ArrayList<>();
 
+        //TODO : Chiedere a giuseppe
         for(Animal a: updatePrivate.getAnimalList()){
             Log.d(TAG,a.getName());
             DocumentReference documentReference = AnimalDao.collectionAnimal.document(a.getFirebaseID());

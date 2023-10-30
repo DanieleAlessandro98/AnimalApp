@@ -118,12 +118,28 @@ public class PublicAuthority extends User implements Owner, Parcelable {
 
     @Override
     public void updateProfile() {
+        PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
+        publicAuthorityDao.updatePublicAuthority(this, new UserCallback.UserUpdateCallback() {
+            @Override
+            public void notifyUpdateSuccesfull() {
 
+            }
+
+            @Override
+            public void notifyUpdateFailed() {
+
+            }
+        });
     }
 
     @Override
     public void deleteProfile() {
+        for (Animal animal : listAnimal) {
+            animal.delete(null);
+        }
 
+        PublicAuthorityDao authorityDao = new PublicAuthorityDao();
+        authorityDao.deleteAuthority(this);
     }
 
     @Override

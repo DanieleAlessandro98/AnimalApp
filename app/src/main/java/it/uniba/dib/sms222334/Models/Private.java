@@ -155,6 +155,7 @@ public class Private extends User implements Owner, Parcelable {
 
         PrivateDao privateDao = new PrivateDao();
         privateDao.deletePrivate(this);
+
     }
 
     @Override

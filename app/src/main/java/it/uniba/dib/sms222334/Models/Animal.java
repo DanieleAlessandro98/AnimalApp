@@ -462,7 +462,6 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
     public void delete(@Nullable AnimalCallbacks.eliminationCallback callback) {
 
         AnimalDao animalDao = new AnimalDao();
-        animalDao.deleteAnimal(this, callback);
 
         for (Visit visit : visits) {
             visit.delete();
@@ -483,17 +482,13 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
         for(Relation relation: relations){
             // TODO: Cancellare relazioni
         }
-
         for(Video video: videos)
             video.delete(new MediaDao.MediaDeleteListener() {
                 @Override
                 public void mediaDeletedSuccessfully() {
-
                 }
-
                 @Override
                 public void mediaDeletedFailed(Exception exception) {
-
                 }
             });
 
@@ -501,15 +496,30 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
             photo.delete(new MediaDao.MediaDeleteListener() {
                 @Override
                 public void mediaDeletedSuccessfully() {
-
                 }
 
                 @Override
                 public void mediaDeletedFailed(Exception exception) {
+                }
+            });
+        //TODO: fix check asincrono del session manager(Entra qui anche nell'eliminazione causando nul pointer exception)
+        if (SessionManager.getInstance().isLogged())        {
+            animalDao.deleteAnimal(this, new AnimalCallbacks.eliminationCallback() {
+                @Override
+                public void eliminatedSuccesfully() {
+
+                }
+                @Override
+                public void failedElimination() {
 
                 }
             });
-    }
+        }
+        else
+        {
+            animalDao.deleteAnimal(this);
+        }
+}
 
     @Override
     public String toString() {

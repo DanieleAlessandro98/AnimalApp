@@ -454,6 +454,9 @@ public class AnimalDao {
 
         return animal_find.build();
     }
+    public void deleteAnimal(Animal animal){
+        collectionAnimal.document(animal.getFirebaseID()).delete();
+    }
 
     public void deleteAnimal(Animal animal, @Nullable AnimalCallbacks.eliminationCallback callback) {
 

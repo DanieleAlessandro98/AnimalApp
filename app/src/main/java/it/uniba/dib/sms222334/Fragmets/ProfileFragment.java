@@ -63,6 +63,7 @@ import it.uniba.dib.sms222334.Models.Visit;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
+    private EditText companyNameEditText;
 
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN,ANIMAL}
     public enum TabPosition{ANIMAL,VISIT,EXPENSE,RELATION,HEALTH,FOOD}
@@ -91,6 +92,7 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
+    private EditText siteEditText;
 
 
     private UserPresenter userPresenter;
@@ -397,9 +399,27 @@ public class ProfileFragment extends Fragment {
                 break;
             case VETERINARIAN:
                 editDialog.setContentView(R.layout.veterinarian_profile_edit);
+
+                photoImageView = editDialog.findViewById(R.id.profile_picture);
+                companyNameEditText = editDialog.findViewById(R.id.nameEditText);
+                siteEditText = editDialog.findViewById(R.id.surnameEditText);
+                Spinner prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
+                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = editDialog.findViewById(R.id.emailEditText);
+                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+
                 break;
             case PUBLIC_AUTHORITY:
                 editDialog.setContentView(R.layout.authority_profile_edit);
+
+                photoImageView = editDialog.findViewById(R.id.profile_picture);
+                companyNameEditText = editDialog.findViewById(R.id.nameEditText);
+                siteEditText = editDialog.findViewById(R.id.surnameEditText);
+                prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
+                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = editDialog.findViewById(R.id.emailEditText);
+                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+
                 break;
         }
 
@@ -408,23 +428,55 @@ public class ProfileFragment extends Fragment {
         editPhotoButton = editDialog.findViewById(R.id.edit_button);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
+
             public void onClick(View v) {
-                try {
-                    String name = nameEditText.getText().toString();
-                    String surname = surnameEditText.getText().toString();
+                switch (role) {
+                    case PRIVATE:
+                        try {
+                            String name = nameEditText.getText().toString();
+                            String surname = surnameEditText.getText().toString();
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                    Date birthDate = dateFormat.parse(dateTextView.getText().toString());
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                            Date birthDate = dateFormat.parse(dateTextView.getText().toString());
 
-                    String taxID = taxIDEditText.getText().toString();
-                    long phone = Long.parseLong(phoneEditText.getText().toString());
-                    String email = emailEditText.getText().toString();
-                    String password = passwordEditText.getText().toString();
+                            String taxID = taxIDEditText.getText().toString();
+                            String phone = phoneEditText.getText().toString();
+                            String email = emailEditText.getText().toString();
+                            String password = passwordEditText.getText().toString();
 
-                    userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password);
+                            String site = null;
+                            String companyname = null;
+                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case VETERINARIAN:
+                            String companyname = companyNameEditText.getText().toString();
+                            String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            String phone = phoneEditText.getText().toString();
+                            String email = emailEditText.getText().toString();
+                            String password = passwordEditText.getText().toString();
+                            String name = null;
+                            String surname = null;
+                            Date birthDate = null;
+                            String taxID = null;
+                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+
+                        break;
+                    case PUBLIC_AUTHORITY:
+                            companyname = companyNameEditText.getText().toString();
+                            site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            phone = phoneEditText.getText().toString();
+                            email = emailEditText.getText().toString();
+                            password = passwordEditText.getText().toString();
+                            name = null;
+                            surname = null;
+                            birthDate = null;
+                            taxID = null;
+                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                        break;
                 }
             }
         });
@@ -533,10 +585,30 @@ public class ProfileFragment extends Fragment {
         dateTextView.setText(dateString);
 
         taxIDEditText.setText(userPrivate.getTaxIDCode());
-        phoneEditText.setText(String.valueOf(userPrivate.getPhone()));
+        phoneEditText.setText(Long.toString(userPrivate.getPhone()));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
         photoImageView.setImageBitmap(userPrivate.getPhoto());
+    }
+
+    public void onInitAuthorityData(PublicAuthority userAuthority) {
+        companyNameEditText.setText(userAuthority.getName());
+        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+
+        phoneEditText.setText(Long.toString(userAuthority.getPhone()));
+        emailEditText.setText(userAuthority.getEmail());
+        passwordEditText.setText(userAuthority.getPassword());
+        photoImageView.setImageBitmap(userAuthority.getPhoto());
+    }
+
+    public void onInitVeterinarianData(Veterinarian userVeterinarian) {
+        companyNameEditText.setText(userVeterinarian.getName());
+        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+
+        phoneEditText.setText(Long.toString(userVeterinarian.getPhone()));
+        emailEditText.setText(userVeterinarian.getEmail());
+        passwordEditText.setText(userVeterinarian.getPassword());
+        photoImageView.setImageBitmap(userVeterinarian.getPhoto());
     }
 
     public void showInvalidInput(int inputType) {
@@ -584,6 +656,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void showLogoutSuccessful() {
+
         Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
 
         ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);

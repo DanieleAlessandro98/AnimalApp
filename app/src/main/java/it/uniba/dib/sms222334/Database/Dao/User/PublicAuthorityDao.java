@@ -27,11 +27,13 @@ import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Utils.Media;
 
 public class PublicAuthorityDao {
     private final String TAG="PublicAuthorityDao";
@@ -44,7 +46,7 @@ public class PublicAuthorityDao {
                         document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
                         document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHOTO))
                 .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER).intValue())
+                .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
                 .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
                 //.setLatitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
                 //.setLongitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude
@@ -126,6 +128,7 @@ public class PublicAuthorityDao {
         collectionPublicAuthority.add(new_authority)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                    AuthenticationDao.fireAuth(PublicAuthority.getEmail(), PublicAuthority.getPassword(), documentReference, callback);
                     callback.onRegisterSuccess();
                 })
                 .addOnFailureListener(e -> {
@@ -183,7 +186,7 @@ public class PublicAuthorityDao {
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,updateAuthority.getNBeds());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
-        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + updateAuthority.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLegalSite());
 
@@ -237,5 +240,12 @@ public class PublicAuthorityDao {
                         listener.onDataQueryError(task.getException());
                     }
                 });
+    }
+
+    public void deleteAuthority(PublicAuthority Authority){
+        collectionPublicAuthority.document(Authority.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
     }
 }
