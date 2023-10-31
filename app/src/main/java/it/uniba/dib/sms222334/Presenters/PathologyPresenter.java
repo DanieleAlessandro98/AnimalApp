@@ -20,15 +20,13 @@ public class PathologyPresenter {
     }
 
     // this is the method that check if are error in the name and call the method for create the pathology
-    public Pathology action_create(String idAnimal, String name){
+    public void action_create(String idAnimal, String name,PathologyDao.OnPathologyCreateListener listener){
         if(name != null && isAlphaNumeric(idAnimal)){
             pathology = Pathology.Builder.create("",idAnimal,name).build();
-            pathology.createPathology(pathology,name);
-            return pathology;
+            pathology.createPathology(pathology,name,listener);
         }else{
             Log.w("W","The creation is failure");
         }
-        return null;
     }
 
     // this is che method that check if exist the pathology, if exist then call the delete method

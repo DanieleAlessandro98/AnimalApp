@@ -413,13 +413,20 @@ public class ListFragment extends Fragment{
 
                     save.setOnClickListener(view -> {
                         PathologyPresenter pathology = new PathologyPresenter();
-                        Pathology pathologyValue = pathology.action_create(animal.getFirebaseID(),getValue[0]);
-                        if (pathologyValue != null) {
-                            addDialog.cancel();
+                       pathology.action_create(animal.getFirebaseID(), getValue[0], new PathologyDao.OnPathologyCreateListener() {
+                            @Override
+                            public void onCreatedReady(Pathology pathology) {
+                                addDialog.cancel();
+                                Log.i("I","Pathology is created");
+                                pathologyList.add(pathology);
+                                recyclerView.setAdapter(pathologyAdapter);
+                            }
 
-                            pathologyList.add(pathologyValue);
-                            recyclerView.setAdapter(pathologyAdapter);
-                        }
+                            @Override
+                            public void onFailureReady() {
+                                Log.i("I","Pathology created failure");
+                            }
+                        });
                     });
                     ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_pathologies,
                             android.R.layout.simple_list_item_1);

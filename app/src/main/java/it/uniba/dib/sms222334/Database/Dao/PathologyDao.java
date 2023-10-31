@@ -9,18 +9,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Pathology;
 
 public class PathologyDao {
@@ -44,29 +41,20 @@ public class PathologyDao {
                 });
     }
 
-    public void createPathology(Pathology pathology,String TypePathology){
+    public void createPathology(Pathology pathology,String TypePathology,OnPathologyCreateListener listener){
         Map<String,String> newAnimal = new HashMap<>();
 
         newAnimal.put("ID animal",pathology.getIdAnimal());
         newAnimal.put("Type pathology",TypePathology);
 
         collectionPathology.add(newAnimal).addOnSuccessListener(documentReference -> {
-            Log.d(TAG,"Creazione avenuta");
             pathology.setFirebaseID(documentReference.getId());
+            listener.onCreatedReady(pathology);
         }).addOnFailureListener(e -> {
-            Log.d(TAG,"Creazione patologia fallita");
+            listener.onFailureReady();
         });
     }
-
-    public interface OnPathologyListListener {
-        void onPathologyListReady(ArrayList<Pathology> listPathology);
-    }
-
     private static ArrayList <Pathology> listPathology ;
-
-    public static ArrayList<Pathology> getListPathology() {
-        return listPathology;
-    }
 
     public void getListPathology(String idAnimal, final OnPathologyListListener listener){
         listPathology = new ArrayList<>();
@@ -93,5 +81,13 @@ public class PathologyDao {
         });
     }
 
+    public interface OnPathologyListListener {
+        void onPathologyListReady(ArrayList<Pathology> listPathology);
+    }
+
+    public interface OnPathologyCreateListener{
+        void onCreatedReady(Pathology pathology);
+        void onFailureReady();
+    }
 
 }
