@@ -50,6 +50,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
@@ -108,6 +109,9 @@ public class ProfileFragment extends Fragment {
     public Dialog editDialog;
     private TextView nameView;
     private TextView emailView;
+
+    private ListFragment fragment;
+    private VisitPresenter visitPresenter;
 
     public ProfileFragment(){
 
@@ -199,7 +203,6 @@ public class ProfileFragment extends Fragment {
             editButton.setVisibility(View.INVISIBLE);
 
         userPresenter = new UserPresenter(this);
-
         editButton.setOnClickListener(v -> launchEditDialog());
 
 
@@ -261,12 +264,13 @@ public class ProfileFragment extends Fragment {
     private int posizione = 0;
 
     private void launchAddVisit(){
-        final Dialog editDialog=new Dialog(getContext());
+        editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         editDialog.setContentView(R.layout.create_visit);
 
         this.dateTextView = editDialog.findViewById(R.id.date_text_view);
+        visitPresenter = new VisitPresenter(fragment);
 
         Spinner visitTypeSpinner= editDialog.findViewById(R.id.visit_type);
         Button backButton= editDialog.findViewById(R.id.back_button);
@@ -349,7 +353,6 @@ public class ProfileFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                VisitPresenter visit = new VisitPresenter();
                 String date = dateTextView.getText().toString();//INIZIO Data di nascita
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 Date dateConvert = null;
@@ -361,18 +364,12 @@ public class ProfileFragment extends Fragment {
 
                 String visitName = doctorName.getText().toString();
 
-                Visit value = visit.createVisit(visitType,
+                visitPresenter.createVisit(editDialog,visitType,
                         ListFragment.animalList.get(posizione),
                         dateConvert,
                         visitName,
                         profile.getFirebaseID());
-                if (value != null){
-                    ListFragment.visitList.add(value);
-                    editDialog.cancel();
-                    ListFragment.recyclerView.setAdapter(ListFragment.visitAdapter);
-                }else{
-                    System.out.println("value è una classe nulla");
-                }
+
             }
         });
 
@@ -382,7 +379,6 @@ public class ProfileFragment extends Fragment {
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
-
 
     private void launchEditDialog() {
 
@@ -475,12 +471,13 @@ public class ProfileFragment extends Fragment {
 
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
-        Fragment fragment=null;
+        fragment=null;
         int enterAnimation=0,exitAnimation=0;
 
         switch (tabType){
             case ANIMAL:
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
+                    System.out.println("sono nell'animale profile");
                     previousTab.tabPosition= TabPosition.ANIMAL;
                     fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;

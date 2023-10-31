@@ -191,19 +191,18 @@ public class Visit extends Document implements Serializable {
         }
     }
 
-    public boolean createVisit(Visit visit){
+    public void createVisit(VisitDao.OnVisitCreateListener listener){
         VisitDao dao = new VisitDao();
-        return dao.createVisit(visit);
+       dao.createVisit(this,listener);
     }
     public void delete() {
         VisitDao visitDao = new VisitDao();
         visitDao.deleteVisit(this);
     }
 
-    public boolean editVisit(String idAnimal,String name){
+    public void editVisit(String idAnimal,String name,VisitDao.OnVisitEditListener listener){
         VisitDao dao = new VisitDao();
-        dao.editVisit(this,idAnimal,name);
-        return false;
+        dao.editVisit(this,idAnimal,name,listener);
     }
 
     public static void ViewVisit(UserRole idProfile,final VisitDao.OnVisitListener listener){

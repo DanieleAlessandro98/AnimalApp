@@ -37,8 +37,7 @@ public class VisitDao {
     private final String TAG="VisitDao";
     final private CollectionReference collectionVisit = FirebaseFirestore.getInstance().collection(AnimalAppDB.Visit.TABLE_NAME);
 
-    private boolean returnValue = true;
-    public boolean createVisit(Visit visit){
+    public void createVisit(Visit visit,OnVisitCreateListener listener){
         Map<String, Object> newVisit = new HashMap<>();
 
         DocumentReference animalReference = FirebaseFirestore.getInstance()
@@ -61,16 +60,15 @@ public class VisitDao {
             public void onSuccess(DocumentReference documentReference) {
                 Log.d(TAG,"Visit is create");
                 visit.setFirebaseID(documentReference.getId());
-                returnValue = true;
+                listener.onCreateVisit(visit);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG,"Creation Visit is failure");
-                returnValue = false;
+                listener.onFailureCreateVisit();
             }
         });
-        return returnValue;
     }
 
     public void deleteVisit(Visit visit){
@@ -90,7 +88,7 @@ public class VisitDao {
                 });
     }
 
-    public void editVisit(Visit visit,String idAnimal,String name){
+    public void editVisit(Visit visit,String idAnimal,String name,OnVisitEditListener listener){
         DocumentReference reference = collectionAnimalVisit.document(idAnimal);
         collectionVisit.whereEqualTo("animalID",reference).whereEqualTo("name",name)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -124,14 +122,12 @@ public class VisitDao {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Log.d(TAG, "update fatto");
-                                            System.out.println("update fatto");
+                                            listener.onSuccessEdit();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            System.out.println("fallito");
-                                            Log.d(TAG, "errore update");
+                                            listener.onFailureEdit();
                                         }
                                     });
                         }else{
@@ -271,5 +267,20 @@ public class VisitDao {
 
     public interface OnVisitListener {
         void onGetVisitListener(List<Visit> visitList);
+    }
+
+    public interface OnVisitCreateListener{
+        void onCreateVisit(Visit visit);
+        void onFailureCreateVisit();
+    }
+
+    public interface OnVisitEditListener{
+        void onSuccessEdit();
+        void onFailureEdit();
+    }
+
+    public interface OnVisitDeleteListener{
+        void onSuccessDelete();
+        void onFailureDelete();
     }
 }

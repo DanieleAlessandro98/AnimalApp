@@ -118,6 +118,7 @@ public class ListFragment extends Fragment{
 
         this.tabPosition = ProfileFragment.TabPosition.values()[getArguments().getInt("tab_position")];
         this.profileType = ProfileFragment.Type.values()[getArguments().getInt("profile_type")];
+        visitList = new ArrayList<>();
 
         getArguments().clear();
 
@@ -126,7 +127,7 @@ public class ListFragment extends Fragment{
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
-        System.out.println("swip 3");
+        visitAdapter=new VisitAdapter(visitList,getContext());
 
         switch (this.tabPosition){
             case ANIMAL:
@@ -158,6 +159,12 @@ public class ListFragment extends Fragment{
     }
 
     public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void reflesh(Visit visit){
+        visitList.add(visit);
+        visitAdapter.notifyDataSetChanged();
+    }
 
     private void launchAddDialog(List <Animal> animalList) {
 
@@ -507,21 +514,21 @@ public class ListFragment extends Fragment{
         recyclerView.setAdapter(adapter);
     }
 
-    public static VisitAdapter visitAdapter;
-    public static ArrayList<Visit> visitList = new ArrayList<>();
-    public static int position = -1;
+    public VisitAdapter visitAdapter;
+    public ArrayList<Visit> visitList;
+    public int position = -1;
 
     public void setVisitList(){
 
-
+        recyclerView.setAdapter(visitAdapter);
         VisitPresenter visitPresenter = new VisitPresenter();
         visitPresenter.action_view(currentUser.getRole(), new VisitDao.OnVisitListener() {
             @Override
             public void onGetVisitListener(List<Visit> visitGetList) {
                 visitList.clear();
                 visitList.addAll(visitGetList);
+                visitAdapter.notifyDataSetChanged();
 
-                visitAdapter=new VisitAdapter(visitList,getContext());
                 visitAdapter.setOnVisitClickListener(visit -> {
                     position = visitList.indexOf(visit);
                     FragmentManager fragmentManager=getParentFragmentManager();
@@ -532,7 +539,7 @@ public class ListFragment extends Fragment{
 
 
 
-                recyclerView.setAdapter(visitAdapter);
+
             }
         });
 
