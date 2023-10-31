@@ -4,14 +4,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -35,18 +31,17 @@ public class RelationDao {
     final private CollectionReference collectionRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Relation.TABLE_NAME);
     final private CollectionReference collectionAnimalRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
 
-    public void createRelation(Relation relation,String idMyAnimal,OnRelationCreated callBack){
+    public void createRelation(Relation relation, String idMyAnimal, OnRelationCreateListener callBack){
         Map<String,String> newRelation = new HashMap<>();
         newRelation.put("idAnimal1",idMyAnimal);
         newRelation.put("idAnimal2",relation.getAnimal().getFirebaseID());
         newRelation.put("Relation",relation.getRelationType().toString());
 
         collectionRelation.add(newRelation).addOnSuccessListener(documentReference -> {
-            Log.d(TAG,"the relation is create");
             relation.setFirebaseID(documentReference.getId());
-            callBack.onRelationCreatedListener(relation);
+            callBack.onCreateSuccess(relation);
         }).addOnFailureListener(e -> {
-            Log.d(TAG,"Failure to create relation");
+            callBack.onCreateFailure();
         });
     }
     public void deleteRelation(Relation relation){
@@ -55,12 +50,12 @@ public class RelationDao {
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.i("I","eliminato la relazione di animali");
+                        Log.i("I","The Relation is deleted");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("W","eliminazione fallita");
+                        Log.w("W","delete relation failure");
                     }
                 });
     }
@@ -88,9 +83,8 @@ public class RelationDao {
                                     .setOwner(document.getString("ownerID"))
                                     .build();
                             animalList.add(getAnimal);
-                            System.out.println("Data  "+getAnimal.getBirthDate());
                         } else {
-                            System.out.println("the 'birthday' in null o have an error");
+                            Log.w("W","birthday' in null o have an error");
                         }
                     }
                     listener.onGetAnimalListener(animalList);
@@ -146,7 +140,7 @@ public class RelationDao {
                                     });
                                 }
                             }else{
-                                System.out.println("Nothing here");
+                                Log.w("W","Nothing here");
                                 listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
                             }
                         } else {
@@ -192,8 +186,9 @@ public class RelationDao {
     public interface OnRelationListener {
         void onGetAnimalListener(List <Animal> animalList);
     }
-    public interface OnRelationCreated{
-        void onRelationCreatedListener(Relation relation);
+    public interface OnRelationCreateListener {
+        void onCreateSuccess(Relation relation);
+        void onCreateFailure();
     }
 
     public interface OnRelationAnimalListener{

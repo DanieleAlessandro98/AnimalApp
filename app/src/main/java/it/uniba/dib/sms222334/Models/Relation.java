@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.uniba.dib.sms222334.Database.Dao.RelationCallback;
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 
 public class Relation extends Document implements Parcelable{
@@ -22,7 +21,7 @@ public class Relation extends Document implements Parcelable{
         this.category= relationType;
     }
 
-    public void createRelation(Relation relation,String idMyAnimal,RelationDao.OnRelationCreated callBack){
+    public void createRelation(Relation relation, String idMyAnimal, RelationDao.OnRelationCreateListener callBack){
         RelationDao dao = new RelationDao();
         dao.createRelation(relation,idMyAnimal,callBack);
     }

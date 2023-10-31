@@ -158,8 +158,6 @@ public class ListFragment extends Fragment{
         return layout;
     }
 
-    public enum relationType{FRIEND,INCOMPATIBLE,COHABITEE}
-
     @SuppressLint("NotifyDataSetChanged")
     public void reflesh(Visit visit){
         visitList.add(visit);
@@ -317,9 +315,7 @@ public class ListFragment extends Fragment{
             switch (this.tabPosition) {
                 case RELATION:
                     addDialog.setContentView(R.layout.create_relation);
-
                     Spinner relationSpinner= addDialog.findViewById(R.id.relation_type);
-                    // TODO ricambiare in xml textview in spinner di animalchoose
                     String [] getAnimal = new String[1];
                     Spinner animalChooseSpinner = addDialog.findViewById(R.id.animal_chooser);
                     Button createVisit = addDialog.findViewById(R.id.save_button);
@@ -351,7 +347,6 @@ public class ListFragment extends Fragment{
                         @Override
                         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                             getAnimal[0] = adapterView.getItemAtPosition(i).toString();
-                            System.out.println("get animal  "+getAnimal[0]);
                         }
 
                         @Override
@@ -372,14 +367,19 @@ public class ListFragment extends Fragment{
 
                             if (chooseAnimal != null) {
                                 RelationPresenter relation = new RelationPresenter();
-                                Relation relationValue = relation.createRelation(animal.getFirebaseID(), type[0], chooseAnimal);
-                                if (relationValue != null) {
-                                    addDialog.cancel();
-                                    relationList.add(relationValue);
-                                    recyclerView.setAdapter(relationAdapter);
-                                } else {
-                                    System.out.println("there are a error");
-                                }
+                                relation.createRelation(animal.getFirebaseID(), type[0], chooseAnimal, new RelationDao.OnRelationCreateListener() {
+                                    @Override
+                                    public void onCreateSuccess(Relation relation) {
+                                        addDialog.cancel();
+                                        relationList.add(relation);
+                                        recyclerView.setAdapter(relationAdapter);
+                                    }
+
+                                    @Override
+                                    public void onCreateFailure() {
+                                        Log.w("W","the relation is not created");
+                                    }
+                                });
                             }else{
                                 Log.w(TAG,"Animal Class not found");
                             }

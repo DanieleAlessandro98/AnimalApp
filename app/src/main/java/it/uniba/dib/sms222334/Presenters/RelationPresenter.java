@@ -1,5 +1,7 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,20 +14,14 @@ public class RelationPresenter {
     public RelationPresenter(){
 
     }
-    private Relation relation;
 
 
-    public Relation createRelation(String idMyAnimal, Relation.relationType relationCategory, Animal animal) {
-        if (animal != null   && relationCategory != null) {
-            relation = Relation.Builder.create("", relationCategory, animal).build();
-            relation.createRelation(relation, idMyAnimal, new RelationDao.OnRelationCreated() {
-                @Override
-                public void onRelationCreatedListener(Relation relation) {
-                }
-            });
-            return relation;
+    public void createRelation(String idMyAnimal, Relation.relationType relationCategory, Animal animal,RelationDao.OnRelationCreateListener listener) {
+        if (animal != null && idMyAnimal != null  && relationCategory != null) {
+            Relation relation = Relation.Builder.create("", relationCategory, animal).build();
+            relation.createRelation(relation, idMyAnimal,listener);
         }else{
-            return null;
+            Log.w("W","the variable is null");
         }
     }
 
@@ -43,9 +39,4 @@ public class RelationPresenter {
             }
         });
     }
-
-    public static boolean isAlphaNumeric(String s) {
-        return s != null && s.matches("^[a-zA-Z0-9]*$");
-    }
-
 }
