@@ -60,7 +60,7 @@ import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
 public class AnimalFragment extends Fragment {
 
     final static String TAG="AnimalFragment";
-    static Animal animal;
+    Animal animal;
 
     Button editButton,backButton;
     TabLayout tabLayout;
@@ -204,7 +204,7 @@ public class AnimalFragment extends Fragment {
             case RELATION:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -224,7 +224,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.HEALTH;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                 }
                 else{
                     return;
@@ -261,7 +261,7 @@ public class AnimalFragment extends Fragment {
 
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                 }
                 else {
                     return;

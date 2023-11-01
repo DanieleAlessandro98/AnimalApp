@@ -153,12 +153,7 @@ public class ListFragment extends Fragment{
                 setRelationList();
                 break;
             case HEALTH:
-                PathologyPresenter.action_getPathology(AnimalFragment.animal.getFirebaseID(), new PathologyDao.OnPathologyListListener() {
-                    @Override
-                    public void onPathologyListReady(ArrayList<Pathology> listPathology) {
-                        setHealtList(listPathology);
-                    }
-                });
+                PathologyPresenter.action_getPathology(animal.getFirebaseID(), this::setHealtList);
                 break;
             case FOOD:
                 setFoodList();
@@ -181,131 +176,131 @@ public class ListFragment extends Fragment{
         //is is a owner profile it can add animal, veterinarian can't add anything
         if((this.profileType == ProfileFragment.Type.PUBLIC_AUTHORITY) || (this.profileType == ProfileFragment.Type.PRIVATE) ){
             if(this.tabPosition== ProfileFragment.TabPosition.ANIMAL){
-                    addDialog.setContentView(R.layout.add_animal);
+                addDialog.setContentView(R.layout.add_animal);
 
-                    animalPresenter= new AnimalPresenter(addDialog);
+                animalPresenter= new AnimalPresenter(addDialog);
 
-                    final Calendar c = Calendar.getInstance();
+                final Calendar c = Calendar.getInstance();
 
-                    boolean dateIsSetted[]=new boolean[]{false};
+                boolean dateIsSetted[]=new boolean[]{false};
 
-                    Button saveButton= addDialog.findViewById(R.id.save_button);
+                Button saveButton= addDialog.findViewById(R.id.save_button);
 
-                    Button addPhotoButton= addDialog.findViewById(R.id.edit_button);
+                Button addPhotoButton= addDialog.findViewById(R.id.edit_button);
 
-                    ImageButton datePickerButton=addDialog.findViewById(R.id.date_picker_button);
+                ImageButton datePickerButton=addDialog.findViewById(R.id.date_picker_button);
 
-                    profilePicture=addDialog.findViewById(R.id.profile_picture);
+                profilePicture=addDialog.findViewById(R.id.profile_picture);
 
-                    AnimalAppEditText name= addDialog.findViewById(R.id.nameEditText);
+                AnimalAppEditText name= addDialog.findViewById(R.id.nameEditText);
 
-                    TextView birthDate= addDialog.findViewById(R.id.date_text_view);
+                TextView birthDate= addDialog.findViewById(R.id.date_text_view);
 
-                    AnimalAppEditText microChip= addDialog.findViewById(R.id.micro_chip);
+                AnimalAppEditText microChip= addDialog.findViewById(R.id.micro_chip);
 
-                    Spinner speciesSpinner= addDialog.findViewById(R.id.species_spinner);
+                Spinner speciesSpinner= addDialog.findViewById(R.id.species_spinner);
 
-                    ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_species,
-                            android.R.layout.simple_list_item_1);
+                ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_species,
+                        android.R.layout.simple_list_item_1);
 
-                    speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-                    speciesSpinner.setAdapter(speciesAdapter);
+                speciesSpinner.setAdapter(speciesAdapter);
 
-                    Spinner raceSpinner= addDialog.findViewById(R.id.race_spinner);
+                Spinner raceSpinner= addDialog.findViewById(R.id.race_spinner);
 
-                    addDialog.setInputCallback(new AnimalCallbacks.inputValidate() {
-                        @Override
-                        public void InvalidName() {
-                            name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                            name.setError(getContext().getString(R.string.invalid_user_name));
+                addDialog.setInputCallback(new AnimalCallbacks.inputValidate() {
+                    @Override
+                    public void InvalidName() {
+                        name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                        name.setError(getContext().getString(R.string.invalid_user_name));
+                    }
+
+                    @Override
+                    public void InvalidBirthDate() {
+                        birthDate.setError(getContext().getString(R.string.invalid_user_birthdate));
+                    }
+
+                    @Override
+                    public void InvalidMicrochip() {
+                        microChip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                        microChip.setError(getContext().getString(R.string.invalid_microchip));
+                    }
+
+                    @Override
+                    public void MicrochipAlreadyUsed() {
+                        name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
+                        microChip.setError(getContext().getString(R.string.microchip_already_exist));
+                    }
+                });
+
+
+
+                addPhotoButton.setOnClickListener(v -> {
+                    Intent photoIntent= new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    photoPickerResultLauncher.launch(photoIntent);
+                });
+
+                datePickerButton.setOnClickListener(v -> {
+                    int year = c.get(Calendar.YEAR);
+                    int month = c.get(Calendar.MONTH);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
+
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(
+                            getContext(),
+                            (view, year1, month1, dayOfMonth) -> {
+                                birthDate.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
+                                birthDate.setError(null);
+                                c.set(year1, month1,dayOfMonth);
+                                dateIsSetted[0]=true;
+                            }, year, month, day);
+
+                    datePickerDialog.show();
+                });
+
+                speciesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        ArrayAdapter<CharSequence> raceAdapter;
+
+                        switch (position){
+                            case 0:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
+                                        android.R.layout.simple_list_item_1);
+                                break;
+                            case 1:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.cat_breeds,
+                                        android.R.layout.simple_list_item_1);
+                                break;
+                            case 2:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.fish_breeds,
+                                        android.R.layout.simple_list_item_1);
+                                break;
+                            case 3:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.bird_breeds,
+                                        android.R.layout.simple_list_item_1);
+                                break;
+                            case 4:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.rabbit_breeds,
+                                        android.R.layout.simple_list_item_1);
+                                break;
+                            default:
+                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
+                                        android.R.layout.simple_list_item_1);
                         }
 
-                        @Override
-                        public void InvalidBirthDate() {
-                            birthDate.setError(getContext().getString(R.string.invalid_user_birthdate));
-                        }
+                        raceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        raceSpinner.setAdapter(raceAdapter);
+                    }
 
-                        @Override
-                        public void InvalidMicrochip() {
-                            microChip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                            microChip.setError(getContext().getString(R.string.invalid_microchip));
-                        }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
 
-                        @Override
-                        public void MicrochipAlreadyUsed() {
-                            name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                            microChip.setError(getContext().getString(R.string.microchip_already_exist));
-                        }
-                    });
+                    }
+                });
 
-
-
-                    addPhotoButton.setOnClickListener(v -> {
-                        Intent photoIntent= new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        photoPickerResultLauncher.launch(photoIntent);
-                    });
-
-                    datePickerButton.setOnClickListener(v -> {
-                        int year = c.get(Calendar.YEAR);
-                        int month = c.get(Calendar.MONTH);
-                        int day = c.get(Calendar.DAY_OF_MONTH);
-
-                        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                                getContext(),
-                                (view, year1, month1, dayOfMonth) -> {
-                                    birthDate.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
-                                    birthDate.setError(null);
-                                    c.set(year1, month1,dayOfMonth);
-                                    dateIsSetted[0]=true;
-                                }, year, month, day);
-
-                        datePickerDialog.show();
-                    });
-
-                    speciesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            ArrayAdapter<CharSequence> raceAdapter;
-
-                            switch (position){
-                                case 0:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
-                                            android.R.layout.simple_list_item_1);
-                                    break;
-                                case 1:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.cat_breeds,
-                                            android.R.layout.simple_list_item_1);
-                                    break;
-                                case 2:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.fish_breeds,
-                                            android.R.layout.simple_list_item_1);
-                                    break;
-                                case 3:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.bird_breeds,
-                                            android.R.layout.simple_list_item_1);
-                                    break;
-                                case 4:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.rabbit_breeds,
-                                            android.R.layout.simple_list_item_1);
-                                    break;
-                                default:
-                                    raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
-                                            android.R.layout.simple_list_item_1);
-                            }
-
-                            raceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                            raceSpinner.setAdapter(raceAdapter);
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {
-
-                        }
-                    });
-
-                    saveButton.setOnClickListener(v -> {
-                        animalPresenter.addAnimal(Animal.Builder.create("", AnimalStates.ADOPTED)
+                saveButton.setOnClickListener(v -> {
+                    animalPresenter.addAnimal(Animal.Builder.create("", AnimalStates.ADOPTED)
                             .setBirthDate(dateIsSetted[0]?c.getTime():null)
                             .setRace(raceSpinner.getSelectedItem().toString())
                             .setSpecies(AnimalSpecies.values()[speciesSpinner.getSelectedItemPosition()])
@@ -314,7 +309,7 @@ public class ListFragment extends Fragment{
                             .setPhoto(((BitmapDrawable)profilePicture.getDrawable()).getBitmap())
                             .setMicrochip(microChip.getText().toString())
                             .build());
-                    });
+                });
 
             }
             else{
@@ -422,7 +417,7 @@ public class ListFragment extends Fragment{
 
                     save.setOnClickListener(view -> {
                         PathologyPresenter pathology = new PathologyPresenter();
-                       pathology.action_create(animal.getFirebaseID(), getValue[0], new PathologyDao.OnPathologyCreateListener() {
+                        pathology.action_create(animal.getFirebaseID(), getValue[0], new PathologyDao.OnPathologyCreateListener() {
                             @Override
                             public void onCreatedReady(Pathology pathology) {
                                 addDialog.cancel();
