@@ -21,9 +21,24 @@ public class Relation extends Document implements Parcelable{
         this.category= relationType;
     }
 
-    public boolean createRelation(String id,String idAnimalChooser){
+    public void createRelation(Relation relation, String idMyAnimal, RelationDao.OnRelationCreateListener callBack){
         RelationDao dao = new RelationDao();
-        return dao.createRelation(this.category,id,idAnimalChooser);
+        dao.createRelation(relation,idMyAnimal,callBack);
+    }
+
+    public static void deleteRelation(Relation relation){
+        RelationDao dao = new RelationDao();
+        dao.deleteRelation(relation);
+    }
+
+    public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
+        RelationDao dao = new RelationDao();
+        dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {
+            @Override
+            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
+                listener.onRelationAnimalListener(relationList,animalList);
+            }
+        });
     }
 
     public Relation.relationType getRelationType() {
@@ -40,32 +55,6 @@ public class Relation extends Document implements Parcelable{
 
     public void setAnimal(Animal animal) {
         this.animal = animal;
-    }
-
-    public static boolean deleteRelation(String idAnimal1,String idAnimal2){
-        RelationDao dao = new RelationDao();
-        dao.deleteRelation(idAnimal1,idAnimal2);
-        return true;
-    }
-
-    public static void getListAnimal(String ownerID, final RelationDao.OnRelationListener listener){
-        RelationDao dao = new RelationDao();
-        dao.getListAnimalDao(ownerID, new RelationDao.OnRelationListener() {
-            @Override
-            public void onGetAnimalListener(List<Animal> animalList) {
-                listener.onGetAnimalListener(animalList);
-            }
-        });
-    }
-
-    public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
-        RelationDao dao = new RelationDao();
-        dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {
-            @Override
-            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
-                listener.onRelationAnimalListener(relationList,animalList);
-            }
-        });
     }
 
     public static class Builder{

@@ -50,6 +50,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+import it.uniba.dib.sms222334.Models.Animal;
+import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
@@ -107,9 +110,12 @@ public class ProfileFragment extends Fragment {
     private Button deleteButton;
     private Button editPhotoButton;
 
-    private Dialog editDialog;
+    public Dialog editDialog;
     private TextView nameView;
     private TextView emailView;
+
+    private ListFragment fragment;
+    private VisitPresenter visitPresenter;
 
     public ProfileFragment(){
 
@@ -134,6 +140,10 @@ public class ProfileFragment extends Fragment {
         changeTab(TabPosition.ANIMAL,false);
     }
 
+    public void reflesh(User profile){
+        nameView.setText(profile.getName());
+        emailView.setText(profile.getEmail());
+    }
 
     @Nullable
     @Override
@@ -197,7 +207,6 @@ public class ProfileFragment extends Fragment {
             editButton.setVisibility(View.INVISIBLE);
 
         userPresenter = new UserPresenter(this);
-
         editButton.setOnClickListener(v -> launchEditDialog());
 
 
@@ -257,12 +266,13 @@ public class ProfileFragment extends Fragment {
     private int posizione = 0;
 
     private void launchAddVisit(){
-        final Dialog editDialog=new Dialog(getContext());
+        editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         editDialog.setContentView(R.layout.create_visit);
 
         this.dateTextView = editDialog.findViewById(R.id.date_text_view);
+        visitPresenter = new VisitPresenter(fragment);
 
         Spinner visitTypeSpinner= editDialog.findViewById(R.id.visit_type);
         Button backButton= editDialog.findViewById(R.id.back_button);
@@ -275,11 +285,11 @@ public class ProfileFragment extends Fragment {
                 android.R.layout.simple_list_item_1);
         visitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         visitTypeSpinner.setAdapter(visitTypeAdapter);
-
+        ArrayList <Animal> animalList = ((Owner)SessionManager.getInstance().getCurrentUser()).getAnimalList();
         ArrayList<String> animalListName = new ArrayList<>();
-
-        for (int i = 0; i < ListFragment.animalList.size(); i++) {
-            animalListName.add(ListFragment.animalList.get(i).getName());
+        
+        for (int i = 0; i < animalList.size(); i++) {
+            animalListName.add(animalList.get(i).getName());
         }
 
         ArrayAdapter<String> animal_chooseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,animalListName);
@@ -329,8 +339,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 animalValue[0] = adapterView.getItemAtPosition(i).toString();
-                for (int j = 0; j < ListFragment.animalList.size(); j++) {
-                    if (Objects.equals(animalValue[0], ListFragment.animalList.get(j).getName())){
+                for (int j = 0; j < animalList.size(); j++) {
+                    if (Objects.equals(animalValue[0], animalList.get(j).getName())){
                         posizione = j;
                     }
                 }
@@ -345,7 +355,6 @@ public class ProfileFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                VisitPresenter visit = new VisitPresenter();
                 String date = dateTextView.getText().toString();//INIZIO Data di nascita
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 Date dateConvert = null;
@@ -357,16 +366,12 @@ public class ProfileFragment extends Fragment {
 
                 String visitName = doctorName.getText().toString();
 
-                Visit value = visit.createVisit(visitType,
-                        ListFragment.animalList.get(posizione),
+                visitPresenter.createVisit(editDialog,visitType,
+                        animalList.get(posizione),
                         dateConvert,
                         visitName,
                         profile.getFirebaseID());
-                if (value != null){
-                    ListFragment.visitList.add(value);
-                    editDialog.cancel();
-                    ListFragment.recyclerView.setAdapter(ListFragment.visitAdapter);
-                }
+
             }
         });
 
@@ -376,7 +381,6 @@ public class ProfileFragment extends Fragment {
         editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
-
 
     private void launchEditDialog() {
 
@@ -519,12 +523,13 @@ public class ProfileFragment extends Fragment {
 
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
-        Fragment fragment=null;
+        fragment=null;
         int enterAnimation=0,exitAnimation=0;
 
         switch (tabType){
             case ANIMAL:
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
+                    System.out.println("sono nell'animale profile");
                     previousTab.tabPosition= TabPosition.ANIMAL;
                     fragment= ListFragment.newInstance(previousTab,this.profileType);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
@@ -637,6 +642,8 @@ public class ProfileFragment extends Fragment {
 
     public void showUpdateSuccessful() {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
+        reflesh(SessionManager.getInstance().getCurrentUser());
+        editDialog.cancel();
     }
 
     private void showDeleteConfirm() {

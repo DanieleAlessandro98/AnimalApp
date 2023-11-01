@@ -1,9 +1,14 @@
 package it.uniba.dib.sms222334.Presenters;
 
+import android.app.Dialog;
+import android.util.Log;
+
 import java.util.Date;
 import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+import it.uniba.dib.sms222334.Fragmets.ListFragment;
+import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Utils.UserRole;
@@ -14,62 +19,54 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 public class VisitPresenter {
 
     private String idAnimale,idVeterinario,name,stato,diagnosi,NoteMediche;
+    private ProfileFragment profileFragment;
+    private ListFragment listFragment;
 
-    public VisitPresenter() {
+    public VisitPresenter() {}
+
+    public VisitPresenter( ListFragment listFragment) {
+        this.listFragment = listFragment;
     }
 
-    private boolean isAlphabet(String s){
-        return s != null && s.matches("^[a-zA-Z]*$");
-    }
-
-    public static boolean isAlphaNumeric(String s) {
-        return s != null && s.matches("^[a-zA-Z0-9]*$");
-    }
-
-    public Visit createVisit(Visit.visitType visit_type, Animal animal, Date date, String visitName,String doctorID){
+    public void createVisit(Dialog editDialog, Visit.visitType visit_type, Animal animal, Date date, String visitName, String doctorID){
         if(visit_type != null && date != null && visitName != null && animal != null && doctorID != null){
-            Visit visit = Visit.Builder.create(animal.getFirebaseID(),visitName,visit_type,date).build();
+            VisitDao.OnVisitCreateListener listener = new VisitDao.OnVisitCreateListener() {
+                @Override
+                public void onCreateVisit(Visit visit) {
+                    if (listFragment != null) {
+
+                        listFragment.refresh(visit);
+                    }
+                    editDialog.cancel();
+                }
+                @Override
+                public void onFailureCreateVisit() {
+                    Log.w("W","Errore creazione visita");
+                }
+            };
+
+            Visit visit = Visit.Builder.create("",visitName,visit_type,date).build();
             visit.setAnimal(animal);
             visit.setDoctorFirebaseID(doctorID);
-
-            if(visit.createVisit(visit)){
-                System.out.println("creazione finita");
-                return visit;
-            }else{
-                return null;
-            }
+            visit.createVisit(listener);
         }else{
             System.out.println("error in the parametro of create visit");
-            return null;
         }
     }
 
-    public boolean action_edit(Visit visit,String idAnimal,String name){
-
-        if(visit != null){
-            if (Visit.editVisit(visit,idAnimal,name)) {
-                return true;
-            }else{
-                return false;
-            }
-        }else{
-            return false;
+    public void action_edit(Visit visit,String idAnimal,String name,VisitDao.OnVisitEditListener listener){
+        if(visit != null && idAnimal != null && name != null){
+            visit.editVisit(idAnimal,name,listener);
         }
     }
 
 
-    public boolean removeVisit(String idVisit){
-        if (isAlphaNumeric(idVisit)){
-            System.out.println("entrato in if di removeVisit()");
-            if (Visit.removeVisit(idVisit)) {
-                System.out.println("vero di remove visit");
-                return true;
-            }else{
-                System.out.println("falso di remove visit");
-                return false;
-            }
+    public boolean removeVisit(Visit visit){
+        if (visit != null){
+            visit.delete();
+            return true;
         } else {
-            // TODO fare qualcosa per visualizzare errore nella eliminazione
+            Log.w("W","the class visit is null");
             return false;
         }
     }

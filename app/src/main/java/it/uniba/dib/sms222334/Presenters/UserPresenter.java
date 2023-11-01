@@ -125,6 +125,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 @Override
                 public void onPhotoUploadFailed(Exception exception) {
                     profileView.showPhotoUpdateError();
+
                 }
             };
 

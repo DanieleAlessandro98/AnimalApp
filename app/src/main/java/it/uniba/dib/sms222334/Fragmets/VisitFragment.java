@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
@@ -194,9 +196,19 @@ public class VisitFragment extends Fragment {
                 editVisit.setDate(dateConvert);
 
                 VisitPresenter presenter = new VisitPresenter();
-                presenter.action_edit(editVisit,idAnimal,name);
+                presenter.action_edit(editVisit, idAnimal, name, new VisitDao.OnVisitEditListener() {
+                    @Override
+                    public void onSuccessEdit() {
+                        Log.i("I", "update fatto");
+                    }
 
-                saveVisit(editVisit);           //TODO verificare se serve o no
+                    @Override
+                    public void onFailureEdit() {
+                        System.out.println("fallito");
+                    }
+                });
+
+                saveVisit(editVisit);
                 editDialog.cancel();
             }
         });
