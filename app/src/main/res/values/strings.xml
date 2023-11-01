@@ -115,6 +115,9 @@
     <string name="danger_animal_report_name">ENDANGERED</string>
     <string name="user_not_logged_report">Anonymous user</string>
     <string name="animal_name_unknown_report">Unknown name</string>
+    <string name="invalid_video">max video duration allowed is 20s</string>
+    <string name="animal">Animal</string>
+    <string name="visit">Visit</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

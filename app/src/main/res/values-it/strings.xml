@@ -112,6 +112,9 @@
     <string name="danger_animal_report_name">IN PERICOLO</string>
     <string name="user_not_logged_report">Utente anonimo</string>
     <string name="animal_name_unknown_report">Nome sconosciuto</string>
+    <string name="invalid_video">durata massima consentita 20s</string>
+    <string name="animal">Animale</string>
+    <string name="visit">Visita</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Presenters;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.google.firebase.storage.UploadTask;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +99,11 @@ public class ReportPresenter {
                     public void onPhotoUploaded() {
                         reportFragment.showReportCreateSuccessful();
                         reportFragment.loadReportsAndRequests();
+                    }
+
+                    @Override
+                    public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
                     }
 
                     @Override

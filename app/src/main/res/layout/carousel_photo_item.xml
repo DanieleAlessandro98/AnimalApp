@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -51,4 +51,12 @@
         </RelativeLayout>
 
     </it.uniba.dib.sms222334.Views.Carousel.MediaContainer>
-</LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/downloadProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        style="@style/circular"/>
+</RelativeLayout>

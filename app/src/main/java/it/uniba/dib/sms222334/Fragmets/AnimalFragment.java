@@ -85,6 +85,8 @@ public class AnimalFragment extends Fragment {
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
+    public AnimalFragment(){}
+
     public static AnimalFragment newInstance(Animal animal) {
         AnimalFragment myFragment = new AnimalFragment();
 

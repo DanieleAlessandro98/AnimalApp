@@ -247,48 +247,40 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
         setVisits(animal.getVisits());
     }
 
-    WeakReference<AnimalCallbacks.foodCallback> foodCallback= new WeakReference<>(null);
+    AnimalCallbacks.foodCallback foodCallback= null;
 
-    WeakReference<AnimalCallbacks.expensesCallback> expensesCallback=new WeakReference<>(null);
+    AnimalCallbacks.expensesCallback expensesCallback=null;
 
     public void setFoodCallback(AnimalCallbacks.foodCallback foodCallback){
-        this.foodCallback= new WeakReference<>(foodCallback);
+        this.foodCallback= foodCallback;
     }
 
     public void setExpensesCallback(AnimalCallbacks.expensesCallback expensesCallback){
-        this.expensesCallback= new WeakReference<>(expensesCallback);
+        this.expensesCallback= expensesCallback;
     }
 
     @Override
     public void notifyFoodLoaded() {
-        AnimalCallbacks.foodCallback callback=this.foodCallback.get();
-
-        if(callback!=null)
-            callback.notifyFoodLoaded();
+        if(foodCallback!=null)
+            foodCallback.notifyFoodLoaded();
     }
 
     @Override
     public void notifyFoodRemoved(int position) {
-        AnimalCallbacks.foodCallback callback=this.foodCallback.get();
-
-        if(callback!=null)
-            callback.notifyFoodRemoved(position);
+        if(foodCallback!=null)
+            foodCallback.notifyFoodRemoved(position);
     }
 
     @Override
     public void notifyExpensesLoaded() {
-        AnimalCallbacks.expensesCallback callback=this.expensesCallback.get();
-
-        if(callback!=null)
-            callback.notifyExpensesLoaded();
+        if(expensesCallback!=null)
+            expensesCallback.notifyExpensesLoaded();
     }
 
     @Override
     public void notifyExpensesRemoved(int position) {
-        AnimalCallbacks.expensesCallback callback=this.expensesCallback.get();
-
-        if(callback!=null)
-            callback.notifyExpensesRemoved(position);
+        if(expensesCallback!=null)
+            expensesCallback.notifyExpensesRemoved(position);
     }
 
     public static class Builder{
@@ -416,7 +408,7 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
         dest.writeInt(getState().ordinal());
         dest.writeInt(getSpecies().ordinal());
         dest.writeString(getRace());
-        dest.writeParcelable(getPhoto(),flags);
+        //dest.writeParcelable(getPhoto(),flags); //TODO trovare il modo di salvare anche la foto perchè troppo grande
         dest.writeString(getMicrochip());
         dest.writeList(getVideos());
         dest.writeList(getPhotos());
@@ -436,7 +428,7 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
         this.state = AnimalStates.values()[in.readInt()];
         this.species = AnimalSpecies.values()[in.readInt()];
         this.race = in.readString();
-        this.photo = in.readParcelable(Bitmap.class.getClassLoader());
+        //this.photo = in.readParcelable(Bitmap.class.getClassLoader());
         this.microchip = in.readString();
         this.photos=in.readArrayList(Photo.class.getClassLoader());
         this.videos=in.readArrayList(Video.class.getClassLoader());

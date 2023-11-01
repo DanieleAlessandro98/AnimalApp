@@ -114,14 +114,14 @@ public final class DateUtilities {
     }
 
     public static String getTimeAgoString(@NonNull Timestamp timestamp,Context context) {
-        long timestampSeconds = timestamp.getSeconds()*1000;
-        long currentTime = System.currentTimeMillis();
-        long timeDifference = currentTime - timestampSeconds;
+        Timestamp now=Timestamp.now();
 
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDifference);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-        long hours = TimeUnit.MILLISECONDS.toHours(timeDifference);
-        long days = TimeUnit.MILLISECONDS.toDays(timeDifference);
+        long timeDifference=now.getSeconds()-timestamp.getSeconds();
+
+        long seconds = TimeUnit.SECONDS.toSeconds(timeDifference);
+        long minutes = TimeUnit.SECONDS.toMinutes(timeDifference);
+        long hours = TimeUnit.SECONDS.toHours(timeDifference);
+        long days = TimeUnit.SECONDS.toDays(timeDifference);
         long weeks = days/7;
         long months = weeks/4;
         long years = months/12;

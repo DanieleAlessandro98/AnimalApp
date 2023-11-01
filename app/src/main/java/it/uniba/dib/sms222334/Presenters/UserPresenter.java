@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Presenters;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.google.firebase.storage.UploadTask;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -98,6 +100,11 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                     profileModel.setPhoto(profileView.getPhotoPicked());
                     profileModel.updateProfile();
                     profileView.showUpdateSuccessful();
+                }
+
+                @Override
+                public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
                 }
 
                 @Override

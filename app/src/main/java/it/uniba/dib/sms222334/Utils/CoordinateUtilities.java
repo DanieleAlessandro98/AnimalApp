@@ -18,9 +18,9 @@ public final class CoordinateUtilities {
     public static final int EARTH_RADIUS_METERS=6371000;
     public static final int EARTH_RADIUS_MILES=3963;
 
-    public static final int NO_METRICS=001;
+    public static final int NO_METRICS=1;
 
-    public static final int WITH_METRICS=002;
+    public static final int WITH_METRICS=2;
 
     public static String calculateDistance(double lat1,double lat2,double lon1,double lon2,int mode){
         // The math module contains a function
