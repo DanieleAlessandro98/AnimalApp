@@ -33,6 +33,8 @@ public class SearchFragment extends Fragment {
 
     public VeterinarianAuthoritiesAdapter adapter;
 
+    User userClicked;
+
 
     public SearchFragment() {
 
@@ -46,9 +48,16 @@ public class SearchFragment extends Fragment {
 
         if (isLogged)
             this.role = SessionManager.getInstance().getCurrentUser().getRole();
-
-
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+        outState.putParcelable("profileClicked",this.userClicked);
+    }
+
 
     @Nullable
     @Override
@@ -61,30 +70,39 @@ public class SearchFragment extends Fragment {
 
         VeterinarianPresenter presenter = new VeterinarianPresenter();
 
-        presenter.action_getVeterinarian(new VeterinarianDao.OnCombinedListener() {
-            @Override
-            public void onGetCombinedData(List<User> UserList) {
-                listaProfilo.addAll(UserList);
-                adapter = new VeterinarianAuthoritiesAdapter(listaProfilo, getContext());
+        presenter.action_getVeterinarian(UserList -> {
+            listaProfilo.addAll(UserList);
+            adapter = new VeterinarianAuthoritiesAdapter(listaProfilo, getContext());
 
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(adapter);
-                recyclerView.addItemDecoration(new ItemDecorator(0));
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            recyclerView.setAdapter(adapter);
+            recyclerView.addItemDecoration(new ItemDecorator(0));
 
-                adapter.setOnProfileClickListener(profile -> {
-                    if(isLogged){
-                        FragmentManager fragmentManager = getParentFragmentManager();
-
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
-                        transaction.addToBackStack("itemPage");
-                        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile,getContext())).commit();
-                    }
-                    else
-                        ((MainActivity)getActivity()).forceLogin();
-                });
-            }
+            adapter.setOnProfileClickListener(profile -> {
+                if(isLogged){
+                    openProfile(profile);
+                }
+                else
+                    ((MainActivity)getActivity()).forceLogin();
+            });
         });
 
+        if(savedInstanceState!=null){
+            User user=savedInstanceState.getParcelable("profileClicked");
+
+            if(user!=null)
+                openProfile(user);
+        }
+
         return layout;
+    }
+
+    private void openProfile(User profile){
+        FragmentManager fragmentManager = getParentFragmentManager();
+
+        userClicked=profile;
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack("itemPage");
+        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile,getContext())).commit();
     }
 }
