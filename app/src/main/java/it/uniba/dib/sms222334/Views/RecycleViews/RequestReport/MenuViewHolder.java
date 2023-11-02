@@ -17,6 +17,7 @@ import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
+import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Presenters.RequestPresenter;
 import it.uniba.dib.sms222334.R;
@@ -78,10 +79,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         if (animal != null)
             this.photo.setImageBitmap(animal.getPhoto());
 
-        if (!SessionManager.getInstance().isLogged() || request.getUser() == null || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(request.getUser().getFirebaseID())) {
-            editButton.setVisibility(View.GONE);
-            deleteButton.setVisibility(View.GONE);
-        }
+        setButtonsVisibility(request.getUser());
     }
 
     public void bind(Report report) {
@@ -89,9 +87,17 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         this.type.setText(report.getReportTypeString(report.getType(), fragment.getContext()));
         this.photo.setImageBitmap(report.getReportPhoto());
 
-        if (!SessionManager.getInstance().isLogged() || report.getUser() == null || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(report.getUser().getFirebaseID())) {
+        setButtonsVisibility(report.getUser());
+    }
+
+    private void setButtonsVisibility(User user) {
+        if (!SessionManager.getInstance().isLogged() || user == null || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(user.getFirebaseID())) {
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
+        }
+        else {
+            editButton.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility(View.VISIBLE);
         }
     }
 }
