@@ -99,7 +99,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                         @Override
                         public void onPhotoUploaded() {
                             profileModel.setPhoto(profileView.getPhotoPicked());
-                            profileModel.updateProfile();
+                            profileModel.updateProfile(true);
                             profileView.showUpdateSuccessful();
                         }
 
@@ -113,7 +113,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                     mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
                 }
                 else {
-                    profileModel.updateProfile();
+                    profileModel.updateProfile(false);
                     profileView.showUpdateSuccessful();
                 }
             }

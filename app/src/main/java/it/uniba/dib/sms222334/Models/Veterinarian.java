@@ -149,9 +149,11 @@ public class Veterinarian extends User implements Parcelable{
         }
     };
 
-    public void updateProfile() {
+    @Override
+    public void updateProfile(boolean isPhotoChanged) {
 
     }
+
     public void registerVeterinarian(UserCallback.UserRegisterCallback callback) {
 
         // Crea un'istanza di PublicAuthorityDao

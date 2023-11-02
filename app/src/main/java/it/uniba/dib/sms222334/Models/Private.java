@@ -131,12 +131,13 @@ public class Private extends User implements Owner, Parcelable {
     }
 
     @Override
-    public void updateProfile() {
+    public void updateProfile(boolean isPhotoChanged) {
         PrivateDao privateDao = new PrivateDao();
         privateDao.updatePrivate(this, new UserCallback.UserUpdateCallback() {
             @Override
             public void notifyUpdateSuccesfull() {
-
+                if (isPhotoChanged)
+                    privateDao.updatePhoto(getFirebaseID());
             }
 
             @Override

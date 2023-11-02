@@ -108,6 +108,6 @@ public abstract class User extends Document implements UserCallback.UserStateLis
     }
 
     public abstract UserRole getRole();
-    public abstract void updateProfile();
+    public abstract void updateProfile(boolean isPhotoChanged);
     public abstract void deleteProfile();
 }

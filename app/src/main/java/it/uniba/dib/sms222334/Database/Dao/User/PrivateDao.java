@@ -246,6 +246,13 @@ public final class PrivateDao {
                 });
     }
 
+    public void updatePhoto(String userID) {
+        Map<String, Object> newPrivateData = new HashMap<>();
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + userID + Media.PROFILE_PHOTO_EXTENSION);
+        collectionPrivate.document(userID)
+                .update(newPrivateData);
+    }
+
     public void updatePrivate(Private updatePrivate,UserCallback.UserUpdateCallback callback) {
 
         List<DocumentReference> dr= new ArrayList<>();
@@ -264,7 +271,6 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + updatePrivate.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())
