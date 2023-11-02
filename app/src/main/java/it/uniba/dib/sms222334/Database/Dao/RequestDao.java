@@ -10,7 +10,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -25,14 +24,11 @@ import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UerDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
-import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
-import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.RequestType;
-import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class RequestDao {
     private final String TAG="RequestDao";
@@ -188,4 +184,41 @@ public class RequestDao {
         });
     }
 
+    public void deleteRequest(Request request, DatabaseCallbackResult callbackPresenter) {
+        collectionRequest.document(request.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackPresenter.onDataRetrieved(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackPresenter.onDataRetrieved(false);
+                    }
+                });
+    }
+
+    public void updateRequest(Request request, DatabaseCallbackResult callback) {
+        Map<String, Object> updatedRequest = new HashMap<>();
+
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_USER_ID, request.getUser().getFirebaseID());
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_TYPE, request.getType().ordinal());
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_DESCRIPTION, request.getDescription());
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_LOCATION, request.getLocation());
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_SPECIES, request.getAnimalSpecies().ordinal());
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_ANIMAL_ID, (request.getAnimal() != null) ? request.getAnimal().getFirebaseID() : "");
+        updatedRequest.put(AnimalAppDB.Request.COLUMN_NAME_BEDS_NUMBER, request.getNBeds());
+
+        collectionRequest.document(request.getFirebaseID())
+                .update(updatedRequest)
+                .addOnSuccessListener(aVoid -> {
+                    callback.onDataRetrieved(true);
+                })
+                .addOnFailureListener(e -> {
+                    callback.onDataQueryError(e);
+                });
+    }
 }

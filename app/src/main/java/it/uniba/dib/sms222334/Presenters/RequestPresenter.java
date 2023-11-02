@@ -21,10 +21,10 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Utils.Validations;
 
 public class RequestPresenter {
-    private final HomeFragment reportFragment;
+    private final HomeFragment requestFragment;
 
-    public RequestPresenter(HomeFragment reportFragment) {
-        this.reportFragment = reportFragment;
+    public RequestPresenter(HomeFragment requestFragment) {
+        this.requestFragment = requestFragment;
     }
 
     public List<Animal> getMyAnimalNames() {
@@ -57,12 +57,12 @@ public class RequestPresenter {
             return;
 
         if (!Validations.isValidDescription(description)) {
-            reportFragment.showInvalidRequestDescription();
+            requestFragment.showInvalidRequestDescription();
             return;
         }
 
         if (type == RequestType.OFFER_BEDS && !Validations.isValidBedsRequest(beds)) {
-            reportFragment.showInvalidRequestBeds();
+            requestFragment.showInvalidRequestBeds();
             return;
         }
 
@@ -99,8 +99,8 @@ public class RequestPresenter {
         requestModel.createRequest(new DatabaseCallbackResult() {
             @Override
             public void onDataRetrieved(Object result) {
-                reportFragment.showRequestCreateSuccessful();
-                reportFragment.loadReportsAndRequests();
+                requestFragment.showRequestCreateSuccessful();
+                requestFragment.loadReportsAndRequests();
             }
 
             @Override
@@ -115,7 +115,7 @@ public class RequestPresenter {
 
             @Override
             public void onDataQueryError(Exception e) {
-                reportFragment.showRequestCreateError();
+                requestFragment.showRequestCreateError();
             }
         });
     }
@@ -130,4 +130,82 @@ public class RequestPresenter {
         }
     }
 
+    public void delete(Request requestReport) {
+        requestReport.deleteRequest(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                boolean resultDelete = (boolean) result;
+                if (resultDelete)
+                    requestFragment.showDocumentDeleteSuccessful(requestReport);
+                else
+                    requestFragment.showDocumentDeleteError(requestReport);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
+    }
+
+    public void onEdit(Request request, String description, int selectedPositionAnimalSpecies, String beds) {
+        if (selectedPositionAnimalSpecies < 0 || selectedPositionAnimalSpecies >= AnimalSpecies.values().length)
+            return;
+
+        if (!Validations.isValidDescription(description)) {
+            requestFragment.showInvalidRequestDescription();
+            return;
+        }
+
+        if (request.getType() == RequestType.OFFER_BEDS && !Validations.isValidBedsRequest(beds)) {
+            requestFragment.showInvalidRequestBeds();
+            return;
+        }
+
+        AnimalSpecies species = AnimalSpecies.values()[selectedPositionAnimalSpecies];
+
+        int bedsValue;
+        try {
+            bedsValue = Integer.parseInt(beds);
+        } catch (NumberFormatException e) {
+            bedsValue = 0;
+        }
+
+        request.setDescription(description);
+        request.setAnimalSpecies(species);
+        request.setNBeds(bedsValue);
+
+        request.updateRequest(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                requestFragment.showRequestUpdateSuccessful(request);
+                requestFragment.loadReportsAndRequests();
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+                requestFragment.showRequestUpdateError();
+            }
+        });
+    }
 }

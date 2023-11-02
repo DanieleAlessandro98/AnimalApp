@@ -10,6 +10,7 @@ import java.util.Date;
 
 import it.uniba.dib.sms222334.Database.Dao.ReportDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Presenters.ReportPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.ReportType;
@@ -209,7 +210,17 @@ public class Report extends Document {
         });
     }
 
-    public static String getRequestTypeString(ReportType type, Context context) {
+    public void deleteReport(DatabaseCallbackResult callbackPresenter) {
+        ReportDao reportDao = new ReportDao();
+        reportDao.deleteReport(this, callbackPresenter);
+    }
+
+    public void updateReport(DatabaseCallbackResult callbackPresenter) {
+        ReportDao reportDao = new ReportDao();
+        reportDao.updateReport(this, callbackPresenter);
+    }
+
+    public static String getReportTypeString(ReportType type, Context context) {
         switch (type) {
             case FIND:
                 return context.getString(R.string.find_animal_report_name);

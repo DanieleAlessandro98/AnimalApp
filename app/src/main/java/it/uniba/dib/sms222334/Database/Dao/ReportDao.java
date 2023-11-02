@@ -201,4 +201,50 @@ public class ReportDao {
             }
         });
     }
+
+    public void deleteReport(Report report, DatabaseCallbackResult callbackPresenter) {
+        collectionReport.document(report.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackPresenter.onDataRetrieved(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackPresenter.onDataRetrieved(false);
+                    }
+                });
+    }
+
+    public void updateReport(Report report, DatabaseCallbackResult callbackPresenter) {
+        Map<String, Object> new_report = new HashMap<>();
+
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_USER_ID, (report.getUser() != null) ? report.getUser().getFirebaseID() : "");
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_TYPE, report.getType().ordinal());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies().ordinal());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION, report.getDescription());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE, report.getAnimalAge());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, report.getAnimalID());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE, report.isShowAnimalProfile());
+
+        collectionReport.document(report.getFirebaseID())
+                .update(new_report)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackPresenter.onDataRetrieved(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackPresenter.onDataRetrieved(false);
+                    }
+                });
+    }
 }
