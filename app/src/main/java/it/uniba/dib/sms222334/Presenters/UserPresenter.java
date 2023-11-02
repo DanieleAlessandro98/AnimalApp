@@ -10,6 +10,7 @@ import java.util.Date;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
@@ -59,12 +60,28 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         }
     }
 
-    public void updateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
-
+    public void mailcheckUpdateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
         if (!Validations.isValidEmail(email)) {
             profileView.showInvalidInput(4);
             return;
         }
+
+        AuthenticationDao authenticationDao = new AuthenticationDao();
+
+        authenticationDao.isEmailUnique(email, new AuthenticationDao.FindSameEmail() {
+            @Override
+            public void emailfind(boolean result) {
+                if (result==true){
+                    profileView.showInvalidInput(6);
+                }else{
+                    updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                }
+            }
+        });
+
+    }
+    public void updateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
+
         if (!Validations.isValidPassword(password)) {
             profileView.showInvalidInput(5);
             return;
@@ -136,6 +153,8 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             profileView.showUpdateSuccessful();
         }
     }
+
+
 
     public void deleteProfile() {
         if ((!SessionManager.getInstance().isLogged()) || profileModel == null)

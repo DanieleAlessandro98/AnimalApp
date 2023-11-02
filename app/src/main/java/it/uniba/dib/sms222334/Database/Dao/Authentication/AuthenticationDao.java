@@ -7,10 +7,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.concurrent.CompletableFuture;
+
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
@@ -160,7 +164,27 @@ public class AuthenticationDao {
                 });
     }
 
+    public void isEmailUnique(String email, FindSameEmail emailfind ) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(Task<SignInMethodQueryResult> task) {
+                        if (task.isSuccessful()) {
+                            boolean emailExists = !task.getResult().getSignInMethods().isEmpty();
+                            emailfind.emailfind(emailExists);
+                        } else {
+                            emailfind.emailfind(false);
+                        }
+                    }
+                });
+    }
     public interface FindUserListenerResult {
         void onUserFound(User user);
     }
+
+    public interface FindSameEmail{
+        void emailfind(boolean result);
+    }
+
 }
