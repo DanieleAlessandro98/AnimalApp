@@ -63,6 +63,7 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
@@ -81,8 +82,6 @@ public class ProfileFragment extends Fragment {
 
     Button editButton,addVisitButton;
     TabLayout tabLayout;
-
-    private int inflatedLayout;
 
     private UserRole role;
 
@@ -106,9 +105,6 @@ public class ProfileFragment extends Fragment {
     private User profile;
 
     private ImageView photoImageView;
-    private Button saveButton;
-    private Button deleteButton;
-    private Button editPhotoButton;
 
     public Dialog editDialog;
     private TextView nameView;
@@ -171,11 +167,12 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
+        int inflatedLayout;
         if(this.role==UserRole.VETERINARIAN){
-            inflatedLayout=R.layout.veterinarian_profile_fragment;
+            inflatedLayout =R.layout.veterinarian_profile_fragment;
         }
         else{
-            inflatedLayout=R.layout.owner_profile_fragment;
+            inflatedLayout =R.layout.owner_profile_fragment;
         }
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
@@ -427,9 +424,12 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
-        saveButton = editDialog.findViewById(R.id.save_button);
-        deleteButton = editDialog.findViewById(R.id.delete_button);
-        editPhotoButton = editDialog.findViewById(R.id.edit_button);
+        Button saveButton = editDialog.findViewById(R.id.save_button);
+        Button deleteButton = editDialog.findViewById(R.id.delete_button);
+        Button editPhotoButton = editDialog.findViewById(R.id.edit_button);
+        Button logoutButton = editDialog.findViewById(R.id.logout_button);
+
+
 
         saveButton.setOnClickListener(new View.OnClickListener() {
 
@@ -485,19 +485,25 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDeleteConfirm();
-            }
+        deleteButton.setOnClickListener(v -> showDeleteConfirm());
+
+        logoutButton.setOnClickListener(v -> {
+            final AnimalAppDialog deleteDialog=new AnimalAppDialog(getContext());
+
+            deleteDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
+
+            deleteDialog.setConfirmAction(t -> {
+                //TODO qui fai il callback per il logout
+            });
+
+            deleteDialog.setUndoAction(t -> deleteDialog.cancel());
+
+            deleteDialog.show();
         });
 
-        editPhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                photoPickerResultLauncher.launch(photoIntent);
-            }
+        editPhotoButton.setOnClickListener(v -> {
+            Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            photoPickerResultLauncher.launch(photoIntent);
         });
 
         userPresenter.initUserData();

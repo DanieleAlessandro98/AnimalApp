@@ -127,6 +127,7 @@
     <string name="invalid_video">durata massima consentita 20s</string>
     <string name="animal">Animale</string>
     <string name="visit">Visita</string>
+    <string name="confirm_logout">Stai usendo da questo account</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

@@ -130,6 +130,7 @@
     <string name="invalid_video">max video duration allowed is 20s</string>
     <string name="animal">Animal</string>
     <string name="visit">Visit</string>
+    <string name="confirm_logout">You are quitting from this account</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>
