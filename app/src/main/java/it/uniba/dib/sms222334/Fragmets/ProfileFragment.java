@@ -450,7 +450,7 @@ public class ProfileFragment extends Fragment {
 
                             String site = null;
                             String companyname = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                            userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -466,7 +466,7 @@ public class ProfileFragment extends Fragment {
                             String surname = null;
                             Date birthDate = null;
                             String taxID = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                            userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
                         break;
                     case PUBLIC_AUTHORITY:
@@ -479,7 +479,7 @@ public class ProfileFragment extends Fragment {
                             surname = null;
                             birthDate = null;
                             taxID = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                            userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
                         break;
                 }
             }
@@ -642,6 +642,9 @@ public class ProfileFragment extends Fragment {
 
             case 5:
                 passwordEditText.setError(this.getString(R.string.invalid_user_password));
+                break;
+            case 6:
+                emailEditText.setError(this.getString(R.string.already_used_email));
                 break;
         }
     }

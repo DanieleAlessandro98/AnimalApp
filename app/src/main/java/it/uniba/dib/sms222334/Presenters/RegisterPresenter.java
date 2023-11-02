@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Fragmets.RegisterFragment;
 import it.uniba.dib.sms222334.Models.Private;
@@ -21,6 +22,11 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
 
     public RegisterPresenter(RegisterFragment fragment){
         this.registerFragment = fragment;
+    }
+
+    public void checkEmail(String email, AuthenticationDao.FindSameEmail emailfind){
+        AuthenticationDao authenticationDao = new AuthenticationDao();
+        authenticationDao.isEmailUnique(email, emailfind);
     }
 
     //Prendo i dati dal fragment e li Controllo
@@ -76,7 +82,7 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         privateUser.registerPrivate( this);
         }
 
-    public void checkAuthorityRegistration(String companyName, String emailA, String passwordA, Long phoneA, String site){
+    public void checkAuthorityRegistration(String companyName, String email, String password, Long phone, String site){
         //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidCompanyName(companyName)) {
             registerFragment.showInvalidCompanyName();
@@ -84,18 +90,18 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         }
 
         //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
-        if (!Validations.isValidEmail(emailA)) {
+        if (!Validations.isValidEmail(email)) {
             registerFragment.showInvalidEmail();
             return;
         }
 
         //Richiama il metodo isValidPassword e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
-        if (!Validations.isValidPassword(passwordA)) {
+        if (!Validations.isValidPassword(password)) {
             registerFragment.showInvalidPassword();
             return;
         }
 
-        String phoneStr = phoneA.toString();
+        String phoneStr = phone.toString();
         //Richiama il metodo isValidPhone e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidPhone(phoneStr)) {
             registerFragment.showInvalidPhone();
@@ -106,9 +112,9 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         GeoPoint TEST = new GeoPoint(-90,90);
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
-        PublicAuthority authorityUser = PublicAuthority.Builder.create("", companyName, emailA)
-                .setPassword(passwordA)
-                .setPhone(phoneA)
+        PublicAuthority authorityUser = PublicAuthority.Builder.create("", companyName, email)
+                .setPassword(password)
+                .setPhone(phone)
                 .setLegalSite(TEST)
                 .build();
 
@@ -116,7 +122,7 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         authorityUser.registerAuthority(this);
     }
 
-    public void checkVeterinarianRegistration(String companyName, String emailB, String passwordB, Long phoneB, String siteB){
+    public void checkVeterinarianRegistration(String companyName, String email, String password, Long phoneB, String site){
         //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidCompanyName(companyName)) {
             registerFragment.showInvalidCompanyName();
@@ -124,13 +130,13 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         }
 
         //Richiama il metodo isvalidEmail e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
-        if (!Validations.isValidEmail(emailB)) {
+        if (!Validations.isValidEmail(email)) {
             registerFragment.showInvalidEmail();
             return;
         }
 
         //Richiama il metodo isValidPassword e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
-        if (!Validations.isValidPassword(passwordB)) {
+        if (!Validations.isValidPassword(password)) {
             registerFragment.showInvalidPassword();
             return;
         }
@@ -146,8 +152,8 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
         GeoPoint TEST = new GeoPoint(-90,90);
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
-        Veterinarian authorityUser = Veterinarian.Builder.create("", companyName, emailB)
-                .setPassword(passwordB)
+        Veterinarian authorityUser = Veterinarian.Builder.create("", companyName, email)
+                .setPassword(password)
                 .setPhone(phoneB)
                 .setLegalSite(TEST)
                 .build();

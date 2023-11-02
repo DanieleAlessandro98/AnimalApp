@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import it.uniba.dib.sms222334.Activity.RegisterActivity;
+import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Presenters.RegisterPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.UserRole;
@@ -137,6 +138,12 @@ public class RegisterFragment extends Fragment{
 
     private void registerUser() {
         View layout = getView();
+        String email;
+        String companyName;
+        String site;
+        String prefix;
+        Long phone;
+
         // Recupera i dati inseriti dall'utente dal layout corrente (in base al valore di inflatedLayout)
         switch (inflatedLayout) {
             case R.layout.private_register:
@@ -154,21 +161,31 @@ public class RegisterFragment extends Fragment{
                 String surname = surnameEditText.getText().toString();
                 String birthDateStr = dateTextView.getText().toString();//INIZIO Data di nascita Check
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                Date birthDate = null;
-                try {
-                    birthDate = dateFormat.parse(birthDateStr);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }//FINE Data di nascita Check
+
                 String taxIDCode = taxIDCodeEditText.getText().toString();
-                String prefix = prefixSpinner.getSelectedItem().toString();//Telefono
-                Long phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
-                String email = emailEditText.getText().toString();
+                prefix = prefixSpinner.getSelectedItem().toString();//Telefono
+                phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
+                email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
                 // Manda i dati al presenter
                 role = UserRole.PRIVATE;
-                registerPresenter.checkPrivateRegistration(name, surname, email, password, phone, birthDate, taxIDCode);
+                registerPresenter.checkEmail(email, new AuthenticationDao.FindSameEmail() {
+                    @Override
+                    public void emailfind(boolean result) {
+                        if (result==true){
+                            showUsedEmail();
+                        }else{
+                            Date birthDate = null;
+                            try {
+                                birthDate = dateFormat.parse(birthDateStr);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }//FINE Data di nascita Check
+                            registerPresenter.checkPrivateRegistration(name, surname, email, password, phone, birthDate, taxIDCode);
+                        }
+                    }
+                });
                 break;
 
             case R.layout.public_authority_register:
@@ -180,16 +197,25 @@ public class RegisterFragment extends Fragment{
                 passwordEditText = layout.findViewById(R.id.passwordEditText);
 
                 // Recupera i dati dal layout public_authority_register
-                String companyName = companyNameEditText.getText().toString();
-                String site = siteEditText.getText().toString();
-                String prefixA = prefixSpinner.getSelectedItem().toString();//Telefono
-                Long phoneA = Long.valueOf(prefixA + phoneNumberEditText.getText().toString());//Telefono
-                String emailA = emailEditText.getText().toString();
-                String passwordA = passwordEditText.getText().toString();
+                companyName = companyNameEditText.getText().toString();
+                site = siteEditText.getText().toString();
+                prefix = prefixSpinner.getSelectedItem().toString();//Telefono
+                phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
+                email = emailEditText.getText().toString();
+                password = passwordEditText.getText().toString();
 
                 // Manda i dati al presenter
                 role = UserRole.PUBLIC_AUTHORITY;
-                registerPresenter.checkAuthorityRegistration(companyName, emailA, passwordA, phoneA, site);
+                registerPresenter.checkEmail(email, new AuthenticationDao.FindSameEmail() {
+                    @Override
+                    public void emailfind(boolean result) {
+                        if (result==true){
+                            showUsedEmail();
+                        }else{
+                            registerPresenter.checkAuthorityRegistration(companyName, email, password, phone, site);
+                        }
+                    }
+                });
                 break;
 
             case R.layout.veterinarian_register:
@@ -201,16 +227,25 @@ public class RegisterFragment extends Fragment{
                 passwordEditText = layout.findViewById(R.id.passwordEditText);
 
                 // Recupera i dati dal layout veterinarian_register
-                String companyNameB = companyNameEditText.getText().toString();
-                String siteB = siteEditText.getText().toString();
-                String prefixB = prefixSpinner.getSelectedItem().toString();//Telefono
-                Long phoneB = Long.valueOf(prefixB + phoneNumberEditText.getText().toString());//Telefono
-                String emailB = emailEditText.getText().toString();
-                String passwordB = passwordEditText.getText().toString();
+                companyName = companyNameEditText.getText().toString();
+                site = siteEditText.getText().toString();
+                prefix = prefixSpinner.getSelectedItem().toString();//Telefono
+                phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
+                email = emailEditText.getText().toString();
+                password = passwordEditText.getText().toString();
 
                 // Esegui la registrazione dell'utente
                 role = UserRole.VETERINARIAN;
-                registerPresenter.checkVeterinarianRegistration(companyNameB, emailB, passwordB, phoneB, siteB);
+                registerPresenter.checkEmail(email, new AuthenticationDao.FindSameEmail() {
+                    @Override
+                    public void emailfind(boolean result) {
+                        if (result==true){
+                            showUsedEmail();
+                        }else{
+                            registerPresenter.checkVeterinarianRegistration(companyName, email, password, phone, site);
+                        }
+                    }
+                });
                 break;
 
         }
@@ -228,6 +263,9 @@ public class RegisterFragment extends Fragment{
     }
     public void showInvalidEmail() {
         emailEditText.setError(this.getString(R.string.invalid_user_email));
+    }
+    public void showUsedEmail() {
+        emailEditText.setError(this.getString(R.string.already_used_email));
     }
     public void showInvalidSurname() {
         surnameEditText.setError(this.getString(R.string.invalid_user_surname));
