@@ -657,6 +657,8 @@ public class ListFragment extends Fragment{
 
         ExpenseAdapter expenseAdapter;
 
+        int[] deleteIndexForCompleteList ={0};
+
         if(profileType != ProfileFragment.Type.ANIMAL) {
             addButton.setVisibility(View.GONE);
 
@@ -673,7 +675,7 @@ public class ListFragment extends Fragment{
 
                     @Override
                     public void notifyExpensesRemoved(int position) {
-                        expenseAdapter.notifyItemRemoved(position);
+                        expenseAdapter.notifyItemRemoved(deleteIndexForCompleteList[0]);
                     }
                 });
             }
@@ -681,7 +683,7 @@ public class ListFragment extends Fragment{
         else{
             expensesList=this.animal.getExpenses();
 
-            expenseAdapter=new ExpenseAdapter(expensesList,getContext());;
+            expenseAdapter=new ExpenseAdapter(expensesList,getContext());
 
             addButton.setOnClickListener(v -> launchAddDialog());
 
@@ -700,7 +702,7 @@ public class ListFragment extends Fragment{
 
 
         ArrayList<Expense> finalExpensesList = expensesList;
-        SwipeHelper FoodSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+        SwipeHelper ExpenseSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -716,8 +718,9 @@ public class ListFragment extends Fragment{
                                         if(profileType != ProfileFragment.Type.ANIMAL) {
                                             for (Animal animal : ((Owner) SessionManager.getInstance().getCurrentUser()).getAnimalList()) {
                                                 if(animal.getFirebaseID().compareTo(expense.getAnimalID())==0){
+                                                    deleteIndexForCompleteList[0]=pos;
                                                     animal.removeExpense(expense);
-                                                    expenseAdapter.removeExpense(pos);
+                                                    finalExpensesList.remove(deleteIndexForCompleteList[0]);
                                                     break;
                                                 }
                                             }

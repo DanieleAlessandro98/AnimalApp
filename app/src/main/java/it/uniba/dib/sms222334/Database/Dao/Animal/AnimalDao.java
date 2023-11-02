@@ -63,13 +63,13 @@ public class AnimalDao {
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_NAME, animal.getName());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE, new Timestamp(animal.getBirthDate()));
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP, animal.getMicrochip());
-        new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_IMAGES, new ArrayList<>());
+        new_animal.put(AnimalAppDB.Animal.Images.COLUMN_NAME, new ArrayList<>());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_RACE, animal.getRace());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, SessionManager.getInstance().getCurrentUser().getFirebaseID());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_PHOTO, "");
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies().ordinal());
         new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animal.getState().ordinal());
-        new_animal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, new ArrayList<>());
+        new_animal.put(AnimalAppDB.Animal.Videos.COLUMN_NAME, new ArrayList<>());
 
         collectionAnimal.add(new_animal)
                 .addOnSuccessListener(documentReference -> {
@@ -139,17 +139,39 @@ public class AnimalDao {
     
     public void editAnimal(@NonNull Animal animal, String ownerEmail, @Nullable AnimalCallbacks.updateCallback callback, boolean profilePictureFlag) {
 
+
+        List<Map<String, Object>> animalVideo = new ArrayList<>();
+        List<Map<String, Object>> animalPhoto = new ArrayList<>();
+
+        for(Photo photo: animal.getPhotos()){
+            Map<String, Object> addingPhoto = new HashMap<>();
+            addingPhoto.put(AnimalAppDB.Animal.Images.COLUMN_PATH,photo.getPath());
+            addingPhoto.put(AnimalAppDB.Animal.Images.COLUMN_TIMESTAMP,photo.getTimestamp());
+
+            animalPhoto.add(addingPhoto);
+        }
+
+        for(Video video: animal.getVideos()){
+            Map<String, Object> addingVideo = new HashMap<>();
+
+            addingVideo.put(AnimalAppDB.Animal.Images.COLUMN_PATH,video.getPath());
+            addingVideo.put(AnimalAppDB.Animal.Images.COLUMN_TIMESTAMP,video.getTimestamp());
+
+            animalVideo.add(addingVideo);
+        }
+
+
         Map<String, Object> editedAnimal = new HashMap<>();
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_NAME, animal.getName());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE, new Timestamp(animal.getBirthDate()));
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP, animal.getMicrochip());
-        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_IMAGES, animal.getPhotos());
+        editedAnimal.put(AnimalAppDB.Animal.Images.COLUMN_NAME, animalPhoto);
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_RACE, animal.getRace());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_OWNER, animal.getOwnerReference());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_PHOTO, "");
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_SPECIES, animal.getSpecies().ordinal());
         editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animal.getState().ordinal());
-        editedAnimal.put(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS, animal.getVideos());
+        editedAnimal.put(AnimalAppDB.Animal.Videos.COLUMN_NAME, animalVideo);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         animal.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -420,19 +442,20 @@ public class AnimalDao {
     }
 
     private void findAnimalImages(@NonNull DocumentSnapshot document, Animal animal) {
-        ArrayList<HashMap<String, Object>> images=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.COLUMN_NAME_IMAGES));
+        ArrayList<HashMap<String, Object>> images=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.Images.COLUMN_NAME));
 
         for (HashMap<String, Object> image : images) {
-            Log.d(TAG,"image: "+ image.get("photo")+"\ntimestamp: "+image.get("timestamp"));
+            Log.d(TAG,"image: "+ image.get("path")+"\ntimestamp: "+image.get("timestamp"));
             animal.addImage(new Photo((String) image.get("path"),(Timestamp) image.get("timestamp")));
         }
+
     }
 
     private void findAnimalVideos(@NonNull DocumentSnapshot document, Animal animal) {
-        ArrayList<HashMap<String, Object>> videos=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.COLUMN_NAME_VIDEOS));
+        ArrayList<HashMap<String, Object>> videos=((ArrayList<HashMap<String, Object>>) document.get(AnimalAppDB.Animal.Videos.COLUMN_NAME));
 
         for (HashMap<String, Object> video : videos) {
-            Log.d(TAG,"video: "+ video.get("video")+"\ntimestamp: "+video.get("timestamp"));
+            Log.d(TAG,"video: "+ video.get("path")+"\ntimestamp: "+video.get("timestamp"));
             animal.addVideo(new Video((String) video.get("path"),(Timestamp) video.get("timestamp")));
         }
     }

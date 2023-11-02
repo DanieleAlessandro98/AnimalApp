@@ -32,11 +32,10 @@ public class MediaDao {
                 .child(fileName);
 
         UploadTask uploadTask = storageRef.putBytes(Media.getBytesFromBitmap(bitmap));
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            listener.onPhotoUploaded();
-        }).addOnFailureListener(e -> {
-            listener.onPhotoUploadFailed(e);
-        });
+        uploadTask
+                .addOnProgressListener(listener::onPhotoUploadProgress)
+                .addOnSuccessListener(taskSnapshot -> listener.onPhotoUploaded())
+                .addOnFailureListener(listener::onPhotoUploadFailed);
     }
 
     public void uploadVideo(Uri storageUri, String fileName, final VideoUploadListener listener){
@@ -44,9 +43,7 @@ public class MediaDao {
 
         videoRef.putFile(storageUri)
                 .addOnProgressListener(listener::onVideoUploadProgress)
-                .addOnSuccessListener(taskSnapshot -> {
-                    listener.onVideoUploaded();
-                })
+                .addOnSuccessListener(taskSnapshot -> listener.onVideoUploaded())
                 .addOnFailureListener(listener::onVideoUploadFailed);
     }
 
@@ -92,6 +89,8 @@ public class MediaDao {
 
     public interface PhotoUploadListener {
         void onPhotoUploaded();
+
+        void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot);
         void onPhotoUploadFailed(Exception exception);
     }
 

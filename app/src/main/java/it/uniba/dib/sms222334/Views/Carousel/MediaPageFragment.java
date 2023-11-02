@@ -3,46 +3,41 @@ package it.uniba.dib.sms222334.Views.Carousel;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.graphics.SurfaceTexture;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
-import com.google.android.gms.common.util.JsonUtils;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
-import io.grpc.internal.JsonUtil;
-import it.uniba.dib.sms222334.Database.AnimalAppDB;
-import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Models.Media;
 import it.uniba.dib.sms222334.Models.Photo;
-import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.Video;
-import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 
-public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteListener {
+public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteListener{
     private static final String TAG="MediaPageFragment";
 
     public SharedPreferences.Editor editor;
@@ -67,6 +62,8 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
 
         String mediaString=preferences.getString("mediaData","");
 
+        boolean is_my_animal=preferences.getBoolean("is_my_animal",false);
+
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(mediaString);
@@ -89,14 +86,16 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
 
         float scale = preferences.getFloat("scale",1.0f);
 
-        LinearLayout linearLayout;
+        RelativeLayout relativeLayout;
 
 
         if(media instanceof Photo){
-            linearLayout = (LinearLayout)
+            relativeLayout = (RelativeLayout)
                     inflater.inflate(R.layout.carousel_photo_item, container, false);
 
-            ImageView image=linearLayout.findViewById(R.id.image);
+            ImageView image=relativeLayout.findViewById(R.id.image);
+
+            ProgressBar progressBar=relativeLayout.findViewById(R.id.downloadProgressBar);
 
             Photo photo=((Photo)media);
 
@@ -104,10 +103,13 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
                 image.setImageBitmap(photo.getPhoto());
             }
             else{
+                progressBar.setVisibility(View.VISIBLE);
+
                 photo.loadPhoto(new UserCallback.UserStateListener() {
                     @Override
                     public void notifyItemLoaded() {
                         image.setImageBitmap(photo.getPhoto());
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -123,48 +125,30 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
             }
         }
         else{
-            linearLayout = (LinearLayout)
+            relativeLayout = (RelativeLayout)
                     inflater.inflate(R.layout.carousel_video_item, container, false);
 
-            VideoView videoView=linearLayout.findViewById(R.id.video);
+            TextureView videoTextureView = relativeLayout.findViewById(R.id.video);
+
+            ProgressBar progressBar=relativeLayout.findViewById(R.id.downloadProgressBar);
 
             Video video=((Video)media);
 
-            if(video.getVideo()!=null){
-                setVideoView(videoView,video);
-            }
-            else{
-                video.setVideo(new UserCallback.UserStateListener() {
-                    @Override
-                    public void notifyItemLoaded() {
-                        setVideoView(videoView,video);
-                    }
-
-                    @Override
-                    public void notifyItemUpdated(int position) {
-
-                    }
-
-                    @Override
-                    public void notifyItemRemoved(int position) {
-
-                    }
-                });
-            }
+            setVideoView(videoTextureView,video,progressBar);
 
         }
 
 
-        TextView textView = linearLayout.findViewById(R.id.time_ago);
+        TextView textView = relativeLayout.findViewById(R.id.time_ago);
 
         textView.setText(DateUtilities.getTimeAgoString(media.getTimestamp(),getContext()));
 
-        MediaContainer root =linearLayout.findViewById(R.id.item_root);
+        MediaContainer root =relativeLayout.findViewById(R.id.item_root);
         root.setScaleBoth(scale);
 
-        MediaSettingsView mediaSettingsView=linearLayout.findViewById(R.id.media_settings);
+        MediaSettingsView mediaSettingsView=relativeLayout.findViewById(R.id.media_settings);
 
-        if(!preferences.getBoolean("is_my_animal",false))
+        if(!is_my_animal)
             mediaSettingsView.disableDelete();
 
         mediaSettingsView.setDeleteAction(() -> {
@@ -176,18 +160,91 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
         mediaSettingsView.setMedia(media);
 
 
-        return linearLayout;
+        return relativeLayout;
     }
 
-    private void setVideoView(VideoView videoView, Video video){
-        videoView.setVideoURI(video.getVideo());
+    private void setVideoView(TextureView videoTextureView, Video video,ProgressBar progressBar){
+        AtomicReference<MediaPlayer> mediaPlayer = new AtomicReference<>(new MediaPlayer());
 
-        MediaController mediaController= new MediaController(getContext());
+        AtomicReference<CountDownLatch> latch=new AtomicReference<>();
 
-        videoView.setMediaController(mediaController);
-        mediaController.setAnchorView(videoView);
+        TextureView.SurfaceTextureListener listener=new TextureView.SurfaceTextureListener() {
+            @Override
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                Thread videoThread = new Thread(() -> {
+                    Surface s = new Surface(surface);
 
-        //videoView.start();
+                    latch.set(new CountDownLatch(1));
+
+                    try {
+                        mediaPlayer.set(new MediaPlayer());
+                        mediaPlayer.get().setDataSource(getContext(),video.getVideo());
+                        mediaPlayer.get().setSurface(s);
+                        mediaPlayer.get().prepare();
+                        mediaPlayer.get().setLooping(true);
+                        mediaPlayer.get().start();
+                        progressBar.setVisibility(View.INVISIBLE);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        latch.get().countDown();
+                    }
+                });
+
+
+
+                if(video.getVideo()!=null){ //il video è stato già scaricato
+                    videoThread.start();
+                }
+                else{ //il video non è stato ancora scaricato
+                    video.setVideo(new UserCallback.UserStateListener() {
+                        @Override
+                        public void notifyItemLoaded() {
+                            videoThread.start();
+                        }
+
+                        @Override
+                        public void notifyItemUpdated(int position) {
+
+                        }
+
+                        @Override
+                        public void notifyItemRemoved(int position) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+                // Nessuna azione richiesta
+            }
+
+            @Override
+            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                try {
+                    latch.get().await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                progressBar.setVisibility(View.VISIBLE);
+                mediaPlayer.get().stop();
+                return true;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+                // Nessuna azione richiesta
+            }
+        };
+
+
+
+        videoTextureView.setSurfaceTextureListener(listener);
+
     }
 
     MediaDao.MediaDeleteListener listener;

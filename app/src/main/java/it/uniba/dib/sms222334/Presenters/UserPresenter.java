@@ -2,13 +2,10 @@ package it.uniba.dib.sms222334.Presenters;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-
 import com.google.firebase.firestore.GeoPoint;
-
+import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.Date;
-
-import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
@@ -120,6 +117,11 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                     profileModel.setPhoto(profileView.getPhotoPicked());
                     profileModel.updateProfile();
                     profileView.showUpdateSuccessful();
+                }
+
+                @Override
+                public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
                 }
 
                 @Override

@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Models;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Parcelable;
 
 import com.google.android.gms.common.util.ArrayUtils;
 
@@ -13,7 +14,7 @@ import java.util.Arrays;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public abstract class User extends Document implements UserCallback.UserStateListener {
+public abstract class User extends Document implements UserCallback.UserStateListener, Parcelable {
 
     private String name;
     private String email;

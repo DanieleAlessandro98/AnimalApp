@@ -171,9 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager=getSupportFragmentManager();
 
-        //TODO cause crash when pass from profile tab with nested fragment to another tab
-        //fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
+        //TODO WARNING cause crash when pass from profile tab with nested fragment to another tab(try when visit is implemented)
+        fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
         transaction.replace(R.id.frame_for_fragment,fragment).commit();

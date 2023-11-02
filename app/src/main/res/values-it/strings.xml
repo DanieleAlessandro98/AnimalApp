@@ -124,6 +124,9 @@
     <string name="location_gps_disabled_message">Per utilizzare questa funzionalità, è necessario attivare il GPS. Vuoi attivarlo?</string>
     <string name="settings">Impostazioni</string>
     <string name="location_gps_disabled_cancel">Annulla</string>
+    <string name="invalid_video">durata massima consentita 20s</string>
+    <string name="animal">Animale</string>
+    <string name="visit">Visita</string>
 
     <string-array name="diagnosis_type">
         <item>Positivo</item>

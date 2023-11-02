@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,6 +98,11 @@ public class ReportPresenter {
                     public void onPhotoUploaded() {
                         reportFragment.showReportCreateSuccessful();
                         reportFragment.loadReportsAndRequests();
+                    }
+
+                    @Override
+                    public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
                     }
 
                     @Override

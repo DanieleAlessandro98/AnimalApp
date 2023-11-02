@@ -78,8 +78,21 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_RACE = "race";
         public static final String COLUMN_NAME_PHOTO = "photo";
         public static final String COLUMN_NAME_MICROCHIP = "microchip";
-        public static final String COLUMN_NAME_IMAGES = "images";
-        public static final String COLUMN_NAME_VIDEOS = "videos";
+        public static class Images implements BaseColumns{
+            public static final String COLUMN_NAME = "images";
+
+            public static final String COLUMN_PATH = "path";
+
+            public static final String COLUMN_TIMESTAMP = "timestamp";
+        }
+
+        public static class Videos implements BaseColumns{
+            public static final String COLUMN_NAME = "videos";
+
+            public static final String COLUMN_PATH = "path";
+
+            public static final String COLUMN_TIMESTAMP = "timestamp";
+        }
     }
 
     public static class Visit implements BaseColumns {
