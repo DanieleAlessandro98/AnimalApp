@@ -60,7 +60,12 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         deleteButton.setOnClickListener(v -> {
             final AnimalAppDialog deleteDialog=new AnimalAppDialog(fragment.getContext());
 
-            deleteDialog.setContentView(fragment.getContext().getString(R.string.delete_animal_warning), AnimalAppDialog.DialogType.CRITICAL);
+            String warningText;
+            if (requestReport instanceof Report)
+                warningText = fragment.getContext().getString(R.string.delete_report_warning);
+            else
+                warningText = fragment.getContext().getString(R.string.delete_request_warning);
+            deleteDialog.setContentView(warningText, AnimalAppDialog.DialogType.CRITICAL);
 
             deleteDialog.setConfirmAction(d -> {
                 fragment.deleteRequestReport(requestReport);

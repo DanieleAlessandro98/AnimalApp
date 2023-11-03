@@ -83,6 +83,8 @@
     <string name="info">INFO</string>
     <string name="change_owner_warning">Confirming you will transfer the animal to</string>
     <string name="delete_animal_warning">This animal will be definitely cancelled</string>
+    <string name="delete_report_warning">Do you want to delete the report?</string>
+    <string name="delete_request_warning">Do you want to delete the request?</string>
     <string name="right_owner_advice">Be sure to select a valid owner!</string>
     <string name="invalid_report_description">"Enter a valid description"</string>
     <string name="report_name">Name (Optional)</string>

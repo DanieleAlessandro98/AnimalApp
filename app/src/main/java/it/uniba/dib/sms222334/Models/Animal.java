@@ -18,6 +18,8 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
+import it.uniba.dib.sms222334.Utils.ReportType;
+import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Animal extends Document implements Parcelable {
 
@@ -429,5 +431,22 @@ public class Animal extends Document implements Parcelable {
     @Override
     public String toString() {
         return name;
+    }
+
+    public static AnimalStates findAnimalStateByReport(User user, ReportType reportType, boolean isDeletingReport) {
+        if (isDeletingReport) {
+            if (user != null) {
+                if (user.getRole() == UserRole.PRIVATE)
+                    return AnimalStates.ADOPTED;
+                else if (user.getRole() == UserRole.PUBLIC_AUTHORITY)
+                    return AnimalStates.IN_CHARGE;
+            }
+        }
+        else if (reportType == ReportType.LOST)
+            return AnimalStates.LOST;
+        else if (reportType == ReportType.IN_DANGER)
+            return AnimalStates.IN_DANGER;
+
+        return AnimalStates.NULL;
     }
 }

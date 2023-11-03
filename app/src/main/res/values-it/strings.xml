@@ -80,6 +80,8 @@
     <string name="info">INFO</string>
     <string name="change_owner_warning">Confermando trasferirai l\'animale a</string>
     <string name="delete_animal_warning">Questo animale verrà cancellato definitivamente</string>
+    <string name="delete_report_warning">Vuoi cancellare la segnalazione?</string>
+    <string name="delete_request_warning">Vuoi cancellare la richiesta?</string>
     <string name="right_owner_advice">Assicurati di selezionare un proprietario valido!</string>
     <string name="invalid_report_description">"Inserisci una descrizione valida"</string>
     <string name="report_name">Nome (Opzionale)</string>

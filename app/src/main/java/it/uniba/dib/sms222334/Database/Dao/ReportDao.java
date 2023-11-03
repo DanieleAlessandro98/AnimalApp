@@ -26,6 +26,7 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UerDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
@@ -57,7 +58,7 @@ public class ReportDao {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentID);
 
                         AnimalDao animalDao = new AnimalDao();
-                        animalDao.updateState(report.getAnimalID(), report.getType());
+                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), false));
 
                         setPhotoPath(documentID);
                         callbackModel.onDataRetrieved(documentID);
@@ -208,6 +209,9 @@ public class ReportDao {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        AnimalDao animalDao = new AnimalDao();
+                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), true));
+
                         callbackPresenter.onDataRetrieved(true);
                     }
                 })
