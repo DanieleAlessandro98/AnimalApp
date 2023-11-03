@@ -95,7 +95,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     private boolean isSharedAnimalProfile;
 
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
-    private List<Document> requestAndReportsList;
+    private ArrayList<Document> requestAndReportsList;
     private RequestReportAdapter adapter;
 
 
@@ -165,7 +165,12 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
-        loadReportsAndRequests();
+        if (savedInstanceState != null) {
+            requestAndReportsList = savedInstanceState.getParcelableArrayList("requestAndReportsList");
+            adapter = new RequestReportAdapter(this, requestAndReportsList);
+            recyclerView.setAdapter(adapter);
+        } else
+            loadReportsAndRequests();
 
         Log.d(TAG, recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item) + "");
 
@@ -998,6 +1003,12 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 dialog.show();
                 break;
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("requestAndReportsList", requestAndReportsList);
     }
 
     @Override
