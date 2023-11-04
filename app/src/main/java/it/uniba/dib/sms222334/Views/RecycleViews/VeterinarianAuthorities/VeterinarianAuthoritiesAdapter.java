@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
+import it.uniba.dib.sms222334.Fragmets.SearchFragment;
+import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -23,6 +26,8 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
     public interface OnProfileClicked{
         void OnProfileClicked(User profile);
     }
+
+    public enum viewType{VETERINARIAN,PUBLIC_AUTHORITY,PROGRESS_BAR};
 
     private OnProfileClicked onProfileClicked;
 
@@ -39,8 +44,16 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
     @NonNull
     @Override
     public VeterinarianAuthoritiesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View layout= LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.profile_list_item,parent,false);
+        final View layout;
+
+        if(viewType==2){
+            layout= LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.progress_bar_list_item,parent,false);
+        }
+        else{
+            layout= LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.profile_list_item,parent,false);
+        }
 
         return new VeterinarianAuthoritiesViewHolder(layout,context);
     }
@@ -50,7 +63,7 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
         if(getItemViewType(position)==0){
             holder.bind((Veterinarian)  veterinarianAuthoritiesList.get(position));
         }
-        else{
+        else if(getItemViewType(position)==1){
             holder.bind((PublicAuthority)  veterinarianAuthoritiesList.get(position));
         }
 
@@ -65,10 +78,13 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
     @Override
     public int getItemViewType(int position) {
         if( veterinarianAuthoritiesList.get(position) instanceof Veterinarian){
-            return 0;
+            return viewType.VETERINARIAN.ordinal();
         }
-        else {
-            return 1;
+        else if(veterinarianAuthoritiesList.get(position) instanceof PublicAuthority){
+            return viewType.PUBLIC_AUTHORITY.ordinal();
+        }
+        else{
+            return viewType.PROGRESS_BAR.ordinal(); //little trick for the progress bar ;)
         }
     }
 

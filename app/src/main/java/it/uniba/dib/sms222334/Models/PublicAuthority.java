@@ -202,7 +202,7 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         dest.writeString(getEmail());
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
-        dest.writeParcelable(getPhoto(),flags);
+        //dest.writeParcelable(getPhoto(),flags);
         dest.writeDouble(legalSite.getLatitude());
         dest.writeDouble(legalSite.getLongitude());
         dest.writeInt(this.NBeds);

@@ -45,6 +45,12 @@ public final class AnimalCallbacks {
         void notifyFoodRemoved(int position);
     }
 
+    public interface visitCallback{
+        void notifyVisitLoaded();
+
+        void notifyVisitRemoved(int position);
+    }
+
     public interface expensesCallback{
         void notifyExpensesLoaded();
 

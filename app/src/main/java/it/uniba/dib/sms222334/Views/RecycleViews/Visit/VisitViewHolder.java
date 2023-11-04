@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Visit;
@@ -59,7 +61,11 @@ public class VisitViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
              this.visitType.setText(visitTypeArray[visit.getType().ordinal()]);
 
-             this.visitDate.setText(new SimpleDateFormat("dd/MM/yyyy").format(visit.getDate()));
+
+             Date visitDate= visit.getDate().toDate();
+             Calendar calendar=Calendar.getInstance();
+             calendar.setTime(visitDate);
+             this.visitDate.setText(calendar.get(Calendar.DAY_OF_MONTH)+"/"+calendar.get(Calendar.MONTH)+"/"+calendar.get(Calendar.YEAR));
 
 
              this.visitState.setText(visitStateArray[visit.getState().ordinal()]);

@@ -30,6 +30,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -38,7 +39,6 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
-import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
@@ -47,6 +47,7 @@ import it.uniba.dib.sms222334.Models.Pathology;
 import it.uniba.dib.sms222334.Models.Relation;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
 import it.uniba.dib.sms222334.Presenters.ExpensePresenter;
@@ -84,61 +85,80 @@ public class ListFragment extends Fragment{
 
     AnimalPresenter animalPresenter;
 
-    public static User currentUser; //profile of the user logged
+    public User currentUser; //profile of the user logged
     UserRole currentUserRole;
 
     private Animal animal;
 
+    private User profile;
+
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
     public ListFragment() {
-        currentUser=SessionManager.getInstance().getCurrentUser();
-
-        currentUserRole=currentUser.getRole();
+        Log.d("Rotation Test","ListFragment instance created from android");
     }
 
-    public static ListFragment newInstance(ProfileFragment.Tab tabPosition,ProfileFragment.Type profileType) {
-        ListFragment myFragment = new ListFragment();
+    public ListFragment(String overrideParams){
+
+    }
+
+
+    public static ListFragment newInstanceProfile(ProfileFragment.Tab tabPosition, ProfileFragment.Type profileType, User profile) {
+        ListFragment myFragment = new ListFragment("justForOverrideTheConstructor");
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
         args.putInt("profile_type", profileType.ordinal());
+        args.putParcelable("profileData", profile);
         myFragment.setArguments(args);
+
+        Log.d("Rotation Test","ListFragment instance recreated from ProfileFragment");
 
         return myFragment;
     }
 
     //per l'animale
-    public static ListFragment newInstance(ProfileFragment.Tab tabPosition,ProfileFragment.Type profileType,Animal animal) {
-        ListFragment myFragment = new ListFragment();
+    public static ListFragment newInstanceAnimal(ProfileFragment.Tab tabPosition, Animal animal) {
+        ListFragment myFragment = new ListFragment("justForOverrideTheConstructor");
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
-        args.putInt("profile_type", profileType.ordinal());
+        args.putInt("profile_type", ProfileFragment.Type.ANIMAL.ordinal());
         args.putParcelable("animalData", animal);
         myFragment.setArguments(args);
 
         return myFragment;
     }
 
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("Rotation Test","ListFragment: "+this+" onCreateView()");
         final View layout = inflater.inflate(R.layout.item_list_container, container, false);
+
+        Animal animalClicked=getArguments().getParcelable("animalClicked");
+        Visit visitClicked=getArguments().getParcelable("visitClicked");
+
+        if(animalClicked != null){
+            openAnimalPage(animalClicked);
+        } else if (visitClicked != null) {
+            openVisitPage(visitClicked);
+        }
+
+        currentUser=SessionManager.getInstance().getCurrentUser();
+        currentUserRole=currentUser.getRole();
 
         this.tabPosition = ProfileFragment.TabPosition.values()[getArguments().getInt("tab_position")];
         this.profileType = ProfileFragment.Type.values()[getArguments().getInt("profile_type")];
 
-        animal = getArguments().getParcelable("animalData");
-        visitList = new ArrayList<>();
-        getArguments().clear();
+        animal = getArguments().getParcelable("animalData"); //è nullo nel caso del profilo
+
+        this.profile = getArguments().getParcelable("profileData");
+
 
         addButton=layout.findViewById(R.id.add_button);
         recyclerView=layout.findViewById(R.id.list_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
 
-        visitAdapter=new VisitAdapter(visitList,getContext());
         switch (this.tabPosition){
             case ANIMAL:
                 setAnimalList();
@@ -161,12 +181,6 @@ public class ListFragment extends Fragment{
         }
 
         return layout;
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void refresh(Visit visit){
-        visitList.add(visit);
-        visitAdapter.notifyDataSetChanged();
     }
 
     private void launchAddDialog() {
@@ -200,7 +214,7 @@ public class ListFragment extends Fragment{
 
                 Spinner speciesSpinner= addDialog.findViewById(R.id.species_spinner);
 
-                ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_species,
+                ArrayAdapter<CharSequence> speciesAdapter= ArrayAdapter.createFromResource(getActivity(),R.array.animal_species,
                         android.R.layout.simple_list_item_1);
 
                 speciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -213,24 +227,24 @@ public class ListFragment extends Fragment{
                     @Override
                     public void InvalidName() {
                         name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                        name.setError(getContext().getString(R.string.invalid_user_name));
+                        name.setError(getActivity().getString(R.string.invalid_user_name));
                     }
 
                     @Override
                     public void InvalidBirthDate() {
-                        birthDate.setError(getContext().getString(R.string.invalid_user_birthdate));
+                        birthDate.setError(getActivity().getString(R.string.invalid_user_birthdate));
                     }
 
                     @Override
                     public void InvalidMicrochip() {
                         microChip.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                        microChip.setError(getContext().getString(R.string.invalid_microchip));
+                        microChip.setError(getActivity().getString(R.string.invalid_microchip));
                     }
 
                     @Override
                     public void MicrochipAlreadyUsed() {
                         name.setInputValidate(AnimalAppEditText.ValidateInput.INVALID_INPUT);
-                        microChip.setError(getContext().getString(R.string.microchip_already_exist));
+                        microChip.setError(getActivity().getString(R.string.microchip_already_exist));
                     }
                 });
 
@@ -247,7 +261,7 @@ public class ListFragment extends Fragment{
                     int day = c.get(Calendar.DAY_OF_MONTH);
 
                     DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            getContext(),
+                            getActivity(),
                             (view, year1, month1, dayOfMonth) -> {
                                 birthDate.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
                                 birthDate.setError(null);
@@ -265,27 +279,27 @@ public class ListFragment extends Fragment{
 
                         switch (position){
                             case 0:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.dog_breeds,
                                         android.R.layout.simple_list_item_1);
                                 break;
                             case 1:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.cat_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.cat_breeds,
                                         android.R.layout.simple_list_item_1);
                                 break;
                             case 2:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.fish_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.fish_breeds,
                                         android.R.layout.simple_list_item_1);
                                 break;
                             case 3:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.bird_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.bird_breeds,
                                         android.R.layout.simple_list_item_1);
                                 break;
                             case 4:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.rabbit_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.rabbit_breeds,
                                         android.R.layout.simple_list_item_1);
                                 break;
                             default:
-                                raceAdapter=ArrayAdapter.createFromResource(getContext(),R.array.dog_breeds,
+                                raceAdapter=ArrayAdapter.createFromResource(getActivity(),R.array.dog_breeds,
                                         android.R.layout.simple_list_item_1);
                         }
 
@@ -331,7 +345,7 @@ public class ListFragment extends Fragment{
                         animalListName.add(animalList.get(i).getName());
                     }
 
-                    ArrayAdapter <String> animal_chooseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,animalListName);
+                    ArrayAdapter <String> animal_chooseAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1,animalListName);
                     animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     animalChooseSpinner.setAdapter(animal_chooseAdapter);
 
@@ -390,7 +404,7 @@ public class ListFragment extends Fragment{
                         }
                     });
 
-                    ArrayAdapter<CharSequence> relationAdapter= ArrayAdapter.createFromResource(getContext(),R.array.relation_type,
+                    ArrayAdapter<CharSequence> relationAdapter= ArrayAdapter.createFromResource(getActivity(),R.array.relation_type,
                             android.R.layout.simple_list_item_1);
                     relationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     relationSpinner.setAdapter(relationAdapter);
@@ -432,7 +446,7 @@ public class ListFragment extends Fragment{
                             }
                         });
                     });
-                    ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getContext(),R.array.animal_pathologies,
+                    ArrayAdapter<CharSequence> pathologyAdapter= ArrayAdapter.createFromResource(getActivity(),R.array.animal_pathologies,
                             android.R.layout.simple_list_item_1);
                     pathologyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     pathologySpinner.setAdapter(pathologyAdapter);
@@ -472,7 +486,7 @@ public class ListFragment extends Fragment{
                 case EXPENSE:
                     addDialog.setContentView(R.layout.create_expense);
                     Spinner expenseSpinner= addDialog.findViewById(R.id.expense_type);
-                    ArrayAdapter<CharSequence> expenseAdapter= ArrayAdapter.createFromResource(getContext(),R.array.expense_categories,
+                    ArrayAdapter<CharSequence> expenseAdapter= ArrayAdapter.createFromResource(getActivity(),R.array.expense_categories,
                             android.R.layout.simple_list_item_1);
                     expenseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     expenseSpinner.setAdapter(expenseAdapter);
@@ -546,12 +560,15 @@ public class ListFragment extends Fragment{
 
         animalPresenter= new AnimalPresenter();
 
-        animalList=this.currentUserRole!=UserRole.VETERINARIAN?((Owner) this.currentUser).getAnimalList():new ArrayList<>();
+        animalList=this.profileType!= ProfileFragment.Type.VETERINARIAN?
+                ((Owner) this.profile).getAnimalList()
+                :((Veterinarian) this.profile).getAnimalList();
 
         if(profileType == ProfileFragment.Type.VETERINARIAN){
             addButton.setVisibility(View.GONE);
-        }
-        else{
+        } else if (SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0) {
+            addButton.setVisibility(View.GONE);
+        } else{
             addButton.setOnClickListener(v -> launchAddDialog());
         }
 
@@ -569,17 +586,9 @@ public class ListFragment extends Fragment{
 
         AnimalAdapter adapter=new AnimalAdapter(animalList,getContext());
 
-        adapter.setOnAnimalClickListener(animal -> {
-            FragmentManager fragmentManager=getParentFragmentManager();
+        adapter.setOnAnimalClickListener(this::openAnimalPage);
 
-            FragmentTransaction transaction= fragmentManager.beginTransaction();
-            transaction.addToBackStack("itemPage");
-            transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal)).commit();
-            tabPosition=null;
-        });
-
-
-        this.currentUser.setUserLoadingCallBack(new UserCallback.UserStateListener() {
+        this.profile.setUserLoadingCallBack(new UserCallback.UserStateListener() {
             @Override
             public void notifyItemLoaded() {
                 adapter.notifyItemInserted(0);
@@ -597,32 +606,81 @@ public class ListFragment extends Fragment{
         recyclerView.setAdapter(adapter);
     }
 
-    public VisitAdapter visitAdapter;
-    public ArrayList<Visit> visitList;
-    public int position = -1;
-
     public void setVisitList(){
+        ArrayList<Visit> visitList;
+        VisitAdapter visitAdapter;
+        int[] deleteIndexForCompleteList ={0};
 
-        recyclerView.setAdapter(visitAdapter);
-        VisitPresenter visitPresenter = new VisitPresenter();
-        visitPresenter.action_view(currentUser.getRole(), new VisitDao.OnVisitListener() {
-            @Override
-            public void onGetVisitListener(List<Visit> visitGetList) {
-                visitList.clear();
-                visitList.addAll(visitGetList);
-                visitAdapter.notifyDataSetChanged();
+        if(this.profileType == ProfileFragment.Type.ANIMAL){
+            visitList=this.animal.getVisits();
+            visitAdapter=new VisitAdapter(visitList,getContext());
 
-                visitAdapter.setOnVisitClickListener(visit -> {
-                    position = visitList.indexOf(visit);
-                    FragmentManager fragmentManager=getParentFragmentManager();
-                    FragmentTransaction transaction= fragmentManager.beginTransaction();
-                    transaction.addToBackStack("itemPage");
-                    transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit)).commit();
+
+            this.animal.setVisitCallback(new AnimalCallbacks.visitCallback() {
+                @Override
+                public void notifyVisitLoaded() {
+                    visitAdapter.notifyItemInserted(0);
+                }
+
+                @Override
+                public void notifyVisitRemoved(int position) {
+                    visitAdapter.notifyItemInserted(position);
+                }
+            });
+        }
+        else if(this.profileType == ProfileFragment.Type.VETERINARIAN){
+            Veterinarian veterinarian=((Veterinarian)this.profile);
+
+            visitList=veterinarian.getVisitList();
+
+            visitAdapter=new VisitAdapter(visitList,getContext());
+            veterinarian.setVisitCallback(new AnimalCallbacks.visitCallback() {
+                @Override
+                public void notifyVisitLoaded() {
+                    visitAdapter.notifyItemInserted(0);
+                }
+
+                @Override
+                public void notifyVisitRemoved(int position) {
+                    visitAdapter.notifyItemInserted(position);
+                }
+            });
+        }
+        else{
+            visitList=new ArrayList<>();
+            visitAdapter=new VisitAdapter(visitList,getContext());
+            for (Animal animal : ((Owner) this.profile).getAnimalList()) {
+                visitList.addAll(animal.getVisits());
+
+                animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
+                    @Override
+                    public void notifyExpensesLoaded() {
+                        visitAdapter.notifyItemInserted(0);
+                    }
+
+                    @Override
+                    public void notifyExpensesRemoved(int position) {
+                        visitAdapter.notifyItemRemoved(deleteIndexForCompleteList[0]);
+                    }
                 });
             }
-        });
 
-        SwipeHelper VisitSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+        }
+
+        visitAdapter.setOnVisitClickListener(this::openVisitPage);
+
+        recyclerView.setAdapter(visitAdapter);
+
+        addButton.setVisibility(View.GONE);
+
+
+        if(this.profileType == ProfileFragment.Type.ANIMAL && (!AnimalPresenter.checkAnimalProperty(this.animal)))
+            return;
+
+        if(this.profileType != ProfileFragment.Type.ANIMAL && (SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0))
+            return;
+
+        SwipeHelper VisitSwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
             @SuppressLint("SuspiciousIndentation")
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -633,13 +691,29 @@ public class ListFragment extends Fragment{
                         pos -> {
                             AnimalAppDialog.launchConfirmDialog(() -> {
                                 VisitPresenter visit = new VisitPresenter();
-                                System.out.println("id remove visit: "+visitAdapter.getVisitList().get(pos).getFirebaseID());
-                                if (visit.removeVisit(visitAdapter.getVisitList().get(pos))) {
-                                    System.out.println("eliminato visita");
-                                    visitAdapter.removeVisit(pos);
-                                }else{
-                                    Log.w(TAG,"Delete Visit is Failure");
+
+                                Visit deleteVisit=visitList.get(pos);
+
+                                if (visit.removeVisit(deleteVisit)) {
+                                    if(profileType == ProfileFragment.Type.ANIMAL){
+                                        animal.removeVisit(deleteVisit);
+                                    }
+                                    else if(profileType == ProfileFragment.Type.VETERINARIAN){
+                                        ((Veterinarian)profile).removeVisit(deleteVisit);
+                                    }
+                                    else {
+                                        for (Animal animal : ((Owner) SessionManager.getInstance().getCurrentUser()).getAnimalList()) {
+                                            if(animal.getFirebaseID().compareTo(deleteVisit.getAnimal().getFirebaseID())==0){
+                                                deleteIndexForCompleteList[0]=pos;
+                                                animal.removeVisit(deleteVisit);
+                                                visitList.remove(deleteVisit);
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
+
+
                                 return null;
                             },getContext());
 
@@ -648,12 +722,10 @@ public class ListFragment extends Fragment{
             }
         };
 
-        addButton.setVisibility(View.GONE);
-
     }
 
     private void setExpenseList(){
-        ArrayList<Expense> expensesList= new ArrayList<>();
+        ArrayList<Expense> expensesList;
 
         ExpenseAdapter expenseAdapter;
 
@@ -662,9 +734,11 @@ public class ListFragment extends Fragment{
         if(profileType != ProfileFragment.Type.ANIMAL) {
             addButton.setVisibility(View.GONE);
 
+            expensesList=new ArrayList<>();
+
             expenseAdapter=new ExpenseAdapter(expensesList,getContext());
 
-            for (Animal animal : ((Owner) SessionManager.getInstance().getCurrentUser()).getAnimalList()) {
+            for (Animal animal : ((Owner) this.profile).getAnimalList()) {
                 expensesList.addAll(animal.getExpenses());
 
                 animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
@@ -700,9 +774,19 @@ public class ListFragment extends Fragment{
             });
         }
 
+        if((profileType == ProfileFragment.Type.ANIMAL) && (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)) {
+            addButton.setVisibility(View.GONE);
+        }
 
-        ArrayList<Expense> finalExpensesList = expensesList;
-        SwipeHelper ExpenseSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+        recyclerView.setAdapter(expenseAdapter);
+
+        if(this.profileType == ProfileFragment.Type.ANIMAL && (!AnimalPresenter.checkAnimalProperty(this.animal)))
+            return;
+
+        if(this.profileType != ProfileFragment.Type.ANIMAL && (SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0))
+            return;
+
+        SwipeHelper ExpenseSwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -711,7 +795,7 @@ public class ListFragment extends Fragment{
                         Color.parseColor("#CD4C51"),
                         pos -> {
                             AnimalAppDialog.launchConfirmDialog(() -> {
-                                Expense expense= finalExpensesList.get(pos);
+                                Expense expense= expensesList.get(pos);
                                 expense.delete(new AnimalCallbacks.eliminationCallback() {
                                     @Override
                                     public void eliminatedSuccesfully() {
@@ -720,7 +804,7 @@ public class ListFragment extends Fragment{
                                                 if(animal.getFirebaseID().compareTo(expense.getAnimalID())==0){
                                                     deleteIndexForCompleteList[0]=pos;
                                                     animal.removeExpense(expense);
-                                                    finalExpensesList.remove(deleteIndexForCompleteList[0]);
+                                                    expensesList.remove(deleteIndexForCompleteList[0]);
                                                     break;
                                                 }
                                             }
@@ -742,8 +826,6 @@ public class ListFragment extends Fragment{
                 ));
             }
         };
-
-        recyclerView.setAdapter(expenseAdapter);
     }
 
     private ArrayList<Relation> relationList = new ArrayList<>();
@@ -751,9 +833,8 @@ public class ListFragment extends Fragment{
 
     public void setRelationList(){
         RelationPresenter presenter = new RelationPresenter();
-        presenter.action_getRelation(currentUser.getFirebaseID(), animal.getFirebaseID(), new RelationDao.OnRelationAnimalListener() {
-            @Override
-            public void onRelationAnimalListener(ArrayList<Relation> relationListGet, List<Animal> animalListGet) {
+        presenter.action_getRelation(currentUser.getFirebaseID(), animal.getFirebaseID(), (relationListGet, animalListGet) -> {
+            if(getContext()!=null){
                 relationList=new ArrayList<>();
                 relationList.addAll(relationListGet);
                 final Calendar c = Calendar.getInstance();
@@ -765,7 +846,7 @@ public class ListFragment extends Fragment{
             }
         });
 
-        SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+        SwipeHelper RelationSwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -802,7 +883,16 @@ public class ListFragment extends Fragment{
 
         addButton.setOnClickListener(v -> launchAddDialog() );
 
-        SwipeHelper PathologySwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+        if((profileType == ProfileFragment.Type.ANIMAL) && (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)) {
+            addButton.setVisibility(View.GONE);
+        }
+
+        recyclerView.setAdapter(pathologyAdapter);
+
+        if(!AnimalPresenter.checkAnimalProperty(this.animal))
+            return;
+
+        SwipeHelper PathologySwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -821,8 +911,6 @@ public class ListFragment extends Fragment{
             }
         };
 
-        recyclerView.setAdapter(pathologyAdapter);
-
     }
 
 
@@ -832,6 +920,10 @@ public class ListFragment extends Fragment{
         SimpleTextAdapter<Food> foodAdapter=new SimpleTextAdapter<>(foodList);
 
         addButton.setOnClickListener(v -> launchAddDialog());
+
+        if((profileType == ProfileFragment.Type.ANIMAL) && (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)) {
+            addButton.setVisibility(View.GONE);
+        }
 
         this.animal.setFoodCallback(new AnimalCallbacks.foodCallback() {
             @Override
@@ -844,7 +936,14 @@ public class ListFragment extends Fragment{
                 foodAdapter.notifyItemRemoved(position);
             }
         });
-        SwipeHelper FoodSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
+
+        recyclerView.setAdapter(foodAdapter);
+
+
+        if(!AnimalPresenter.checkAnimalProperty(this.animal))
+            return;
+
+        SwipeHelper FoodSwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -872,7 +971,25 @@ public class ListFragment extends Fragment{
                 ));
             }
         };
+    }
 
-        recyclerView.setAdapter(foodAdapter);
+
+    private void openAnimalPage(Animal animal){
+        FragmentManager fragmentManager=getParentFragmentManager();
+
+        FragmentTransaction transaction= fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal),"animalPage").commit();
+        tabPosition=null;
+        getArguments().putParcelable("animalClicked",animal);
+    }
+
+    private void openVisitPage(Visit visit){
+        FragmentManager fragmentManager=getParentFragmentManager();
+        FragmentTransaction transaction= fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit),"visitPage").commit();
+
+        getArguments().putParcelable("visitClicked",visit);
     }
 }

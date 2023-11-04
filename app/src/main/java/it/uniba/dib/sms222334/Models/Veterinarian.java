@@ -9,15 +9,20 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.Dao.User.UserDao;
 import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Veterinarian extends User implements Parcelable{
+public class Veterinarian extends User implements Parcelable
+                                                ,AnimalCallbacks.visitCallback{
     private GeoPoint legalSite; //sede
 
-    ArrayList<Visit> visitList;
+    private ArrayList<Visit> visitList;
+
+    private ArrayList<Animal> animalList;
 
     public void setLegalSite(GeoPoint legalSite) {
         this.legalSite = legalSite;
@@ -35,21 +40,25 @@ public class Veterinarian extends User implements Parcelable{
         this.visitList = visitList;
     }
 
+    public ArrayList<Animal> getAnimalList() {
+        return animalList;
+    }
+
+    public void setAnimalList(ArrayList<Animal> animalList) {
+        this.animalList = animalList;
+    }
+
     public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {
         super(id, name, email, password, phone, photo);
 
         this.legalSite = legalSite;
         this.visitList=new ArrayList<>();
+        this.animalList=new ArrayList<>();
     }
 
-    public static void getVeterinarianAndPublicAuthority(final VeterinarianDao.OnCombinedListener listener){
-        VeterinarianDao dao = new VeterinarianDao();
-        dao.getVeterinariansAndPublicAuthorities(new VeterinarianDao.OnCombinedListener() {
-            @Override
-            public void onGetCombinedData(List<User> UserList) {
-                listener.onGetCombinedData(UserList);
-            }
-        });
+    public static void getVeterinarianAndPublicAuthority(UserCallback.UserFindCallback listener){
+        UserDao dao = new UserDao();
+        dao.getVeterinariansAndPublicAuthorities(listener);
     }
 
     public static class Builder {
@@ -105,6 +114,72 @@ public class Veterinarian extends User implements Parcelable{
         public Veterinarian build() {
             return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite);
         }
+    }
+
+
+    AnimalCallbacks.visitCallback visitCallback=null;
+
+    public void setVisitCallback(AnimalCallbacks.visitCallback visitCallback){
+        this.visitCallback=visitCallback;
+    }
+
+
+    public void addVisit(Visit visit){
+        this.visitList.add(0,visit);
+
+        notifyVisitLoaded();
+
+        if(this.animalList.isEmpty()){
+            addAnimal(visit.getAnimal());
+            return;
+        }
+
+        for(Animal animal:this.animalList){
+            if(visit.getAnimal().getFirebaseID().compareTo(animal.getFirebaseID()) == 0)
+                return;
+        }
+
+        addAnimal(visit.getAnimal());
+    }
+
+    public void removeVisit(Visit visit){
+        final int index=this.visitList.indexOf(visit);
+        this.visitList.remove(visit);
+
+        notifyVisitRemoved(index);
+
+        Animal animal=visit.getAnimal();
+
+        for(Visit visit1: this.visitList){
+            if(visit1.getAnimal().getFirebaseID().compareTo(animal.getFirebaseID()) == 0)
+                return;
+        }
+
+        removeAnimal(animal);
+    }
+
+
+    private void addAnimal(Animal animal){
+        this.animalList.add(0,animal);
+        notifyItemLoaded();
+    }
+
+    private void removeAnimal(Animal animal){
+        int index=this.animalList.indexOf(animal);
+        this.animalList.remove(animal);
+        notifyItemRemoved(index);
+    }
+
+    @Override
+    public void notifyVisitLoaded() {
+        if(visitCallback!=null)
+            visitCallback.notifyVisitLoaded();
+    }
+
+    @Override
+    public void notifyVisitRemoved(int position) {
+        if(visitCallback!=null)
+            visitCallback.notifyVisitRemoved(position);
     }
 
     @Override

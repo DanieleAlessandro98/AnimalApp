@@ -1,13 +1,21 @@
 package it.uniba.dib.sms222334.Models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+import com.google.firebase.Timestamp;
+
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
-public class Visit extends Document implements Serializable {
+public class Visit extends Document implements Parcelable {
 
     public enum visitType{DEWORMING,VACCINATION,STERILIZATION,SURGERY,CONTROL}
     public enum diagnosisType{POSITIVE,NEGATIVE,NULL}
@@ -16,26 +24,28 @@ public class Visit extends Document implements Serializable {
     private String name;
     private String IDowner;
     private visitType type;
-    private visitState state;   // stato
-
+    private visitState state;
     private String doctorID;
-    private Date date;
+
+    private String doctorName;
+    private Timestamp date;
     private diagnosisType Diagnosis;
     private String medicalNotes;
 
     private Animal animal;
 
-    private Visit(String id,String IDowner,String name,visitType type,Animal animal, Date date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
+    private Visit(String id,String IDowner,String doctorId,String name,visitType type,Animal animal, Timestamp date,visitState state, diagnosisType diagnosis,String doctorName, String medicalNotes) {
         super(id);
 
         this.name = name;
         this.state = state;
-        this.type=type;
-        this.date=date;
-        this.doctorID =doctorName;
+        this.type = type;
+        this.date = date;
+        this.doctorName = doctorName;
+        this.doctorID = doctorId;
         this.Diagnosis = diagnosis;
         this.medicalNotes = medicalNotes;
-        this.animal=animal;
+        this.animal = animal;
         this.IDowner = IDowner;
     }
 
@@ -44,20 +54,28 @@ public class Visit extends Document implements Serializable {
         return name;
     }
 
+    public String getDoctorID() {
+        return doctorID;
+    }
+
+    public void setDoctorID(String doctorID) {
+        this.doctorID = doctorID;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
     public visitType getType() {
         return type;
-    }
-
-    public String getDoctorFirebaseID(){
-        return doctorID;
-    }
-
-    public void setDoctorFirebaseID(String doctorID){
-        this.doctorID =doctorID;
     }
 
     public void setType(visitType type) {
@@ -72,11 +90,11 @@ public class Visit extends Document implements Serializable {
         this.state = state;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 
@@ -110,30 +128,32 @@ public class Visit extends Document implements Serializable {
 
         private visitType Btype;
 
-        private Date Bdate;
+        private Timestamp Bdate;
         private visitState Bstate=visitState.NOT_EXECUTED;   // stato
         private diagnosisType BDiagnosis=diagnosisType.NULL;
 
         private String BdoctorName="";
+
+        private String BdoctorId;
         private String BmedicalNotes="";
 
         private Animal banimal;
         private String bIDowner;
 
-        private Builder(final String id,final String name, final visitType type, final Date date){
+        private Builder(final String id,final String name, final visitType type, final Timestamp date){
             this.bID = id;
             this.Bname=name;
             this.Btype=type;
             this.Bdate=date;
         }
 
-        public static Builder create(final String id,final String name, final visitType type, final Date date){
+        public static Builder create(final String id,final String name, final visitType type, final Timestamp date){
             return new Builder(id,name,type,date);
         }
 
         public static Builder createFrom(Visit visit){
             return new Builder(visit.getFirebaseID(),visit.getName(),visit.getType(),visit.getDate())
-                    .setDoctorName(visit.getDoctorFirebaseID())
+                    .setDoctorName(visit.getDoctorName())
                     .setState(visit.getState())
                     .setDiagnosis(visit.getDiagnosis())
                     .setMedicalNotes(visit.getMedicalNotes())
@@ -156,7 +176,7 @@ public class Visit extends Document implements Serializable {
             return this;
         }
 
-        public Builder setDate(final Date date){
+        public Builder setDate(final Timestamp date){
             this.Bdate=date;
             return this;
         }
@@ -168,6 +188,11 @@ public class Visit extends Document implements Serializable {
 
         public Builder setDoctorName(final String doctorName){
             this.BdoctorName=doctorName;
+            return this;
+        }
+
+        public Builder setDoctorId(final String doctorId){
+            this.BdoctorId=doctorId;
             return this;
         }
 
@@ -187,7 +212,7 @@ public class Visit extends Document implements Serializable {
         }
 
         public Visit build(){
-            return new Visit(bID,bIDowner,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
+            return new Visit(bID,bIDowner,BdoctorId,Bname,Btype,banimal,Bdate,Bstate,BDiagnosis,BdoctorName,BmedicalNotes);
         }
     }
 
@@ -200,19 +225,54 @@ public class Visit extends Document implements Serializable {
         visitDao.deleteVisit(this);
     }
 
-    public void editVisit(String idAnimal,String name,VisitDao.OnVisitEditListener listener){
+    public void editVisit(VisitDao.OnVisitEditListener listener){
         VisitDao dao = new VisitDao();
-        dao.editVisit(this,idAnimal,name,listener);
+        dao.editVisit(this,listener);
     }
 
-    public static void ViewVisit(UserRole idProfile,final VisitDao.OnVisitListener listener){
-        VisitDao dao = new VisitDao();
-        dao.viewVisitListDao(idProfile, new VisitDao.OnVisitListener() {
-            @Override
-            public void onGetVisitListener(List<Visit> visitList) {
-                listener.onGetVisitListener(visitList);
-            }
-        });
+    @Override
+    public int describeContents() {
+        return 0;
     }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(getFirebaseID());
+        dest.writeString(name);
+        dest.writeString(IDowner);
+        dest.writeString(doctorID);
+        dest.writeString(medicalNotes);
+        dest.writeInt(this.state.ordinal());
+        dest.writeInt(this.Diagnosis.ordinal());
+        dest.writeInt(this.type.ordinal());
+        dest.writeParcelable(getDate(),flags);
+        dest.writeParcelable(animal, flags);
+    }
+
+    protected Visit(Parcel in) {
+        super(in.readString());
+
+        name = in.readString();
+        IDowner = in.readString();
+        doctorID = in.readString();
+        medicalNotes = in.readString();
+        this.state=visitState.values()[in.readInt()];
+        this.Diagnosis=diagnosisType.values()[in.readInt()];
+        this.type=visitType.values()[in.readInt()];
+        this.date=in.readParcelable(Timestamp.class.getClassLoader());
+        animal = in.readParcelable(Animal.class.getClassLoader());
+    }
+
+    public static final Creator<Visit> CREATOR = new Creator<Visit>() {
+        @Override
+        public Visit createFromParcel(Parcel in) {
+            return new Visit(in);
+        }
+
+        @Override
+        public Visit[] newArray(int size) {
+            return new Visit[size];
+        }
+    };
 
 }

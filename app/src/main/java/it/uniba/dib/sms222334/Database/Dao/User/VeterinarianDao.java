@@ -1,6 +1,10 @@
 package it.uniba.dib.sms222334.Database.Dao.User;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.telephony.TelephonyScanManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -23,30 +27,57 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
+import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Utils.Media;
 
 public class VeterinarianDao {
     private final String TAG = "VeterinarianDao";
-    final private CollectionReference collectionVeterinarian = FirebaseFirestore.getInstance().collection(AnimalAppDB.Veterinarian.TABLE_NAME);
-    final private CollectionReference collectionPublicAuthority = FirebaseFirestore.getInstance().collection(AnimalAppDB.PublicAuthority.TABLE_NAME);
-    public Veterinarian findVeterinarian(DocumentSnapshot document) {
-        Veterinarian.Builder veterinarian_requested_builder = Veterinarian.Builder.
-                create(
-                        document.getId(),
-                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
-                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PHOTO))
-                .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
-                .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER))
-                //.setLatitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
-                //.setLongitude(document.getDouble(AnimalAppDB.Veterinarian.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude
-                ;
+    public static CollectionReference collectionVeterinarian = FirebaseFirestore.getInstance().collection(AnimalAppDB.Veterinarian.TABLE_NAME);
 
-        return veterinarian_requested_builder.build();
+    Context context;
+
+    public VeterinarianDao(){
+
+    }
+
+    public VeterinarianDao(Context context){
+        this.context=context;
+    }
+
+    public void findVeterinarian(DocumentSnapshot document, VeterinarianCallback callback) {
+        MediaDao mediaDao= new MediaDao();
+
+        mediaDao.downloadPhoto(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO), new MediaDao.PhotoDownloadListener() {
+            @Override
+            public void onPhotoDownloaded(Bitmap bitmap) {
+                Veterinarian.Builder veterinarian_requested_builder = Veterinarian.Builder.
+                        create(
+                                document.getId(),
+                                document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
+                                document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))
+                        .setPhoto(bitmap)
+                        .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
+                        .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
+                        .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER));
+
+
+                Veterinarian veterinarian= veterinarian_requested_builder.build();
+
+                callback.onVeterinarianFound(veterinarian);
+            }
+
+            @Override
+            public void onPhotoDownloadFailed(Exception exception) {
+                callback.onVeterinarianFindFailed(exception);
+            }
+        });
+
     }
 
     public void createVeterinarian(Veterinarian Veterinarian, final UserCallback.UserRegisterCallback callback){
@@ -77,64 +108,24 @@ public class VeterinarianDao {
                 });
     }
 
-    public interface OnCombinedListener {
-        void onGetCombinedData(List<User> UserList);
+    public void loadVeterinarianVisits(Veterinarian resultVeterinarian){
+        new VisitDao().getVisitsByDoctorID(resultVeterinarian.getFirebaseID(), new VisitDao.VisitListener() {
+            @Override
+            public void onVisitLoadSuccesfull(Visit visit) {
+                resultVeterinarian.addVisit(visit);
+            }
+
+            @Override
+            public void onVisitLoadFailed(Exception e) {
+                if(context!=null)
+                    Toast.makeText(context, "Impossible to load visits", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    public void getVeterinariansAndPublicAuthorities(final OnCombinedListener listener) {
-        ArrayList<User> list = new ArrayList<>();
-        ArrayList<User> veterinarians = new ArrayList<>();
-        ArrayList<PublicAuthority> publicAuthorities = new ArrayList<>();
 
-        Task<QuerySnapshot> veterinariansTask = collectionVeterinarian.get();
-        Task<QuerySnapshot> publicAuthoritiesTask = collectionPublicAuthority.get();
-        Tasks.whenAllSuccess(veterinariansTask, publicAuthoritiesTask)
-                .addOnSuccessListener(v -> {
-                    QuerySnapshot veterinariansSnapshot = veterinariansTask.getResult();
-                    QuerySnapshot publicAuthoritiesSnapshot = publicAuthoritiesTask.getResult();
 
-                    if (veterinariansSnapshot != null) {
-                        for (QueryDocumentSnapshot document : veterinariansSnapshot) {
-                            String documentId = document.getId();
-                            String companyName = document.getString("company_name");
-                            String email = document.getString("email");
-                            GeoPoint site = document.getGeoPoint("site");
 
-                            assert site != null;
-                            Veterinarian veterinarian = Veterinarian.Builder.create(documentId,companyName,email)
-                                    .setLegalSite(new GeoPoint(site.getLatitude(),site.getLongitude())).build();
-
-                            list.add(veterinarian);
-                        }
-                    } else {
-                        Log.w("W", "Veterinarians data is empty");
-                    }
-
-                    if (publicAuthoritiesSnapshot != null) {
-                        for (QueryDocumentSnapshot document : publicAuthoritiesSnapshot) {
-                            String documentId = document.getId();
-                            String companyName = document.getString("company_name");
-                            String email = document.getString("email");
-                            GeoPoint site = document.getGeoPoint("site");
-
-                            assert site != null;
-                            PublicAuthority publicAuthority = PublicAuthority.Builder.create(documentId,companyName,email)
-                                    .setLegalSite(new GeoPoint(site.getLatitude(),site.getLongitude())).build();
-                            list.add(publicAuthority);
-                        }
-                    } else {
-                        Log.w("W", "Public Authorities data is empty");
-                    }
-
-                    listener.onGetCombinedData(list);
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("W", "Query failed: " + e.getMessage());
-
-                    // Notify the listener with empty data or an error
-                    listener.onGetCombinedData(new ArrayList<>());
-                });
-    }
     public void updateVeterinarian(Veterinarian updateVeterinarian, UserCallback.UserUpdateCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -178,6 +169,12 @@ public class VeterinarianDao {
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+    }
+
+
+    public interface VeterinarianCallback {
+        void onVeterinarianFound(Veterinarian resultVeterinarian);
+        void onVeterinarianFindFailed(Exception exception);
     }
 
 }

@@ -1,6 +1,7 @@
 package it.uniba.dib.sms222334.Fragmets;
 
 import android.os.Bundle;
+import android.os.Parcel;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import java.util.List;
+
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
+import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -35,10 +39,12 @@ public class SearchFragment extends Fragment {
 
     User userClicked;
 
+    public static ArrayList<User> profileList=new ArrayList<>();
 
-    public SearchFragment() {
+    static boolean firstLoad=true;
 
-    }
+
+    public SearchFragment() {}
 
     @Override
     public void onResume() {
@@ -66,26 +72,48 @@ public class SearchFragment extends Fragment {
 
         recyclerView = layout.findViewById(R.id.list_item);
 
-        ArrayList<User> listaProfilo = new ArrayList<>();
+        adapter = new VeterinarianAuthoritiesAdapter(profileList, getContext());
 
-        VeterinarianPresenter presenter = new VeterinarianPresenter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemDecorator(0));
 
-        presenter.action_getVeterinarian(UserList -> {
-            listaProfilo.addAll(UserList);
-            adapter = new VeterinarianAuthoritiesAdapter(listaProfilo, getContext());
-
-            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            recyclerView.setAdapter(adapter);
-            recyclerView.addItemDecoration(new ItemDecorator(0));
-
-            adapter.setOnProfileClickListener(profile -> {
-                if(isLogged){
-                    openProfile(profile);
-                }
-                else
-                    ((MainActivity)getActivity()).forceLogin();
-            });
+        adapter.setOnProfileClickListener(profile -> {
+            if(isLogged){
+                openProfile(profile);
+            }
+            else
+                ((MainActivity)getActivity()).forceLogin();
         });
+
+
+        if(firstLoad){
+            profileList.add(0,Private.Builder.create("","","").build()); //progress bar
+            adapter.notifyItemInserted(0);
+
+            VeterinarianPresenter presenter = new VeterinarianPresenter();
+            presenter.action_getVeterinarian(new UserCallback.UserFindCallback() {
+                @Override
+                public void onUserFound(User user) {
+                    profileList.add(profileList.size()-1, user);
+                    adapter.notifyItemInserted(profileList.size()-1);
+                }
+
+                @Override
+                public void onLastUserFound() {
+                    int lastIndex=profileList.size()-1;
+                    profileList.remove(lastIndex);
+                    adapter.notifyItemRemoved(lastIndex);
+                }
+
+                @Override
+                public void onUserNotFound(Exception e) {
+
+                }
+            });
+
+            firstLoad=false;
+        }
 
         if(savedInstanceState!=null){
             User user=savedInstanceState.getParcelable("profileClicked");
@@ -103,6 +131,6 @@ public class SearchFragment extends Fragment {
         userClicked=profile;
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.addToBackStack("itemPage");
-        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile,getContext())).commit();
+        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
     }
 }

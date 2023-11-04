@@ -116,7 +116,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 public void onPhotoUploaded() {
                     profileModel.setPhoto(profileView.getPhotoPicked());
                     profileModel.updateProfile();
-                    profileView.showUpdateSuccessful();
+                    profileView.showUpdateSuccessful(profileModel);
                 }
 
                 @Override
@@ -136,7 +136,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         }
         else {
             profileModel.updateProfile();
-            profileView.showUpdateSuccessful();
+            profileView.showUpdateSuccessful(profileModel);
         }
     }
 

@@ -30,7 +30,7 @@
             android:elevation="5dp"
             android:padding="5dp"
             app:strokeWidth="3dp"
-            app:strokeColor="?attr/colorAccent"
+            app:strokeColor="@color/light_main_green"
             app:shapeAppearanceOverlay="@style/circular"
             android:scaleType="centerCrop"/>
 
@@ -51,7 +51,7 @@
             android:layout_marginTop="100dp"
             android:text="Giuseppe Liace"
             android:textColor="?attr/colorPrimary"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_centerHorizontal="true"
             android:layout_alignTop="@+id/profile_picture" />
@@ -109,7 +109,7 @@
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:icon="@drawable/health"/>
+                    android:icon="@drawable/visit"/>
             </com.google.android.material.tabs.TabLayout>
 
             <FrameLayout android:id="@+id/recycle_container"

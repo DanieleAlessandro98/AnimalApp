@@ -234,7 +234,7 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + updatePrivate.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhoto());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())

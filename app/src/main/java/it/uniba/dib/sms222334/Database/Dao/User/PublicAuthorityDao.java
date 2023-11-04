@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Database.Dao.User;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import java.util.Map;
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
+import it.uniba.dib.sms222334.Database.Dao.MediaDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Owner;
@@ -39,20 +41,35 @@ public class PublicAuthorityDao {
     private final String TAG="PublicAuthorityDao";
     public static final CollectionReference collectionPublicAuthority = FirebaseFirestore.getInstance().collection(AnimalAppDB.PublicAuthority.TABLE_NAME);
 
-    public PublicAuthority findPublicAuthority(DocumentSnapshot document) {
-        PublicAuthority.Builder public_authority_requested_builder=PublicAuthority.Builder.
-                create(
-                        document.getId(),
-                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
-                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))  //TODO: document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHOTO))
-                .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
-                .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
-                .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
-                //.setLatitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Langitude
-                //.setLongitude(document.getDouble(AnimalAppDB.PublicAuthority.COLUMN_NAME_BIRTH_DATE)) // TODO: Longitude
-                .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
+    public void findPublicAuthority(DocumentSnapshot document, PublicAuthorityCallback callback) {
+        MediaDao mediaDao= new MediaDao();
 
-        return public_authority_requested_builder.build();
+        mediaDao.downloadPhoto(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO), new MediaDao.PhotoDownloadListener() {
+            @Override
+            public void onPhotoDownloaded(Bitmap bitmap) {
+                PublicAuthority.Builder public_authority_requested_builder=PublicAuthority.Builder.
+                        create(
+                                document.getId(),
+                                document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
+                                document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))
+                        .setPhoto(bitmap)
+                        .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
+                        .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
+                        .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
+                        .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
+
+                PublicAuthority resultPublicAuthority=public_authority_requested_builder.build();
+
+                callback.onPublicAuthorityFound(resultPublicAuthority);
+
+            }
+
+            @Override
+            public void onPhotoDownloadFailed(Exception exception) {
+                callback.onPublicAuthorityFindFailed(exception);
+            }
+        });
+
     }
 
     public void loadPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority,@Nullable UserCallback.UserStateListener userCallback) {
@@ -103,10 +120,18 @@ public class PublicAuthorityDao {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            PublicAuthority authorityFound = findPublicAuthority(document);
+                            findPublicAuthority(document, new PublicAuthorityCallback() {
+                                @Override
+                                public void onPublicAuthorityFound(PublicAuthority resultPublicAuthority) {
+                                    Log.d(TAG,resultPublicAuthority.getFirebaseID()+" found!");
+                                    listener.onDataRetrieved(resultPublicAuthority);
+                                }
 
-                            Log.d(TAG,authorityFound.getFirebaseID()+" found!");
-                            listener.onDataRetrieved(authorityFound);
+                                @Override
+                                public void onPublicAuthorityFindFailed(Exception exception) {
+
+                                }
+                            });
                         }
                     }
                 });
@@ -151,7 +176,7 @@ public class PublicAuthorityDao {
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,updateAuthority.getNBeds());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
-        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, updateAuthority.getPhotoPath());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLegalSite());
 
@@ -204,6 +229,7 @@ public class PublicAuthorityDao {
                 });
     }
 
+    //this method load first all the animal and then notify the user data, DO NOT use this in UI Thread!!
     public void getPublicAuthorityByEmail(String email, DatabaseCallbackResult<PublicAuthority> listener) {
         collectionPublicAuthority.whereEqualTo(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL,email).get()
                 .addOnCompleteListener(
@@ -213,23 +239,31 @@ public class PublicAuthorityDao {
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
-                            PublicAuthority resultAuthority = findPublicAuthority(document);
-
-                            Log.d("test passaggio proprietà","ho trovato l'ente ora carico i suoi animali");
-                            loadPublicAuthorityAnimals(document, resultAuthority, new UserCallback.UserStateListener() {
+                            findPublicAuthority(document, new PublicAuthorityCallback() {
                                 @Override
-                                public void notifyItemLoaded() {
-                                    Log.d("test passaggio proprietà","ho caricato tutti i suoi animali:ente");
-                                    listener.onDataRetrieved(resultAuthority);
+                                public void onPublicAuthorityFound(PublicAuthority resultPublicAuthority) {
+                                    Log.d("test passaggio proprietà","ho trovato l'ente ora carico i suoi animali");
+                                    loadPublicAuthorityAnimals(document, resultPublicAuthority, new UserCallback.UserStateListener() {
+                                        @Override
+                                        public void notifyItemLoaded() {
+                                            Log.d("test passaggio proprietà","ho caricato tutti i suoi animali:ente");
+                                            listener.onDataRetrieved(resultPublicAuthority);
+                                        }
+
+                                        @Override
+                                        public void notifyItemUpdated(int position) {
+
+                                        }
+
+                                        @Override
+                                        public void notifyItemRemoved(int position) {
+
+                                        }
+                                    });
                                 }
 
                                 @Override
-                                public void notifyItemUpdated(int position) {
-
-                                }
-
-                                @Override
-                                public void notifyItemRemoved(int position) {
+                                public void onPublicAuthorityFindFailed(Exception exception) {
 
                                 }
                             });
@@ -247,5 +281,10 @@ public class PublicAuthorityDao {
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+    }
+
+    public interface PublicAuthorityCallback {
+        void onPublicAuthorityFound(PublicAuthority resultPublicAuthority);
+        void onPublicAuthorityFindFailed(Exception exception);
     }
 }

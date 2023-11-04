@@ -102,8 +102,17 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_STATE = "state";
         public static final String COLUMN_NAME_DIAGNOSIS = "diagnosis";
         public static final String COLUMN_NAME_MEDICAL_NOTE = "medical_note";
+
+        public static final String COLUMN_NAME_TYPE = "Visit Type";
+
+        public static final String COLUMN_NAME_DOCTOR_NAME = "doctor name";
+
+        public static final String COLUMN_NAME_DOCTOR_ID = "idDoctor";
+
+        public static final String COLUMN_NAME_OWNER_ID = "idOwner";
+
+        public static final String COLUMN_NAME_DATE = "Date";
         public static final String COLUMN_NAME_ANIMAL = "animalID";
-        public static final String COLUMN_NAME_VETERINARIAN = "veterinarianID";
     }
 
     public static class Expense implements BaseColumns {

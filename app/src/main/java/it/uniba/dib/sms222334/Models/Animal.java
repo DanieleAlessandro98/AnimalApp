@@ -17,11 +17,15 @@ import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.MediaDao;
+import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 
-public class Animal extends Document implements Parcelable,AnimalCallbacks.foodCallback,AnimalCallbacks.expensesCallback {
+public class Animal extends Document implements Parcelable
+        ,AnimalCallbacks.foodCallback
+        ,AnimalCallbacks.expensesCallback
+        ,AnimalCallbacks.visitCallback{
 
     public final static String PHOTO_PATH="/images/profiles/animals/";
 
@@ -251,12 +255,18 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
 
     AnimalCallbacks.expensesCallback expensesCallback=null;
 
+    AnimalCallbacks.visitCallback visitCallback=null;
+
     public void setFoodCallback(AnimalCallbacks.foodCallback foodCallback){
         this.foodCallback= foodCallback;
     }
 
     public void setExpensesCallback(AnimalCallbacks.expensesCallback expensesCallback){
         this.expensesCallback= expensesCallback;
+    }
+
+    public void setVisitCallback(AnimalCallbacks.visitCallback visitCallback){
+        this.visitCallback=visitCallback;
     }
 
     @Override
@@ -281,6 +291,18 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
     public void notifyExpensesRemoved(int position) {
         if(expensesCallback!=null)
             expensesCallback.notifyExpensesRemoved(position);
+    }
+
+    @Override
+    public void notifyVisitLoaded() {
+        if(visitCallback!=null)
+            visitCallback.notifyVisitLoaded();
+    }
+
+    @Override
+    public void notifyVisitRemoved(int position) {
+        if(visitCallback!=null)
+            visitCallback.notifyVisitRemoved(position);
     }
 
     public static class Builder{
@@ -375,6 +397,17 @@ public class Animal extends Document implements Parcelable,AnimalCallbacks.foodC
     public void addFood(Food food) {
         foods.add(0,food);
         notifyFoodLoaded();
+    }
+
+    public void addVisit(Visit visit){
+        visits.add(0,visit);
+        notifyVisitLoaded();
+    }
+
+    public void removeVisit(Visit visit){
+        final int index=visits.indexOf(visit);
+        visits.remove(visit);
+        notifyVisitRemoved(index);
     }
 
     public void addExpense(Expense expense) {

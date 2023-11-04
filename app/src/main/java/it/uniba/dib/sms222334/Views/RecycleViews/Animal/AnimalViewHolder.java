@@ -58,7 +58,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
                  this.visitIcon.setVisibility(View.GONE);
              }
              else{
-                 this.visitNumber.setText(animal.getVisitNumber());
+                 this.visitNumber.setText(animal.getVisitNumber()+"");
              }
 
              if(animal.getPathologiesNumber()==0){
@@ -79,7 +79,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
 
              for(Visit visit:animal.getVisits()){
 
-                 if (!DateUtilities.validateDate(visit.getDate(),2)){
+                 if (!DateUtilities.validateVisitDate(visit.getDate().toDate()) && (visit.getState() == Visit.visitState.NOT_EXECUTED)){
                      this.dangerIcon.setVisibility(View.VISIBLE);
                      break;
                  }

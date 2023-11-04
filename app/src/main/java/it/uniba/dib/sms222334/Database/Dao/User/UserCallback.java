@@ -4,6 +4,14 @@ import it.uniba.dib.sms222334.Models.User;
 
 public final class UserCallback {
 
+    public interface UserFindCallback {
+        void onUserFound(User user);
+
+        void onLastUserFound();
+
+        void onUserNotFound(Exception e);
+    }
+
     public interface UserRegisterCallback {
 
         void onRegisterSuccess();

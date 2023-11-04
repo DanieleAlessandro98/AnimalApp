@@ -14,7 +14,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,8 +40,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.tabs.TabLayout;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 import java.util.Calendar;
 
@@ -53,6 +50,7 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
@@ -78,10 +76,7 @@ public class AnimalFragment extends Fragment {
     ImageView newProfilePicture; /*i added this here because it has to be passed on onActivityResult,
                                 and this must be set before fragment is created(onCreateView())*/
 
-    private ProfileFragment.Tab previousTab;
-
-    public SharedPreferences.Editor editor;
-    private static SharedPreferences preferences;
+    private ProfileFragment.Tab previousTab, clickedTab;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
@@ -101,8 +96,18 @@ public class AnimalFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        if(AnimalPresenter.checkAnimalProperty(animal))
-            changeTab(ProfileFragment.TabPosition.RELATION,false);
+        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
+            tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.tabPosition.ordinal()));
+            changeTab(this.clickedTab.tabPosition,false);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if((SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))
+            outState.putInt("tab_position",this.clickedTab.tabPosition.ordinal());
     }
 
     @Nullable
@@ -123,6 +128,19 @@ public class AnimalFragment extends Fragment {
 
             this.previousTab=new ProfileFragment.Tab();
 
+            this.clickedTab=new ProfileFragment.Tab();
+
+            if(savedInstanceState!=null){
+                this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
+            }
+            else{
+                this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
+            }
+
+            initTabListener();
+
+            editButton=layout.findViewById(R.id.edit_button);
+
             this.photoPickerResultLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
@@ -133,46 +151,28 @@ public class AnimalFragment extends Fragment {
                         }
                     });
 
-            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    switch (tab.getPosition()){
-                        case 0:
-                            changeTab(ProfileFragment.TabPosition.RELATION,true);
-                            break;
-
-                        case 1:
-                            changeTab(ProfileFragment.TabPosition.HEALTH,true);
-                            break;
-
-                        case 2:
-                            changeTab(ProfileFragment.TabPosition.FOOD,true);
-                            break;
-
-                        case 3:
-                            changeTab(ProfileFragment.TabPosition.VISIT,true);
-                            break;
-
-                        case 4:
-                            changeTab(ProfileFragment.TabPosition.EXPENSE,true);
-                            break;
-                    }
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
-                }
-            });
+            editButton.setOnClickListener(v -> launchEditDialog());
+        }
+        else if(SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN){
+            layout= inflater.inflate(R.layout.animal_fragment,container,false);
+            tabLayout=layout.findViewById(R.id.tab_layout);
 
             editButton=layout.findViewById(R.id.edit_button);
 
-            editButton.setOnClickListener(v -> launchEditDialog());
+            editButton.setVisibility(View.INVISIBLE);
+
+            this.previousTab=new ProfileFragment.Tab();
+
+            this.clickedTab=new ProfileFragment.Tab();
+
+            if(savedInstanceState!=null){
+                this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
+            }
+            else{
+                this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
+            }
+
+            initTabListener();
         }
         else{
             layout= inflater.inflate(R.layout.stranger_animal_fragment,container,false);
@@ -193,9 +193,28 @@ public class AnimalFragment extends Fragment {
 
         backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
-        //mViewPager.setOffscreenPageLimit(3);
-
         return layout;
+    }
+
+    private void initTabListener(){
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    clickedTab.tabPosition= ProfileFragment.TabPosition.values()[tab.getPosition()];
+
+                    changeTab(clickedTab.tabPosition,true);
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
     }
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
@@ -206,7 +225,7 @@ public class AnimalFragment extends Fragment {
             case RELATION:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -226,7 +245,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.HEALTH;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
                 else{
                     return;
@@ -244,7 +263,7 @@ public class AnimalFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
                 else{
                     return;
@@ -263,7 +282,7 @@ public class AnimalFragment extends Fragment {
 
 
                     previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
                 else {
                     return;
@@ -272,7 +291,7 @@ public class AnimalFragment extends Fragment {
             case EXPENSE:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
                     previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
 
@@ -320,8 +339,6 @@ public class AnimalFragment extends Fragment {
 
         final Calendar c = Calendar.getInstance();
         c.setTime(animal.getBirthDate());
-
-        boolean[] dateIsSetted =new boolean[]{false};
 
         String oldMicroChip=animal.getMicrochip();
 
@@ -421,7 +438,6 @@ public class AnimalFragment extends Fragment {
                         date.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
                         date.setError(null);
                         c.set(year1, month1,dayOfMonth);
-                        dateIsSetted[0]=true;
                     }, year, month, day);
 
             datePickerDialog.show();

@@ -2,8 +2,7 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.SharedPreferences;
+
 import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
@@ -15,7 +14,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,7 +24,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,8 +38,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.google.firebase.Timestamp;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,7 +47,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
-import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Owner;
 import it.uniba.dib.sms222334.Models.Private;
@@ -76,7 +72,7 @@ public class ProfileFragment extends Fragment {
         public TabPosition tabPosition;
     }
 
-    private Tab previousTab;
+    private Tab previousTab,clickedTab;
     
     private ProfileFragment.Type profileType;
 
@@ -99,12 +95,13 @@ public class ProfileFragment extends Fragment {
 
     private UserPresenter userPresenter;
 
-    public SharedPreferences.Editor editor;
-    private static SharedPreferences preferences;
-
     private User profile;
 
-    private ImageView photoImageView;
+    private ImageView editPhotoImageView;
+
+    Boolean canOpenEditDialog;
+
+    private ImageView profilePhoto;
 
     public Dialog editDialog;
     private TextView nameView;
@@ -114,17 +111,21 @@ public class ProfileFragment extends Fragment {
     private VisitPresenter visitPresenter;
 
     public ProfileFragment(){
+        Log.d("Rotation Test","ProfileFragment instance created from android");
+    }
+
+    private ProfileFragment(String overrideParams){
 
     }
 
-    public static ProfileFragment newInstance(User profile, Context context) {
-        ProfileFragment myFragment = new ProfileFragment();
+    public static ProfileFragment newInstance(User profile) {
+        ProfileFragment myFragment = new ProfileFragment("justForOverrideTheConstructor");
 
-        preferences=PreferenceManager.getDefaultSharedPreferences(context);
-        myFragment.editor= preferences.edit();
-        myFragment.editor.putString("profileData", new Gson().toJson(profile));
-        myFragment.editor.putInt("profileRole", profile.getRole().ordinal());
-        myFragment.editor.commit();
+        Bundle args = new Bundle();
+        args.putParcelable("profileData", profile);
+        myFragment.setArguments(args);
+
+        Log.d("Rotation Test","ProfileFragment instance created from MainActivity");
 
         return myFragment;
     }
@@ -133,39 +134,50 @@ public class ProfileFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        changeTab(TabPosition.ANIMAL,false);
+        tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.tabPosition.ordinal()));
+        changeTab(this.clickedTab.tabPosition,false);
     }
 
-    public void reflesh(User profile){
-        nameView.setText(profile.getName());
+    public void refresh(User profile){
+        this.profile=profile;
+        nameView.setText(profile.getName().toUpperCase());
         emailView.setText(profile.getEmail());
+        profilePhoto.setImageBitmap(profile.getPhoto());
+
+        if(getArguments()!=null){
+            getArguments().remove("profileData");
+            getArguments().putParcelable("profileData",this.profile);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("tab_position",this.clickedTab.tabPosition.ordinal());
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("Rotation Test","ProfileFragment: "+this+" onCreateView()");
 
-
-        this.role=UserRole.values()[preferences.getInt("profileRole", 0)];
-        String user = preferences.getString("profileData", "");
-
-        String username = SessionManager.getInstance().getCurrentUser().getName();
-        String email = SessionManager.getInstance().getCurrentUser().getEmail();
+        this.profile= getArguments().getParcelable("profileData");
+        this.role=profile.getRole();
 
         switch (this.role){
             case PRIVATE:
-                this.profile = new Gson().fromJson(user, new TypeToken<Private>() {}.getType());
                 profileType=Type.PRIVATE;
                 break;
             case PUBLIC_AUTHORITY:
-                this.profile = new Gson().fromJson(user, new TypeToken<PublicAuthority>() {}.getType());
                 profileType=Type.PUBLIC_AUTHORITY;
                 break;
             case VETERINARIAN:
-                this.profile = new Gson().fromJson(user, new TypeToken<Veterinarian>() {}.getType());
                 profileType=Type.VETERINARIAN;
                 break;
         }
+
+        userPresenter = new UserPresenter(this);
 
         int inflatedLayout;
         if(this.role==UserRole.VETERINARIAN){
@@ -179,32 +191,49 @@ public class ProfileFragment extends Fragment {
 
         nameView = layout.findViewById(R.id.name);
         emailView = layout.findViewById(R.id.email);
+        profilePhoto = layout.findViewById(R.id.profile_picture);
 
-
-        nameView.setText(username);
-        emailView.setText(email);
+        refresh(this.profile);
 
         if(this.role==UserRole.VETERINARIAN){
             this.addVisitButton=layout.findViewById(R.id.create_visit);
 
-            this.addVisitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchAddVisit();
-                }
-            });
+            if(SessionManager.getInstance().getCurrentUser().getRole()!=UserRole.VETERINARIAN){
+                this.addVisitButton.setOnClickListener(v -> launchAddVisit());
+            }
+            else{
+                this.addVisitButton.setVisibility(View.INVISIBLE);
+            }
+
         }
 
+        if(getArguments().getBoolean("editOpen"))
+            launchEditDialog();
 
         this.previousTab=new Tab();
+
+        this.clickedTab=new Tab();
+
+        if(savedInstanceState!=null){
+            this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
+        }
+        else{
+            this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
+        }
 
         editButton=layout.findViewById(R.id.edit_button);
 
         if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
             editButton.setVisibility(View.INVISIBLE);
 
-        userPresenter = new UserPresenter(this);
-        editButton.setOnClickListener(v -> launchEditDialog());
+        canOpenEditDialog=true;
+
+        editButton.setOnClickListener(v -> {
+            if(canOpenEditDialog){
+                canOpenEditDialog=false;
+                launchEditDialog();
+            }
+        });
 
 
 
@@ -213,19 +242,9 @@ public class ProfileFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition()){
-                    case 0:
-                        changeTab(TabPosition.ANIMAL,true);
-                        break;
+                clickedTab.tabPosition=TabPosition.values()[tab.getPosition()];
 
-                    case 1:
-                        changeTab(TabPosition.VISIT,true);
-                        break;
-
-                    case 2:
-                        changeTab(TabPosition.EXPENSE,true);
-                        break;
-                }
+                changeTab(clickedTab.tabPosition,true);
             }
 
             @Override
@@ -248,18 +267,11 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
-        Log.d(TAG,"qui teoricamente");
-
         return layout;
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
 
     public Visit.visitType visitType;
-
     private int posizione = 0;
 
     private void launchAddVisit(){
@@ -293,26 +305,21 @@ public class ProfileFragment extends Fragment {
         animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         animalchooser.setAdapter(animal_chooseAdapter);
 
-        dateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar c = Calendar.getInstance();
+        final Calendar c = Calendar.getInstance();
 
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
+        dateButton.setOnClickListener(v -> {
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog datePickerDialog = new DatePickerDialog(
-                        getContext(),
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                dateTextView.setText(dayOfMonth + "/" + (month+1) + "/" + year);
-                            }
-                        }, year, month, day);
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    getContext(),
+                    (view, year1, month1, dayOfMonth) -> {
+                        dateTextView.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
+                        c.set(year1, month1,dayOfMonth);
+                    }, year, month, day);
 
-                datePickerDialog.show();
-            }
+            datePickerDialog.show();
         });
 
         backButton.setOnClickListener(v -> editDialog.cancel());
@@ -349,27 +356,16 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        createButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String date = dateTextView.getText().toString();//INIZIO Data di nascita
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                Date dateConvert = null;
-                try {
-                    dateConvert = dateFormat.parse(date);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        createButton.setOnClickListener(view -> {
+            Date date = c.getTime();
 
-                String visitName = doctorName.getText().toString();
+            String visitName = doctorName.getText().toString();
 
-                visitPresenter.createVisit(editDialog,visitType,
-                        animalList.get(posizione),
-                        dateConvert,
-                        visitName,
-                        profile.getFirebaseID());
+            visitPresenter.createVisit(editDialog,visitType,
+                    animalList.get(posizione),
+                    new Timestamp(date),
+                    visitName,profile.getFirebaseID());
 
-            }
         });
 
         editDialog.show();
@@ -381,6 +377,8 @@ public class ProfileFragment extends Fragment {
 
     private void launchEditDialog() {
 
+        getArguments().putBoolean("editOpen",true);
+
         editDialog=new Dialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -388,7 +386,7 @@ public class ProfileFragment extends Fragment {
             case PRIVATE:
                 editDialog.setContentView(R.layout.private_profile_edit);
 
-                photoImageView = editDialog.findViewById(R.id.profile_picture);
+                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
                 nameEditText = editDialog.findViewById(R.id.nameEditText);
                 surnameEditText = editDialog.findViewById(R.id.surnameEditText);
                 dateTextView = editDialog.findViewById(R.id.date_text_view);
@@ -401,7 +399,7 @@ public class ProfileFragment extends Fragment {
             case VETERINARIAN:
                 editDialog.setContentView(R.layout.veterinarian_profile_edit);
 
-                photoImageView = editDialog.findViewById(R.id.profile_picture);
+                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
                 companyNameEditText = editDialog.findViewById(R.id.nameEditText);
                 siteEditText = editDialog.findViewById(R.id.surnameEditText);
                 Spinner prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
@@ -413,7 +411,7 @@ public class ProfileFragment extends Fragment {
             case PUBLIC_AUTHORITY:
                 editDialog.setContentView(R.layout.authority_profile_edit);
 
-                photoImageView = editDialog.findViewById(R.id.profile_picture);
+                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
                 companyNameEditText = editDialog.findViewById(R.id.nameEditText);
                 siteEditText = editDialog.findViewById(R.id.surnameEditText);
                 prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
@@ -431,58 +429,57 @@ public class ProfileFragment extends Fragment {
 
 
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(v -> {
+            switch (role) {
+                case PRIVATE:
+                    try {
+                        String name = nameEditText.getText().toString();
+                        String surname = surnameEditText.getText().toString();
 
-            public void onClick(View v) {
-                switch (role) {
-                    case PRIVATE:
-                        try {
-                            String name = nameEditText.getText().toString();
-                            String surname = surnameEditText.getText().toString();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                        Date birthDate = dateFormat.parse(dateTextView.getText().toString());
 
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                            Date birthDate = dateFormat.parse(dateTextView.getText().toString());
+                        String taxID = taxIDEditText.getText().toString();
+                        String phone = phoneEditText.getText().toString();
+                        String email = emailEditText.getText().toString();
+                        String password = passwordEditText.getText().toString();
 
-                            String taxID = taxIDEditText.getText().toString();
-                            String phone = phoneEditText.getText().toString();
-                            String email = emailEditText.getText().toString();
-                            String password = passwordEditText.getText().toString();
+                        String site = null;
+                        String companyname = null;
+                        userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
-                            String site = null;
-                            String companyname = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case VETERINARIAN:
+                        String companyname = companyNameEditText.getText().toString();
+                        String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                        String phone = phoneEditText.getText().toString();
+                        String email = emailEditText.getText().toString();
+                        String password = passwordEditText.getText().toString();
+                        String name = null;
+                        String surname = null;
+                        Date birthDate = null;
+                        String taxID = null;
+                        userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case VETERINARIAN:
-                            String companyname = companyNameEditText.getText().toString();
-                            String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
-                            String phone = phoneEditText.getText().toString();
-                            String email = emailEditText.getText().toString();
-                            String password = passwordEditText.getText().toString();
-                            String name = null;
-                            String surname = null;
-                            Date birthDate = null;
-                            String taxID = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
-
-                        break;
-                    case PUBLIC_AUTHORITY:
-                            companyname = companyNameEditText.getText().toString();
-                            site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
-                            phone = phoneEditText.getText().toString();
-                            email = emailEditText.getText().toString();
-                            password = passwordEditText.getText().toString();
-                            name = null;
-                            surname = null;
-                            birthDate = null;
-                            taxID = null;
-                            userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
-                        break;
-                }
+                    break;
+                case PUBLIC_AUTHORITY:
+                        companyname = companyNameEditText.getText().toString();
+                        site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                        phone = phoneEditText.getText().toString();
+                        email = emailEditText.getText().toString();
+                        password = passwordEditText.getText().toString();
+                        name = null;
+                        surname = null;
+                        birthDate = null;
+                        taxID = null;
+                        userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                    break;
             }
+
+            canOpenEditDialog=true;
         });
 
         deleteButton.setOnClickListener(v -> showDeleteConfirm());
@@ -517,7 +514,10 @@ public class ProfileFragment extends Fragment {
 
         Button backButton= editDialog.findViewById(R.id.back_button);
 
-        backButton.setOnClickListener(v -> editDialog.cancel());
+        backButton.setOnClickListener(v -> {
+            canOpenEditDialog=true;
+            editDialog.cancel();
+        });
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -537,7 +537,7 @@ public class ProfileFragment extends Fragment {
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
                     System.out.println("sono nell'animale profile");
                     previousTab.tabPosition= TabPosition.ANIMAL;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstanceProfile(previousTab,this.profileType,this.profile);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
                 }
@@ -557,7 +557,7 @@ public class ProfileFragment extends Fragment {
                     }
 
                     previousTab.tabPosition= TabPosition.VISIT;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstanceProfile(previousTab,this.profileType,this.profile);
                 }
                 else{
                     return;
@@ -566,7 +566,7 @@ public class ProfileFragment extends Fragment {
             case EXPENSE:
                 if(previousTab.tabPosition!= TabPosition.EXPENSE){
                     previousTab.tabPosition= TabPosition.EXPENSE;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType);
+                    fragment= ListFragment.newInstanceProfile(previousTab,this.profileType,this.profile);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
                 }
@@ -599,7 +599,7 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(Long.toString(userPrivate.getPhone()));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
-        photoImageView.setImageBitmap(userPrivate.getPhoto());
+        editPhotoImageView.setImageBitmap(userPrivate.getPhoto());
     }
 
     public void onInitAuthorityData(PublicAuthority userAuthority) {
@@ -609,7 +609,7 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(Long.toString(userAuthority.getPhone()));
         emailEditText.setText(userAuthority.getEmail());
         passwordEditText.setText(userAuthority.getPassword());
-        photoImageView.setImageBitmap(userAuthority.getPhoto());
+        editPhotoImageView.setImageBitmap(userAuthority.getPhoto());
     }
 
     public void onInitVeterinarianData(Veterinarian userVeterinarian) {
@@ -619,7 +619,7 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(Long.toString(userVeterinarian.getPhone()));
         emailEditText.setText(userVeterinarian.getEmail());
         passwordEditText.setText(userVeterinarian.getPassword());
-        photoImageView.setImageBitmap(userVeterinarian.getPhoto());
+        editPhotoImageView.setImageBitmap(userVeterinarian.getPhoto());
     }
 
     public void showInvalidInput(int inputType) {
@@ -646,9 +646,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    public void showUpdateSuccessful() {
+    public void showUpdateSuccessful(User profile) {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
-        reflesh(SessionManager.getInstance().getCurrentUser());
+        refresh(profile);
         editDialog.cancel();
     }
 
@@ -681,11 +681,11 @@ public class ProfileFragment extends Fragment {
     }
 
     public void setPhotoPicked(Bitmap bitmap) {
-        photoImageView.setImageBitmap(bitmap);
+        editPhotoImageView.setImageBitmap(bitmap);
     }
 
     public Bitmap getPhotoPicked() {
-        return ((BitmapDrawable)photoImageView.getDrawable()).getBitmap();
+        return ((BitmapDrawable) editPhotoImageView.getDrawable()).getBitmap();
     }
 
     public void showPhotoUpdateError() {

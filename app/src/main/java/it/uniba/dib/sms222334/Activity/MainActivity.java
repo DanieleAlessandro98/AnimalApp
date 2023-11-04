@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.storage.UploadTask;
+
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
@@ -47,11 +49,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
+        if(savedInstanceState!=null)
+            this.previousTab= TabPosition.values()[savedInstanceState.getInt("tab_position")];
+
         initView();
         initListeners();
         initRegisterActivity();
 
-        changeTab(savedInstanceState==null?TabPosition.HOME:TabPosition.values()[savedInstanceState.getInt("tab_position")]);
+        if(getSupportFragmentManager().findFragmentByTag("tab_fragment")==null)
+            changeTab(TabPosition.HOME);
     }
 
     @Override
@@ -94,15 +100,12 @@ public class MainActivity extends AppCompatActivity {
     private void initRegisterActivity() {
         this.authResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK) {
-                            changeTab(attempingTab);
-                            //TODO save user on sharedPreferences
-                        } else {
-                            changeTab(TabPosition.HOME);
-                        }
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        changeTab(attempingTab);
+                        //TODO save user on sharedPreferences
+                    } else {
+                        changeTab(TabPosition.HOME);
                     }
                 });
     }
@@ -150,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             case PROFILE:
                 if(previousTab!=TabPosition.PROFILE){
                     if(isLogged()){
-                        fragment=ProfileFragment.newInstance(SessionManager.getInstance().getCurrentUser(),this);
+                        fragment=ProfileFragment.newInstance(SessionManager.getInstance().getCurrentUser());
                         previousTab=TabPosition.PROFILE;
                         enterAnimation=R.anim.slide_left_in;
                         exitAnimation=R.anim.slide_left_out;
@@ -169,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
                 return;
         }
 
+
         FragmentManager fragmentManager=getSupportFragmentManager();
 
-        //TODO WARNING cause crash when pass from profile tab with nested fragment to another tab(try when visit is implemented)
         fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.frame_for_fragment,fragment).commit();
+        transaction.replace(R.id.frame_for_fragment,fragment,"tab_fragment").commit();
     }
 
     public void forceLogin(){
