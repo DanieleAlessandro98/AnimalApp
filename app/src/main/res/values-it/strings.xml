@@ -126,9 +126,11 @@
     <string name="description_offer_beds_request">Posti disponibili: </string>
     <string name="permission_explanation_dialog_grant">Concedi</string>
     <string name="permission_explanation_dialog_cancel">Annulla</string>
-    <string name="permission_location_explanation_title_for_report">Permesso necessario</string>
-    <string name="permission_location_explanation_description_for_report">Per continuare, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
-    <string name="permission_location_not_granted_description_for_report">Non puoi utilizzare questa funzionalità perchè non hai concesso i permessi di localizzazione</string>
+    <string name="permission_location_explanation_title">Permesso necessario</string>
+    <string name="permission_location_explanation_description_for_create_report">Per continuare, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
+    <string name="permission_location_not_granted_description_for_create_report">Non puoi utilizzare questa funzionalità perchè non hai concesso i permessi di localizzazione</string>
+    <string name="permission_location_explanation_description_for_distance_report">Per visualizzare la distanza tra te e le segnalazioni/richieste, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
+    <string name="permission_location_not_granted_description_for_distance_report">Non è possibile visualizzare la distanza perché non è stata concessa l\'autorizzazione per accedere alla posizione</string>
     <string name="location_not_available">La tua posizione non è al momento disponibile</string>
     <string name="location_gps_disabled_message">Per utilizzare questa funzionalità, è necessario attivare il GPS. Vuoi attivarlo?</string>
     <string name="settings">Impostazioni</string>

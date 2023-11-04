@@ -129,9 +129,11 @@
     <string name="description_offer_beds_request">Available beds: </string>
     <string name="permission_explanation_dialog_grant">Grant</string>
     <string name="permission_explanation_dialog_cancel">Cancel</string>
-    <string name="permission_location_explanation_title_for_report">Permission needed</string>
-    <string name="permission_location_explanation_description_for_report">To continue, permission must be granted to access the position</string>
-    <string name="permission_location_not_granted_description_for_report">You cannot use this functionality because you have not granted localization permission</string>
+    <string name="permission_location_explanation_title">Permission needed</string>
+    <string name="permission_location_explanation_description_for_create_report">To continue, permission must be granted to access the position</string>
+    <string name="permission_location_not_granted_description_for_create_report">You cannot use this functionality because you have not granted localization permission</string>
+    <string name="permission_location_explanation_description_for_distance_report">To display the distance between you and the reports/requests, you must grant permission to access the location</string>
+    <string name="permission_location_not_granted_description_for_distance_report">It is not possible to display the distance because location authorisation has not been granted</string>
     <string name="location_not_available">Your position is currently not available</string>
     <string name="location_gps_disabled_message">To use this function, GPS must be activated. Do you want to activate it?</string>
     <string name="settings">Settings</string>

@@ -158,7 +158,6 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         LocationTracker.getInstance(getContext()).startLocationUpdates();
 
         registerPermissionLauncher();
-
         final View layout = inflater.inflate(R.layout.home_fragment, container, false);
 
         recyclerView = layout.findViewById(R.id.list_item);
@@ -190,10 +189,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     }
 
     private void launchReportDialog(Report report) {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
-        else
-            openReportDialog(report);
+        openReportDialog(report);
     }
 
     public void openReportDialog(Report report) {
@@ -288,6 +284,9 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         backButton.setOnClickListener(v -> editDialog.cancel());
 
         saveButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+
             if (report == null) {
                 Location location = LocationTracker.getInstance(getContext()).getLocation();
                 if (location != null) {
@@ -303,8 +302,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                             isSharedAnimalProfile
                     );
                 }
-            }
-            else {
+            } else {
                 Location location;
                 if (updateReportLocation.isChecked())
                     location = LocationTracker.getInstance(getContext()).getLocation();
@@ -685,6 +683,9 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     }
 
     public void loadReportsAndRequests() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+
         requestAndReportsList = new ArrayList<>();
         adapter = new RequestReportAdapter(this, requestAndReportsList);
         recyclerView.setAdapter(adapter);
@@ -970,8 +971,11 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         switch (permission) {
             case ACCESS_FINE_LOCATION:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(this.getString(R.string.permission_location_explanation_title_for_report));
-                builder.setMessage(this.getString(R.string.permission_location_explanation_description_for_report));
+                builder.setTitle(this.getString(R.string.permission_location_explanation_title));
+                if (editDialog == null)
+                    builder.setMessage(this.getString(R.string.permission_location_explanation_description_for_distance_report));
+                else
+                    builder.setMessage(this.getString(R.string.permission_location_explanation_description_for_create_report));
                 builder.setPositiveButton(this.getString(R.string.permission_explanation_dialog_grant), (dialog, which) -> {
                     requestPermission(permission);
                     dialog.dismiss();
@@ -987,7 +991,10 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     public void permissionGranted(AndroidPermission permission) {
         switch (permission) {
             case ACCESS_FINE_LOCATION:
-                openReportDialog(null);
+                if (editDialog == null)
+                    loadReportsAndRequests();
+                else
+                    openReportDialog(null);
                 break;
         }
     }
@@ -997,7 +1004,10 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         switch (permission) {
             case ACCESS_FINE_LOCATION:
                 AnimalAppDialog dialog = new AnimalAppDialog(getContext());
-                dialog.setContentView(this.getString(R.string.permission_location_not_granted_description_for_report), AnimalAppDialog.DialogType.CRITICAL);
+                if (editDialog == null)
+                    dialog.setContentView(this.getString(R.string.permission_location_not_granted_description_for_distance_report), AnimalAppDialog.DialogType.CRITICAL);
+                else
+                    dialog.setContentView(this.getString(R.string.permission_location_not_granted_description_for_create_report), AnimalAppDialog.DialogType.CRITICAL);
                 dialog.setBannerText(this.getString(R.string.warning));
                 dialog.hideButtons();
                 dialog.show();
