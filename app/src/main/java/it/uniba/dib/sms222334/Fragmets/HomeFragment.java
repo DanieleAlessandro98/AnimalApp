@@ -827,6 +827,18 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             launchReportDialog((Report) requestReport);
     }
 
+    public void callRequestUser(Document requestReport) {
+        long phone;
+        if (requestReport instanceof Request)
+            phone = ((Request) requestReport).getUser().getPhone();
+        else
+            phone = ((Report) requestReport).getUser().getPhone();
+
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        if (intent != null)
+            startActivity(intent);
+    }
+
     private void refreshRequestReportDistances() {
         LocationTracker.LocationState state = LocationTracker.getInstance(getContext()).checkLocationState();
 

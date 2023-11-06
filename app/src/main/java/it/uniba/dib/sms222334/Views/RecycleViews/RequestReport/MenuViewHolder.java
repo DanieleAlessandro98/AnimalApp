@@ -36,6 +36,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
     private Button editButton;
     private Button shareButton;
     private Button deleteButton;
+    private Button callButton;
 
     public MenuViewHolder(View view, HomeFragment fragment){
         super(view);
@@ -48,6 +49,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         editButton= itemView.findViewById(R.id.edit_button);
         shareButton= itemView.findViewById(R.id.share_button);
         deleteButton= itemView.findViewById(R.id.delete_button);
+        callButton= itemView.findViewById(R.id.call_button);
 
         editButton.setOnClickListener(v -> {
             fragment.editRequestReport(requestReport);
@@ -75,6 +77,10 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
             deleteDialog.setUndoAction(d -> deleteDialog.cancel());
             deleteDialog.show();
         });
+
+        callButton.setOnClickListener(v -> {
+            fragment.callRequestUser(requestReport);
+        });
     }
 
     public void bind(Request request) {
@@ -99,10 +105,16 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         if (!SessionManager.getInstance().isLogged() || user == null || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(user.getFirebaseID())) {
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
+
+            if (user != null && user.getPhone() != null)
+                callButton.setVisibility(View.VISIBLE);
+            else
+                callButton.setVisibility(View.GONE);
         }
         else {
             editButton.setVisibility(View.VISIBLE);
             deleteButton.setVisibility(View.VISIBLE);
+            callButton.setVisibility(View.GONE);
         }
     }
 }

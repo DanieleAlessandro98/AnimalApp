@@ -83,18 +83,8 @@ public class LocationTracker {
         if (isTracking)
             return;
 
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-        criteria.setSpeedRequired(false);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        String bestProvider = locationManager.getBestProvider(criteria, false);
-
-        if (bestProvider != null) {
-            isTracking = true;
-            locationManager.requestLocationUpdates(bestProvider, 0, 0, locationListener);
-        }
+        isTracking = true;
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListener);
     }
 
     public void setNotifyLocationChangedListener(NotifyLocationChanged notifyLocationChanged) {
