@@ -72,12 +72,13 @@ public class ReportViewHolder extends RecyclerView.ViewHolder {
         this.animalSpeciesAndAge.setText(Animal.getSpeciesString(report.getAnimalSpecies(), context) + (report.getAnimalAge()==null?"":(", "+ DateUtilities.calculateAge(report.getAnimalAge(), context))));
     }
 
-    public void updateDistance() {
-        Location devicePosition = LocationTracker.getInstance(context).getLocation();
+    public void updateDistance(Location devicePosition) {
         if (devicePosition != null) {
             float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), report.getLocation());
             report.setDistance(distance);
             this.distance.setText(CoordinateUtilities.formatDistance(distance));
+        } else {
+            this.distance.setText("... km");
         }
     }
 }

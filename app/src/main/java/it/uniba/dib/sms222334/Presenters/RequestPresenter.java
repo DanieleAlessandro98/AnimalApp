@@ -189,7 +189,6 @@ public class RequestPresenter {
             @Override
             public void onDataRetrieved(Object result) {
                 requestFragment.showRequestUpdateSuccessful(request);
-                requestFragment.loadReportsAndRequests();
             }
 
             @Override

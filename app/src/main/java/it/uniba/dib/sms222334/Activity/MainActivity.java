@@ -47,11 +47,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
+        if(savedInstanceState!=null)
+            this.previousTab= TabPosition.values()[savedInstanceState.getInt("tab_position")];
+
         initView();
         initListeners();
         initRegisterActivity();
 
-        changeTab(savedInstanceState==null?TabPosition.HOME:TabPosition.values()[savedInstanceState.getInt("tab_position")]);
+        if(getSupportFragmentManager().findFragmentByTag("tab_fragment")==null)
+            changeTab(TabPosition.HOME);
     }
 
     @Override
@@ -176,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.frame_for_fragment,fragment).commit();
+        transaction.replace(R.id.frame_for_fragment,fragment,"tab_fragment").commit();
     }
 
     public void forceLogin(){

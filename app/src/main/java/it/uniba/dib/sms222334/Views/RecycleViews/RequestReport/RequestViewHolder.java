@@ -77,12 +77,13 @@ public class RequestViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    public void updateDistance() {
-        Location devicePosition = LocationTracker.getInstance(context).getLocation();
+    public void updateDistance(Location devicePosition) {
         if (devicePosition != null) {
             float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), request.getLocation());
             request.setDistance(distance);
             this.distance.setText(CoordinateUtilities.formatDistance(distance));
+        } else {
+            this.distance.setText("... km");
         }
     }
 }

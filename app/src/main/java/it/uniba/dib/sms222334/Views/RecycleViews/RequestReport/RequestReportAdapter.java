@@ -79,9 +79,9 @@ public class RequestReportAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Document entity = list.get(holder.getAdapterPosition());
-        if (holder instanceof RequestViewHolder)
+        if (holder instanceof RequestViewHolder && entity instanceof Request)
             ((RequestViewHolder) holder).bind((Request) entity);
-        else if (holder instanceof ReportViewHolder)
+        else if (holder instanceof ReportViewHolder && entity instanceof Report)
             ((ReportViewHolder) holder).bind((Report) entity);
         else if (holder instanceof MenuViewHolder) {
             if (entity instanceof Request)

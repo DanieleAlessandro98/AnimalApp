@@ -2,11 +2,9 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,6 +14,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -38,7 +37,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -98,15 +96,60 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
     private ArrayList<Document> requestAndReportsList;
     private RequestReportAdapter adapter;
 
-
     public HomeFragment() {
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        reportPresenter = new ReportPresenter(this);
+        requestPresenter = new RequestPresenter(this);
+
+        LocationTracker.getInstance(getContext()).setNotifyLocationChangedListener(new LocationTracker.NotifyLocationChanged() {
+            @Override
+            public void locationChanged() {
+                refreshRequestReportDistances();
+            }
+        });
+
+        registerPermissionLauncher();
+
+        final View layout = inflater.inflate(R.layout.home_fragment, container, false);
+
+        recyclerView = layout.findViewById(R.id.list_item);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.addItemDecoration(new ItemDecorator(0));
+
+        Log.d(TAG, recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item) + "");
+
+        requestButton = layout.findViewById(R.id.add_request);
+        reportButton = layout.findViewById(R.id.add_report);
+
+        this.photoPickerResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        reportPresenter.pickPhoto(selectedImage);
+                    }
+                });
+
+        return layout;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        LocationTracker.getInstance(getContext()).startLocationTracking();
+
+        initReportsAndRequests();
+        loadReportsAndRequests();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        LocationTracker.getInstance(getContext()).startLocationUpdates();
 
         this.isLogged = SessionManager.getInstance().isLogged();
 
@@ -129,63 +172,11 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        reportPresenter = new ReportPresenter(this);
-        requestPresenter = new RequestPresenter(this);
+    public void onStop() {
+        super.onStop();
 
-        LocationTracker.getInstance(getContext()).setNotifyLocationChangedListener(new LocationTracker.NotifyLocationChanged() {
-            @Override
-            public void locationChanged() {
-                if (adapter != null && !adapter.isMenuShown()) {
-                    for (int i = 0; i < adapter.getItemCount(); i++) {
-                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
-                        if (viewHolder instanceof RequestViewHolder) {
-                            RequestViewHolder requestViewHolder = (RequestViewHolder) viewHolder;
-                            requestViewHolder.updateDistance();
-                        } else if (viewHolder instanceof ReportViewHolder) {
-                            ReportViewHolder reportViewHolder = (ReportViewHolder) viewHolder;
-                            reportViewHolder.updateDistance();
-                        }
-                    }
-
-                    adapter.sortByDistance();
-                }
-            }
-        });
-
-        LocationTracker.getInstance(getContext()).startLocationUpdates();
-
-        registerPermissionLauncher();
-        final View layout = inflater.inflate(R.layout.home_fragment, container, false);
-
-        recyclerView = layout.findViewById(R.id.list_item);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.addItemDecoration(new ItemDecorator(0));
-
-        if (savedInstanceState != null) {
-            requestAndReportsList = savedInstanceState.getParcelableArrayList("requestAndReportsList");
-            adapter = new RequestReportAdapter(this, requestAndReportsList);
-            recyclerView.setAdapter(adapter);
-        } else
-            loadReportsAndRequests();
-
-        Log.d(TAG, recyclerView.getRecycledViewPool().getRecycledViewCount(R.layout.request_list_item) + "");
-
-        requestButton = layout.findViewById(R.id.add_request);
-        reportButton = layout.findViewById(R.id.add_report);
-
-        this.photoPickerResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri selectedImage = result.getData().getData();
-                        reportPresenter.pickPhoto(selectedImage);
-                    }
-                });
-
-        return layout;
+        LocationTracker.getInstance(getContext()).stopLocationUpdates();
     }
 
     private void launchReportDialog(Report report) {
@@ -284,8 +275,19 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         backButton.setOnClickListener(v -> editDialog.cancel());
 
         saveButton.setOnClickListener(v -> {
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+            switch (LocationTracker.getInstance(getContext()).checkLocationState()) {
+                case PERMISSION_NOT_GRANTED:
+                    launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+                    break;
+
+                case PROVIDER_DISABLED:
+                    showGPSDisabledDialog();
+                    break;
+
+                case LOCATION_IS_NOT_TRACKING:
+                    LocationTracker.getInstance(getContext()).startLocationTracking();
+                    break;
+            }
 
             if (report == null) {
                 Location location = LocationTracker.getInstance(getContext()).getLocation();
@@ -682,13 +684,71 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         editDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
-    public void loadReportsAndRequests() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+    private void initReportsAndRequests() {
+        if (requestAndReportsList == null)
+            requestAndReportsList = new ArrayList<>();
 
-        requestAndReportsList = new ArrayList<>();
-        adapter = new RequestReportAdapter(this, requestAndReportsList);
+        if (adapter == null)
+            adapter = new RequestReportAdapter(this, requestAndReportsList);
+
+        ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                recyclerView.post(new Runnable() {
+                    public void run() {
+                        int position = viewHolder.getAdapterPosition();
+                        if (position != -1 && adapter != null) {
+                            if (adapter.isMenuShown(position))
+                                adapter.closeMenu();
+                            else
+                                adapter.showMenu(position);
+                        }
+                    }
+                });
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                recyclerView.post(new Runnable() {
+                    public void run() {
+                        adapter.closeMenu();
+                    }
+                });
+            }
+        });
+
         recyclerView.setAdapter(adapter);
+    }
+
+    public void loadReportsAndRequests() {
+        LocationTracker.LocationState state = LocationTracker.getInstance(getContext()).checkLocationState();
+
+        switch (state) {
+            case PERMISSION_NOT_GRANTED:
+                launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+                break;
+
+            case PROVIDER_DISABLED:
+                showGPSDisabledDialog();
+                break;
+
+            case LOCATION_IS_NOT_TRACKING:
+                LocationTracker.getInstance(getContext()).startLocationTracking();
+                break;
+        }
+
+        requestAndReportsList.clear();
+        adapter.notifyDataSetChanged();
 
         reportPresenter.getReportList(new DatabaseCallbackResult() {
             @Override
@@ -729,43 +789,6 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             public void onDataQueryError(Exception e) {
             }
         });
-
-
-        ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                recyclerView.post(new Runnable() {
-                    public void run() {
-                        int position = viewHolder.getAdapterPosition();
-                        if (position != -1) {
-                            if (adapter.isMenuShown(position))
-                                adapter.closeMenu();
-                            else
-                                adapter.showMenu(position);
-                        }
-                    }
-                });
-            }
-        };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
-        recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                recyclerView.post(new Runnable() {
-                    public void run() {
-                        adapter.closeMenu();
-                    }
-                });
-            }
-        });
     }
 
     public void deleteRequestReport(Document requestReport) {
@@ -802,6 +825,47 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             launchRequestDialog((Request) requestReport);
         } else
             launchReportDialog((Report) requestReport);
+    }
+
+    private void refreshRequestReportDistances() {
+        LocationTracker.LocationState state = LocationTracker.getInstance(getContext()).checkLocationState();
+
+        switch (state) {
+            case PERMISSION_NOT_GRANTED:
+                launchPermissionHandler(AndroidPermission.ACCESS_FINE_LOCATION);
+                break;
+
+            case PROVIDER_DISABLED:
+                showGPSDisabledDialog();
+                break;
+
+            case LOCATION_IS_NOT_TRACKING:
+                LocationTracker.getInstance(getContext()).startLocationTracking();
+                break;
+
+            case LOCATION_IS_TRACKING_AND_NOT_AVAILABLE:
+            case LOCATION_IS_TRACKING_AND_AVAILABLE:
+                Location devicePosition = LocationTracker.getInstance(getContext()).getLocation();
+
+                if (adapter != null && !adapter.isMenuShown()) {
+                    for (int i = 0; i < adapter.getItemCount(); i++) {
+                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
+                        if (viewHolder instanceof RequestViewHolder) {
+                            RequestViewHolder requestViewHolder = (RequestViewHolder) viewHolder;
+                            requestViewHolder.updateDistance(devicePosition);
+                        } else if (viewHolder instanceof ReportViewHolder) {
+                            ReportViewHolder reportViewHolder = (ReportViewHolder) viewHolder;
+                            reportViewHolder.updateDistance(devicePosition);
+                        }
+                    }
+
+                    if (devicePosition != null)
+                        adapter.sortByDistance();
+                    else
+                        LocationTracker.getInstance(getContext()).showLocationNotAvailable();
+                }
+                break;
+        }
     }
 
     private RequestType findRequestType(Spinner requestSpinner) {
@@ -945,6 +1009,21 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         Toast.makeText(requireContext(), this.getString(R.string.request_update_error), Toast.LENGTH_SHORT).show();
     }
 
+    public void showGPSDisabledDialog() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+        if (editDialog == null)
+            alertDialog.setMessage(getContext().getString(R.string.location_gps_disabled_message_for_distance_report));
+        else
+            alertDialog.setMessage(getContext().getString(R.string.location_gps_disabled_message_for_create_report));
+        alertDialog.setPositiveButton(getContext().getString(R.string.settings), (dialog, which) -> {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            getContext().startActivity(intent);
+        });
+        alertDialog.setNegativeButton(getContext().getString(R.string.location_gps_disabled_cancel), (dialog, which) -> {
+        });
+        alertDialog.show();
+    }
+
     @Override
     public Fragment getFragment() {
         return this;
@@ -992,7 +1071,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         switch (permission) {
             case ACCESS_FINE_LOCATION:
                 if (editDialog == null)
-                    loadReportsAndRequests();
+                    refreshRequestReportDistances();
                 else
                     openReportDialog(null);
                 break;
@@ -1013,23 +1092,5 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 dialog.show();
                 break;
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("requestAndReportsList", requestAndReportsList);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        LocationTracker.getInstance(getContext()).stopLocationUpdates();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        LocationTracker.getInstance(getContext()).stopLocationUpdates();
     }
 }
