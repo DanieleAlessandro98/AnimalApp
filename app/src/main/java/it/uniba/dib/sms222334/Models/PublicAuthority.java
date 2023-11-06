@@ -17,7 +17,6 @@ import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class PublicAuthority extends User implements Owner, Parcelable {
-    private GeoPoint legalSite;        // sede
     private Integer NBeds;  // posti letto
 
     private ArrayList<Animal> listAnimal;
@@ -25,17 +24,12 @@ public class PublicAuthority extends User implements Owner, Parcelable {
 
 
     public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite, Integer nBeds) {
-        super(id, name, email, password, phone, photo);
+        super(id, name, email, password, phone, photo, legalSite);
 
-        this.legalSite = legalSite;
         this.NBeds = nBeds;
 
         listAnimal = new ArrayList<>();
         listExpense = new ArrayList<>();
-    }
-
-    public void setLegalSite(GeoPoint legalSite) {
-        this.legalSite = legalSite;
     }
 
     public void setNBeds(Integer NBeds) {
@@ -101,10 +95,6 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         public PublicAuthority build() {
             return new PublicAuthority(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite, bNBeds);
         }
-    }
-
-    public GeoPoint getLegalSite() {
-        return legalSite;
     }
 
     public Integer getNBeds() {
@@ -187,19 +177,15 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
         dest.writeParcelable(getPhoto(),flags);
-        dest.writeDouble(legalSite.getLatitude());
-        dest.writeDouble(legalSite.getLongitude());
+        dest.writeDouble(getLocation().getLatitude());
+        dest.writeDouble(getLocation().getLongitude());
         dest.writeInt(this.NBeds);
         dest.writeList(getAnimalList());
         dest.writeList(getExpenseList());
     }
 
     protected PublicAuthority(Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
-
-        double latitude=in.readDouble();
-        double longitude=in.readDouble();
-        this.legalSite=new GeoPoint(latitude,longitude);
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()), new GeoPoint(in.readDouble(),in.readDouble()));
 
         this.NBeds = in.readInt();
         in.readArrayList(Animal.class.getClassLoader());

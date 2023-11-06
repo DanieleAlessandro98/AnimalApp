@@ -15,17 +15,7 @@ import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Veterinarian extends User implements Parcelable{
-    private GeoPoint legalSite; //sede
-
     ArrayList<Visit> visitList;
-
-    public void setLegalSite(GeoPoint legalSite) {
-        this.legalSite = legalSite;
-    }
-
-    public GeoPoint getLegalSite() {
-        return legalSite;
-    }
 
     public ArrayList<Visit> getVisitList() {
         return visitList;
@@ -36,9 +26,7 @@ public class Veterinarian extends User implements Parcelable{
     }
 
     public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {
-        super(id, name, email, password, phone, photo);
-
-        this.legalSite = legalSite;
+        super(id, name, email, password, phone, photo, legalSite);
         this.visitList=new ArrayList<>();
     }
 
@@ -125,16 +113,12 @@ public class Veterinarian extends User implements Parcelable{
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
         dest.writeParcelable(getPhoto(),flags);
-        dest.writeDouble(legalSite.getLatitude());
-        dest.writeDouble(legalSite.getLongitude());
+        dest.writeDouble(getLocation().getLatitude());
+        dest.writeDouble(getLocation().getLongitude());
     }
 
     protected Veterinarian(Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
-        double latitude=in.readDouble();
-        double longitude=in.readDouble();
-
-        this.legalSite=new GeoPoint(latitude,longitude);
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()), new GeoPoint(in.readDouble(),in.readDouble()));
     }
 
     public static final Creator<Private> CREATOR = new Creator<Private>() {

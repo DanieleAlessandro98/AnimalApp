@@ -121,7 +121,7 @@ public class PublicAuthorityDao {
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, PublicAuthority.getPassword());
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "/images/profiles/users/default.jpg");
         new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, PublicAuthority.getPhone());
-        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, PublicAuthority.getLegalSite());
+        new_authority.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, PublicAuthority.getLocation());
 
         collectionPublicAuthority.add(new_authority)
                 .addOnSuccessListener(documentReference -> {
@@ -150,7 +150,7 @@ public class PublicAuthorityDao {
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
-        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLegalSite());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLocation());
 
         collectionPublicAuthority.document(updateAuthority.getFirebaseID())
                 .update(newAuthorityData)
@@ -185,7 +185,7 @@ public class PublicAuthorityDao {
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, "");
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
-        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLegalSite());
+        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLocation());
 
         collectionPublicAuthority.document(updateAuthority.getFirebaseID())
                 .update(newAuthorityData)

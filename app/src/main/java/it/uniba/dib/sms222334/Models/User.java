@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.google.android.gms.common.util.ArrayUtils;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
@@ -20,17 +21,19 @@ public abstract class User extends Document implements UserCallback.UserStateLis
     private String password;
     private Long phone;
     private Bitmap photo;
+    private GeoPoint location;
 
     private String photoPath;
 
     private UserCallback.UserStateListener userCallback;
 
-    public User(String id, String name, String email, String password, Long phone, Bitmap photo) {
+    public User(String id, String name, String email, String password, Long phone, Bitmap photo, GeoPoint location) {
         super(id);
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
+        this.location = location;
 
         if(photo!=null){
             this.photo = photo;
@@ -83,6 +86,10 @@ public abstract class User extends Document implements UserCallback.UserStateLis
         return this.photo;
     }
 
+    public GeoPoint getLocation() {
+        return location;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -105,6 +112,10 @@ public abstract class User extends Document implements UserCallback.UserStateLis
 
     public String getPhotoPath() {
         return this.photoPath;
+    }
+
+    public void setLocation(GeoPoint location) {
+        this.location = location;
     }
 
     public abstract UserRole getRole();

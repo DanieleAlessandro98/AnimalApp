@@ -79,9 +79,9 @@ public class RequestPresenter {
         User user = SessionManager.getInstance().getCurrentUser();
 
         if (user.getRole() == UserRole.VETERINARIAN)
-            position = ((Veterinarian) user).getLegalSite();
+            position = ((Veterinarian) user).getLocation();
         else if (user.getRole() == UserRole.PUBLIC_AUTHORITY)
-            position = ((PublicAuthority) user).getLegalSite();
+            position = ((PublicAuthority) user).getLocation();
         else
             position = new GeoPoint(0, 0);  //Perchè privato non ha residenza?
 

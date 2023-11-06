@@ -5,6 +5,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,8 +23,8 @@ public class Private extends User implements Owner, Parcelable {
     private ArrayList<Animal> listAnimal;
     private ArrayList<Expense> listExpense;
 
-    public Private(String id, String name, String email, String password, Long phone, Bitmap photo, String surname, Date birthDate, String taxIDCode) {
-        super(id, name, email, password, phone, photo);
+    public Private(String id, String name, String email, String password, Long phone, Bitmap photo, String surname, Date birthDate, String taxIDCode, GeoPoint location) {
+        super(id, name, email, password, phone, photo, location);
 
         this.surname = surname;
         this.birthDate = birthDate;
@@ -44,6 +46,7 @@ public class Private extends User implements Owner, Parcelable {
         private String bSurname;
         private Date bBirthDate;
         private String bTaxID;
+        private GeoPoint bLocation;
         //ArrayList<Animali>
 
         private Builder(final String id, final String name, final String email) {
@@ -96,8 +99,13 @@ public class Private extends User implements Owner, Parcelable {
             return this;
         }
 
+        public Builder setLocation(final GeoPoint location) {
+                this.bLocation = location;
+            return this;
+        }
+
         public Private build() {
-            return new Private(bID, bName, bEmail, bPassword, bPhone, bPhoto, bSurname, bBirthDate, bTaxID);
+            return new Private(bID, bName, bEmail, bPassword, bPhone, bPhoto, bSurname, bBirthDate, bTaxID, bLocation);
         }
     }
 
@@ -221,12 +229,14 @@ public class Private extends User implements Owner, Parcelable {
         dest.writeString(surname);
         dest.writeSerializable(birthDate);
         dest.writeString(taxIDCode);
+        dest.writeDouble(getLocation().getLatitude());
+        dest.writeDouble(getLocation().getLongitude());
         dest.writeList(getAnimalList());
         dest.writeList(getExpenseList());
     }
 
     protected Private(Parcel in) {
-        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()));
+        super(in.readString(), in.readString(), in.readString(), in.readString(), in.readLong(), in.readParcelable(Bitmap.class.getClassLoader()), new GeoPoint(in.readDouble(),in.readDouble()));
         surname = in.readString();
         birthDate = (Date) in.readSerializable();
         taxIDCode = in.readString();
