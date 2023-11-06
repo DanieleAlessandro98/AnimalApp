@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -43,11 +46,14 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Private;
@@ -91,7 +97,7 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
-
+    private AutoCompleteTextView locationEditText;
 
     private UserPresenter userPresenter;
 
@@ -104,6 +110,7 @@ public class ProfileFragment extends Fragment {
     private Button saveButton;
     private Button deleteButton;
     private Button editPhotoButton;
+    private ImageButton searchLocationButton;
 
     private Dialog editDialog;
     private TextView nameView;
@@ -393,6 +400,7 @@ public class ProfileFragment extends Fragment {
                 dateTextView = editDialog.findViewById(R.id.date_text_view);
                 taxIDEditText = editDialog.findViewById(R.id.tax_id_EditText);
                 phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
+                locationEditText = editDialog.findViewById(R.id.location_edit_text);
                 emailEditText = editDialog.findViewById(R.id.emailEditText);
                 passwordEditText = editDialog.findViewById(R.id.passwordEditText);
 
@@ -408,6 +416,10 @@ public class ProfileFragment extends Fragment {
         saveButton = editDialog.findViewById(R.id.save_button);
         deleteButton = editDialog.findViewById(R.id.delete_button);
         editPhotoButton = editDialog.findViewById(R.id.edit_button);
+        searchLocationButton = editDialog.findViewById(R.id.search_location_button);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        locationEditText.setAdapter(adapter);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -420,10 +432,11 @@ public class ProfileFragment extends Fragment {
 
                     String taxID = taxIDEditText.getText().toString();
                     long phone = Long.parseLong(phoneEditText.getText().toString());
+                    String locationEditText = emailEditText.getText().toString();
                     String email = emailEditText.getText().toString();
                     String password = passwordEditText.getText().toString();
 
-                    userPresenter.updateProfile(name, surname, birthDate, taxID, phone, email, password);
+                    userPresenter.updateProfile(name, surname, birthDate, taxID, phone, locationEditText, email, password);
 
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -443,6 +456,32 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 photoPickerResultLauncher.launch(photoIntent);
+            }
+        });
+
+        searchLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String locationName = locationEditText.getText().toString();
+
+                Geocoder geocoder = new Geocoder(getActivity());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(locationName, 5);
+
+                    adapter.clear();
+                    for (Address address : addresses) {
+                        String addressText = address.getAddressLine(0);
+                        adapter.add(addressText);
+                    }
+
+                    adapter.notifyDataSetChanged();
+
+                    locationEditText.setText(locationName);
+                    locationEditText.setSelection(locationName.length());
+                    locationEditText.showDropDown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

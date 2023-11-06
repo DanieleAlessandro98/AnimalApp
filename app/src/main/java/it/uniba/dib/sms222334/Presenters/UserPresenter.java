@@ -3,6 +3,8 @@ package it.uniba.dib.sms222334.Presenters;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -51,7 +53,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         }
     }
 
-    public void updateProfile(String name, String surname, Date birthDate, String taxID, long phone, String email, String password) {
+    public void updateProfile(String name, String surname, Date birthDate, String taxID, long phone, String location, String email, String password) {
         if (!Validations.isValidName(name)) {
             profileView.showInvalidInput(1);
             return;
@@ -73,10 +75,17 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             return;
         }
 
+        GeoPoint locationValue = Validations.isValidLocation(location, profileView.getContext());
+        if (locationValue == null) {
+            profileView.showInvalidInput(6);
+            return;
+        }
+
         profileModel.setName(name);
         profileModel.setEmail(email);
         profileModel.setPassword(password);
         profileModel.setPhone(phone);
+        profileModel.setLocation(new GeoPoint(locationValue.getLatitude(), locationValue.getLongitude()));
 
         switch (profileModel.getRole()) {
             case PRIVATE:

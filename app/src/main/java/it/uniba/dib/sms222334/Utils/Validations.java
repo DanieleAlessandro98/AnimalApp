@@ -1,11 +1,17 @@
 package it.uniba.dib.sms222334.Utils;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Patterns;
 
+import com.google.firebase.firestore.GeoPoint;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import it.uniba.dib.sms222334.R;
 
@@ -101,4 +107,25 @@ public class Validations {
         }
     }
 
+    public static GeoPoint isValidLocation(String location, Context context) {
+        if (location.equals(""))
+            return null;
+
+        Geocoder geocoder = new Geocoder(context);
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(location, 1);
+
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                double latitude = address.getLatitude();
+                double longitude = address.getLongitude();
+
+                return new GeoPoint(latitude, longitude);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
