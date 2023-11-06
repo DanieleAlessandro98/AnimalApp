@@ -183,7 +183,7 @@
                     android:id="@+id/location_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/birth_date"
+                    android:hint="@string/location_address"
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/edit_text_shape"

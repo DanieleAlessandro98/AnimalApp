@@ -4,6 +4,7 @@
     <string name="surname">Cognome</string>
     <string name="birth_date">Data nascita</string>
     <string name="tax_id">Codice fiscale</string>
+    <string name="location_address">Indirizzo</string>
     <string name="email_address">Indirizzo email</string>
     <string name="password">password</string>
     <string name="register">Registrati</string>
@@ -65,6 +66,7 @@
     <string name="invalid_user_birthdate">Data di nascita non valida</string>
     <string name="invalid_user_email">Email non valida</string>
     <string name="invalid_user_password">Password non valida. Minimo 6 caratteri</string>
+    <string name="invalid_user_location">Indirizzo non valido</string>
     <string name="login_error">Errore nell\'accesso</string>
     <string name="profile_update_successful">Profilo aggiornato con successo</string>
     <string name="profile_update_error">Errore aggiornamento profilo</string>

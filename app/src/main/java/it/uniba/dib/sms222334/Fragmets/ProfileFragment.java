@@ -601,6 +601,10 @@ public class ProfileFragment extends Fragment {
             case 5:
                 passwordEditText.setError(this.getString(R.string.invalid_user_password));
                 break;
+
+            case 6:
+                locationEditText.setError(this.getString(R.string.invalid_user_location));
+                break;
         }
     }
 

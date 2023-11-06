@@ -5,6 +5,7 @@
     <string name="surname">Surname</string>
     <string name="birth_date">Birthdate</string>
     <string name="tax_id">Tax id code</string>
+    <string name="location_address">Address</string>
     <string name="email_address">Email address</string>
     <string name="password">password</string>
     <string name="register">Register</string>
@@ -66,6 +67,7 @@
     <string name="invalid_user_birthdate">Invalid date of birth</string>
     <string name="invalid_user_email">Invalid email</string>
     <string name="invalid_user_password">Invalid password. Minimum 6 characters</string>
+    <string name="invalid_user_location">Invalid address</string>
     <string name="login_error">Access error</string>
     <string name="profile_update_successful">Profile successfully updated</string>
     <string name="profile_update_error">Profile update error</string>
