@@ -58,7 +58,11 @@ import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
 public class AnimalFragment extends Fragment {
 
     final static String TAG="AnimalFragment";
+
+    final private String FRAGMENT_TAG="animal_tab_fragment";
     Animal animal;
+
+    AnimalAppDialog editDialog;
 
     Button editButton,backButton;
     TabLayout tabLayout;
@@ -76,7 +80,10 @@ public class AnimalFragment extends Fragment {
     ImageView newProfilePicture; /*i added this here because it has to be passed on onActivityResult,
                                 and this must be set before fragment is created(onCreateView())*/
 
-    private ProfileFragment.Tab previousTab, clickedTab;
+    private ProfileFragment.Tab previousTab;
+    private ProfileFragment.TabPosition clickedTab;
+
+    private boolean editOpen;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
@@ -93,21 +100,9 @@ public class AnimalFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
-            tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.tabPosition.ordinal()));
-            changeTab(this.clickedTab.tabPosition,false);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        if((SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))
-            outState.putInt("tab_position",this.clickedTab.tabPosition.ordinal());
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach()");
     }
 
     @Nullable
@@ -128,15 +123,6 @@ public class AnimalFragment extends Fragment {
 
             this.previousTab=new ProfileFragment.Tab();
 
-            this.clickedTab=new ProfileFragment.Tab();
-
-            if(savedInstanceState!=null){
-                this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
-            }
-            else{
-                this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-            }
-
             initTabListener();
 
             editButton=layout.findViewById(R.id.edit_button);
@@ -151,7 +137,12 @@ public class AnimalFragment extends Fragment {
                         }
                     });
 
-            editButton.setOnClickListener(v -> launchEditDialog());
+            editButton.setOnClickListener(v -> {
+                if(!editOpen){
+                    editOpen=true;
+                    launchEditDialog();
+                }
+            });
         }
         else if(SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN){
             layout= inflater.inflate(R.layout.animal_fragment,container,false);
@@ -162,15 +153,6 @@ public class AnimalFragment extends Fragment {
             editButton.setVisibility(View.INVISIBLE);
 
             this.previousTab=new ProfileFragment.Tab();
-
-            this.clickedTab=new ProfileFragment.Tab();
-
-            if(savedInstanceState!=null){
-                this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
-            }
-            else{
-                this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-            }
 
             initTabListener();
         }
@@ -196,13 +178,80 @@ public class AnimalFragment extends Fragment {
         return layout;
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG,"onViewStateRestored()");
+
+        Bundle args=getArguments();
+
+        if(args!=null){
+            this.clickedTab = ProfileFragment.TabPosition.values()[args.getInt("tab_position", 1)];
+            this.editOpen = args.getBoolean("edit_open");
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
+            tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()-1));
+
+            if(getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
+                changeTab(this.clickedTab,false);
+        }
+
+        if(editOpen)
+            launchEditDialog();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop()");
+
+        Bundle args=getArguments();
+
+        if((args!=null) && ((SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))) {
+            args.putInt("tab_position", this.clickedTab.ordinal());
+            args.putBoolean("edit_open",this.editOpen);
+        }
+
+        if(this.editDialog!=null)
+            editDialog.dismiss();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG,"onsaveInstanceState()");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach()");
+    }
+
     private void initTabListener(){
             tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
-                    clickedTab.tabPosition= ProfileFragment.TabPosition.values()[tab.getPosition()];
+                    clickedTab= ProfileFragment.TabPosition.values()[tab.getPosition()+1];
 
-                    changeTab(clickedTab.tabPosition,true);
+                    changeTab(clickedTab,true);
                 }
 
                 @Override
@@ -315,7 +364,7 @@ public class AnimalFragment extends Fragment {
     @SuppressLint("ResourceType")
     private void launchEditDialog() {
 
-        final AnimalAppDialog editDialog=new AnimalAppDialog(getContext());
+        editDialog=new AnimalAppDialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         editDialog.setContentView(R.layout.edit_animal);
@@ -458,6 +507,7 @@ public class AnimalFragment extends Fragment {
                 presenter.deleteAnimal(animal);
                 deleteDialog.cancel();
                 getParentFragmentManager().popBackStack();
+                editOpen=false;
             });
 
             deleteDialog.setUndoAction(v -> deleteDialog.cancel());
@@ -476,6 +526,7 @@ public class AnimalFragment extends Fragment {
                    updateAnimal(editDialog,c,microchip,nameEditText,newEmailOwner[0],newOwnerReference,oldMicroChip);
 
                     saveDialog.cancel();
+                    editOpen=false;
                 });
 
                 saveDialog.setUndoAction(t -> saveDialog.cancel());
@@ -495,7 +546,10 @@ public class AnimalFragment extends Fragment {
 
         Button backButton= editDialog.findViewById(R.id.back_button);
 
-        backButton.setOnClickListener(v -> editDialog.cancel());
+        backButton.setOnClickListener(v -> {
+            editDialog.cancel();
+            editOpen=false;
+        });
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);

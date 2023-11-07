@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     final static String TAG="MainActivity";
 
+    final private String FRAGMENT_TAG="tab_fragment";
     private ActivityResultLauncher<Intent> authResultLauncher;
     public enum TabPosition{HOME,SEARCH,PROFILE}
     private TabPosition previousTab,attempingTab;
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.frame_for_fragment,fragment,"tab_fragment").commit();
+        transaction.replace(R.id.frame_for_fragment,fragment,FRAGMENT_TAG).commit();
     }
 
     public void forceLogin(){

@@ -237,19 +237,19 @@
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/relation"
-                        android:backgroundTint="?attr/colorPrimaryVariant"/>
-
-                    <com.google.android.material.tabs.TabItem
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:icon="@drawable/visit"
                         android:backgroundTint="?attr/colorPrimaryVariant"/>
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/bone"
+                        android:icon="@drawable/expense"
+                        android:backgroundTint="?attr/colorPrimaryVariant"/>
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/relation"
                         android:backgroundTint="?attr/colorPrimaryVariant"/>
 
                     <com.google.android.material.tabs.TabItem
@@ -261,7 +261,7 @@
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/expense"
+                        android:icon="@drawable/bone"
                         android:backgroundTint="?attr/colorPrimaryVariant"/>
                 </com.google.android.material.tabs.TabLayout>
 

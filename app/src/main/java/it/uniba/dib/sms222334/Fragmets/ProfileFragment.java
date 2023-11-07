@@ -6,6 +6,7 @@ import android.app.Dialog;
 import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -63,6 +64,8 @@ import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 
 public class ProfileFragment extends Fragment {
     final static String TAG="ProfileFragment";
+
+    final private String FRAGMENT_TAG="profile_tab_fragment";
     private EditText companyNameEditText;
 
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN,ANIMAL}
@@ -72,11 +75,14 @@ public class ProfileFragment extends Fragment {
         public TabPosition tabPosition;
     }
 
-    private Tab previousTab,clickedTab;
+    private Tab previousTab;
+    private TabPosition clickedTab;
     
     private ProfileFragment.Type profileType;
 
     Button editButton,addVisitButton;
+
+    boolean editOpen,visitOpen;
     TabLayout tabLayout;
 
     private UserRole role;
@@ -99,43 +105,25 @@ public class ProfileFragment extends Fragment {
 
     private ImageView editPhotoImageView;
 
-    Boolean canOpenEditDialog;
-
     private ImageView profilePhoto;
 
-    public Dialog editDialog;
+    public Dialog dialog;
     private TextView nameView;
     private TextView emailView;
 
     private ListFragment fragment;
     private VisitPresenter visitPresenter;
 
-    public ProfileFragment(){
-        Log.d("Rotation Test","ProfileFragment instance created from android");
-    }
-
-    private ProfileFragment(String overrideParams){
-
-    }
+    public ProfileFragment(){}
 
     public static ProfileFragment newInstance(User profile) {
-        ProfileFragment myFragment = new ProfileFragment("justForOverrideTheConstructor");
+        ProfileFragment myFragment = new ProfileFragment();
 
         Bundle args = new Bundle();
         args.putParcelable("profileData", profile);
         myFragment.setArguments(args);
 
-        Log.d("Rotation Test","ProfileFragment instance created from MainActivity");
-
         return myFragment;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.tabPosition.ordinal()));
-        changeTab(this.clickedTab.tabPosition,false);
     }
 
     public void refresh(User profile){
@@ -151,16 +139,20 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt("tab_position",this.clickedTab.tabPosition.ordinal());
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach()");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("Rotation Test","ProfileFragment: "+this+" onCreateView()");
+        Log.d(TAG,"onCreateView()");
+
+        this.previousTab=new Tab();
+
+        this.previousTab.tabPosition=TabPosition.RELATION; //i want the initial tab is different everytime
+
 
         this.profile= getArguments().getParcelable("profileData");
         this.role=profile.getRole();
@@ -177,9 +169,8 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
-        userPresenter = new UserPresenter(this);
-
         int inflatedLayout;
+
         if(this.role==UserRole.VETERINARIAN){
             inflatedLayout =R.layout.veterinarian_profile_fragment;
         }
@@ -199,7 +190,15 @@ public class ProfileFragment extends Fragment {
             this.addVisitButton=layout.findViewById(R.id.create_visit);
 
             if(SessionManager.getInstance().getCurrentUser().getRole()!=UserRole.VETERINARIAN){
-                this.addVisitButton.setOnClickListener(v -> launchAddVisit());
+                this.addVisitButton.setOnClickListener(v -> {
+                    if(!visitOpen){
+                        visitOpen=true;
+                        launchAddVisit();
+                    }
+                });
+
+                if(visitOpen)
+                    launchAddVisit();
             }
             else{
                 this.addVisitButton.setVisibility(View.INVISIBLE);
@@ -207,56 +206,16 @@ public class ProfileFragment extends Fragment {
 
         }
 
-        if(getArguments().getBoolean("editOpen"))
-            launchEditDialog();
 
-        this.previousTab=new Tab();
+        userPresenter = new UserPresenter(this);
 
-        this.clickedTab=new Tab();
-
-        if(savedInstanceState!=null){
-            this.clickedTab.tabPosition= ProfileFragment.TabPosition.values()[savedInstanceState.getInt("tab_position",0)];
-        }
-        else{
-            this.clickedTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-        }
 
         editButton=layout.findViewById(R.id.edit_button);
 
         if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
             editButton.setVisibility(View.INVISIBLE);
 
-        canOpenEditDialog=true;
-
-        editButton.setOnClickListener(v -> {
-            if(canOpenEditDialog){
-                canOpenEditDialog=false;
-                launchEditDialog();
-            }
-        });
-
-
-
         tabLayout=layout.findViewById(R.id.tab_layout);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                clickedTab.tabPosition=TabPosition.values()[tab.getPosition()];
-
-                changeTab(clickedTab.tabPosition,true);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
         this.photoPickerResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -270,25 +229,120 @@ public class ProfileFragment extends Fragment {
         return layout;
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG,"onViewStateRestored()");
+
+        Bundle args=getArguments();
+
+        if(args!=null){
+            this.clickedTab = ProfileFragment.TabPosition.values()[args.getInt("tab_position", 0)];
+            this.editOpen = args.getBoolean("edit_open");
+            this.visitOpen = args.getBoolean("visit_open");
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG,"onStart()");
+
+        editButton.setOnClickListener(v -> {
+            if(!editOpen){
+                editOpen=true;
+                launchEditDialog();
+            }
+        });
+
+        if(editOpen)
+            launchEditDialog();
+
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                clickedTab=TabPosition.values()[tab.getPosition()];
+
+                changeTab(clickedTab,true);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()));
+
+        if(getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
+            changeTab(this.clickedTab,false);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop()");
+
+        Bundle args=getArguments();
+
+        if(args!=null) {
+            args.putInt("tab_position", this.clickedTab.ordinal());
+            args.putBoolean("edit_open",this.editOpen);
+            args.putBoolean("visit_open",this.visitOpen);
+        }
+
+        if(dialog!=null)
+            dialog.dismiss();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG,"onsaveInstanceState()");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach()");
+    }
 
     public Visit.visitType visitType;
     private int posizione = 0;
 
     private void launchAddVisit(){
-        editDialog=new Dialog(getContext());
-        editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog =new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        editDialog.setContentView(R.layout.create_visit);
+        dialog.setContentView(R.layout.create_visit);
 
-        this.dateTextView = editDialog.findViewById(R.id.date_text_view);
+        this.dateTextView = dialog.findViewById(R.id.date_text_view);
         visitPresenter = new VisitPresenter(fragment);
 
-        Spinner visitTypeSpinner= editDialog.findViewById(R.id.visit_type);
-        Button backButton= editDialog.findViewById(R.id.back_button);
-        Button createButton = editDialog.findViewById(R.id.save_button);
-        Spinner animalchooser = editDialog.findViewById(R.id.animal_chooser);
-        EditText doctorName = editDialog.findViewById(R.id.doctor_name);
-        ImageButton dateButton = editDialog.findViewById(R.id.date_picker_button);
+        Spinner visitTypeSpinner= dialog.findViewById(R.id.visit_type);
+        Button backButton= dialog.findViewById(R.id.back_button);
+        Button createButton = dialog.findViewById(R.id.save_button);
+        Spinner animalchooser = dialog.findViewById(R.id.animal_chooser);
+        EditText doctorName = dialog.findViewById(R.id.doctor_name);
+        ImageButton dateButton = dialog.findViewById(R.id.date_picker_button);
 
         ArrayAdapter<CharSequence> visitTypeAdapter= ArrayAdapter.createFromResource(getContext(),R.array.exam_type,
                 android.R.layout.simple_list_item_1);
@@ -322,7 +376,10 @@ public class ProfileFragment extends Fragment {
             datePickerDialog.show();
         });
 
-        backButton.setOnClickListener(v -> editDialog.cancel());
+        backButton.setOnClickListener(v -> {
+            dialog.cancel();
+            visitOpen=false;
+        });
         final String[] animalValue = new String[1];
 
         visitTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -361,71 +418,74 @@ public class ProfileFragment extends Fragment {
 
             String visitName = doctorName.getText().toString();
 
-            visitPresenter.createVisit(editDialog,visitType,
+            visitPresenter.createVisit(dialog,visitType,
                     animalList.get(posizione),
                     new Timestamp(date),
                     visitName,profile.getFirebaseID());
 
+            dialog.cancel();
+            visitOpen=false;
+
         });
 
-        editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        editDialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
     private void launchEditDialog() {
 
         getArguments().putBoolean("editOpen",true);
 
-        editDialog=new Dialog(getContext());
-        editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog =new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         switch (this.role){
             case PRIVATE:
-                editDialog.setContentView(R.layout.private_profile_edit);
+                dialog.setContentView(R.layout.private_profile_edit);
 
-                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
-                nameEditText = editDialog.findViewById(R.id.nameEditText);
-                surnameEditText = editDialog.findViewById(R.id.surnameEditText);
-                dateTextView = editDialog.findViewById(R.id.date_text_view);
-                taxIDEditText = editDialog.findViewById(R.id.tax_id_EditText);
-                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
-                emailEditText = editDialog.findViewById(R.id.emailEditText);
-                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+                editPhotoImageView = dialog.findViewById(R.id.profile_picture);
+                nameEditText = dialog.findViewById(R.id.nameEditText);
+                surnameEditText = dialog.findViewById(R.id.surnameEditText);
+                dateTextView = dialog.findViewById(R.id.date_text_view);
+                taxIDEditText = dialog.findViewById(R.id.tax_id_EditText);
+                phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = dialog.findViewById(R.id.emailEditText);
+                passwordEditText = dialog.findViewById(R.id.passwordEditText);
 
                 break;
             case VETERINARIAN:
-                editDialog.setContentView(R.layout.veterinarian_profile_edit);
+                dialog.setContentView(R.layout.veterinarian_profile_edit);
 
-                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
-                companyNameEditText = editDialog.findViewById(R.id.nameEditText);
-                siteEditText = editDialog.findViewById(R.id.surnameEditText);
-                Spinner prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
-                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
-                emailEditText = editDialog.findViewById(R.id.emailEditText);
-                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+                editPhotoImageView = dialog.findViewById(R.id.profile_picture);
+                companyNameEditText = dialog.findViewById(R.id.nameEditText);
+                siteEditText = dialog.findViewById(R.id.surnameEditText);
+                Spinner prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
+                phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = dialog.findViewById(R.id.emailEditText);
+                passwordEditText = dialog.findViewById(R.id.passwordEditText);
 
                 break;
             case PUBLIC_AUTHORITY:
-                editDialog.setContentView(R.layout.authority_profile_edit);
+                dialog.setContentView(R.layout.authority_profile_edit);
 
-                editPhotoImageView = editDialog.findViewById(R.id.profile_picture);
-                companyNameEditText = editDialog.findViewById(R.id.nameEditText);
-                siteEditText = editDialog.findViewById(R.id.surnameEditText);
-                prefixSpinner = editDialog.findViewById(R.id.prefix_spinner);
-                phoneEditText = editDialog.findViewById(R.id.phoneNumberEditText);
-                emailEditText = editDialog.findViewById(R.id.emailEditText);
-                passwordEditText = editDialog.findViewById(R.id.passwordEditText);
+                editPhotoImageView = dialog.findViewById(R.id.profile_picture);
+                companyNameEditText = dialog.findViewById(R.id.nameEditText);
+                siteEditText = dialog.findViewById(R.id.surnameEditText);
+                prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
+                phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                emailEditText = dialog.findViewById(R.id.emailEditText);
+                passwordEditText = dialog.findViewById(R.id.passwordEditText);
 
                 break;
         }
 
-        Button saveButton = editDialog.findViewById(R.id.save_button);
-        Button deleteButton = editDialog.findViewById(R.id.delete_button);
-        Button editPhotoButton = editDialog.findViewById(R.id.edit_button);
-        Button logoutButton = editDialog.findViewById(R.id.logout_button);
+        Button saveButton = dialog.findViewById(R.id.save_button);
+        Button deleteButton = dialog.findViewById(R.id.delete_button);
+        Button editPhotoButton = dialog.findViewById(R.id.edit_button);
+        Button logoutButton = dialog.findViewById(R.id.logout_button);
 
 
 
@@ -479,23 +539,23 @@ public class ProfileFragment extends Fragment {
                     break;
             }
 
-            canOpenEditDialog=true;
+            editOpen=false;
         });
 
         deleteButton.setOnClickListener(v -> showDeleteConfirm());
 
         logoutButton.setOnClickListener(v -> {
-            final AnimalAppDialog deleteDialog=new AnimalAppDialog(getContext());
+            final AnimalAppDialog logoutDialog=new AnimalAppDialog(getContext());
 
-            deleteDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
+            logoutDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
 
-            deleteDialog.setConfirmAction(t -> {
+            logoutDialog.setConfirmAction(t -> {
                 //TODO qui fai il callback per il logout
             });
 
-            deleteDialog.setUndoAction(t -> deleteDialog.cancel());
+            logoutDialog.setUndoAction(t -> logoutDialog.cancel());
 
-            deleteDialog.show();
+            logoutDialog.show();
         });
 
         editPhotoButton.setOnClickListener(v -> {
@@ -505,37 +565,36 @@ public class ProfileFragment extends Fragment {
 
         userPresenter.initUserData();
 
-        Spinner prefixSpinner= editDialog.findViewById(R.id.prefix_spinner);
+        Spinner prefixSpinner= dialog.findViewById(R.id.prefix_spinner);
         ArrayAdapter<CharSequence> prefixAdapter= ArrayAdapter.createFromResource(getContext(),R.array.phone_prefixes,
                 android.R.layout.simple_list_item_1);
         prefixAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         prefixSpinner.setAdapter(prefixAdapter);
 
 
-        Button backButton= editDialog.findViewById(R.id.back_button);
+        Button backButton= dialog.findViewById(R.id.back_button);
 
         backButton.setOnClickListener(v -> {
-            canOpenEditDialog=true;
-            editDialog.cancel();
+            dialog.cancel();
+            editOpen=false;
         });
 
-        editDialog.show();
-        editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        editDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        editDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        editDialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
 
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
         fragment=null;
-        int enterAnimation=0,exitAnimation=0;
+        int enterAnimation,exitAnimation;
 
         switch (tabType){
             case ANIMAL:
                 if(previousTab.tabPosition!= TabPosition.ANIMAL) {
-                    System.out.println("sono nell'animale profile");
                     previousTab.tabPosition= TabPosition.ANIMAL;
                     fragment= ListFragment.newInstanceProfile(previousTab,this.profileType,this.profile);
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
@@ -584,7 +643,7 @@ public class ProfileFragment extends Fragment {
         FragmentManager fragmentManager=getParentFragmentManager();
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.recycle_container,fragment).commit();
+        transaction.replace(R.id.recycle_container,fragment,FRAGMENT_TAG).commit();
     }
 
     public void onInitPrivateData(Private userPrivate) {
@@ -649,18 +708,17 @@ public class ProfileFragment extends Fragment {
     public void showUpdateSuccessful(User profile) {
         Toast.makeText(requireContext(), this.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show();
         refresh(profile);
-        editDialog.cancel();
+        dialog.cancel();
+        this.editOpen=false;
     }
 
     private void showDeleteConfirm() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(this.getString(R.string.profile_delete_alert_title));
         builder.setMessage(this.getString(R.string.profile_delete_alert_mex1));
-        builder.setPositiveButton(this.getString(R.string.confirm), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                userPresenter.deleteProfile();
-            }
+        builder.setPositiveButton(this.getString(R.string.confirm), (dialog, which) -> {
+            userPresenter.deleteProfile();
+            editOpen=false;
         });
         builder.setNegativeButton(this.getString(R.string.profile_delete_alert_cancel), null);
 
@@ -673,7 +731,8 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
 
         ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);
-        editDialog.cancel();
+        dialog.cancel();
+        this.editOpen=false;
     }
 
     public void showLogoutError() {

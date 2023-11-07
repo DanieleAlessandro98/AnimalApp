@@ -3,6 +3,7 @@ package it.uniba.dib.sms222334.Fragmets;
 import static android.app.Activity.RESULT_OK;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -95,30 +96,23 @@ public class ListFragment extends Fragment{
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
     public ListFragment() {
-        Log.d("Rotation Test","ListFragment instance created from android");
-    }
-
-    public ListFragment(String overrideParams){
-
     }
 
 
     public static ListFragment newInstanceProfile(ProfileFragment.Tab tabPosition, ProfileFragment.Type profileType, User profile) {
-        ListFragment myFragment = new ListFragment("justForOverrideTheConstructor");
+        ListFragment myFragment = new ListFragment();
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
         args.putInt("profile_type", profileType.ordinal());
         args.putParcelable("profileData", profile);
         myFragment.setArguments(args);
 
-        Log.d("Rotation Test","ListFragment instance recreated from ProfileFragment");
-
         return myFragment;
     }
 
     //per l'animale
     public static ListFragment newInstanceAnimal(ProfileFragment.Tab tabPosition, Animal animal) {
-        ListFragment myFragment = new ListFragment("justForOverrideTheConstructor");
+        ListFragment myFragment = new ListFragment();
         Bundle args = new Bundle();
         args.putInt("tab_position", tabPosition.tabPosition.ordinal());
         args.putInt("profile_type", ProfileFragment.Type.ANIMAL.ordinal());
@@ -128,25 +122,26 @@ public class ListFragment extends Fragment{
         return myFragment;
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach()");
+
+        Bundle bundle=getArguments();
+
+        if(bundle!=null)
+            this.tabPosition= ProfileFragment.TabPosition.values()[bundle.getInt("tab_position")];
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("Rotation Test","ListFragment: "+this+" onCreateView()");
+        Log.d(TAG,"onCreateView()");
         final View layout = inflater.inflate(R.layout.item_list_container, container, false);
-
-        Animal animalClicked=getArguments().getParcelable("animalClicked");
-        Visit visitClicked=getArguments().getParcelable("visitClicked");
-
-        if(animalClicked != null){
-            openAnimalPage(animalClicked);
-        } else if (visitClicked != null) {
-            openVisitPage(visitClicked);
-        }
 
         currentUser=SessionManager.getInstance().getCurrentUser();
         currentUserRole=currentUser.getRole();
 
-        this.tabPosition = ProfileFragment.TabPosition.values()[getArguments().getInt("tab_position")];
         this.profileType = ProfileFragment.Type.values()[getArguments().getInt("profile_type")];
 
         animal = getArguments().getParcelable("animalData"); //è nullo nel caso del profilo
@@ -158,6 +153,7 @@ public class ListFragment extends Fragment{
         recyclerView=layout.findViewById(R.id.list_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new ItemDecorator(0));
+
 
         switch (this.tabPosition){
             case ANIMAL:
@@ -181,6 +177,60 @@ public class ListFragment extends Fragment{
         }
 
         return layout;
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG,"onViewStateRestored()");
+
+        Bundle args=getArguments();
+
+        if(args!=null) {
+            this.tabPosition = ProfileFragment.TabPosition.values()[args.getInt("tab_position", 0)];
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.d(TAG,"onStart()");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop()");
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle bundle=getArguments();
+
+        if(bundle!=null) {
+            bundle.putInt("tab_position", this.tabPosition.ordinal());
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach()");
     }
 
     private void launchAddDialog() {
@@ -981,7 +1031,6 @@ public class ListFragment extends Fragment{
         transaction.addToBackStack(null);
         transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal),"animalPage").commit();
         tabPosition=null;
-        getArguments().putParcelable("animalClicked",animal);
     }
 
     private void openVisitPage(Visit visit){
@@ -989,7 +1038,5 @@ public class ListFragment extends Fragment{
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.addToBackStack(null);
         transaction.replace(R.id.frame_for_fragment,VisitFragment.newInstance(visit),"visitPage").commit();
-
-        getArguments().putParcelable("visitClicked",visit);
     }
 }
