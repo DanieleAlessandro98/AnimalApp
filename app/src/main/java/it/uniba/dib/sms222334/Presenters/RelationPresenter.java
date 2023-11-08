@@ -31,7 +31,12 @@ public class RelationPresenter {
         }
     }
 
-    public void action_getRelation(String ownerID,String idAnimal,final RelationDao.OnRelationAnimalListener listener){
-        Relation.getListRelation(ownerID,idAnimal, listener);
+    public void action_getRelation(String idAnimal,final RelationDao.OnAnimalRelationListListener listener){
+        Relation.getListRelation(idAnimal,listener);
     }
+
+    public void action_getAnimalListForChooseAnimal(String OwnerID, RelationDao.OnGetListAnimalForChooseAnimal listener){
+        Relation.getAnimalListForChooseAnimal(OwnerID,listener);
+    }
+
 }

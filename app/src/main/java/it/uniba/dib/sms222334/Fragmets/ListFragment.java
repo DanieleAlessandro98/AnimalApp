@@ -235,7 +235,6 @@ public class ListFragment extends Fragment{
     }
 
     private void launchAddDialog() {
-        ArrayList <Animal> animalList = ((Owner)SessionManager.getInstance().getCurrentUser()).getAnimalList();
         final AnimalAppDialog addDialog=new AnimalAppDialog(getContext());
 
         //is is a owner profile it can add animal, veterinarian can't add anything
@@ -382,6 +381,8 @@ public class ListFragment extends Fragment{
             }
         }
         else if(this.profileType == ProfileFragment.Type.ANIMAL){//for animal
+            RelationPresenter relationPresenter= new RelationPresenter();
+
             switch (this.tabPosition) {
                 case RELATION:
                     addDialog.setContentView(R.layout.create_relation);
@@ -389,44 +390,46 @@ public class ListFragment extends Fragment{
                     String [] getAnimal = new String[1];
                     Spinner animalChooseSpinner = addDialog.findViewById(R.id.animal_chooser);
                     Button createVisit = addDialog.findViewById(R.id.save_button);
-
-                    ArrayList <String> animalListName = new ArrayList<>();
-
-                    for (int i = 0; i < animalList.size(); i++) {
-                        animalListName.add(animalList.get(i).getName());
-                    }
-
-                    ArrayAdapter <String> animal_chooseAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1,animalListName);
-                    animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    animalChooseSpinner.setAdapter(animal_chooseAdapter);
-
-                    final Relation.relationType[] type = new Relation.relationType[1];
-                    relationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                            type[0] = Relation.relationType.valueOf(adapterView.getItemAtPosition(i).toString());
+                    relationPresenter.action_getAnimalListForChooseAnimal(currentUser.getFirebaseID(), (RelationDao.OnGetListAnimalForChooseAnimal) animalList -> {
+                        for (int i = 0; i < animalList.size(); i++) {
+                            System.out.println("animal: "+animalList.get(i).getName());
                         }
 
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
+                        ArrayList <String> animalListName = new ArrayList<>();
 
-                        }
-                    });
-
-                    animalChooseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                            getAnimal[0] = adapterView.getItemAtPosition(i).toString();
+                        for (int i = 0; i < animalList.size(); i++) {
+                            animalListName.add(animalList.get(i).getName());
                         }
 
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
+                        ArrayAdapter <String> animal_chooseAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,animalListName);
+                        animal_chooseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        animalChooseSpinner.setAdapter(animal_chooseAdapter);
 
-                        }
-                    });
-                    createVisit.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+                        final Relation.relationType[] type = new Relation.relationType[1];
+                        relationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                type[0] = Relation.relationType.valueOf(adapterView.getItemAtPosition(i).toString());
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+
+                        animalChooseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                getAnimal[0] = adapterView.getItemAtPosition(i).toString();
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+                        createVisit.setOnClickListener(view -> {
                             Animal chooseAnimal = null;
 
                             for (int i = 0; i < animalList.size(); i++) {
@@ -452,13 +455,14 @@ public class ListFragment extends Fragment{
                             }else{
                                 Log.w(TAG,"Animal Class not found");
                             }
-                        }
+                        });
+
+                        ArrayAdapter<CharSequence> relationAdapter= ArrayAdapter.createFromResource(getContext(),R.array.relation_type,
+                                android.R.layout.simple_list_item_1);
+                        relationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        relationSpinner.setAdapter(relationAdapter);
                     });
 
-                    ArrayAdapter<CharSequence> relationAdapter= ArrayAdapter.createFromResource(getActivity(),R.array.relation_type,
-                            android.R.layout.simple_list_item_1);
-                    relationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    relationSpinner.setAdapter(relationAdapter);
                     break;
                 case HEALTH:
                     addDialog.setContentView(R.layout.add_pathology);
@@ -884,8 +888,9 @@ public class ListFragment extends Fragment{
 
     public void setRelationList(){
         RelationPresenter presenter = new RelationPresenter();
-        presenter.action_getRelation(currentUser.getFirebaseID(), animal.getFirebaseID(), (relationListGet, animalListGet) -> {
-            if(getContext()!=null){
+        presenter.action_getRelation(animal.getFirebaseID(), new RelationDao.OnAnimalRelationListListener() {
+            @Override
+            public void onAnimalRelationListListener(ArrayList<Relation> relationListGet) {
                 relationList=new ArrayList<>();
                 relationList.addAll(relationListGet);
                 final Calendar c = Calendar.getInstance();
@@ -897,7 +902,7 @@ public class ListFragment extends Fragment{
             }
         });
 
-        SwipeHelper RelationSwipeHelper = new SwipeHelper(getActivity(), recyclerView) {
+        SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new SwipeHelper.UnderlayButton(
@@ -921,6 +926,7 @@ public class ListFragment extends Fragment{
         };
 
     }
+
 
     private SimpleTextAdapter<Pathology> pathologyAdapter;
     private ArrayList<Pathology> pathologyList = new ArrayList<>();

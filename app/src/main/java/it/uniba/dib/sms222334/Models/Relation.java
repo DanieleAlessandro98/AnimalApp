@@ -23,17 +23,23 @@ public class Relation extends Document implements Parcelable{
 
     public void createRelation(Relation relation, String idMyAnimal, RelationDao.OnRelationCreateListener callBack){
         RelationDao dao = new RelationDao();
-        dao.createRelation(relation,idMyAnimal,callBack);
+        dao.createRelationDao(relation,idMyAnimal,callBack);
     }
 
     public static void deleteRelation(Relation relation){
         RelationDao dao = new RelationDao();
-        dao.deleteRelation(relation);
+        dao.deleteRelationDao(relation);
     }
 
-    public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
+    public static void getListRelation(String idAnimal,final RelationDao.OnAnimalRelationListListener listener){
         RelationDao dao = new RelationDao();
-        dao.getRelation(ownerID,id, listener);
+        dao.getRelation(idAnimal, listener);
+    }
+
+    public static void getAnimalListForChooseAnimal(String OwnerID, RelationDao.OnGetListAnimalForChooseAnimal listener){
+        RelationDao dao = new RelationDao();
+
+        dao.getAnimalListForChooseAnimalDao(OwnerID,listener);
     }
 
     public Relation.relationType getRelationType() {

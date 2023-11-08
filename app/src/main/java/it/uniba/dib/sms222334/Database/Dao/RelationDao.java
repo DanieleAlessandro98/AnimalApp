@@ -31,7 +31,7 @@ public class RelationDao {
     final private CollectionReference collectionRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Relation.TABLE_NAME);
     final private CollectionReference collectionAnimalRelation = FirebaseFirestore.getInstance().collection(AnimalAppDB.Animal.TABLE_NAME);
 
-    public void createRelation(Relation relation, String idMyAnimal, OnRelationCreateListener callBack){
+    public void createRelationDao(Relation relation, String idMyAnimal, OnRelationCreateListener callBack){
         Map<String,String> newRelation = new HashMap<>();
         newRelation.put("idAnimal1",idMyAnimal);
         newRelation.put("idAnimal2",relation.getAnimal().getFirebaseID());
@@ -44,7 +44,7 @@ public class RelationDao {
             callBack.onCreateFailure();
         });
     }
-    public void deleteRelation(Relation relation){
+    public void deleteRelationDao(Relation relation){
         System.out.println("firebase id"+relation.getFirebaseID());
         collectionRelation.document(relation.getFirebaseID())
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -60,7 +60,7 @@ public class RelationDao {
                 });
     }
 
-    public void getListAnimalDao(String ownerID, final OnRelationListener listener){
+    public void getAnimalListForChooseAnimalDao(String ownerID, final OnGetListAnimalForChooseAnimal listener){
         collectionAnimalRelation.whereNotEqualTo("ownerID", ownerID).get().addOnCompleteListener(task -> {
             List<Animal> animalList = new ArrayList<>();
             if (task.isSuccessful()) {
@@ -87,75 +87,73 @@ public class RelationDao {
                             Log.w("W","birthday' in null o have an error");
                         }
                     }
-                    listener.onGetAnimalListener(animalList);
+                    listener.onGetListAnimalForChooseAnimalListener(animalList);
                 } else {
                     Log.w("W","Nothing to get in the database");
-                    listener.onGetAnimalListener(new ArrayList<>());
+                    listener.onGetListAnimalForChooseAnimalListener(new ArrayList<>());
                 }
             } else {
                 Log.w(TAG,"search failure");
-                listener.onGetAnimalListener(new ArrayList<>());
+                listener.onGetListAnimalForChooseAnimalListener(new ArrayList<>());
             }
         });
     }
     public ArrayList <Relation> listRelation;
-    public void getRelation(String ownerID, String idAnimal, final OnRelationAnimalListener listener) {
+    public void getRelation(String idAnimal, final OnAnimalRelationListListener listener) {
         listRelation = new ArrayList<>();
-        getListAnimalDao(ownerID, animalGetList -> {
-            Query query1 = collectionRelation.whereEqualTo("idAnimal1", idAnimal);
-            Query query2 = collectionRelation.whereEqualTo("idAnimal2", idAnimal);
+        Query query1 = collectionRelation.whereEqualTo("idAnimal1", idAnimal);
+        Query query2 = collectionRelation.whereEqualTo("idAnimal2", idAnimal);
 
-            List<DocumentSnapshot> resultList = new ArrayList<>();
+        List<DocumentSnapshot> resultList = new ArrayList<>();
 
-            query1.get().addOnCompleteListener(task1 -> {
-                if (task1.isSuccessful()) {
-                    resultList.addAll(task1.getResult().getDocuments());
-                    query2.get().addOnCompleteListener(task2 -> {
-                        if (task2.isSuccessful()) {
-                            resultList.addAll(task2.getResult().getDocuments());
+        query1.get().addOnCompleteListener(task1 -> {
+            if (task1.isSuccessful()) {
+                resultList.addAll(task1.getResult().getDocuments());
+                query2.get().addOnCompleteListener(task2 -> {
+                    if (task2.isSuccessful()) {
+                        resultList.addAll(task2.getResult().getDocuments());
 
-                            if (resultList.size()>0) {
-                                for (DocumentSnapshot document : resultList) {
-                                    final Relation.relationType[] relation = new Relation.relationType[1];
-                                    relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
-                                    String idAnimal1 = document.getString("idAnimal1");
-                                    String idAnimal2 = document.getString("idAnimal2");
-                                    String documentID = document.getId();
-                                    String searchAnimalId;
-                                    if (idAnimal.equals(idAnimal1)) {
-                                        searchAnimalId = idAnimal2;
-                                    } else {
-                                        searchAnimalId = idAnimal1;
-                                    }
-
-
-                                    getAnimalClass(searchAnimalId, animalClass -> {
-                                        assert searchAnimalId != null;
-                                        if (searchAnimalId.equals(idAnimal1)) {
-                                            listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
-                                        } else {
-                                            listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
-                                        }
-                                        listener.onRelationAnimalListener(listRelation, animalGetList);
-                                    });
+                        if (resultList.size()>0) {
+                            for (DocumentSnapshot document : resultList) {
+                                final Relation.relationType[] relation = new Relation.relationType[1];
+                                relation[0] = Relation.relationType.valueOf(document.getString("Relation"));
+                                String idAnimal1 = document.getString("idAnimal1");
+                                String idAnimal2 = document.getString("idAnimal2");
+                                String documentID = document.getId();
+                                String searchAnimalId;
+                                if (idAnimal.equals(idAnimal1)) {
+                                    searchAnimalId = idAnimal2;
+                                } else {
+                                    searchAnimalId = idAnimal1;
                                 }
-                            }else{
-                                Log.w("W","Nothing here");
-                                listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
+
+
+                                getAnimalClass(searchAnimalId, animalClass -> {
+                                    assert searchAnimalId != null;
+                                    if (searchAnimalId.equals(idAnimal1)) {
+                                        listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
+                                    } else {
+                                        listRelation.add(Relation.Builder.create(documentID, relation[0], animalClass).build());
+                                    }
+                                    listener.onAnimalRelationListListener(listRelation);
+                                });
                             }
-                        } else {
-                            Log.w(TAG,"Failure second time");
-                            listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
+                        }else{
+                            Log.w("W","Nothing here");
+                            listener.onAnimalRelationListListener(new ArrayList<>());
                         }
-                    });
-                } else {
-                    Log.w(TAG,"Failure first time");
-                    listener.onRelationAnimalListener(new ArrayList<>(),animalGetList);
-                }
-            });
+                    } else {
+                        Log.w(TAG,"Failure second time");
+                        listener.onAnimalRelationListListener(new ArrayList<>());
+                    }
+                });
+            } else {
+                Log.w(TAG,"Failure first time");
+                listener.onAnimalRelationListListener(new ArrayList<>());
+            }
         });
     }
-
+    //this method is use for get all date of an animal and set in a class.
     private void getAnimalClass(String idAnimal, final OnRelationClassAnimalListener listener){
         collectionAnimalRelation.document(idAnimal).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -198,4 +196,14 @@ public class RelationDao {
     public interface OnRelationClassAnimalListener{
         void onRelationClassAnimalListener(Animal animalClass);
     }
+
+    public interface OnGetListAnimalForChooseAnimal {
+        void onGetListAnimalForChooseAnimalListener(List <Animal> animalList);
+    }
+
+    public interface OnAnimalRelationListListener {
+        void onAnimalRelationListListener(ArrayList <Relation> relationList);
+    }
+
+
 }
