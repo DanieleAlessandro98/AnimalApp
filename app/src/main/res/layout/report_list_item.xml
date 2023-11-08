@@ -30,7 +30,7 @@
             android:paddingHorizontal="10dp"
             android:layout_margin="20dp"
             android:elevation="8dp"
-            android:text="... km"/>
+            android:text="0 km"/>
 
         <TextView
             android:id="@+id/type"

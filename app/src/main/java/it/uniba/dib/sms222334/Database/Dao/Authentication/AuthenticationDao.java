@@ -1,5 +1,10 @@
 package it.uniba.dib.sms222334.Database.Dao.Authentication;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -11,6 +16,7 @@ import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
+import it.uniba.dib.sms222334.Models.Authentication;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
@@ -163,6 +169,56 @@ public class AuthenticationDao {
                     }
                 });
     }
+
+    public void updateUserAuth(String email, String password, AuthenticationCallbackResult.UpdateAuthentication listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (!email.equals("") && !password.equals(""))
+            updateUserEmailAndPassword(user, email, password, listener);
+        else if (!email.equals(""))
+            updateUserEmail(user, email, listener);
+        else if (!password.equals(""))
+            updateUserPassword(user, password, listener);
+        else
+            listener.onUpdateSuccessful();
+    }
+
+    private void updateUserEmailAndPassword(FirebaseUser user, String email, String password, AuthenticationCallbackResult.UpdateAuthentication listener) {
+        user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> emailTask) {
+                if (emailTask.isSuccessful())
+                    updateUserPassword(user, password, listener);
+                else
+                    listener.onUpdateFailure();
+            }
+        });
+    }
+
+    private void updateUserEmail(FirebaseUser user, String email, AuthenticationCallbackResult.UpdateAuthentication listener) {
+        user.updateEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> emailTask) {
+                if (emailTask.isSuccessful())
+                    listener.onUpdateSuccessful();
+                else
+                    listener.onUpdateFailure();
+            }
+        });
+    }
+
+    private void updateUserPassword(FirebaseUser user, String password, AuthenticationCallbackResult.UpdateAuthentication listener) {
+        user.updatePassword(password).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> passwordTask) {
+                if (passwordTask.isSuccessful())
+                    listener.onUpdateSuccessful();
+                else
+                    listener.onUpdateFailure();
+            }
+        });
+    }
+
     public interface FindUserListenerResult {
         void onUserFound(User user);
     }

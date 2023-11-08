@@ -59,11 +59,11 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         }
 
         public void bind(Veterinarian veterinarian){
-            this.latidute=veterinarian.getLegalSite().getLatitude();
-            this.longitude=veterinarian.getLegalSite().getLongitude();
+            this.latidute=veterinarian.getLocation().getLatitude();
+            this.longitude=veterinarian.getLocation().getLongitude();
             this.companyName.setText(veterinarian.getName());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLegalSite()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLocation()));
 
             Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
@@ -79,12 +79,12 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
 
         @SuppressLint("ResourceAsColor")
         public void bind(PublicAuthority publicAuthority){
-            this.latidute=publicAuthority.getLegalSite().getLatitude();
-            this.longitude=publicAuthority.getLegalSite().getLongitude();
+            this.latidute=publicAuthority.getLocation().getLatitude();
+            this.longitude=publicAuthority.getLocation().getLongitude();
             this.companyName.setText(publicAuthority.getName());
-            this.legalSite.setText(publicAuthority.getLegalSite().toString());
+            this.legalSite.setText(publicAuthority.getLocation().toString());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLegalSite()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLocation()));
 
             Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){

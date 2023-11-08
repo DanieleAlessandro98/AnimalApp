@@ -5,15 +5,26 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import it.uniba.dib.sms222334.R;
 
 public class LocationTracker {
+    public enum LocationState {
+        NULL,
+        PERMISSION_NOT_GRANTED,
+        PROVIDER_DISABLED,
+        LOCATION_IS_NOT_TRACKING,
+        LOCATION_IS_TRACKING_AND_NOT_AVAILABLE,
+        LOCATION_IS_TRACKING_AND_AVAILABLE,
+    }
+
     private static LocationTracker instance;
 
     private Context context;
@@ -46,14 +57,30 @@ public class LocationTracker {
         return instance;
     }
 
-    public void startLocationUpdates() {
+    public LocationState checkLocationState() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return LocationState.PERMISSION_NOT_GRANTED;
+
+        if (!isGPSProviderEnabled())
+            return LocationState.PROVIDER_DISABLED;
+
+        if (!isTracking)
+            return LocationState.LOCATION_IS_NOT_TRACKING;
+
+        if (isTracking && currentLocation == null)
+            return LocationState.LOCATION_IS_TRACKING_AND_NOT_AVAILABLE;
+
+        if (isTracking && currentLocation != null)
+            return LocationState.LOCATION_IS_TRACKING_AND_AVAILABLE;
+
+        return LocationState.NULL;
+    }
+
+    public void startLocationTracking() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 
         if (isTracking)
-            return;
-
-        if (!isGPSProviderEnabled())
             return;
 
         isTracking = true;
@@ -64,18 +91,13 @@ public class LocationTracker {
         this.notifyLocationChanged = notifyLocationChanged;
     }
 
-    public Location getLocation() {
+    public Location getLocation(boolean showWarning) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return null;
 
-        if (!isGPSProviderEnabled()) {
-            showGPSDisabledDialog();
-            return null;
-        }
-
-        if (isTracking && currentLocation == null) {
-            showLocationNotAvailable();
-            return null;
+        if (showWarning) {
+            if (isTracking && currentLocation == null)
+                showLocationNotAvailable();
         }
 
         return currentLocation;
@@ -93,19 +115,8 @@ public class LocationTracker {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
-    private void showLocationNotAvailable() {
+    public void showLocationNotAvailable() {
         Toast.makeText(context, context.getString(R.string.location_not_available), Toast.LENGTH_SHORT).show();
-    }
-
-    private void showGPSDisabledDialog() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setMessage(context.getString(R.string.location_gps_disabled_message));
-        alertDialog.setPositiveButton(context.getString(R.string.settings), (dialog, which) -> {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            context.startActivity(intent);
-        });
-        alertDialog.setNegativeButton(context.getString(R.string.location_gps_disabled_cancel), (dialog, which) -> {});
-        alertDialog.show();
     }
 
     public interface NotifyLocationChanged {

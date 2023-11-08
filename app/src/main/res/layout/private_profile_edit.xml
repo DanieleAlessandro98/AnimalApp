@@ -182,6 +182,35 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/location_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <AutoCompleteTextView
+                    android:id="@+id/location_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/location_address"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edit_text_shape"
+                    android:padding="16dp"
+                    android:textColorHint="#bbbbbb"
+                    android:textSize="16sp" />
+
+                <ImageButton
+                    android:id="@+id/search_location_button"
+                    android:layout_width="100dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_shape"
+                    android:src="@drawable/search_button"
+                    app:tint="?attr/colorPrimary" />
+            </LinearLayout>
+
             <it.uniba.dib.sms222334.Views.AnimalAppEditText
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"

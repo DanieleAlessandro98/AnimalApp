@@ -32,7 +32,7 @@
             android:background="@drawable/edged_container_shape"
             android:elevation="8dp"
             android:paddingHorizontal="10dp"
-            android:text="... km" />
+            android:text="0 km"/>
 
         <TextView
             android:id="@+id/type"

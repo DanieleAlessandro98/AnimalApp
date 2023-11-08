@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.UploadTask;
+
 import java.io.IOException;
 import java.util.Date;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationCallbackResult;
@@ -63,8 +64,6 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             return;
         }
 
-
-
         AuthenticationDao authenticationDao = new AuthenticationDao();
 
         if(SessionManager.getInstance().getCurrentUser().getEmail().compareTo(email) != 0){
@@ -79,14 +78,18 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         else{
             updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
         }
-
-
-
     }
-    public void updateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
+
+    public void updateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String location, String companyname) {
 
         if (!Validations.isValidPassword(password)) {
             profileView.showInvalidInput(5);
+            return;
+        }
+
+        GeoPoint locationValue = Validations.isValidLocation(location, profileView.getContext());
+        if (locationValue == null) {
+            profileView.showInvalidInput(7);
             return;
         }
 
@@ -104,66 +107,78 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                     profileView.showInvalidInput(3);
                     return;
                 }
-                ((Private)profileModel).setName(name);
-                ((Private)profileModel).setSurname(surname);
-                ((Private)profileModel).setBirthDate(birthDate);
-                ((Private)profileModel).setTaxIDCode(taxID);
+                ((Private) profileModel).setName(name);
+                ((Private) profileModel).setSurname(surname);
+                ((Private) profileModel).setBirthDate(birthDate);
+                ((Private) profileModel).setTaxIDCode(taxID);
                 break;
+
             case PUBLIC_AUTHORITY:
                 if (!Validations.isValidCompanyName(companyname)) {
                     profileView.showInvalidInput(1);
                     return;
                 }
-                ((PublicAuthority)profileModel).setName(companyname);
-                GeoPoint fakesite = new GeoPoint(-90,90); //TODO: implementare il geopoint
-                ((PublicAuthority)profileModel).setLegalSite(fakesite);
+
+                ((PublicAuthority) profileModel).setName(companyname);
+                GeoPoint fakesite = new GeoPoint(-90, 90); //TODO: implementare il geopoint
+                ((PublicAuthority) profileModel).setLocation(fakesite);
                 break;
+
             case VETERINARIAN:
                 if (!Validations.isValidCompanyName(companyname)) {
                     profileView.showInvalidInput(1);
                     return;
                 }
-                ((Veterinarian)profileModel).setName(companyname);
-                fakesite = new GeoPoint(-90,90); //TODO: implementare il geopoint
-                ((Veterinarian)profileModel).setLegalSite(fakesite);
+                ((Veterinarian) profileModel).setName(companyname);
+                fakesite = new GeoPoint(-90, 90); //TODO: implementare il geopoint
+                ((Veterinarian) profileModel).setLocation(fakesite);
                 break;
         }
-            profileModel.setEmail(email); //TODO: Verificare la modifica dell'authentication
-            profileModel.setPassword(password);  //TODO: Verificare la modifica dell'authentication
-            profileModel.setPhone(Long.parseLong(phone));
 
-        //todo : verificare modifica della foto null pointer exception
-        if ((profileView.getPhotoPicked()!=null)&&(!profileModel.getPhoto().sameAs(profileView.getPhotoPicked()))) {
-            MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
-                @Override
-                public void onPhotoUploaded() {
-                    profileModel.setPhoto(profileView.getPhotoPicked());
-                    profileModel.updateProfile();
+        profileModel.setEmail(email);
+        profileModel.setPassword(password);
+        profileModel.setPhone(Long.parseLong(phone));
+        profileModel.setLocation(new GeoPoint(locationValue.getLatitude(), locationValue.getLongitude()));
+
+        Authentication authentication = new Authentication(new AuthenticationCallbackResult.UpdateAuthentication() {
+            @Override
+            public void onUpdateSuccessful() {
+                if ((profileView.getPhotoPicked() != null) && (!profileModel.getPhoto().sameAs(profileView.getPhotoPicked()))) {
+                    MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                        @Override
+                        public void onPhotoUploaded() {
+                            profileModel.setPhoto(profileView.getPhotoPicked());
+                            profileModel.updateProfile(true);
+                            profileView.showUpdateSuccessful(profileModel);
+                        }
+
+                        @Override
+                        public void onPhotoUploadFailed(Exception exception) {
+                            profileView.showPhotoUpdateError();
+                        }
+
+                        @Override
+                        public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
+                        }
+                    };
+
+                    MediaDao mediaDao = new MediaDao();
+                    mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+                } else {
+                    profileModel.updateProfile(false);
                     profileView.showUpdateSuccessful(profileModel);
                 }
+            }
 
-                @Override
-                public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+            @Override
+            public void onUpdateFailure() {
 
-                }
+            }
+        });
 
-                @Override
-                public void onPhotoUploadFailed(Exception exception) {
-                    profileView.showPhotoUpdateError();
-
-                }
-            };
-
-            MediaDao mediaDao = new MediaDao();
-            mediaDao.uploadPhoto(profileView.getPhotoPicked(), Media.PROFILE_PHOTO_PATH, profileModel.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
-        }
-        else {
-            profileModel.updateProfile();
-            profileView.showUpdateSuccessful(profileModel);
-        }
+        authentication.updateUserAuth(email, password);
     }
-
-
 
     public void deleteProfile() {
         if ((!SessionManager.getInstance().isLogged()) || profileModel == null)

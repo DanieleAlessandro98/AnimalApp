@@ -87,7 +87,7 @@ public class VeterinarianDao {
         new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD, Veterinarian.getPassword());
         new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, "/images/profiles/users/default.jpg");
         new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER, Veterinarian.getPhone());
-        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, Veterinarian.getLegalSite());
+        new_veterinarian.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, Veterinarian.getLocation());
 
         collectionVeterinarian.add(new_veterinarian)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -148,7 +148,7 @@ public class VeterinarianDao {
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD, updateVeterinarian.getPassword());
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + updateVeterinarian.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER, updateVeterinarian.getPhone());
-        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, updateVeterinarian.getLegalSite());
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, updateVeterinarian.getLocation());
 
         collectionVeterinarian.document(updateVeterinarian.getFirebaseID())
                 .update(newVeterinarianData)

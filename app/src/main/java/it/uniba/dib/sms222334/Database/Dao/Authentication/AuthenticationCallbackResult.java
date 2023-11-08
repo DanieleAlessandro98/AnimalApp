@@ -20,4 +20,9 @@ public interface AuthenticationCallbackResult {
     interface LogoutCompletedListener {
         void onLogoutCompleted(boolean isSuccessful);
     }
+
+    interface UpdateAuthentication {
+        void onUpdateSuccessful();
+        void onUpdateFailure();
+    }
 }

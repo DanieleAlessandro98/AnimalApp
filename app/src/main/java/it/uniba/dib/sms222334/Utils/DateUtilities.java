@@ -184,4 +184,58 @@ public final class DateUtilities {
         }
     }
 
+    public static String parseAgeDate(Date date, Context context) {
+        if (date == null) {
+            return "";
+        }
+
+        Calendar today = Calendar.getInstance();
+        today.setTime(new Date());
+
+        Calendar birthDate = Calendar.getInstance();
+        birthDate.setTime(date);
+
+        int years = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR);
+        int months = today.get(Calendar.MONTH) - birthDate.get(Calendar.MONTH);
+        int days = today.get(Calendar.DAY_OF_MONTH) - birthDate.get(Calendar.DAY_OF_MONTH);
+
+        if (days < 0) {
+            months--;
+            today.add(Calendar.MONTH, -1); // Move one month back
+            days += today.getActualMaximum(Calendar.DAY_OF_MONTH); // Add the maximum days in the previous month
+        }
+
+        if (months < 0) {
+            years--;
+            months += 12; // Add 12 months to get a positive value
+        }
+
+        StringBuilder ageString = new StringBuilder();
+
+        if (years > 0) {
+            ageString.append(years);
+            ageString.append(" ");
+            ageString.append(years == 1 ? context.getString(R.string.year) : context.getString(R.string.years));
+        }
+
+        if (months > 0) {
+            if (ageString.length() > 0) {
+                ageString.append(" ");
+            }
+            ageString.append(months);
+            ageString.append(" ");
+            ageString.append(months == 1 ? context.getString(R.string.month) : context.getString(R.string.months));
+        }
+
+        if (days > 0) {
+            if (ageString.length() > 0) {
+                ageString.append(" ");
+            }
+            ageString.append(days);
+            ageString.append(" ");
+            ageString.append(days == 1 ? context.getString(R.string.day) : context.getString(R.string.days));
+        }
+
+        return ageString.toString();
+    }
 }

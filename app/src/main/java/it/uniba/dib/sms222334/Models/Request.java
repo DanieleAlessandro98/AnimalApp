@@ -168,6 +168,16 @@ public class Request extends Document{
         });
     }
 
+    public void deleteRequest(DatabaseCallbackResult databaseCallbackResult) {
+        RequestDao requestDao = new RequestDao();
+        requestDao.deleteRequest(this, databaseCallbackResult);
+    }
+
+    public void updateRequest(DatabaseCallbackResult databaseCallbackResult) {
+        RequestDao requestDao = new RequestDao();
+        requestDao.updateRequest(this, databaseCallbackResult);
+    }
+
     public static String getRequestTypeString(RequestType type, Context context) {
         switch (type) {
             case FIND_ANIMAL:

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import org.jetbrains.annotations.Nullable;
@@ -121,7 +122,8 @@ public final class PrivateDao {
                         .setPhoto(bitmap)
                         .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                         .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
-                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
+                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID))
+                        .setLocation(new GeoPoint(10f, 10f));
 
                 Private resultPrivate = private_requested_builder.build();
                 callback.onPrivateFound(resultPrivate);
@@ -248,8 +250,14 @@ public final class PrivateDao {
                 });
     }
 
+    public void updatePhoto(String userID) {
+        Map<String, Object> newPrivateData = new HashMap<>();
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + userID + Media.PROFILE_PHOTO_EXTENSION);
+        collectionPrivate.document(userID)
+                .update(newPrivateData);
+    }
+
     public void updatePrivate(Private updatePrivate,UserCallback.UserUpdateCallback callback) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         List<DocumentReference> dr= new ArrayList<>();
 
@@ -260,9 +268,6 @@ public final class PrivateDao {
             dr.add(documentReference);
         }
 
-        user.updateEmail(updatePrivate.getEmail())
-                .addOnCompleteListener(task -> {});
-
         Map<String, Object> newPrivateData = new HashMap<>();
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_NAME, updatePrivate.getName());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_SURNAME, updatePrivate.getSurname());
@@ -271,7 +276,6 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, Media.PROFILE_PHOTO_PATH + updatePrivate.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())

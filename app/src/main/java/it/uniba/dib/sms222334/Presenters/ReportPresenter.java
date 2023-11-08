@@ -166,4 +166,130 @@ public class ReportPresenter {
     }
 
 
+    public void delete(Report requestReport) {
+        requestReport.deleteReport(new DatabaseCallbackResult() {
+            @Override
+            public void onDataRetrieved(Object result) {
+                boolean resultDelete = (boolean) result;
+                if (resultDelete)
+                    reportFragment.showDocumentDeleteSuccessful(requestReport);
+                else
+                    reportFragment.showDocumentDeleteError(requestReport);
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
+    }
+
+    public void onEdit(Report report, String description, String name, String age, float latitude, float longitude) {
+        if (!Validations.isValidDescription(description)) {
+            reportFragment.showInvalidReportDescription();
+            return;
+        }
+
+        if (report.getType() == ReportType.LOST && name.equals("")) {
+            reportFragment.showInvalidReportSelectedAnimal();
+            return;
+        }
+
+        if (!age.isEmpty()) {
+            int validationCode = Validations.isValidAgeString(age, reportFragment.getContext());
+            if (validationCode != 0) {
+                reportFragment.showInvalidAge(validationCode);
+                return;
+            }
+        }
+
+        report.setDescription(description);
+        report.setAnimalName(name);
+        report.setAnimalAge(DateUtilities.parseAgeString(age, reportFragment.getContext()));
+        report.setLocation(new GeoPoint(latitude, longitude));
+
+        if (!report.getReportPhoto().sameAs(reportFragment.getPhotoPicked())) {
+            MediaDao.PhotoUploadListener listener = new MediaDao.PhotoUploadListener() {
+                @Override
+                public void onPhotoUploaded() {
+                    report.setReportPhoto(reportFragment.getPhotoPicked());
+
+                    report.updateReport(new DatabaseCallbackResult() {
+                        @Override
+                        public void onDataRetrieved(Object result) {
+                            boolean resultValue = (boolean) result;
+                            if (resultValue)
+                                reportFragment.showReportUpdateSuccessful(report);
+                            else
+                                reportFragment.showReportUpdateError();
+                        }
+
+                        @Override
+                        public void onDataRetrieved(ArrayList results) {
+
+                        }
+
+                        @Override
+                        public void onDataNotFound() {
+
+                        }
+
+                        @Override
+                        public void onDataQueryError(Exception e) {
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onPhotoUploadProgress(UploadTask.TaskSnapshot snapshot) {
+
+                }
+
+                @Override
+                public void onPhotoUploadFailed(Exception exception) {
+                    reportFragment.showReportUpdateError();
+                }
+            };
+
+            MediaDao mediaDao = new MediaDao();
+            mediaDao.uploadPhoto(reportFragment.getPhotoPicked(), Media.REPORT_PHOTO_PATH, report.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION, listener);
+        } else {
+            report.updateReport(new DatabaseCallbackResult() {
+                @Override
+                public void onDataRetrieved(Object result) {
+                    boolean resultValue = (boolean) result;
+                    if (resultValue)
+                        reportFragment.showReportUpdateSuccessful(report);
+                    else
+                        reportFragment.showReportUpdateError();
+                }
+
+                @Override
+                public void onDataRetrieved(ArrayList results) {
+
+                }
+
+                @Override
+                public void onDataNotFound() {
+
+                }
+
+                @Override
+                public void onDataQueryError(Exception e) {
+
+                }
+            });
+        }
+    }
 }

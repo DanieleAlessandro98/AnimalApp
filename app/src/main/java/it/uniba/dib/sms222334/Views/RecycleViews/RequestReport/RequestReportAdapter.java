@@ -5,66 +5,132 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
+import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Models.Document;
-import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.Report;
+import it.uniba.dib.sms222334.Models.Request;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.R;
 
-public class RequestReportAdapter extends RecyclerView.Adapter<RequestReportViewHolder>{
+public class RequestReportAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final int SHOW_REQUEST_MENU = 1;
+    private final int HIDE_REQUEST_MENU = 3;
 
-    ArrayList<Document> requestReportList;
-    Context context;
+    private final int SHOW_REPORT_MENU = 2;
+    private final int HIDE_REPORT_MENU = 4;
 
-    public RequestReportAdapter(ArrayList<Document> mModel, Context context){
-        this.requestReportList = mModel;
-        this.context=context;
-    }
+    private List<Document> list;
+    private HomeFragment fragment;
 
-    @NonNull
-    @Override
-    public RequestReportViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View layout= LayoutInflater.from(parent.getContext())
-                .inflate(viewType==0?R.layout.request_list_item:R.layout.report_list_item,parent,false);
-
-        return new RequestReportViewHolder(layout,context);
+    public RequestReportAdapter(HomeFragment fragment, List<Document> articlesList) {
+        this.list = articlesList;
+        this.fragment = fragment;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RequestReportViewHolder holder, int position) {
-        holder.requestReport = requestReportList.get(position);
-
-        if(getItemViewType(position)==0){
-            holder.bind((Request) requestReportList.get(position));
+    public int getItemViewType(int position) {
+        Document document = list.get(position);
+        if(document instanceof Request) {
+            if (document.isShowMenu())
+                return SHOW_REQUEST_MENU;
+            else
+                return HIDE_REQUEST_MENU;
+        } else {
+            if (document.isShowMenu())
+                return SHOW_REPORT_MENU;
+            else
+                return HIDE_REPORT_MENU;
         }
-        else{
-            holder.bind((Report) requestReportList.get(position));
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v;
+
+        switch (viewType) {
+            case SHOW_REQUEST_MENU:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_request_menu, parent, false);
+                return new MenuViewHolder(v, fragment);
+
+            case HIDE_REQUEST_MENU:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.request_list_item, parent, false);
+                return new RequestViewHolder(v, fragment.getContext());
+
+            case SHOW_REPORT_MENU:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_report_menu, parent, false);
+                return new MenuViewHolder(v, fragment);
+
+            case HIDE_REPORT_MENU:
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.report_list_item, parent, false);
+                return new ReportViewHolder(v, fragment.getContext());
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Document entity = list.get(holder.getAdapterPosition());
+        if (holder instanceof RequestViewHolder && entity instanceof Request)
+            ((RequestViewHolder) holder).bind((Request) entity);
+        else if (holder instanceof ReportViewHolder && entity instanceof Report)
+            ((ReportViewHolder) holder).bind((Report) entity);
+        else if (holder instanceof MenuViewHolder) {
+            if (entity instanceof Request)
+                ((MenuViewHolder) holder).bind((Request) entity);
+            else
+                ((MenuViewHolder) holder).bind((Report) entity);
         }
     }
 
     @Override
     public int getItemCount() {
-        return this.requestReportList.size();
+        return list.size();
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if(requestReportList.get(position) instanceof Request){
-            return 0;
-        }
-        else {
-            return 1;
+    public void showMenu(int position) {
+        for (int i = 0; i < list.size(); i++) {
+            if (i != position && isMenuShown(i)) {
+                list.get(i).setShowMenu(false);
+                notifyItemChanged(i);
+            }
         }
 
+        list.get(position).setShowMenu(true);
+        notifyItemChanged(position);
+    }
 
+    public void closeMenu() {
+        for (int i = 0; i < list.size(); i++) {
+            if (isMenuShown(i)) {
+                list.get(i).setShowMenu(false);
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public boolean isMenuShown() {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).isShowMenu())
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean isMenuShown(int position) {
+        if (position >= 0 && position < list.size())
+            return list.get(position).isShowMenu();
+
+        return false;
     }
 
     public void sortByDistance() {
@@ -73,7 +139,7 @@ public class RequestReportAdapter extends RecyclerView.Adapter<RequestReportView
 
         String loggedUserID = SessionManager.getInstance().isLogged() ? SessionManager.getInstance().getCurrentUser().getFirebaseID() : null;
 
-        for (Document document : requestReportList) {
+        for (Document document : list) {
             User documentUser = (document instanceof Report) ? ((Report) document).getUser() : ((Request) document).getUser();
 
             if (documentUser != null && documentUser.getFirebaseID().equals(loggedUserID))
@@ -95,10 +161,22 @@ public class RequestReportAdapter extends RecyclerView.Adapter<RequestReportView
         Collections.sort(userDocuments, distanceComparator);
         Collections.sort(otherDocuments, distanceComparator);
 
-        requestReportList.clear();
-        requestReportList.addAll(userDocuments);
-        requestReportList.addAll(otherDocuments);
+        list.clear();
+        list.addAll(userDocuments);
+        list.addAll(otherDocuments);
         notifyDataSetChanged();
     }
 
+    public void removeDocument(Document requestReport) {
+        this.list.remove(requestReport);
+        notifyDataSetChanged();
+    }
+
+    public void updateDocument(Document requestReport) {
+        int position = list.indexOf(requestReport);
+        if (position != -1) {
+            list.set(position, requestReport);
+            notifyItemChanged(position);
+        }
+    }
 }

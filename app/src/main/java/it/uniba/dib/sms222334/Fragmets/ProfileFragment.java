@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -24,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -41,11 +44,16 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import it.uniba.dib.sms222334.Activity.MainActivity;
 import it.uniba.dib.sms222334.Models.Animal;
@@ -97,13 +105,17 @@ public class ProfileFragment extends Fragment {
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText siteEditText;
-
-
+    private AutoCompleteTextView locationEditText;
     private UserPresenter userPresenter;
 
     private User profile;
 
     private ImageView editPhotoImageView;
+    private ImageView photoImageView;
+    private Button saveButton;
+    private Button deleteButton;
+    private Button editPhotoButton;
+    private ImageButton searchLocationButton;
 
     private ImageView profilePhoto;
 
@@ -452,10 +464,11 @@ public class ProfileFragment extends Fragment {
                 dateTextView = dialog.findViewById(R.id.date_text_view);
                 taxIDEditText = dialog.findViewById(R.id.tax_id_EditText);
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                locationEditText = dialog.findViewById(R.id.location_edit_text);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
                 passwordEditText = dialog.findViewById(R.id.passwordEditText);
-
                 break;
+
             case VETERINARIAN:
                 dialog.setContentView(R.layout.veterinarian_profile_edit);
 
@@ -466,8 +479,8 @@ public class ProfileFragment extends Fragment {
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
                 passwordEditText = dialog.findViewById(R.id.passwordEditText);
-
                 break;
+
             case PUBLIC_AUTHORITY:
                 dialog.setContentView(R.layout.authority_profile_edit);
 
@@ -478,7 +491,6 @@ public class ProfileFragment extends Fragment {
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
                 passwordEditText = dialog.findViewById(R.id.passwordEditText);
-
                 break;
         }
 
@@ -486,8 +498,10 @@ public class ProfileFragment extends Fragment {
         Button deleteButton = dialog.findViewById(R.id.delete_button);
         Button editPhotoButton = dialog.findViewById(R.id.edit_button);
         Button logoutButton = dialog.findViewById(R.id.logout_button);
+        searchLocationButton = dialog.findViewById(R.id.search_location_button);
 
-
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        locationEditText.setAdapter(adapter);
 
         saveButton.setOnClickListener(v -> {
             switch (role) {
@@ -498,13 +512,12 @@ public class ProfileFragment extends Fragment {
 
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                         Date birthDate = dateFormat.parse(dateTextView.getText().toString());
-
                         String taxID = taxIDEditText.getText().toString();
                         String phone = phoneEditText.getText().toString();
                         String email = emailEditText.getText().toString();
                         String password = passwordEditText.getText().toString();
 
-                        String site = null;
+                        String site = locationEditText.getText().toString();
                         String companyname = null;
                         userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
 
@@ -512,6 +525,7 @@ public class ProfileFragment extends Fragment {
                             e.printStackTrace();
                         }
                         break;
+
                     case VETERINARIAN:
                             String companyname = companyNameEditText.getText().toString();
                             String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
@@ -523,8 +537,8 @@ public class ProfileFragment extends Fragment {
                             Date birthDate = null;
                             String taxID = null;
                             userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
-
                         break;
+
                     case PUBLIC_AUTHORITY:
                             companyname = companyNameEditText.getText().toString();
                             site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
@@ -561,6 +575,32 @@ public class ProfileFragment extends Fragment {
         editPhotoButton.setOnClickListener(v -> {
             Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             photoPickerResultLauncher.launch(photoIntent);
+        });
+
+        searchLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String locationName = locationEditText.getText().toString();
+
+                Geocoder geocoder = new Geocoder(getActivity());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(locationName, 5);
+
+                    adapter.clear();
+                    for (Address address : addresses) {
+                        String addressText = address.getAddressLine(0);
+                        adapter.add(addressText);
+                    }
+
+                    adapter.notifyDataSetChanged();
+
+                    locationEditText.setText(locationName);
+                    locationEditText.setSelection(locationName.length());
+                    locationEditText.showDropDown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
         userPresenter.initUserData();
@@ -702,8 +742,12 @@ public class ProfileFragment extends Fragment {
             case 5:
                 passwordEditText.setError(this.getString(R.string.invalid_user_password));
                 break;
+
             case 6:
                 emailEditText.setError(this.getString(R.string.already_used_email));
+
+            case 7:
+                locationEditText.setError(this.getString(R.string.invalid_user_location));
                 break;
         }
     }
@@ -713,6 +757,10 @@ public class ProfileFragment extends Fragment {
         refresh(profile);
         dialog.cancel();
         this.editOpen=false;
+    }
+
+    public void showUpdateError() {
+        Toast.makeText(requireContext(), this.getString(R.string.profile_update_error), Toast.LENGTH_SHORT).show();
     }
 
     private void showDeleteConfirm() {

@@ -26,6 +26,7 @@ import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Report;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
@@ -57,7 +58,7 @@ public class ReportDao {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentID);
 
                         AnimalDao animalDao = new AnimalDao();
-                        animalDao.updateState(report.getAnimalID(), report.getType());
+                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), false));
 
                         setPhotoPath(documentID);
                         callbackModel.onDataRetrieved(documentID);
@@ -200,5 +201,54 @@ public class ReportDao {
                 callback.onDataQueryError(exception);
             }
         });
+    }
+
+    public void deleteReport(Report report, DatabaseCallbackResult callbackPresenter) {
+        collectionReport.document(report.getFirebaseID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        AnimalDao animalDao = new AnimalDao();
+                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), true));
+
+                        callbackPresenter.onDataRetrieved(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackPresenter.onDataRetrieved(false);
+                    }
+                });
+    }
+
+    public void updateReport(Report report, DatabaseCallbackResult callbackPresenter) {
+        Map<String, Object> new_report = new HashMap<>();
+
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_USER_ID, (report.getUser() != null) ? report.getUser().getFirebaseID() : "");
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_TYPE, report.getType().ordinal());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES, report.getAnimalSpecies().ordinal());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION, report.getDescription());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE, report.getAnimalAge());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, report.getAnimalID());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE, report.isShowAnimalProfile());
+
+        collectionReport.document(report.getFirebaseID())
+                .update(new_report)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackPresenter.onDataRetrieved(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackPresenter.onDataRetrieved(false);
+                    }
+                });
     }
 }

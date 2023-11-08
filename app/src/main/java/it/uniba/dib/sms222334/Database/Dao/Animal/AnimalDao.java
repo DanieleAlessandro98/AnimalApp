@@ -646,19 +646,12 @@ public class AnimalDao {
         }
     }
 
-    public void updateState(String documentID, ReportType reportType) {
-        Map<String, Object> animal = new HashMap<>();
-
-        int stateValue = AnimalStates.NULL.ordinal();
-        if (reportType == ReportType.LOST)
-            stateValue = AnimalStates.LOST.ordinal();
-        else if (reportType == ReportType.IN_DANGER)
-            stateValue = AnimalStates.IN_DANGER.ordinal();
-
-        if (documentID.equals("") || stateValue == 0)
+    public void updateState(String documentID, AnimalStates animalStates) {
+        if (documentID.equals("") || animalStates == AnimalStates.NULL)
             return;
 
-        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, stateValue);
+        Map<String, Object> animal = new HashMap<>();
+        animal.put(AnimalAppDB.Animal.COLUMN_NAME_STATE, animalStates.ordinal());
 
         collectionAnimal.document(documentID)
                 .update(animal)
