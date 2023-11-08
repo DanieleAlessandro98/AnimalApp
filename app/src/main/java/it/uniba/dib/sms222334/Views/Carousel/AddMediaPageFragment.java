@@ -52,6 +52,10 @@ public class AddMediaPageFragment extends Fragment {
 
     CarouselPageAdapter adapter;
 
+    public AddMediaPageFragment(){
+
+    }
+
     public AddMediaPageFragment(CarouselPageAdapter adapter){
         this.adapter=adapter;
     }

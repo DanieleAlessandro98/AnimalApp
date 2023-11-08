@@ -1,20 +1,11 @@
 package it.uniba.dib.sms222334.Database.Dao.Authentication;
 
-import android.util.Log;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.concurrent.CompletableFuture;
-
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
@@ -23,6 +14,7 @@ import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 
 public class AuthenticationDao {
     final static String TAG="AuthenticationDao";
@@ -30,19 +22,11 @@ public class AuthenticationDao {
 
     public void login(String email, String password, AuthenticationCallbackResult.Login listener) {
         auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            findUser(email, new FindUserListenerResult() {
-                                @Override
-                                public void onUserFound(User user) {
-                                    listener.onLoginSuccessful(user);
-                                }
-                            });
-                        } else {
-                            listener.onLoginFailure();
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        findUser(email, listener::onLoginSuccessful);
+                    } else {
+                        listener.onLoginFailure();
                     }
                 });
     }
@@ -71,7 +55,7 @@ public class AuthenticationDao {
 
                                 @Override
                                 public void onPrivateFindFailed(Exception exception) {
-
+                                    listener.onUserFound(null);
                                 }
                             });
                         } else {
@@ -90,13 +74,22 @@ public class AuthenticationDao {
 
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                             PublicAuthorityDao publicAuthorityDao = new PublicAuthorityDao();
-                            PublicAuthority authorityFound = publicAuthorityDao.findPublicAuthority(document);
 
-                            publicAuthorityDao.loadPublicAuthorityAnimals(document,authorityFound,null);
+                            publicAuthorityDao.findPublicAuthority(document, new PublicAuthorityDao.PublicAuthorityCallback() {
+                                @Override
+                                public void onPublicAuthorityFound(PublicAuthority resultPublicAuthority) {
+                                    publicAuthorityDao.loadPublicAuthorityAnimals(document,resultPublicAuthority,null);
+                                    listener.onUserFound(resultPublicAuthority);
+                                }
 
-                            User user = authorityFound;
+                                @Override
+                                public void onPublicAuthorityFindFailed(Exception exception) {
+                                    listener.onUserFound(null);
+                                }
+                            });
 
-                            listener.onUserFound(user);
+
+
                         } else {
                             findVeterinarianUser(db, email, listener);
                         }
@@ -113,9 +106,21 @@ public class AuthenticationDao {
 
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                             VeterinarianDao veterinarianDao = new VeterinarianDao();
-                            User user = veterinarianDao.findVeterinarian(document);
 
-                            listener.onUserFound(user);
+
+                            veterinarianDao.findVeterinarian(document, new VeterinarianDao.VeterinarianCallback() {
+                                @Override
+                                public void onVeterinarianFound(Veterinarian resultVeterinarian) {
+                                    veterinarianDao.loadVeterinarianVisits(resultVeterinarian);
+
+                                    listener.onUserFound(resultVeterinarian);
+                                }
+
+                                @Override
+                                public void onVeterinarianFindFailed(Exception exception) {
+                                    listener.onUserFound(null);
+                                }
+                            });
                         } else {
                             listener.onUserFound(null);
                         }
@@ -127,55 +132,34 @@ public class AuthenticationDao {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             user.delete()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                listener.onLogoutSuccessful();
-                            } else {
-                                listener.onLogoutFailure();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            listener.onLogoutSuccessful();
+                        } else {
+                            listener.onLogoutFailure();
                         }
                     });
         }
     }
 
     public static void fireAuth(String email, String password, DocumentReference documentReference, UserCallback.UserRegisterCallback callback) {
-        // Esegui l'autenticazione dell'utente
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    Log.d(TAG, "Autenticazione riuscita");
-                    callback.onRegisterSuccess();
-                })
+                .addOnSuccessListener(authResult -> callback.onRegisterSuccess())
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Errore durante l'autenticazione", e);
-
-                    // Se l'autenticazione fallisce, elimina il documento creato
-                    documentReference.delete().addOnCompleteListener(deleteTask -> {
-                        if (deleteTask.isSuccessful()) {
-                            Log.d(TAG, "Documento eliminato con successo");
-                        } else {
-                            Log.w(TAG, "Errore durante l'eliminazione del documento", deleteTask.getException());
-                        }
-
-                        // Chiamare il callback di registrazione fallita dopo aver gestito l'eliminazione
-                        callback.onRegisterFail();
-                    });
+                    //Il authentication fail, remove the created document
+                    documentReference.delete().addOnCompleteListener(deleteTask -> callback.onRegisterFail());
                 });
     }
 
     public void isEmailUnique(String email, FindSameEmail emailfind ) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(Task<SignInMethodQueryResult> task) {
-                        if (task.isSuccessful()) {
-                            boolean emailExists = !task.getResult().getSignInMethods().isEmpty();
-                            emailfind.emailfind(emailExists);
-                        } else {
-                            emailfind.emailfind(false);
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        boolean emailExists = !task.getResult().getSignInMethods().isEmpty();
+                        emailfind.emailfind(emailExists);
+                    } else {
+                        emailfind.emailfind(false);
                     }
                 });
     }

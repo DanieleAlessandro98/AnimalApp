@@ -82,6 +82,20 @@ public final class DateUtilities {
 
     }
 
+    public static Boolean validateVisitDate(Date date) {
+        Calendar birthdate = Calendar.getInstance();
+        birthdate.setTime(date);
+
+        Calendar today = Calendar.getInstance();
+
+        int age = (today.get(Calendar.YEAR) - birthdate.get(Calendar.YEAR)) * 365;
+
+        age += today.get(Calendar.DAY_OF_YEAR) - birthdate.get(Calendar.DAY_OF_YEAR);
+
+        return age <= -2;
+
+    }
+
     public static Date parseAgeString(String ageString, Context context) {
         if (ageString.isEmpty())
             return null;

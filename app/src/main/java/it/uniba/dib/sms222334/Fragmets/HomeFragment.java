@@ -111,7 +111,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                 if (isLogged)
                     launchRequestDialog();
                 else
-                    ((MainActivity) getActivity()).forceLogin();
+                    ((MainActivity) getActivity()).forceLogin(null);
             });
         }
     }

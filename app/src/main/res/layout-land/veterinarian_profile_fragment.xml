@@ -22,7 +22,7 @@
             android:src="@drawable/profile_badge"
             android:background="@android:color/darker_gray"
             android:layout_centerHorizontal="true"
-            app:strokeColor="?attr/colorAccent"
+            app:strokeColor="@color/light_main_green"
             app:shapeAppearanceOverlay="@style/right_rounded"
             android:scaleType="centerCrop"/>
 
@@ -132,7 +132,7 @@
                         android:id="@+id/visit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/health"/>
+                        android:icon="@drawable/visit"/>
                 </com.google.android.material.tabs.TabLayout>
 
                 <FrameLayout android:id="@+id/recycle_container"

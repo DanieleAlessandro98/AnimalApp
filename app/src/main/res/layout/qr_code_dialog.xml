@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_container_shape"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/top_rounded_container_shape"
+        android:backgroundTint="?attr/errorShown"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/dialog_banner_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="QR CODE"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp">
+
+        <ImageView
+            android:id="@+id/qr_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:layout_below="@+id/qr_code"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/close_button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_shape"
+            android:paddingHorizontal="10dp"
+            android:text="@string/close"
+            android:backgroundTint="?attr/errorShown"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="18sp" />
+    </RelativeLayout>
+</LinearLayout>

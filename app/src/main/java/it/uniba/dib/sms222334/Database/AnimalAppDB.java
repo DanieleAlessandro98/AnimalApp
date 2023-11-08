@@ -1,12 +1,9 @@
 package it.uniba.dib.sms222334.Database;
 
 import android.content.ContentResolver;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import it.uniba.dib.sms222334.Utils.AnimalSpecies;
-import it.uniba.dib.sms222334.Utils.ReportType;
+import it.uniba.dib.sms222334.Models.Animal;
 
 public class AnimalAppDB {
     public static final String DATABASE_NAME = "AnimalApp";
@@ -22,7 +19,6 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_PASSWORD = "password";
         public static final String COLUMN_NAME_PHONE_NUMBER = "phone_number";
         public static final String COLUMN_NAME_BIRTH_DATE = "birthdate";
-        public static final String COLUMN_NAME_ROLE = "role";
         public static final String COLUMN_NAME_TAX_ID = "tax_id_code";
         public static final String COLUMN_NAME_PHOTO = "photo";
         public static final String COLUMN_NAME_ANIMALS = "animalList";
@@ -57,6 +53,7 @@ public class AnimalAppDB {
         public static final String MIME_TYPE_DIR=ContentResolver.CURSOR_DIR_BASE_TYPE+"/vnd."+PATH;
 
         public static final String MIME_TYPE_ITEM=ContentResolver.CURSOR_ITEM_BASE_TYPE+"/vnd."+PATH;
+
         public static final String TABLE_NAME = "Veterinarian";
 
         public static final String COLUMN_NAME_EMAIL = "email";
@@ -69,7 +66,6 @@ public class AnimalAppDB {
 
     public static class Animal implements BaseColumns {
         public static final String TABLE_NAME = "Animal";
-
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_OWNER = "ownerID";
         public static final String COLUMN_NAME_BIRTH_DATE = "birthdate";
@@ -93,6 +89,16 @@ public class AnimalAppDB {
 
             public static final String COLUMN_TIMESTAMP = "timestamp";
         }
+
+        public static String getAnimalUri(it.uniba.dib.sms222334.Models.Animal animal){
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http");
+            builder.authority("animal");
+            builder.appendPath("view");
+            builder.appendQueryParameter("id", animal.getFirebaseID());
+
+            return builder.build().toString();
+        }
     }
 
     public static class Visit implements BaseColumns {
@@ -102,8 +108,17 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_STATE = "state";
         public static final String COLUMN_NAME_DIAGNOSIS = "diagnosis";
         public static final String COLUMN_NAME_MEDICAL_NOTE = "medical_note";
+
+        public static final String COLUMN_NAME_TYPE = "Visit Type";
+
+        public static final String COLUMN_NAME_DOCTOR_NAME = "doctor name";
+
+        public static final String COLUMN_NAME_DOCTOR_ID = "idDoctor";
+
+        public static final String COLUMN_NAME_OWNER_ID = "idOwner";
+
+        public static final String COLUMN_NAME_DATE = "Date";
         public static final String COLUMN_NAME_ANIMAL = "animalID";
-        public static final String COLUMN_NAME_VETERINARIAN = "veterinarianID";
     }
 
     public static class Expense implements BaseColumns {

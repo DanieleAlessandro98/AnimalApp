@@ -2,24 +2,35 @@ package it.uniba.dib.sms222334.Activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.storage.UploadTask;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
 import it.uniba.dib.sms222334.Fragmets.VisitFragment;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
@@ -37,9 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
     final static String TAG="MainActivity";
 
+    final private String FRAGMENT_TAG="tab_fragment";
     private ActivityResultLauncher<Intent> authResultLauncher;
     public enum TabPosition{HOME,SEARCH,PROFILE}
-    private TabPosition previousTab,attempingTab;
+    private TabPosition previousTab;
     private BottomNavigationView bottomNavigationView;
 
     @Override
@@ -47,11 +59,57 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
+
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+
+        if (data != null) {
+            String animalId = data.getQueryParameter("id");
+
+            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), new DatabaseCallbackResult<Animal>() {
+                @Override
+                public void onDataRetrieved(Animal result) {
+                    //TODO implementare salvataggio login
+
+                    if(isLogged()){
+                        openAnimalPage(result);
+                    }
+                    else{
+                        Bundle bundle= new Bundle();
+
+                        bundle.putParcelable("animal",result);
+
+                        forceLogin(bundle);
+                    }
+
+                }
+
+                @Override
+                public void onDataRetrieved(ArrayList<Animal> results) {
+
+                }
+
+                @Override
+                public void onDataNotFound() {
+
+                }
+
+                @Override
+                public void onDataQueryError(Exception e) {
+
+                }
+            });
+        }
+
+        if(savedInstanceState!=null)
+            this.previousTab= TabPosition.values()[savedInstanceState.getInt("tab_position")];
+
         initView();
         initListeners();
         initRegisterActivity();
 
-        changeTab(savedInstanceState==null?TabPosition.HOME:TabPosition.values()[savedInstanceState.getInt("tab_position")]);
+        if(getSupportFragmentManager().findFragmentByTag("tab_fragment")==null)
+            changeTab(TabPosition.HOME);
     }
 
     @Override
@@ -94,15 +152,27 @@ public class MainActivity extends AppCompatActivity {
     private void initRegisterActivity() {
         this.authResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK) {
-                            changeTab(attempingTab);
-                            //TODO save user on sharedPreferences
-                        } else {
-                            changeTab(TabPosition.HOME);
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Bundle bundle=result.getData().getExtras();
+
+                        if(bundle!=null){
+                            if(bundle.get("animal")!=null){
+                                openAnimalPage((Animal)bundle.get("animal"));
+                            }
+
+                            if (bundle.get("tab")!=null) {
+                                changeTab(TabPosition.values()[(int)bundle.get("tab")]);
+                            }
+
+                            /*if (bundle.get("profile")!=null) {
+                                openProfile((User)bundle.get("profile"));
+                            }*/
+
                         }
+                        //TODO save user on sharedPreferences
+                    } else {
+                        changeTab(TabPosition.HOME);
                     }
                 });
     }
@@ -119,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
             case HOME:
                 if(previousTab!=TabPosition.HOME) {
                     fragment= new HomeFragment();
-                    attempingTab=TabPosition.HOME;
                     previousTab=TabPosition.HOME;
                     enterAnimation=R.anim.slide_right_in;
                     exitAnimation=R.anim.slide_right_out;
@@ -140,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     fragment=new SearchFragment();
-                    attempingTab=TabPosition.SEARCH;
                     previousTab=TabPosition.SEARCH;
                 }
                 else{
@@ -150,13 +218,16 @@ public class MainActivity extends AppCompatActivity {
             case PROFILE:
                 if(previousTab!=TabPosition.PROFILE){
                     if(isLogged()){
-                        fragment=ProfileFragment.newInstance(SessionManager.getInstance().getCurrentUser(),this);
+                        fragment=ProfileFragment.newInstance(SessionManager.getInstance().getCurrentUser());
                         previousTab=TabPosition.PROFILE;
                         enterAnimation=R.anim.slide_left_in;
                         exitAnimation=R.anim.slide_left_out;
                     }else{
-                        attempingTab=TabPosition.PROFILE;
-                        forceLogin();
+                        Bundle bundle=new Bundle();
+
+                        bundle.putInt("tab",TabPosition.PROFILE.ordinal());
+
+                        forceLogin(bundle);
                         return;
                     }
                 }
@@ -169,18 +240,39 @@ public class MainActivity extends AppCompatActivity {
                 return;
         }
 
+
         FragmentManager fragmentManager=getSupportFragmentManager();
 
-        //TODO WARNING cause crash when pass from profile tab with nested fragment to another tab(try when visit is implemented)
         fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.frame_for_fragment,fragment).commit();
+        transaction.replace(R.id.frame_for_fragment,fragment,FRAGMENT_TAG).commit();
     }
 
-    public void forceLogin(){
+    public void forceLogin(@Nullable Bundle extras){
         Intent loginIntent= new Intent(this,LoginActivity.class);
+
+        if(extras!=null){
+            loginIntent.putExtras(extras);
+        }
+
         this.authResultLauncher.launch(loginIntent);
         overridePendingTransition(R.anim.slide_up_in,R.anim.slide_up_out);
+    }
+
+    private void openAnimalPage(Animal animal){
+        FragmentManager fragmentManager=getSupportFragmentManager();
+
+        FragmentTransaction transaction= fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal),"animalPage").commit();
+    }
+
+    private void openProfile(User profile){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack("itemPage");
+        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
     }
 }

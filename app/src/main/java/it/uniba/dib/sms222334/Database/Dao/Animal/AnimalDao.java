@@ -23,6 +23,7 @@ import org.checkerframework.checker.units.qual.A;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
+import it.uniba.dib.sms222334.Database.Dao.VisitDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
@@ -46,6 +48,7 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Video;
+import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Utils.AnimalSpecies;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.ReportType;
@@ -138,8 +141,6 @@ public class AnimalDao {
     }
     
     public void editAnimal(@NonNull Animal animal, String ownerEmail, @Nullable AnimalCallbacks.updateCallback callback, boolean profilePictureFlag) {
-
-
         List<Map<String, Object>> animalVideo = new ArrayList<>();
         List<Map<String, Object>> animalPhoto = new ArrayList<>();
 
@@ -154,8 +155,8 @@ public class AnimalDao {
         for(Video video: animal.getVideos()){
             Map<String, Object> addingVideo = new HashMap<>();
 
-            addingVideo.put(AnimalAppDB.Animal.Images.COLUMN_PATH,video.getPath());
-            addingVideo.put(AnimalAppDB.Animal.Images.COLUMN_TIMESTAMP,video.getTimestamp());
+            addingVideo.put(AnimalAppDB.Animal.Videos.COLUMN_PATH,video.getPath());
+            addingVideo.put(AnimalAppDB.Animal.Videos.COLUMN_TIMESTAMP,video.getTimestamp());
 
             animalVideo.add(addingVideo);
         }
@@ -342,6 +343,7 @@ public class AnimalDao {
     }
 
     public void getAnimalByReference(@NonNull DocumentReference animalRef, final String resultPrivateReference, final DatabaseCallbackResult<Animal> listener) {
+
         animalRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -366,6 +368,7 @@ public class AnimalDao {
 
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     }).addOnFailureListener(exception -> {
@@ -375,6 +378,7 @@ public class AnimalDao {
 
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     });
@@ -385,6 +389,85 @@ public class AnimalDao {
                 listener.onDataQueryError(task.getException());
             }
         });
+    }
+
+    public void getAnimalByReference(@NonNull DocumentReference animalRef, final DatabaseCallbackResult<Animal> listener) {
+
+        animalRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+
+                    Animal resultAnimal = findAnimal(document);
+
+                    //TODO togliere da qui
+                    final long MAX_SIZE = 4096 * 4096; //dimensione massima dell'immagine in byte
+
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReference().child(Animal.PHOTO_PATH+document.getId()+".jpg");
+
+                    storageRef.getBytes(MAX_SIZE).addOnSuccessListener(bytes -> {
+                        // Converti i dati dell'immagine in un oggetto Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Utilizza il bitmap come desideri, ad esempio, impostalo in un'ImageView
+                        resultAnimal.setPhoto(bitmap);
+
+                        listener.onDataRetrieved(resultAnimal);
+
+                        findAnimalImages(document, resultAnimal);
+                        findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
+                    }).addOnFailureListener(exception -> {
+                        Log.d(TAG,"Foto non caricata: "+exception.getMessage());
+
+                        listener.onDataRetrieved(resultAnimal);
+
+                        findAnimalImages(document, resultAnimal);
+                        findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
+                    });
+                } else {
+                    listener.onDataNotFound();
+                }
+            } else {
+                listener.onDataQueryError(task.getException());
+            }
+        });
+    }
+
+    private void findAnimalVisits(Animal animal){
+        VisitDao.collectionVisit.whereEqualTo("animalID",AnimalDao.collectionAnimal.document(animal.getFirebaseID()))
+                .get()
+                .addOnSuccessListener(task -> {
+                    List<Visit> visitList = new ArrayList<>();
+
+                    for (DocumentSnapshot document : task.getDocuments()) {
+                        String visitID = document.getId();
+                        String visitName = document.getString(AnimalAppDB.Visit.COLUMN_NAME_NAME);
+                        int visitType = Math.toIntExact(document.getLong(AnimalAppDB.Visit.COLUMN_NAME_TYPE));
+                        Timestamp time = document.getTimestamp(AnimalAppDB.Visit.COLUMN_NAME_DATE);
+                        int diagnosisType= Math.toIntExact(document.getLong(AnimalAppDB.Visit.COLUMN_NAME_DIAGNOSIS));
+                        String doctorName= document.getString(AnimalAppDB.Visit.COLUMN_NAME_DOCTOR_ID);
+                        String medicalNote= document.getString(AnimalAppDB.Visit.COLUMN_NAME_MEDICAL_NOTE);
+                        int state= Math.toIntExact(document.getLong(AnimalAppDB.Visit.COLUMN_NAME_STATE));
+
+                        Visit visit = Visit.Builder
+                                .create(visitID, visitName, Visit.visitType.values()[visitType], time)
+                                .setAnimal(animal)
+                                .setDiagnosis(Visit.diagnosisType.values()[diagnosisType])
+                                .setDoctorName(doctorName)
+                                .setMedicalNotes(medicalNote)
+                                .setState(Visit.visitState.values()[state])
+                                .build();
+
+                        animal.addVisit(visit);
+                    }
+                });
     }
 
     private void findAnimalExpences(Animal resultAnimal) {
@@ -460,7 +543,7 @@ public class AnimalDao {
         }
     }
 
-    private Animal findAnimal(@NonNull DocumentSnapshot document, final String resultPrivateRefernce) {
+    public Animal findAnimal(@NonNull DocumentSnapshot document, final String resultPrivateRefernce) {
         int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
         AnimalStates state = AnimalStates.values()[stateInteger];
 
@@ -477,6 +560,26 @@ public class AnimalDao {
 
         return animal_find.build();
     }
+
+    public Animal findAnimal(@NonNull DocumentSnapshot document) {
+        int stateInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_STATE).intValue();
+        AnimalStates state = AnimalStates.values()[stateInteger];
+
+        int SpeciesInteger = document.getLong(AnimalAppDB.Animal.COLUMN_NAME_SPECIES).intValue();
+        AnimalSpecies species = AnimalSpecies.values()[SpeciesInteger];
+
+        Animal.Builder animal_find = Animal.Builder.create(document.getId(), state)
+                .setBirthDate(document.getDate(AnimalAppDB.Animal.COLUMN_NAME_BIRTH_DATE))
+                .setMicrochip(document.getString(AnimalAppDB.Animal.COLUMN_NAME_MICROCHIP))
+                .setName(document.getString(AnimalAppDB.Animal.COLUMN_NAME_NAME))
+                .setRace(document.getString(AnimalAppDB.Animal.COLUMN_NAME_RACE))
+                .setSpecies(species)
+                .setOwner(document.getString(AnimalAppDB.Animal.COLUMN_NAME_OWNER));
+
+        return animal_find.build();
+    }
+
+
     public void deleteAnimal(Animal animal){
         collectionAnimal.document(animal.getFirebaseID()).delete();
     }

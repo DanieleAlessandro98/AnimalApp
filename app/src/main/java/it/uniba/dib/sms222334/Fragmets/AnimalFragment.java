@@ -3,25 +3,28 @@ package it.uniba.dib.sms222334.Fragmets;
 import static android.app.Activity.RESULT_OK;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,11 +44,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.tabs.TabLayout;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.Calendar;
+import java.util.Objects;
 
+import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Presenters.AnimalPresenter;
@@ -53,6 +58,7 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.AnimalStates;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
+import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 import it.uniba.dib.sms222334.Views.AnimalAppEditText;
 import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
@@ -60,9 +66,13 @@ import it.uniba.dib.sms222334.Views.Carousel.CarouselPageAdapter;
 public class AnimalFragment extends Fragment {
 
     final static String TAG="AnimalFragment";
+
+    final private String FRAGMENT_TAG="animal_tab_fragment";
     Animal animal;
 
-    Button editButton,backButton;
+    AnimalAppDialog editDialog;
+
+    Button editButton,backButton,shareButton,qrCodeButton;
     TabLayout tabLayout;
 
     TextView name,species,race,age,state;
@@ -79,9 +89,9 @@ public class AnimalFragment extends Fragment {
                                 and this must be set before fragment is created(onCreateView())*/
 
     private ProfileFragment.Tab previousTab;
+    private ProfileFragment.TabPosition clickedTab;
 
-    public SharedPreferences.Editor editor;
-    private static SharedPreferences preferences;
+    private boolean editOpen;
 
     private ActivityResultLauncher<Intent> photoPickerResultLauncher;
 
@@ -98,17 +108,16 @@ public class AnimalFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        if(AnimalPresenter.checkAnimalProperty(animal))
-            changeTab(ProfileFragment.TabPosition.RELATION,false);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach()");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View layout;
+        Log.d(TAG,"onCreateView()");
 
         this.profileType= ProfileFragment.Type.ANIMAL;
 
@@ -123,6 +132,10 @@ public class AnimalFragment extends Fragment {
 
             this.previousTab=new ProfileFragment.Tab();
 
+            initTabListener();
+
+            editButton=layout.findViewById(R.id.edit_button);
+
             this.photoPickerResultLauncher = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
@@ -133,46 +146,24 @@ public class AnimalFragment extends Fragment {
                         }
                     });
 
-            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    switch (tab.getPosition()){
-                        case 0:
-                            changeTab(ProfileFragment.TabPosition.RELATION,true);
-                            break;
-
-                        case 1:
-                            changeTab(ProfileFragment.TabPosition.HEALTH,true);
-                            break;
-
-                        case 2:
-                            changeTab(ProfileFragment.TabPosition.FOOD,true);
-                            break;
-
-                        case 3:
-                            changeTab(ProfileFragment.TabPosition.VISIT,true);
-                            break;
-
-                        case 4:
-                            changeTab(ProfileFragment.TabPosition.EXPENSE,true);
-                            break;
-                    }
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
+            editButton.setOnClickListener(v -> {
+                if(!editOpen){
+                    editOpen=true;
+                    launchEditDialog();
                 }
             });
+        }
+        else if(SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN){
+            layout= inflater.inflate(R.layout.animal_fragment,container,false);
+            tabLayout=layout.findViewById(R.id.tab_layout);
 
             editButton=layout.findViewById(R.id.edit_button);
 
-            editButton.setOnClickListener(v -> launchEditDialog());
+            editButton.setVisibility(View.INVISIBLE);
+
+            this.previousTab=new ProfileFragment.Tab();
+
+            initTabListener();
         }
         else{
             layout= inflater.inflate(R.layout.stranger_animal_fragment,container,false);
@@ -187,15 +178,141 @@ public class AnimalFragment extends Fragment {
 
         this.mViewPager=layout.findViewById(R.id.carousel);
 
+        this.qrCodeButton=layout.findViewById(R.id.qr_code_button);
+
         refresh(animal);
+
+        shareButton=layout.findViewById(R.id.share_button);
 
         backButton=layout.findViewById(R.id.back_button);
 
         backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
-        //mViewPager.setOffscreenPageLimit(3);
-
         return layout;
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG,"onViewStateRestored()");
+
+        Bundle args=getArguments();
+
+        if(args!=null){
+            this.clickedTab = ProfileFragment.TabPosition.values()[args.getInt("tab_position", 1)];
+            this.editOpen = args.getBoolean("edit_open");
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG,"onStart()");
+
+        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
+            tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()-1));
+
+            if(getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
+                changeTab(this.clickedTab,false);
+        }
+
+        this.qrCodeButton.setOnClickListener(v -> {
+
+            String content=AnimalAppDB.Animal.getAnimalUri(animal);
+
+
+
+            final int MARGIN=50;
+
+            WindowManager windowManager=((Activity) requireContext()).getWindowManager();
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+
+            int size = displayMetrics.widthPixels-MARGIN;
+
+            try {
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+
+                Bitmap bitmap = barcodeEncoder.encodeBitmap(content, BarcodeFormat.QR_CODE, size,size);
+
+                AnimalAppDialog.launchQRCodeDialog(getContext(),bitmap);
+            } catch(Exception e) {
+                Log.d(TAG,e.toString());
+                Toast.makeText(getContext(), e.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        this.shareButton.setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, AnimalAppDB.Animal.getAnimalUri(animal));
+
+            startActivity(Intent.createChooser(shareIntent, "Condividi animale"));
+        });
+
+        if(editOpen)
+            launchEditDialog();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop()");
+
+        Bundle args=getArguments();
+
+        if((args!=null) && ((SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))) {
+            args.putInt("tab_position", this.clickedTab.ordinal());
+            args.putBoolean("edit_open",this.editOpen);
+        }
+
+        if(this.editDialog!=null)
+            editDialog.dismiss();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG,"onsaveInstanceState()");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy()");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach()");
+    }
+
+    private void initTabListener(){
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    clickedTab= ProfileFragment.TabPosition.values()[tab.getPosition()+1];
+
+                    changeTab(clickedTab,true);
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
     }
 
     private void changeTab(ProfileFragment.TabPosition tabType,Boolean withAnimation){
@@ -203,20 +320,23 @@ public class AnimalFragment extends Fragment {
         int enterAnimation,exitAnimation;
 
         switch (tabType){
-            case RELATION:
-                if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
-                    previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+            case VISIT:
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.VISIT) {
                     enterAnimation=withAnimation?R.anim.slide_right_in:0;
                     exitAnimation=withAnimation?R.anim.slide_right_out:0;
+
+
+                    previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
-                else{
+                else {
                     return;
                 }
                 break;
-            case HEALTH:
-                if(previousTab.tabPosition!= ProfileFragment.TabPosition.HEALTH) {
-                    if (previousTab.tabPosition == ProfileFragment.TabPosition.RELATION) {
+
+            case EXPENSE:
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
+                    if (previousTab.tabPosition == ProfileFragment.TabPosition.VISIT) {
                         enterAnimation=withAnimation?R.anim.slide_left_in:0;
                         exitAnimation=withAnimation?R.anim.slide_left_out:0;
                     }
@@ -225,8 +345,47 @@ public class AnimalFragment extends Fragment {
                         exitAnimation=withAnimation?R.anim.slide_right_out:0;
                     }
 
+                    previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
+
+                }
+                else{
+                    return;
+                }
+                break;
+
+            case RELATION:
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.RELATION) {
+                    if ((previousTab.tabPosition == ProfileFragment.TabPosition.VISIT) || (previousTab.tabPosition == ProfileFragment.TabPosition.EXPENSE)) {
+                        enterAnimation=withAnimation?R.anim.slide_left_in:0;
+                        exitAnimation=withAnimation?R.anim.slide_left_out:0;
+                    }
+                    else {
+                        enterAnimation=withAnimation?R.anim.slide_right_in:0;
+                        exitAnimation=withAnimation?R.anim.slide_right_out:0;
+                    }
+
+                    previousTab.tabPosition= ProfileFragment.TabPosition.RELATION;
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
+                }
+                else{
+                    return;
+                }
+                break;
+
+            case HEALTH:
+                if(previousTab.tabPosition!= ProfileFragment.TabPosition.HEALTH) {
+                    if (previousTab.tabPosition == ProfileFragment.TabPosition.FOOD) {
+                        enterAnimation=withAnimation?R.anim.slide_right_in:0;
+                        exitAnimation=withAnimation?R.anim.slide_right_out:0;
+                    }
+                    else {
+                        enterAnimation=withAnimation?R.anim.slide_left_in:0;
+                        exitAnimation=withAnimation?R.anim.slide_left_out:0;
+                    }
+
                     previousTab.tabPosition= ProfileFragment.TabPosition.HEALTH;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
                 else{
                     return;
@@ -234,48 +393,11 @@ public class AnimalFragment extends Fragment {
                 break;
             case FOOD:
                 if(previousTab.tabPosition!= ProfileFragment.TabPosition.FOOD) {
-                    if ((previousTab.tabPosition == ProfileFragment.TabPosition.RELATION) || (previousTab.tabPosition == ProfileFragment.TabPosition.HEALTH)) {
-                        enterAnimation=withAnimation?R.anim.slide_left_in:0;
-                        exitAnimation=withAnimation?R.anim.slide_left_out:0;
-                    }
-                    else {
-                        enterAnimation=withAnimation?R.anim.slide_right_in:0;
-                        exitAnimation=withAnimation?R.anim.slide_right_out:0;
-                    }
-
-                    previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
-                }
-                else{
-                    return;
-                }
-                break;
-            case VISIT:
-                if(previousTab.tabPosition!= ProfileFragment.TabPosition.VISIT) {
-                    if (previousTab.tabPosition != ProfileFragment.TabPosition.EXPENSE) {
-                        enterAnimation=withAnimation?R.anim.slide_left_in:0;
-                        exitAnimation=withAnimation?R.anim.slide_left_out:0;
-                    }
-                    else {
-                        enterAnimation=withAnimation?R.anim.slide_right_in:0;
-                        exitAnimation=withAnimation?R.anim.slide_right_out:0;
-                    }
-
-
-                    previousTab.tabPosition= ProfileFragment.TabPosition.VISIT;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
-                }
-                else {
-                    return;
-                }
-                break;
-            case EXPENSE:
-                if(previousTab.tabPosition!= ProfileFragment.TabPosition.EXPENSE) {
-                    previousTab.tabPosition= ProfileFragment.TabPosition.EXPENSE;
-                    fragment= ListFragment.newInstance(previousTab,this.profileType,animal);
                     enterAnimation=withAnimation?R.anim.slide_left_in:0;
                     exitAnimation=withAnimation?R.anim.slide_left_out:0;
 
+                    previousTab.tabPosition= ProfileFragment.TabPosition.FOOD;
+                    fragment= ListFragment.newInstanceAnimal(previousTab,animal);
                 }
                 else{
                     return;
@@ -296,7 +418,7 @@ public class AnimalFragment extends Fragment {
     @SuppressLint("ResourceType")
     private void launchEditDialog() {
 
-        final AnimalAppDialog editDialog=new AnimalAppDialog(getContext());
+        editDialog=new AnimalAppDialog(getContext());
         editDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         editDialog.setContentView(R.layout.edit_animal);
@@ -320,8 +442,6 @@ public class AnimalFragment extends Fragment {
 
         final Calendar c = Calendar.getInstance();
         c.setTime(animal.getBirthDate());
-
-        boolean[] dateIsSetted =new boolean[]{false};
 
         String oldMicroChip=animal.getMicrochip();
 
@@ -421,7 +541,6 @@ public class AnimalFragment extends Fragment {
                         date.setText(dayOfMonth + "/" + (month1 +1) + "/" + year1);
                         date.setError(null);
                         c.set(year1, month1,dayOfMonth);
-                        dateIsSetted[0]=true;
                     }, year, month, day);
 
             datePickerDialog.show();
@@ -442,6 +561,7 @@ public class AnimalFragment extends Fragment {
                 presenter.deleteAnimal(animal);
                 deleteDialog.cancel();
                 getParentFragmentManager().popBackStack();
+                editOpen=false;
             });
 
             deleteDialog.setUndoAction(v -> deleteDialog.cancel());
@@ -475,11 +595,17 @@ public class AnimalFragment extends Fragment {
 
                 isLocked[0] =!isLocked[0];
             }
+
+
+            editOpen=false;
         });
 
         Button backButton= editDialog.findViewById(R.id.back_button);
 
-        backButton.setOnClickListener(v -> editDialog.cancel());
+        backButton.setOnClickListener(v -> {
+            editDialog.cancel();
+            editOpen=false;
+        });
 
         editDialog.show();
         editDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);

@@ -63,18 +63,24 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
             return;
         }
 
+
+
         AuthenticationDao authenticationDao = new AuthenticationDao();
 
-        authenticationDao.isEmailUnique(email, new AuthenticationDao.FindSameEmail() {
-            @Override
-            public void emailfind(boolean result) {
+        if(SessionManager.getInstance().getCurrentUser().getEmail().compareTo(email) != 0){
+            authenticationDao.isEmailUnique(email, result -> {
                 if (result==true){
                     profileView.showInvalidInput(6);
                 }else{
                     updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
                 }
-            }
-        });
+            });
+        }
+        else{
+            updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+        }
+
+
 
     }
     public void updateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
@@ -133,7 +139,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 public void onPhotoUploaded() {
                     profileModel.setPhoto(profileView.getPhotoPicked());
                     profileModel.updateProfile();
-                    profileView.showUpdateSuccessful();
+                    profileView.showUpdateSuccessful(profileModel);
                 }
 
                 @Override
@@ -153,7 +159,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         }
         else {
             profileModel.updateProfile();
-            profileView.showUpdateSuccessful();
+            profileView.showUpdateSuccessful(profileModel);
         }
     }
 

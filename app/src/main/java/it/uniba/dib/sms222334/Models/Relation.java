@@ -33,12 +33,7 @@ public class Relation extends Document implements Parcelable{
 
     public static void getListRelation(String ownerID,String id,final RelationDao.OnRelationAnimalListener listener){
         RelationDao dao = new RelationDao();
-        dao.getRelation(ownerID,id, new RelationDao.OnRelationAnimalListener() {
-            @Override
-            public void onRelationAnimalListener(ArrayList<Relation> relationList, List<Animal> animalList) {
-                listener.onRelationAnimalListener(relationList,animalList);
-            }
-        });
+        dao.getRelation(ownerID,id, listener);
     }
 
     public Relation.relationType getRelationType() {
