@@ -122,7 +122,8 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         publicAuthorityDao.updatePublicAuthority(this, new UserCallback.UserUpdateCallback() {
             @Override
             public void notifyUpdateSuccesfull() {
-
+                if (isPhotoChanged)
+                    publicAuthorityDao.updatePhoto(getFirebaseID());
             }
 
             @Override

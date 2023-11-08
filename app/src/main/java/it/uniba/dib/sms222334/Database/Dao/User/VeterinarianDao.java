@@ -146,7 +146,6 @@ public class VeterinarianDao {
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME, updateVeterinarian.getName());
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL, updateVeterinarian.getEmail());
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD, updateVeterinarian.getPassword());
-        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + updateVeterinarian.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER, updateVeterinarian.getPhone());
         newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE, updateVeterinarian.getLocation());
 
@@ -162,6 +161,13 @@ public class VeterinarianDao {
                             callback.notifyUpdateFailed();
                             Log.d(TAG, "errore update");
                         });
+    }
+
+    public void updatePhoto(String userID) {
+        Map<String, Object> newVeterinarianData = new HashMap<>();
+        newVeterinarianData.put(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + userID + Media.PROFILE_PHOTO_EXTENSION);
+        collectionVeterinarian.document(userID)
+                .update(newVeterinarianData);
     }
 
     public void deleteVeterinarian(Veterinarian veterinarian){

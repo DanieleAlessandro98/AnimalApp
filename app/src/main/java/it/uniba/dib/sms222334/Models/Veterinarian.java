@@ -222,6 +222,8 @@ public class Veterinarian extends User implements Parcelable
         veterinarianDao.updateVeterinarian(this, new UserCallback.UserUpdateCallback() {
             @Override
             public void notifyUpdateSuccesfull() {
+                if (isPhotoChanged)
+                    veterinarianDao.updatePhoto(getFirebaseID());
             }
 
             @Override
