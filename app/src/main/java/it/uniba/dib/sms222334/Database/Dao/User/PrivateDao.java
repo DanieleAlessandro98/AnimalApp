@@ -11,6 +11,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import org.jetbrains.annotations.Nullable;
@@ -120,7 +121,8 @@ public final class PrivateDao {
                         .setPhoto(bitmap)
                         .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                         .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
-                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID));
+                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID))
+                        .setLocation(new GeoPoint(10f, 10f));
 
                 Private resultPrivate = private_requested_builder.build();
                 callback.onPrivateFound(resultPrivate);

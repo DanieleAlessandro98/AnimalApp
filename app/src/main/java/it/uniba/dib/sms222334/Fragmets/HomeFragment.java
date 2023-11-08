@@ -290,7 +290,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             }
 
             if (report == null) {
-                Location location = LocationTracker.getInstance(getContext()).getLocation();
+                Location location = LocationTracker.getInstance(getContext()).getLocation(true);
                 if (location != null) {
                     reportPresenter.onAdd(
                             reportSpinner.getSelectedItemPosition(),
@@ -307,7 +307,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             } else {
                 Location location;
                 if (updateReportLocation.isChecked())
-                    location = LocationTracker.getInstance(getContext()).getLocation();
+                    location = LocationTracker.getInstance(getContext()).getLocation(true);
                 else {
                     location = new Location("GeoPointProvider");
                     location.setLatitude(report.getLocation().getLatitude());
@@ -857,25 +857,11 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
             case LOCATION_IS_TRACKING_AND_NOT_AVAILABLE:
             case LOCATION_IS_TRACKING_AND_AVAILABLE:
-                Location devicePosition = LocationTracker.getInstance(getContext()).getLocation();
-
-                if (adapter != null && !adapter.isMenuShown()) {
-                    for (int i = 0; i < adapter.getItemCount(); i++) {
-                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
-                        if (viewHolder instanceof RequestViewHolder) {
-                            RequestViewHolder requestViewHolder = (RequestViewHolder) viewHolder;
-                            requestViewHolder.updateDistance(devicePosition);
-                        } else if (viewHolder instanceof ReportViewHolder) {
-                            ReportViewHolder reportViewHolder = (ReportViewHolder) viewHolder;
-                            reportViewHolder.updateDistance(devicePosition);
-                        }
-                    }
-
-                    if (devicePosition != null)
-                        adapter.sortByDistance();
-                    else
-                        LocationTracker.getInstance(getContext()).showLocationNotAvailable();
-                }
+                Location devicePosition = LocationTracker.getInstance(getContext()).getLocation(true);
+                if (devicePosition != null)
+                    adapter.sortByDistance();
+                else
+                    LocationTracker.getInstance(getContext()).showLocationNotAvailable();
                 break;
         }
     }

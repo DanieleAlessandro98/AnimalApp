@@ -75,15 +75,30 @@ public class RequestViewHolder extends RecyclerView.ViewHolder {
         if (request.getType() == RequestType.OFFER_BEDS) {
             this.animalName.setText(context.getString(R.string.description_offer_beds_request) + request.getNBeds());
         }
-    }
 
-    public void updateDistance(Location devicePosition) {
-        if (devicePosition != null) {
-            float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), request.getLocation());
-            request.setDistance(distance);
-            this.distance.setText(CoordinateUtilities.formatDistance(distance));
-        } else {
-            this.distance.setText("... km");
+        LocationTracker.LocationState state = LocationTracker.getInstance(context).checkLocationState();
+        switch (state) {
+            case PERMISSION_NOT_GRANTED:
+            case PROVIDER_DISABLED:
+                this.distance.setText("0 km");
+                break;
+
+            case LOCATION_IS_NOT_TRACKING:
+                LocationTracker.getInstance(context).startLocationTracking();
+                this.distance.setText("... km");
+                break;
+
+            case LOCATION_IS_TRACKING_AND_NOT_AVAILABLE:
+            case LOCATION_IS_TRACKING_AND_AVAILABLE:
+                Location devicePosition = LocationTracker.getInstance(context).getLocation(false);
+                if (devicePosition != null) {
+                    float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), request.getLocation());
+                    request.setDistance(distance);
+                    this.distance.setText(CoordinateUtilities.formatDistance(distance));
+                } else {
+                    this.distance.setText("... km");
+                }
+                break;
         }
     }
 }

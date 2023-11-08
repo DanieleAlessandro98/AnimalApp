@@ -17,6 +17,7 @@ import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.DateUtilities;
 import it.uniba.dib.sms222334.Utils.LocationTracker;
+import it.uniba.dib.sms222334.Utils.Permissions.AndroidPermission;
 
 public class ReportViewHolder extends RecyclerView.ViewHolder {
     private Context context;
@@ -70,15 +71,30 @@ public class ReportViewHolder extends RecyclerView.ViewHolder {
             this.animalName.setText(context.getString(R.string.animal_name_unknown_report));
 
         this.animalSpeciesAndAge.setText(Animal.getSpeciesString(report.getAnimalSpecies(), context) + (report.getAnimalAge()==null?"":(", "+ DateUtilities.calculateAge(report.getAnimalAge(), context))));
-    }
 
-    public void updateDistance(Location devicePosition) {
-        if (devicePosition != null) {
-            float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), report.getLocation());
-            report.setDistance(distance);
-            this.distance.setText(CoordinateUtilities.formatDistance(distance));
-        } else {
-            this.distance.setText("... km");
+        LocationTracker.LocationState state = LocationTracker.getInstance(context).checkLocationState();
+        switch (state) {
+            case PERMISSION_NOT_GRANTED:
+            case PROVIDER_DISABLED:
+                this.distance.setText("0 km");
+                break;
+
+            case LOCATION_IS_NOT_TRACKING:
+                LocationTracker.getInstance(context).startLocationTracking();
+                this.distance.setText("... km");
+                break;
+
+            case LOCATION_IS_TRACKING_AND_NOT_AVAILABLE:
+            case LOCATION_IS_TRACKING_AND_AVAILABLE:
+                Location devicePosition = LocationTracker.getInstance(context).getLocation(false);
+                if (devicePosition != null) {
+                    float distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), report.getLocation());
+                    report.setDistance(distance);
+                    this.distance.setText(CoordinateUtilities.formatDistance(distance));
+                } else {
+                    this.distance.setText("... km");
+                }
+                break;
         }
     }
 }

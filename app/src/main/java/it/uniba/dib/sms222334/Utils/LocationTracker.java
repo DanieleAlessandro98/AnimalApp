@@ -91,12 +91,14 @@ public class LocationTracker {
         this.notifyLocationChanged = notifyLocationChanged;
     }
 
-    public Location getLocation() {
+    public Location getLocation(boolean showWarning) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return null;
 
-        if (isTracking && currentLocation == null)
-            showLocationNotAvailable();
+        if (showWarning) {
+            if (isTracking && currentLocation == null)
+                showLocationNotAvailable();
+        }
 
         return currentLocation;
     }
