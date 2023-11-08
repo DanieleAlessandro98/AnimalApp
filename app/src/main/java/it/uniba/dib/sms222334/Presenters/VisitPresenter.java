@@ -12,6 +12,7 @@ import it.uniba.dib.sms222334.Fragmets.ListFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.User;
+import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
 
 /**
@@ -29,11 +30,12 @@ public class VisitPresenter {
         this.listFragment = listFragment;
     }
 
-    public void createVisit(Dialog editDialog, Visit.visitType visit_type, Animal animal, Timestamp date, String visitName,String doctorId){
+    public void createVisit(Dialog editDialog, Visit.visitType visit_type, Animal animal, Timestamp date, String visitName, Veterinarian veterinarian){
         if(visit_type != null && date != null && visitName != null && animal != null){
             VisitDao.OnVisitCreateListener listener = new VisitDao.OnVisitCreateListener() {
                 @Override
                 public void onCreateVisit(Visit visit) {
+                    veterinarian.addVisit(visit);
                     animal.addVisit(visit);
                     editDialog.cancel();
                 }
@@ -45,7 +47,7 @@ public class VisitPresenter {
 
             Visit visit = Visit.Builder.create("",visitName,visit_type,date).build();
             visit.setAnimal(animal);
-            visit.setDoctorID(doctorId);
+            visit.setDoctorID(veterinarian.getFirebaseID());
             visit.createVisit(listener);
         }else{
             System.out.println("error in the parametro of create visit");

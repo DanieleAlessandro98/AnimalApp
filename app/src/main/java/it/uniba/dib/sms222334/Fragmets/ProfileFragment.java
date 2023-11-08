@@ -433,7 +433,7 @@ public class ProfileFragment extends Fragment {
             visitPresenter.createVisit(dialog,visitType,
                     animalList.get(posizione),
                     new Timestamp(date),
-                    visitName,profile.getFirebaseID());
+                    visitName,(Veterinarian) profile);
 
             dialog.cancel();
             visitOpen=false;

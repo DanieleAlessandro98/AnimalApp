@@ -679,7 +679,7 @@ public class ListFragment extends Fragment{
 
                 @Override
                 public void notifyVisitRemoved(int position) {
-                    visitAdapter.notifyItemInserted(position);
+                    visitAdapter.notifyItemRemoved(position);
                 }
             });
         }
@@ -697,7 +697,7 @@ public class ListFragment extends Fragment{
 
                 @Override
                 public void notifyVisitRemoved(int position) {
-                    visitAdapter.notifyItemInserted(position);
+                    visitAdapter.notifyItemRemoved(position);
                 }
             });
         }
@@ -707,14 +707,14 @@ public class ListFragment extends Fragment{
             for (Animal animal : ((Owner) this.profile).getAnimalList()) {
                 visitList.addAll(animal.getVisits());
 
-                animal.setExpensesCallback(new AnimalCallbacks.expensesCallback() {
+                animal.setVisitCallback(new AnimalCallbacks.visitCallback() {
                     @Override
-                    public void notifyExpensesLoaded() {
+                    public void notifyVisitLoaded() {
                         visitAdapter.notifyItemInserted(0);
                     }
 
                     @Override
-                    public void notifyExpensesRemoved(int position) {
+                    public void notifyVisitRemoved(int position) {
                         visitAdapter.notifyItemRemoved(deleteIndexForCompleteList[0]);
                     }
                 });
