@@ -9,11 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
+import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
+import it.uniba.dib.sms222334.Models.Report;
+import it.uniba.dib.sms222334.Models.Request;
+import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
@@ -39,6 +45,21 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
     public VeterinarianAuthoritiesAdapter(ArrayList<User> mModel,Context context){
         this. veterinarianAuthoritiesList = mModel;
         this.context=context;
+    }
+
+    public void sortByDistance() {
+        Comparator<User> distanceComparator = new Comparator<User>() {
+            @Override
+            public int compare(User user1, User user2) {
+                float distance1 = (user1 instanceof PublicAuthority) ? ((PublicAuthority) user1).getDistance() : ((Veterinarian) user1).getDistance();
+                float distance2 = (user2 instanceof PublicAuthority) ? ((PublicAuthority) user2).getDistance() : ((Veterinarian) user2).getDistance();
+
+                return Float.compare(distance1, distance2);
+            }
+        };
+
+        Collections.sort(veterinarianAuthoritiesList, distanceComparator);
+        notifyDataSetChanged();
     }
 
     @NonNull

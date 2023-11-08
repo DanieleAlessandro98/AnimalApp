@@ -21,6 +21,8 @@ public class Veterinarian extends User implements Parcelable
     private ArrayList<Visit> visitList;
     private ArrayList<Animal> animalList;
 
+    private float distance;
+
     public ArrayList<Visit> getVisitList() {
         return visitList;
     }
@@ -35,6 +37,14 @@ public class Veterinarian extends User implements Parcelable
 
     public void setAnimalList(ArrayList<Animal> animalList) {
         this.animalList = animalList;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 
     public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {

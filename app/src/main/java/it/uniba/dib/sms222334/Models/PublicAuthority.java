@@ -22,6 +22,8 @@ public class PublicAuthority extends User implements Owner, Parcelable {
     private ArrayList<Animal> listAnimal;
     private ArrayList<Expense> listExpense;
 
+    private float distance;
+
 
     public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite, Integer nBeds) {
         super(id, name, email, password, phone, photo, legalSite);
@@ -99,6 +101,14 @@ public class PublicAuthority extends User implements Owner, Parcelable {
 
     public Integer getNBeds() {
         return NBeds;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 
     @Override
