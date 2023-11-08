@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Views;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -131,5 +133,23 @@ public class AnimalAppDialog extends Dialog implements AnimalCallbacks.inputVali
         deleteDialog.setUndoAction(t -> deleteDialog.cancel());
 
         deleteDialog.show();
+    }
+
+    public static void launchQRCodeDialog(Context context, Bitmap bitmap){
+        final AnimalAppDialog codeDialog=new AnimalAppDialog(context);
+
+        codeDialog.setContentView(R.layout.qr_code_dialog);
+
+        RelativeLayout topBanner= codeDialog.findViewById(R.id.top_banner);
+        Button closeButton=codeDialog.findViewById(R.id.close_button);
+        ImageView qrCode=codeDialog.findViewById(R.id.qr_code);
+
+        topBanner.getBackground().setColorFilter(context.getColor(R.color.main_green), PorterDuff.Mode.SRC_ATOP);
+        closeButton.getBackground().setColorFilter(context.getColor(R.color.main_green), PorterDuff.Mode.SRC_ATOP);
+        qrCode.setImageBitmap(bitmap);
+
+        closeButton.setOnClickListener(v -> codeDialog.cancel());
+
+        codeDialog.show();
     }
 }

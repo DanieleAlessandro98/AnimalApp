@@ -58,7 +58,7 @@ public class VisitDao {
                         String medicalNote= document.getString(AnimalAppDB.Visit.COLUMN_NAME_MEDICAL_NOTE);
                         int state= Math.toIntExact(document.getLong(AnimalAppDB.Visit.COLUMN_NAME_STATE));
 
-                        new AnimalDao().getAnimalByReference(animal, ownerId, new DatabaseCallbackResult<Animal>() {
+                        new AnimalDao().getAnimalByReference(animal, new DatabaseCallbackResult<Animal>() {
                             @Override
                             public void onDataRetrieved(Animal result) {
                                 Visit visit=Visit.Builder
@@ -66,6 +66,7 @@ public class VisitDao {
                                         .setAnimal(result)
                                         .setDiagnosis(Visit.diagnosisType.values()[diagnosisType])
                                         .setDoctorName(doctorName)
+                                        .setIDowner(ownerId)
                                         .setDoctorId(doctorId)
                                         .setMedicalNotes(medicalNote)
                                         .setState(Visit.visitState.values()[state])

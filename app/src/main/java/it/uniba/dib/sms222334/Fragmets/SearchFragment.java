@@ -5,6 +5,8 @@ import android.os.Parcel;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -82,8 +84,13 @@ public class SearchFragment extends Fragment {
             if(isLogged){
                 openProfile(profile);
             }
-            else
-                ((MainActivity)getActivity()).forceLogin();
+            else{
+                Bundle bundle=new Bundle();
+
+                bundle.putParcelable("profile",profile);
+
+                ((MainActivity)getActivity()).forceLogin(bundle);
+            }
         });
 
 

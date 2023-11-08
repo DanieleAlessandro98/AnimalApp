@@ -70,6 +70,16 @@
                     android:layout_marginRight="20dp"
                     android:background="@drawable/baseline_edit_24" />
 
+                <Button
+                    android:id="@+id/qr_code_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/baseline_qr_code_24" />
+
                 <TextView
                     android:id="@+id/state"
                     android:layout_width="match_parent"

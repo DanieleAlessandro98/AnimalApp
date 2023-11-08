@@ -193,7 +193,6 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhone());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
-        new_private.put(AnimalAppDB.Private.COLUMN_NAME_ROLE, Private.getRole());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
 
         collectionPrivate.add(new_private)
@@ -234,7 +233,7 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
-        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhoto());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhotoPath());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())

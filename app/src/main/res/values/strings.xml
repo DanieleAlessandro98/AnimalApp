@@ -132,6 +132,7 @@
     <string name="visit">Visit</string>
     <string name="confirm_logout">You are quitting from this account</string>
     <string name="welcome">Welcome</string>
+    <string name="close">Close</string>
 
     <string-array name="diagnosis_type">
         <item>Positive</item>

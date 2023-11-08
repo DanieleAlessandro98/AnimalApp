@@ -218,7 +218,7 @@ public class Private extends User implements Owner, Parcelable {
         dest.writeString(getEmail());
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
-        dest.writeParcelable(getPhoto(),flags);
+        //dest.writeParcelable(getPhoto(),flags);
         dest.writeString(surname);
         dest.writeSerializable(birthDate);
         dest.writeString(taxIDCode);

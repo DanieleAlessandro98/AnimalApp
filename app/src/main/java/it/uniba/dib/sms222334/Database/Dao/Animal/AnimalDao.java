@@ -391,6 +391,55 @@ public class AnimalDao {
         });
     }
 
+    public void getAnimalByReference(@NonNull DocumentReference animalRef, final DatabaseCallbackResult<Animal> listener) {
+
+        animalRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+
+                    Animal resultAnimal = findAnimal(document);
+
+                    //TODO togliere da qui
+                    final long MAX_SIZE = 4096 * 4096; //dimensione massima dell'immagine in byte
+
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReference().child(Animal.PHOTO_PATH+document.getId()+".jpg");
+
+                    storageRef.getBytes(MAX_SIZE).addOnSuccessListener(bytes -> {
+                        // Converti i dati dell'immagine in un oggetto Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Utilizza il bitmap come desideri, ad esempio, impostalo in un'ImageView
+                        resultAnimal.setPhoto(bitmap);
+
+                        listener.onDataRetrieved(resultAnimal);
+
+                        findAnimalImages(document, resultAnimal);
+                        findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
+                    }).addOnFailureListener(exception -> {
+                        Log.d(TAG,"Foto non caricata: "+exception.getMessage());
+
+                        listener.onDataRetrieved(resultAnimal);
+
+                        findAnimalImages(document, resultAnimal);
+                        findAnimalVideos(document, resultAnimal);
+                        findAnimalVisits(resultAnimal);
+                        findAnimalFoods(resultAnimal);
+                        findAnimalExpences(resultAnimal);
+                    });
+                } else {
+                    listener.onDataNotFound();
+                }
+            } else {
+                listener.onDataQueryError(task.getException());
+            }
+        });
+    }
+
     private void findAnimalVisits(Animal animal){
         VisitDao.collectionVisit.whereEqualTo("animalID",AnimalDao.collectionAnimal.document(animal.getFirebaseID()))
                 .get()

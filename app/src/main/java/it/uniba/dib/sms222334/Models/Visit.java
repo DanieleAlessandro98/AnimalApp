@@ -8,11 +8,14 @@ import androidx.annotation.NonNull;
 import com.google.firebase.Timestamp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.Dao.VisitDao;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class Visit extends Document implements Parcelable {
@@ -246,7 +249,7 @@ public class Visit extends Document implements Parcelable {
         dest.writeInt(this.Diagnosis.ordinal());
         dest.writeInt(this.type.ordinal());
         dest.writeParcelable(getDate(),flags);
-        dest.writeParcelable(animal, flags);
+        dest.writeString(animal.getFirebaseID());
     }
 
     protected Visit(Parcel in) {
@@ -260,7 +263,30 @@ public class Visit extends Document implements Parcelable {
         this.Diagnosis=diagnosisType.values()[in.readInt()];
         this.type=visitType.values()[in.readInt()];
         this.date=in.readParcelable(Timestamp.class.getClassLoader());
-        animal = in.readParcelable(Animal.class.getClassLoader());
+
+
+        //TODO temporary bad solution
+        new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(in.readString()), IDowner, new DatabaseCallbackResult<Animal>() {
+            @Override
+            public void onDataRetrieved(Animal result) {
+                animal=result;
+            }
+
+            @Override
+            public void onDataRetrieved(ArrayList<Animal> results) {
+
+            }
+
+            @Override
+            public void onDataNotFound() {
+
+            }
+
+            @Override
+            public void onDataQueryError(Exception e) {
+
+            }
+        });
     }
 
     public static final Creator<Visit> CREATOR = new Creator<Visit>() {

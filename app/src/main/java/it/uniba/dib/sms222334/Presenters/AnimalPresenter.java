@@ -1,6 +1,5 @@
 package it.uniba.dib.sms222334.Presenters;
 
-import android.os.Environment;
 import android.widget.Toast;
 
 import java.util.Date;

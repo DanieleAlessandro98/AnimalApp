@@ -199,7 +199,7 @@ public class Veterinarian extends User implements Parcelable
         dest.writeString(getEmail());
         dest.writeString(getPassword());
         dest.writeLong(getPhone());
-        dest.writeParcelable(getPhoto(),flags);
+        //dest.writeParcelable(getPhoto(),flags);
         dest.writeDouble(legalSite.getLatitude());
         dest.writeDouble(legalSite.getLongitude());
     }

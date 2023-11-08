@@ -202,17 +202,18 @@ public class ListFragment extends Fragment{
     public void onStop() {
         super.onStop();
         Log.d(TAG,"onStop()");
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
 
         Bundle bundle=getArguments();
 
         if(bundle!=null) {
             bundle.putInt("tab_position", this.tabPosition.ordinal());
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG,"onsaveInstanceState()");
     }
 
     @Override
@@ -1030,7 +1031,6 @@ public class ListFragment extends Fragment{
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.addToBackStack(null);
         transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal),"animalPage").commit();
-        tabPosition=null;
     }
 
     private void openVisitPage(Visit visit){

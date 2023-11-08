@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
 import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     final private String FRAGMENT_TAG="tab_fragment";
     private ActivityResultLauncher<Intent> authResultLauncher;
     public enum TabPosition{HOME,SEARCH,PROFILE}
-    private TabPosition previousTab,attempingTab;
+    private TabPosition previousTab;
     private BottomNavigationView bottomNavigationView;
 
     @Override
@@ -60,20 +62,26 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Uri data = intent.getData();
+
         if (data != null) {
             String animalId = data.getQueryParameter("id");
-            String ownerId = data.getQueryParameter("ow");
 
-
-            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), ownerId, new DatabaseCallbackResult<Animal>() {
+            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), new DatabaseCallbackResult<Animal>() {
                 @Override
                 public void onDataRetrieved(Animal result) {
-                    //TODO crasha perche il session manager è nullo
-                    FragmentManager fragmentManager=getSupportFragmentManager();
+                    //TODO implementare salvataggio login
 
-                    FragmentTransaction transaction= fragmentManager.beginTransaction();
-                    transaction.addToBackStack(null);
-                    transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(result),"animalPage").commit();
+                    if(isLogged()){
+                        openAnimalPage(result);
+                    }
+                    else{
+                        Bundle bundle= new Bundle();
+
+                        bundle.putParcelable("animal",result);
+
+                        forceLogin(bundle);
+                    }
+
                 }
 
                 @Override
@@ -146,7 +154,22 @@ public class MainActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        changeTab(attempingTab);
+                        Bundle bundle=result.getData().getExtras();
+
+                        if(bundle!=null){
+                            if(bundle.get("animal")!=null){
+                                openAnimalPage((Animal)bundle.get("animal"));
+                            }
+
+                            if (bundle.get("tab")!=null) {
+                                changeTab(TabPosition.values()[(int)bundle.get("tab")]);
+                            }
+
+                            /*if (bundle.get("profile")!=null) {
+                                openProfile((User)bundle.get("profile"));
+                            }*/
+
+                        }
                         //TODO save user on sharedPreferences
                     } else {
                         changeTab(TabPosition.HOME);
@@ -166,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
             case HOME:
                 if(previousTab!=TabPosition.HOME) {
                     fragment= new HomeFragment();
-                    attempingTab=TabPosition.HOME;
                     previousTab=TabPosition.HOME;
                     enterAnimation=R.anim.slide_right_in;
                     exitAnimation=R.anim.slide_right_out;
@@ -187,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     fragment=new SearchFragment();
-                    attempingTab=TabPosition.SEARCH;
                     previousTab=TabPosition.SEARCH;
                 }
                 else{
@@ -202,8 +223,11 @@ public class MainActivity extends AppCompatActivity {
                         enterAnimation=R.anim.slide_left_in;
                         exitAnimation=R.anim.slide_left_out;
                     }else{
-                        attempingTab=TabPosition.PROFILE;
-                        forceLogin();
+                        Bundle bundle=new Bundle();
+
+                        bundle.putInt("tab",TabPosition.PROFILE.ordinal());
+
+                        forceLogin(bundle);
                         return;
                     }
                 }
@@ -225,9 +249,30 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.frame_for_fragment,fragment,FRAGMENT_TAG).commit();
     }
 
-    public void forceLogin(){
+    public void forceLogin(@Nullable Bundle extras){
         Intent loginIntent= new Intent(this,LoginActivity.class);
+
+        if(extras!=null){
+            loginIntent.putExtras(extras);
+        }
+
         this.authResultLauncher.launch(loginIntent);
         overridePendingTransition(R.anim.slide_up_in,R.anim.slide_up_out);
+    }
+
+    private void openAnimalPage(Animal animal){
+        FragmentManager fragmentManager=getSupportFragmentManager();
+
+        FragmentTransaction transaction= fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(animal),"animalPage").commit();
+    }
+
+    private void openProfile(User profile){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack("itemPage");
+        transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
     }
 }
