@@ -23,9 +23,9 @@ public class Report extends Document {
     private GeoPoint location;
     private Bitmap reportPhoto;
 
+    private Animal animal;
     private String animalName;
     private Date animalAge;
-    private String animalID;
     private boolean showAnimalProfile;
 
     private float distance;
@@ -78,6 +78,14 @@ public class Report extends Document {
         this.reportPhoto = reportPhoto;
     }
 
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
+    }
+
     public String getAnimalName() {
         return animalName;
     }
@@ -92,14 +100,6 @@ public class Report extends Document {
 
     public void setAnimalAge(Date animalAge) {
         this.animalAge = animalAge;
-    }
-
-    public String getAnimalID() {
-        return animalID;
-    }
-
-    public void setAnimalID(String animalID) {
-        this.animalID = animalID;
     }
 
     public boolean isShowAnimalProfile() {
@@ -118,7 +118,7 @@ public class Report extends Document {
         this.distance = distance;
     }
 
-    private Report(String firebaseID, User user, ReportType type, AnimalSpecies animalSpecies, String description, GeoPoint location, Bitmap reportPhoto, String animalName, Date animalAge, String animalID, boolean isShowAnimalProfile) {
+    private Report(String firebaseID, User user, ReportType type, AnimalSpecies animalSpecies, String description, GeoPoint location, Bitmap reportPhoto, Animal animal, String animalName, Date animalAge, boolean isShowAnimalProfile) {
         super(firebaseID);
 
         this.user = user;
@@ -127,9 +127,9 @@ public class Report extends Document {
         this.description = description;
         this.location = location;
         this.reportPhoto = reportPhoto;
+        this.animal = animal;
         this.animalName = animalName;
         this.animalAge = animalAge;
-        this.animalID = animalID;
         this.showAnimalProfile = isShowAnimalProfile;
     }
 
@@ -142,9 +142,9 @@ public class Report extends Document {
         private GeoPoint bLocation;
         private Bitmap bReportPhoto;
 
+        private Animal bAnimal;
         private String bAnimalName;
         private Date bAnimalAge;
-        private String bAnimalID;
         private boolean bIsShowAnimalProfile;
 
         private Builder(String bID, User bUser, ReportType bType, AnimalSpecies bAnimalSpecies, String bDescription, GeoPoint bLocation, Bitmap bReportPhoto) {
@@ -161,6 +161,11 @@ public class Report extends Document {
             return new Builder(bID, bUser, bType, bAnimalSpecies, bDescription, bLocation, bReportPhoto);
         }
 
+        public Builder setAnimal(Animal bAnimal) {
+            this.bAnimal = bAnimal;
+            return this;
+        }
+
         public Builder setAnimalName(String bAnimalName) {
             this.bAnimalName = bAnimalName;
             return this;
@@ -171,18 +176,13 @@ public class Report extends Document {
             return this;
         }
 
-        public Builder setAnimalID(String bAnimalID) {
-            this.bAnimalID = bAnimalID;
-            return this;
-        }
-
         public Builder setShowAnimalProfile(boolean bIsShowAnimalProfile) {
             this.bIsShowAnimalProfile = bIsShowAnimalProfile;
             return this;
         }
 
         public Report build() {
-            return new Report(bID, bUser, bType, bAnimalSpecies, bDescription, bLocation, bReportPhoto, bAnimalName, bAnimalAge, bAnimalID, bIsShowAnimalProfile);
+            return new Report(bID, bUser, bType, bAnimalSpecies, bDescription, bLocation, bReportPhoto, bAnimal, bAnimalName, bAnimalAge, bIsShowAnimalProfile);
         }
     }
 

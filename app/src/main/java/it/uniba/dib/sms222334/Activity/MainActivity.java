@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_up_in,R.anim.slide_up_out);
     }
 
-    private void openAnimalPage(Animal animal){
+    public void openAnimalPage(Animal animal){
         FragmentManager fragmentManager=getSupportFragmentManager();
 
         FragmentTransaction transaction= fragmentManager.beginTransaction();

@@ -80,6 +80,14 @@
                     android:text="@string/delete"
                     android:drawableTop="@drawable/mdi_delete"
                     android:background="@drawable/button_shape"/>
+
+                <Button
+                    android:id="@+id/open_animal_profile_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/open_animal_profile"
+                    android:drawableTop="@drawable/paw"
+                    android:background="@drawable/button_shape"/>
             </LinearLayout>
 
         </RelativeLayout>

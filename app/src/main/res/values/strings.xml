@@ -43,6 +43,7 @@
     <string name="add_pathology">ADD PATHOLOGY</string>
     <string name="add_food">ADD FOOD</string>
     <string name="delete">Delete</string>
+    <string name="open_animal_profile">Animal Profile</string>
     <string name="add_report">ADD REPORT</string>
     <string name="edit_report">EDIT REPORT</string>
     <string name="add_request">ADD REQUEST</string>

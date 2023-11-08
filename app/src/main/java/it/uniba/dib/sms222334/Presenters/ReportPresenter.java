@@ -44,7 +44,7 @@ public class ReportPresenter {
         }
     }
 
-    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, float latitude, float longitude, String animalID, boolean isShowAnimalProfile) {
+    public void onAdd(int selectedPositionReport, int selectedPositionSpecies, String description, String name, String age, float latitude, float longitude, Animal animal, boolean isShowAnimalProfile) {
         if (selectedPositionReport < 0 || selectedPositionReport >= ReportType.values().length)
             return;
 
@@ -86,7 +86,7 @@ public class ReportPresenter {
                 reportFragment.getPhotoPicked())
                 .setAnimalName(name)
                 .setAnimalAge(DateUtilities.parseAgeString(age, reportFragment.getContext()))
-                .setAnimalID(animalID)
+                .setAnimal(animal)
                 .setShowAnimalProfile(isShowAnimalProfile)
                 .build();
 

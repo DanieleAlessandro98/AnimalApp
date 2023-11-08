@@ -69,6 +69,9 @@ public class AnimalPresenter implements AnimalCallbacks.alreadyExistCallBack,
     }
 
     public static boolean checkAnimalProperty(Animal animal){
+        if (!SessionManager.getInstance().isLogged())
+            return false;
+
         return animal.getOwnerReference().equals(SessionManager.getInstance().getCurrentUser().getFirebaseID());
     }
 

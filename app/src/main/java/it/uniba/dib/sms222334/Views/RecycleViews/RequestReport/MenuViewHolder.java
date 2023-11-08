@@ -37,6 +37,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
     private Button shareButton;
     private Button deleteButton;
     private Button callButton;
+    private Button animalProfileButton;
 
     public MenuViewHolder(View view, HomeFragment fragment){
         super(view);
@@ -50,6 +51,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         shareButton= itemView.findViewById(R.id.share_button);
         deleteButton= itemView.findViewById(R.id.delete_button);
         callButton= itemView.findViewById(R.id.call_button);
+        animalProfileButton= itemView.findViewById(R.id.open_animal_profile_button);
 
         editButton.setOnClickListener(v -> {
             fragment.editRequestReport(requestReport);
@@ -81,6 +83,10 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         callButton.setOnClickListener(v -> {
             fragment.callRequestUser(requestReport);
         });
+
+        animalProfileButton.setOnClickListener(v -> {
+            fragment.openAnimalProfileRequestReport(requestReport);
+        });
     }
 
     public void bind(Request request) {
@@ -90,7 +96,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         if (animal != null)
             this.photo.setImageBitmap(animal.getPhoto());
 
-        setButtonsVisibility(request.getUser());
+        setButtonsVisibility(request.getUser(), animal.getFirebaseID());
     }
 
     public void bind(Report report) {
@@ -98,10 +104,10 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         this.type.setText(report.getReportTypeString(report.getType(), fragment.getContext()));
         this.photo.setImageBitmap(report.getReportPhoto());
 
-        setButtonsVisibility(report.getUser());
+        setButtonsVisibility(report.getUser(), (report.getAnimal() != null && report.isShowAnimalProfile()) ? report.getAnimal().getFirebaseID() : "");
     }
 
-    private void setButtonsVisibility(User user) {
+    private void setButtonsVisibility(User user, String animalID) {
         if (!SessionManager.getInstance().isLogged() || user == null || !SessionManager.getInstance().getCurrentUser().getFirebaseID().equals(user.getFirebaseID())) {
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
@@ -110,11 +116,17 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
                 callButton.setVisibility(View.VISIBLE);
             else
                 callButton.setVisibility(View.GONE);
+
+            if (!animalID.equals(""))
+                animalProfileButton.setVisibility(View.VISIBLE);
+            else
+                animalProfileButton.setVisibility(View.GONE);
         }
         else {
             editButton.setVisibility(View.VISIBLE);
             deleteButton.setVisibility(View.VISIBLE);
             callButton.setVisibility(View.GONE);
+            animalProfileButton.setVisibility(View.GONE);
         }
     }
 }

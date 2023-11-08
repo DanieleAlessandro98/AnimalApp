@@ -4,20 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
@@ -94,7 +87,7 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
                 this.profilePhoto.setImageBitmap(publicAuthority.getPhoto());
             }
 
-            this.profileType.setImageDrawable(context.getDrawable(R.drawable.paw));
+            this.profileType.setImageDrawable(context.getDrawable(R.drawable.paw_icon));
             this.profileType.setColorFilter(context.getResources().getColor(R.color.main_green,null), PorterDuff.Mode.SRC_ATOP);
         }
 

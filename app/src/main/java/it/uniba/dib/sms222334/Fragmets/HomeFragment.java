@@ -300,7 +300,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
                             age.getText().toString(),
                             (float) location.getLatitude(),
                             (float) location.getLongitude(),
-                            selectedAnimal == null ? "" : selectedAnimal.getFirebaseID(),
+                            selectedAnimal,
                             isSharedAnimalProfile
                     );
                 }
@@ -337,7 +337,7 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
             else if (report.getType() == ReportType.LOST)
                 myAnimalSpinner.setVisibility(View.VISIBLE);
             else if (report.getType() == ReportType.IN_DANGER) {
-                if (report.getAnimalID().equals(""))
+                if (report.getAnimal() == null)
                     myAnimalSpinner.setVisibility(View.GONE);
                 else
                     myAnimalSpinner.setVisibility(View.VISIBLE);
@@ -349,19 +349,19 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
 
             name.setText(report.getAnimalName());
             age.setText(DateUtilities.parseAgeDate(report.getAnimalAge(), getContext()));
-            if (!report.getAnimalID().equals("")) {
+            if (report.getAnimal() != null) {
                 name.setEnabled(false);
                 age.setEnabled(false);
             }
 
             description.setText(report.getDescription());
 
-            if (!report.getAnimalID().equals("")) {
+            if (report.getAnimal() != null) {
                 int position = -1;
 
                 for (int i = 0; i < myAnimalNames.size(); i++) {
                     Animal animal = myAnimalNames.get(i);
-                    if (animal.getFirebaseID().equals(report.getAnimalID())) {
+                    if (animal.getFirebaseID().equals(report.getAnimal().getFirebaseID())) {
                         position = i;
                         break;
                     }
@@ -837,6 +837,18 @@ public class HomeFragment extends Fragment implements PermissionInterface<Androi
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
         if (intent != null)
             startActivity(intent);
+    }
+
+    public void openAnimalProfileRequestReport(Document requestReport) {
+        Animal animal = null;
+
+        if (requestReport instanceof Request)
+            animal = ((Request) requestReport).getAnimal();
+        else
+            animal = ((Report) requestReport).getAnimal();
+
+        if (animal != null)
+            ((MainActivity) getActivity()).openAnimalPage(animal);
     }
 
     private void refreshRequestReportDistances() {

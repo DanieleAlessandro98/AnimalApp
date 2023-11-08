@@ -90,7 +90,7 @@
                     android:id="@+id/animal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:icon="@drawable/paw"/>
+                    android:icon="@drawable/paw_icon"/>
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/visit"
