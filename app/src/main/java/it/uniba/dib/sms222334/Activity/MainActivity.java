@@ -2,9 +2,11 @@ package it.uniba.dib.sms222334.Activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -18,10 +20,15 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
+
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalDao;
+import it.uniba.dib.sms222334.Database.DatabaseCallbackResult;
 import it.uniba.dib.sms222334.Fragmets.HomeFragment;
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
 import it.uniba.dib.sms222334.Fragmets.VisitFragment;
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
@@ -49,6 +56,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+
+
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if (data != null) {
+            String animalId = data.getQueryParameter("id");
+            String ownerId = data.getQueryParameter("ow");
+
+
+            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), ownerId, new DatabaseCallbackResult<Animal>() {
+                @Override
+                public void onDataRetrieved(Animal result) {
+                    //TODO crasha perche il session manager è nullo
+                    FragmentManager fragmentManager=getSupportFragmentManager();
+
+                    FragmentTransaction transaction= fragmentManager.beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.frame_for_fragment, AnimalFragment.newInstance(result),"animalPage").commit();
+                }
+
+                @Override
+                public void onDataRetrieved(ArrayList<Animal> results) {
+
+                }
+
+                @Override
+                public void onDataNotFound() {
+
+                }
+
+                @Override
+                public void onDataQueryError(Exception e) {
+
+                }
+            });
+        }
 
         if(savedInstanceState!=null)
             this.previousTab= TabPosition.values()[savedInstanceState.getInt("tab_position")];

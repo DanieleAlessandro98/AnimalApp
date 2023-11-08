@@ -64,7 +64,7 @@ public class AnimalFragment extends Fragment {
 
     AnimalAppDialog editDialog;
 
-    Button editButton,backButton;
+    Button editButton,backButton,shareButton;
     TabLayout tabLayout;
 
     TextView name,species,race,age,state;
@@ -170,6 +170,29 @@ public class AnimalFragment extends Fragment {
         this.mViewPager=layout.findViewById(R.id.carousel);
 
         refresh(animal);
+
+        shareButton=layout.findViewById(R.id.share_button);
+
+        shareButton.setOnClickListener(v -> {
+            String animalId = animal.getFirebaseID(); // Sostituisci con l'ID dell'animale desiderato
+            String ownerId= animal.getOwnerReference();
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("http"); // Imposta lo schema URL
+            builder.authority("animal"); // Imposta l'host
+            builder.appendPath("view"); // Imposta un percorso (ad esempio "view" per visualizzare un animale)
+            builder.appendQueryParameter("id", animalId); // Aggiungi il parametro "id" all'URL
+            builder.appendQueryParameter("ow",ownerId);
+
+            String customLink = builder.build().toString();
+
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, customLink);
+
+            startActivity(Intent.createChooser(shareIntent, "Condividi animale"));
+        });
 
         backButton=layout.findViewById(R.id.back_button);
 
