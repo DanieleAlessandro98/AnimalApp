@@ -54,51 +54,21 @@ public class MainActivity extends AppCompatActivity {
     private TabPosition previousTab;
     private BottomNavigationView bottomNavigationView;
 
+    boolean intentHandled=false;
+
+    private Animal animal;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
-        Intent intent = getIntent();
-        Uri data = intent.getData();
+        Intent intent=getIntent();
 
-        if (data != null) {
-            String animalId = data.getQueryParameter("id");
-
-            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), new DatabaseCallbackResult<Animal>() {
-                @Override
-                public void onDataRetrieved(Animal result) {
-                    //TODO implementare salvataggio login
-
-                    if(isLogged()){
-                        openAnimalPage(result);
-                    }
-                    else{
-                        Bundle bundle= new Bundle();
-
-                        bundle.putParcelable("animal",result);
-
-                        forceLogin(bundle);
-                    }
-
-                }
-
-                @Override
-                public void onDataRetrieved(ArrayList<Animal> results) {
-
-                }
-
-                @Override
-                public void onDataNotFound() {
-
-                }
-
-                @Override
-                public void onDataQueryError(Exception e) {
-
-                }
-            });
+        if((intent!=null) && (!this.intentHandled)){
+            handleIntent(intent);
         }
+
 
         if(savedInstanceState!=null)
             this.previousTab= TabPosition.values()[savedInstanceState.getInt("tab_position")];
@@ -107,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
         initListeners();
         initRegisterActivity();
 
-        if(getSupportFragmentManager().findFragmentByTag("tab_fragment")==null)
-            changeTab(TabPosition.SEARCH); //TODO cambiato solo per il down dello storage(tornare in HOME)
+        if(getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
+            changeTab(TabPosition.HOME);
     }
 
     @Override
@@ -122,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
 
         super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        handleIntent(intent);
     }
 
     private void initView() {
@@ -156,8 +133,14 @@ public class MainActivity extends AppCompatActivity {
                         Bundle bundle=result.getData().getExtras();
 
                         if(bundle!=null){
-                            if(bundle.get("animal")!=null){
-                                openAnimalPage((Animal)bundle.get("animal"));
+                            /*if(bundle.get("animal")!=null){
+                                openAnimalPage((Animal)bundle.getParcelable("animal"));
+                                //TODO during the login, result changed because of firebase loading and when read the bundle is not the same
+                            }*/
+
+                            if(animal!=null){//TODO i saved in the local instance instead
+                                openAnimalPage(animal);
+                                animal=null;
                             }
 
                             if (bundle.get("tab")!=null) {
@@ -273,5 +256,54 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.addToBackStack("itemPage");
         transaction.replace(R.id.frame_for_fragment, ProfileFragment.newInstance(profile)).commit();
+    }
+
+    private void handleIntent(Intent intent){
+        Uri data = intent.getData();
+
+        if (data != null) {
+            String animalId = data.getQueryParameter("id");
+
+            new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(animalId), new DatabaseCallbackResult<Animal>() {
+                @Override
+                public void onDataRetrieved(Animal result) {
+                    //TODO implementare salvataggio login
+
+                    if(isLogged()){
+                        openAnimalPage(result);
+                    }
+                    else{
+                        /*Bundle bundle= new Bundle();
+
+                        bundle.putParcelable("animal",result);
+
+                        forceLogin(bundle);*/ //TODO during the login, result changed because of firebase loading and when read the bundle is not the same
+
+                        animal = result; //TODO i saved in the local instance instead
+
+                        forceLogin(null);
+
+                    }
+
+                }
+
+                @Override
+                public void onDataRetrieved(ArrayList<Animal> results) {
+
+                }
+
+                @Override
+                public void onDataNotFound() {
+
+                }
+
+                @Override
+                public void onDataQueryError(Exception e) {
+
+                }
+            });
+        }
+
+        this.intentHandled=true;
     }
 }

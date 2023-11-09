@@ -27,21 +27,11 @@ import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 public class Video extends Media implements Parcelable{
     private final static String TAG="video";
 
-    private MediaPlayer mediaPlayer;
-
     Uri video;
     public Video(String path, Timestamp timestamp) {
         super(path,timestamp);
 
         this.video=null;
-    }
-
-    public MediaPlayer getMediaPlayer() {
-        return mediaPlayer;
-    }
-
-    public void setMediaPlayer(MediaPlayer mediaPlayer) {
-        this.mediaPlayer = mediaPlayer;
     }
 
     public Uri getVideo() {

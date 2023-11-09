@@ -412,7 +412,7 @@ public class AnimalFragment extends Fragment {
 
         FragmentTransaction transaction= fragmentManager.beginTransaction();
         transaction.setCustomAnimations(enterAnimation, exitAnimation);
-        transaction.replace(R.id.recycle_container,fragment).commit();
+        transaction.replace(R.id.recycle_container,fragment,FRAGMENT_TAG).commit();
     }
 
     @SuppressLint("ResourceType")
