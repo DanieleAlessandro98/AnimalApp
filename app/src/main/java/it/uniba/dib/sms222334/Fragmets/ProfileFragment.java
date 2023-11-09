@@ -42,6 +42,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
 
@@ -72,8 +78,9 @@ import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements OnMapReadyCallback {
     final static String TAG="ProfileFragment";
+    private static final String MAPVIEW_BUNDLE_KEY="MapViewBundleKey";
 
     final private String FRAGMENT_TAG="profile_tab_fragment";
     private EditText companyNameEditText;
@@ -87,7 +94,7 @@ public class ProfileFragment extends Fragment {
 
     private Tab previousTab;
     private TabPosition clickedTab;
-    
+
     private ProfileFragment.Type profileType;
 
     Button editButton,addVisitButton, logoutButton;
@@ -126,6 +133,9 @@ public class ProfileFragment extends Fragment {
 
     private ListFragment fragment;
     private VisitPresenter visitPresenter;
+
+    private MapView mapView;
+    private GoogleMap map;
 
     public ProfileFragment(){}
 
@@ -227,11 +237,6 @@ public class ProfileFragment extends Fragment {
         editButton=layout.findViewById(R.id.edit_button);
         logoutButton=layout.findViewById(R.id.logout_button);
 
-        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0) {
-            editButton.setVisibility(View.INVISIBLE);
-            logoutButton.setVisibility(View.INVISIBLE);
-        }
-
         tabLayout=layout.findViewById(R.id.tab_layout);
 
         this.photoPickerResultLauncher = registerForActivityResult(
@@ -242,6 +247,25 @@ public class ProfileFragment extends Fragment {
                         userPresenter.pickPhoto(selectedImage);
                     }
                 });
+
+        Bundle mapViewBundle=null;
+        if(savedInstanceState!=null){
+            mapViewBundle=savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+
+        mapView=(MapView) layout.findViewById(R.id.mapview);
+        mapView.onCreate(mapViewBundle);
+        mapView.getMapAsync(this);
+
+        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0) {
+            editButton.setVisibility(View.INVISIBLE);
+            logoutButton.setVisibility(View.INVISIBLE);
+            mapView.setVisibility(View.VISIBLE);
+        } else {
+            editButton.setVisibility(View.VISIBLE);
+            logoutButton.setVisibility(View.VISIBLE);
+            mapView.setVisibility(View.INVISIBLE);
+        }
 
         return layout;
     }
@@ -259,9 +283,12 @@ public class ProfileFragment extends Fragment {
             this.visitOpen = args.getBoolean("visit_open");
         }
     }
+
     @Override
     public void onStart() {
         super.onStart();
+        mapView.onStart();
+
         Log.d(TAG,"onStart()");
 
         editButton.setOnClickListener(v -> {
@@ -315,6 +342,18 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG,"onStop()");
@@ -334,7 +373,15 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(TAG,"onsaveInstanceState()");
+        Log.d(TAG, "onsaveInstanceState()");
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mapView.onSaveInstanceState(mapViewBundle);
     }
 
     @Override
@@ -346,6 +393,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mapView.onDestroy();
         Log.d(TAG,"onDestroy()");
     }
 
@@ -353,6 +401,18 @@ public class ProfileFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         Log.d(TAG,"onDetach()");
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(profile.getLocation().getLatitude(), profile.getLocation().getLongitude())));
     }
 
     public Visit.visitType visitType;
