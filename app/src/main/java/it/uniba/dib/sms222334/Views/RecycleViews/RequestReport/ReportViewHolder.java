@@ -64,13 +64,19 @@ public class ReportViewHolder extends RecyclerView.ViewHolder {
         this.description.setText(report.getDescription());
         this.photo.setImageBitmap(report.getReportPhoto());
 
-        String animalName = report.getAnimalName();
-        if (!animalName.equals(""))
-            this.animalName.setText(animalName);
-        else
-            this.animalName.setText(context.getString(R.string.animal_name_unknown_report));
+        Animal animal = report.getAnimal();
+        if (animal != null) {
+            this.animalName.setText(animal.getName());
+            this.animalSpeciesAndAge.setText(Animal.getSpeciesString(animal.getSpecies(), context) + (animal.getBirthDate()==null?"":(", "+ DateUtilities.calculateAge(animal.getBirthDate(), context))));
+        } else {
+            String animalName = report.getAnimalName();
+            if (!animalName.equals(""))
+                this.animalName.setText(animalName);
+            else
+                this.animalName.setText(context.getString(R.string.animal_name_unknown_report));
 
-        this.animalSpeciesAndAge.setText(Animal.getSpeciesString(report.getAnimalSpecies(), context) + (report.getAnimalAge()==null?"":(", "+ DateUtilities.calculateAge(report.getAnimalAge(), context))));
+            this.animalSpeciesAndAge.setText(Animal.getSpeciesString(report.getAnimalSpecies(), context) + (report.getAnimalAge()==null?"":(", "+ DateUtilities.calculateAge(report.getAnimalAge(), context))));
+        }
 
         LocationTracker.LocationState state = LocationTracker.getInstance(context).checkLocationState();
         switch (state) {

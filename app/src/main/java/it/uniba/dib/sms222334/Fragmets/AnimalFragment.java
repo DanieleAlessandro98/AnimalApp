@@ -153,7 +153,7 @@ public class AnimalFragment extends Fragment {
                 }
             });
         }
-        else if(SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN){
+        else if(SessionManager.getInstance().isLogged() && SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN){
             layout= inflater.inflate(R.layout.animal_fragment,container,false);
             tabLayout=layout.findViewById(R.id.tab_layout);
 
@@ -208,7 +208,7 @@ public class AnimalFragment extends Fragment {
         super.onStart();
         Log.d(TAG,"onStart()");
 
-        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
+        if(AnimalPresenter.checkAnimalProperty(animal) || (SessionManager.getInstance().isLogged() && SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)){
             tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()-1));
 
             if(getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
@@ -261,7 +261,7 @@ public class AnimalFragment extends Fragment {
 
         Bundle args=getArguments();
 
-        if((args!=null) && ((SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))) {
+        if((args!=null) && ((SessionManager.getInstance().isLogged() && SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN) || (AnimalPresenter.checkAnimalProperty(animal)))) {
             args.putInt("tab_position", this.clickedTab.ordinal());
             args.putBoolean("edit_open",this.editOpen);
         }

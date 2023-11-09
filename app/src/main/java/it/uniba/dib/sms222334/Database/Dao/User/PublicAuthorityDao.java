@@ -51,18 +51,16 @@ public class PublicAuthorityDao {
                         document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))
                 .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
                 .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
-                .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
+                .setLocation(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
                 .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
 
         mediaDao.downloadPhoto(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO), new MediaDao.PhotoDownloadListener() {
             @Override
             public void onPhotoDownloaded(Bitmap bitmap) {
                 public_authority_requested_builder.setPhoto(bitmap);
-
                 PublicAuthority resultPublicAuthority=public_authority_requested_builder.build();
 
                 callback.onPublicAuthorityFound(resultPublicAuthority);
-
             }
 
             @Override
@@ -74,7 +72,6 @@ public class PublicAuthorityDao {
                 callback.onPublicAuthorityFound(resultPublicAuthority);
             }
         });
-
     }
 
     public void loadPublicAuthorityAnimals(final DocumentSnapshot document, PublicAuthority resultPublicAuthority,@Nullable UserCallback.UserStateListener userCallback) {
@@ -216,7 +213,6 @@ public class PublicAuthorityDao {
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_ANIMALS, dr);
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER,updateAuthority.getNBeds());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD, updateAuthority.getPassword());
-        newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + updateAuthority.getFirebaseID() + Media.PROFILE_PHOTO_EXTENSION);
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER, updateAuthority.getPhone());
         newAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE, updateAuthority.getLocation());
 
@@ -232,6 +228,13 @@ public class PublicAuthorityDao {
                     callback.notifyUpdateFailed();
                     Log.d(TAG, "errore update");
                 });
+    }
+
+    public void updatePhoto(String userID) {
+        Map<String, Object> newPublicAuthorityData = new HashMap<>();
+        newPublicAuthorityData.put(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO, Media.PROFILE_PHOTO_PATH + userID + Media.PROFILE_PHOTO_EXTENSION);
+        collectionPublicAuthority.document(userID)
+                .update(newPublicAuthorityData);
     }
 
     //this method load first all the animal and then notify the user data, DO NOT use this in UI Thread!!

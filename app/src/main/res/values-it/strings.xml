@@ -42,6 +42,7 @@
     <string name="add_pathology">AGGIUNGI PATOLOGIA</string>
     <string name="add_food">AGGIUNGI CIBO</string>
     <string name="delete">Elimina</string>
+    <string name="open_animal_profile">Profilo Animale</string>
     <string name="add_report">NUOVA SEGNALAZIONE</string>
     <string name="edit_report">MODIFICA SEGNALAZIONE</string>
     <string name="add_request">NUOVA RICHIESTA</string>
@@ -143,9 +144,12 @@
     <string name="permission_location_not_granted_description_for_create_report">Non puoi utilizzare questa funzionalità perchè non hai concesso i permessi di localizzazione</string>
     <string name="permission_location_explanation_description_for_distance_report">Per visualizzare la distanza tra te e le segnalazioni/richieste, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
     <string name="permission_location_not_granted_description_for_distance_report">Non è possibile visualizzare la distanza perché non è stata concessa l\'autorizzazione per accedere alla posizione</string>
+    <string name="permission_location_explanation_description_for_distance_pub_vet">Per visualizzare la distanza tra te e gli enti/veterinari, è necessario concedere l\'autorizzazione per accedere alla posizione</string>
+    <string name="permission_location_not_granted_description_for_distance_pub_vet">Non è possibile visualizzare la distanza perché non è stata concessa l\'autorizzazione per accedere alla posizione</string>
     <string name="location_not_available">La tua posizione non è al momento disponibile</string>
     <string name="location_gps_disabled_message_for_create_report">Per utilizzare questa funzionalità, è necessario attivare il GPS. Vuoi attivarlo?</string>
     <string name="location_gps_disabled_message_for_distance_report">Per visualizzare la distanza tra te e le segnalazioni/richieste, è necessario attivare il GPS. Vuoi attivarlo?</string>
+    <string name="location_gps_disabled_message_for_distance_pub_vet">Per visualizzare la distanza tra te e gli enti/veterinari, è necessario attivare il GPS. Vuoi attivarlo?</string>
     <string name="settings">Impostazioni</string>
     <string name="location_gps_disabled_cancel">Annulla</string>
     <string name="invalid_video">durata massima consentita 20s</string>

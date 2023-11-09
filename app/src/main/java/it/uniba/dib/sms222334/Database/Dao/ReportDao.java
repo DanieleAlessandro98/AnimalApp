@@ -47,7 +47,7 @@ public class ReportDao {
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE, report.getAnimalAge());
-        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, report.getAnimalID());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, (report.getAnimal() != null) ? report.getAnimal().getFirebaseID() : "");
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE, report.isShowAnimalProfile());
 
         collectionReport.add(new_report)
@@ -58,7 +58,7 @@ public class ReportDao {
                         Log.d(TAG, "DocumentSnapshot written with ID: " + documentID);
 
                         AnimalDao animalDao = new AnimalDao();
-                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), false));
+                        animalDao.updateState((report.getAnimal() != null) ? report.getAnimal().getFirebaseID() : "", Animal.findAnimalStateByReport(report.getUser(), report.getType(), false));
 
                         setPhotoPath(documentID);
                         callbackModel.onDataRetrieved(documentID);
@@ -158,39 +158,123 @@ public class ReportDao {
                 String userID = document.getString(AnimalAppDB.Report.COLUMN_NAME_USER_ID);
 
                 if (userID.equals("")) {
-                    Report report = Report.Builder.create(document.getId(),
-                                    null,
-                                    ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
-                                    AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
-                                    document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                                    document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
-                                    BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
-                            .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
-                            .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
-                            .setAnimalID(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID))
-                            .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
-                            .build();
 
-                    callback.onDataRetrieved(report);
+                    AnimalDao animalDao = new AnimalDao();
+                    DocumentReference animalRef = animalDao.findAnimalRef(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID));
+
+                    if (animalRef == null) {
+                        Report report = Report.Builder.create(document.getId(),
+                                        null,
+                                        ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                        AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                        document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                        document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
+                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                                .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
+                                .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
+                                .setAnimal(null)
+                                .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
+                                .build();
+
+                        callback.onDataRetrieved(report);
+                    } else {
+                        animalDao.getAnimalByReference(animalRef, new DatabaseCallbackResult<Animal>() {
+
+                            @Override
+                            public void onDataRetrieved(Animal result) {
+                                Report report = Report.Builder.create(document.getId(),
+                                                null,
+                                                ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                                AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                                document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                                document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
+                                                BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                                        .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
+                                        .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
+                                        .setAnimal(result)
+                                        .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
+                                        .build();
+
+                                callback.onDataRetrieved(report);
+                            }
+
+                            @Override
+                            public void onDataRetrieved(ArrayList<Animal> results) {
+
+                            }
+
+                            @Override
+                            public void onDataNotFound() {
+
+                            }
+
+                            @Override
+                            public void onDataQueryError(Exception e) {
+
+                            }
+                        });
+                    }
                 } else {
                     UserDao userDao = new UserDao();
                     userDao.findUser(document.getString(AnimalAppDB.Report.COLUMN_NAME_USER_ID), new AuthenticationDao.FindUserListenerResult() {
                         @Override
                         public void onUserFound(User user) {
-                            Report report = Report.Builder.create(document.getId(),
-                                            user,
-                                            ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
-                                            AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
-                                            document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
-                                            document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
-                                            BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
-                                    .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
-                                    .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
-                                    .setAnimalID(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID))
-                                    .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
-                                    .build();
 
-                            callback.onDataRetrieved(report);
+                            AnimalDao animalDao = new AnimalDao();
+                            DocumentReference animalRef = animalDao.findAnimalRef(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID));
+
+                            if (animalRef == null) {
+                                Report report = Report.Builder.create(document.getId(),
+                                                user,
+                                                ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                                AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                                document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                                document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
+                                                BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                                        .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
+                                        .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
+                                        .setAnimal(null)
+                                        .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
+                                        .build();
+
+                                callback.onDataRetrieved(report);
+                            } else {
+                                animalDao.getAnimalByReference(animalRef, new DatabaseCallbackResult<Animal>() {
+
+                                    @Override
+                                    public void onDataRetrieved(Animal result) {
+                                        Report report = Report.Builder.create(document.getId(),
+                                                        user,
+                                                        ReportType.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_TYPE).intValue()],
+                                                        AnimalSpecies.values()[document.getLong(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_SPECIES).intValue()],
+                                                        document.getString(AnimalAppDB.Report.COLUMN_NAME_DESCRIPTION),
+                                                        document.getGeoPoint(AnimalAppDB.Report.COLUMN_NAME_LOCATION),
+                                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                                                .setAnimalName(document.getString(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME))
+                                                .setAnimalAge(document.getDate(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE))
+                                                .setAnimal(result)
+                                                .setShowAnimalProfile(document.getBoolean(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE))
+                                                .build();
+
+                                        callback.onDataRetrieved(report);
+                                    }
+
+                                    @Override
+                                    public void onDataRetrieved(ArrayList<Animal> results) {
+
+                                    }
+
+                                    @Override
+                                    public void onDataNotFound() {
+
+                                    }
+
+                                    @Override
+                                    public void onDataQueryError(Exception e) {
+
+                                    }
+                                });
+                            }
                         }
                     });
                 }
@@ -210,7 +294,7 @@ public class ReportDao {
                     @Override
                     public void onSuccess(Void aVoid) {
                         AnimalDao animalDao = new AnimalDao();
-                        animalDao.updateState(report.getAnimalID(), Animal.findAnimalStateByReport(report.getUser(), report.getType(), true));
+                        animalDao.updateState((report.getAnimal() != null) ? report.getAnimal().getFirebaseID() : "", Animal.findAnimalStateByReport(report.getUser(), report.getType(), true));
 
                         callbackPresenter.onDataRetrieved(true);
                     }
@@ -233,7 +317,7 @@ public class ReportDao {
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_LOCATION, report.getLocation());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_NAME, report.getAnimalName());
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_AGE, report.getAnimalAge());
-        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, report.getAnimalID());
+        new_report.put(AnimalAppDB.Report.COLUMN_NAME_ANIMAL_ID, (report.getAnimal() != null) ? report.getAnimal().getFirebaseID() : "");
         new_report.put(AnimalAppDB.Report.COLUMN_NAME_SHOW_ANIMAL_PROFILE, report.isShowAnimalProfile());
 
         collectionReport.document(report.getFirebaseID())

@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 
@@ -41,6 +42,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
 
@@ -64,14 +71,16 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
 import it.uniba.dib.sms222334.Models.Visit;
 import it.uniba.dib.sms222334.Views.AnimalAppDialog;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements OnMapReadyCallback {
     final static String TAG="ProfileFragment";
+    private static final String MAPVIEW_BUNDLE_KEY="MapViewBundleKey";
 
     final private String FRAGMENT_TAG="profile_tab_fragment";
     private EditText companyNameEditText;
@@ -85,10 +94,10 @@ public class ProfileFragment extends Fragment {
 
     private Tab previousTab;
     private TabPosition clickedTab;
-    
+
     private ProfileFragment.Type profileType;
 
-    Button editButton,addVisitButton;
+    Button editButton, addVisitButton, logoutButton;
     ImageButton callButton;
 
     boolean editOpen,visitOpen;
@@ -105,7 +114,6 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
-    private EditText siteEditText;
     private AutoCompleteTextView locationEditText;
     private UserPresenter userPresenter;
 
@@ -128,6 +136,9 @@ public class ProfileFragment extends Fragment {
     private VisitPresenter visitPresenter;
 
     private boolean tabEnabled;
+    private MapView mapView;
+    private GoogleMap map;
+    private boolean mapEnable = false;
 
     public ProfileFragment(){}
 
@@ -159,6 +170,7 @@ public class ProfileFragment extends Fragment {
         Log.d(TAG,"onAttach()");
     }
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -205,6 +217,7 @@ public class ProfileFragment extends Fragment {
         profilePhoto = layout.findViewById(R.id.profile_picture);
         tabLayout=layout.findViewById(R.id.tab_layout);
         editButton=layout.findViewById(R.id.edit_button);
+        logoutButton=layout.findViewById(R.id.logout_button);
 
         refresh(this.profile);
 
@@ -223,6 +236,7 @@ public class ProfileFragment extends Fragment {
                     launchAddVisit();
             }
             else{
+                this.callButton=layout.findViewById(R.id.call_button);
                 this.addVisitButton.setVisibility(View.INVISIBLE);
                 this.callButton.setVisibility(View.INVISIBLE);
             }
@@ -231,7 +245,6 @@ public class ProfileFragment extends Fragment {
                 tabLayout.setVisibility(View.GONE);
                 tabEnabled=false;
             }
-
         }
 
         if((this.role == UserRole.VETERINARIAN) || (SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0)){
@@ -243,12 +256,24 @@ public class ProfileFragment extends Fragment {
             });
         }
 
+        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0) {
+            Bundle mapViewBundle=null;
+            if(savedInstanceState!=null)
+                mapViewBundle=savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+
+            mapView=(MapView) layout.findViewById(R.id.mapview);
+            mapView.onCreate(mapViewBundle);
+            mapView.getMapAsync(this);
+
+            mapEnable = true;
+
+            mapView.setVisibility(View.VISIBLE);
+
+            editButton.setVisibility(View.INVISIBLE);
+            logoutButton.setVisibility(View.INVISIBLE);
+        }
 
         userPresenter = new UserPresenter(this);
-
-        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
-            editButton.setVisibility(View.INVISIBLE);
-
 
         this.photoPickerResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -275,9 +300,11 @@ public class ProfileFragment extends Fragment {
             this.visitOpen = args.getBoolean("visit_open");
         }
     }
+
     @Override
     public void onStart() {
         super.onStart();
+
         Log.d(TAG,"onStart()");
 
         editButton.setOnClickListener(v -> {
@@ -295,7 +322,6 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     clickedTab = TabPosition.values()[tab.getPosition()];
-
                     changeTab(clickedTab, true);
                 }
 
@@ -315,6 +341,36 @@ public class ProfileFragment extends Fragment {
             if (getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null)
                 changeTab(this.clickedTab, false);
         }
+
+        logoutButton.setOnClickListener(v -> {
+            final AnimalAppDialog logoutDialog=new AnimalAppDialog(getContext());
+
+            logoutDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
+            logoutDialog.setConfirmAction(t -> {
+                SessionManager.getInstance().logoutUser();
+                logoutDialog.cancel();
+                showLogoutSuccessful(false);
+            });
+
+            logoutDialog.setUndoAction(t -> logoutDialog.cancel());
+            logoutDialog.show();
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mapEnable)
+            mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mapEnable)
+            mapView.onPause();
     }
 
     @Override
@@ -337,7 +393,17 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(TAG,"onsaveInstanceState()");
+        Log.d(TAG, "onsaveInstanceState()");
+
+        if (mapEnable) {
+            Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+            if (mapViewBundle == null) {
+                mapViewBundle = new Bundle();
+                outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+            }
+
+            mapView.onSaveInstanceState(mapViewBundle);
+        }
     }
 
     @Override
@@ -350,12 +416,29 @@ public class ProfileFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG,"onDestroy()");
+
+        if (mapEnable)
+            mapView.onDestroy();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         Log.d(TAG,"onDetach()");
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+
+        if (mapEnable)
+            mapView.onLowMemory();
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(profile.getLocation().getLatitude(), profile.getLocation().getLongitude())));
     }
 
     public Visit.visitType visitType;
@@ -495,7 +578,7 @@ public class ProfileFragment extends Fragment {
 
                 editPhotoImageView = dialog.findViewById(R.id.profile_picture);
                 companyNameEditText = dialog.findViewById(R.id.nameEditText);
-                siteEditText = dialog.findViewById(R.id.surnameEditText);
+                locationEditText = dialog.findViewById(R.id.location_edit_text);
                 Spinner prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
@@ -507,9 +590,9 @@ public class ProfileFragment extends Fragment {
 
                 editPhotoImageView = dialog.findViewById(R.id.profile_picture);
                 companyNameEditText = dialog.findViewById(R.id.nameEditText);
-                siteEditText = dialog.findViewById(R.id.surnameEditText);
                 prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                locationEditText = dialog.findViewById(R.id.location_edit_text);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
                 passwordEditText = dialog.findViewById(R.id.passwordEditText);
                 break;
@@ -518,7 +601,6 @@ public class ProfileFragment extends Fragment {
         Button saveButton = dialog.findViewById(R.id.save_button);
         Button deleteButton = dialog.findViewById(R.id.delete_button);
         Button editPhotoButton = dialog.findViewById(R.id.edit_button);
-        Button logoutButton = dialog.findViewById(R.id.logout_button);
         searchLocationButton = dialog.findViewById(R.id.search_location_button);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line);
@@ -538,9 +620,9 @@ public class ProfileFragment extends Fragment {
                         String email = emailEditText.getText().toString();
                         String password = passwordEditText.getText().toString();
 
-                        String site = locationEditText.getText().toString();
+                        String location = locationEditText.getText().toString();
                         String companyname = null;
-                        userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                        userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, location, companyname);
 
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -549,7 +631,7 @@ public class ProfileFragment extends Fragment {
 
                     case VETERINARIAN:
                             String companyname = companyNameEditText.getText().toString();
-                            String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            String site = locationEditText.getText().toString();
                             String phone = phoneEditText.getText().toString();
                             String email = emailEditText.getText().toString();
                             String password = passwordEditText.getText().toString();
@@ -562,7 +644,7 @@ public class ProfileFragment extends Fragment {
 
                     case PUBLIC_AUTHORITY:
                             companyname = companyNameEditText.getText().toString();
-                            site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            site = locationEditText.getText().toString();
                             phone = phoneEditText.getText().toString();
                             email = emailEditText.getText().toString();
                             password = passwordEditText.getText().toString();
@@ -578,20 +660,6 @@ public class ProfileFragment extends Fragment {
         });
 
         deleteButton.setOnClickListener(v -> showDeleteConfirm());
-
-        logoutButton.setOnClickListener(v -> {
-            final AnimalAppDialog logoutDialog=new AnimalAppDialog(getContext());
-
-            logoutDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
-
-            logoutDialog.setConfirmAction(t -> {
-                //TODO qui fai il callback per il logout
-            });
-
-            logoutDialog.setUndoAction(t -> logoutDialog.cancel());
-
-            logoutDialog.show();
-        });
 
         editPhotoButton.setOnClickListener(v -> {
             Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -717,6 +785,7 @@ public class ProfileFragment extends Fragment {
 
         taxIDEditText.setText(userPrivate.getTaxIDCode());
         phoneEditText.setText(Long.toString(userPrivate.getPhone()));
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userPrivate.getLocation(), false));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
         editPhotoImageView.setImageBitmap(userPrivate.getPhoto());
@@ -724,7 +793,7 @@ public class ProfileFragment extends Fragment {
 
     public void onInitAuthorityData(PublicAuthority userAuthority) {
         companyNameEditText.setText(userAuthority.getName());
-        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userAuthority.getLocation(), false));
 
         phoneEditText.setText(Long.toString(userAuthority.getPhone()));
         emailEditText.setText(userAuthority.getEmail());
@@ -734,7 +803,7 @@ public class ProfileFragment extends Fragment {
 
     public void onInitVeterinarianData(Veterinarian userVeterinarian) {
         companyNameEditText.setText(userVeterinarian.getName());
-        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userVeterinarian.getLocation(), false));
 
         phoneEditText.setText(Long.toString(userVeterinarian.getPhone()));
         emailEditText.setText(userVeterinarian.getEmail());
@@ -798,12 +867,15 @@ public class ProfileFragment extends Fragment {
         dialog.show();
     }
 
-    public void showLogoutSuccessful() {
+    public void showLogoutSuccessful(boolean deletedAccount) {
 
-        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+        if (deletedAccount)
+            Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+
+        if (dialog != null)
+            dialog.cancel();
 
         ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);
-        dialog.cancel();
         this.editOpen=false;
     }
 

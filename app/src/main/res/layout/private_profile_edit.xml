@@ -32,17 +32,6 @@
             android:textColor="?attr/colorPrimary"
             android:layout_centerInParent="true"
             android:textStyle="bold"/>
-
-        <Button
-            android:id="@+id/logout_button"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginVertical="15dp"
-            android:layout_marginRight="20dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/baseline_logout_24"/>
-
     </RelativeLayout>
 
     <ScrollView
@@ -156,33 +145,6 @@
                 android:textSize="16sp" />
 
             <LinearLayout
-                android:id="@+id/phone_picker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/prefix_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/check_button_shape"
-                    android:textSize="16sp" />
-
-                <it.uniba.dib.sms222334.Views.AnimalAppEditText
-                    android:id="@+id/phoneNumberEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/edit_text_shape"
-                    android:hint="@string/phone_number"
-                    android:inputType="phone"
-                    android:padding="16dp"
-                    android:textColorHint="#A3A3A3"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/location_picker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -209,6 +171,33 @@
                     android:background="@drawable/button_shape"
                     android:src="@drawable/search_button"
                     app:tint="?attr/colorPrimary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/phone_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/prefix_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/check_button_shape"
+                    android:textSize="16sp" />
+
+                <it.uniba.dib.sms222334.Views.AnimalAppEditText
+                    android:id="@+id/phoneNumberEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edit_text_shape"
+                    android:hint="@string/phone_number"
+                    android:inputType="phone"
+                    android:padding="16dp"
+                    android:textColorHint="#A3A3A3"
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <it.uniba.dib.sms222334.Views.AnimalAppEditText

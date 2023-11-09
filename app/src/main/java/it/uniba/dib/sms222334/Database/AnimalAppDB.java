@@ -18,6 +18,7 @@ public class AnimalAppDB {
         public static final String COLUMN_NAME_EMAIL = "email";
         public static final String COLUMN_NAME_PASSWORD = "password";
         public static final String COLUMN_NAME_PHONE_NUMBER = "phone_number";
+        public static final String COLUMN_NAME_LOCATION = "location";
         public static final String COLUMN_NAME_BIRTH_DATE = "birthdate";
         public static final String COLUMN_NAME_TAX_ID = "tax_id_code";
         public static final String COLUMN_NAME_PHOTO = "photo";

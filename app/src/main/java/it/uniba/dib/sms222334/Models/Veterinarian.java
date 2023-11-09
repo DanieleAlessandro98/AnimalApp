@@ -7,10 +7,8 @@ import android.os.Parcelable;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
-import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Database.Dao.User.UserDao;
 import it.uniba.dib.sms222334.Database.Dao.User.VeterinarianDao;
@@ -20,6 +18,8 @@ public class Veterinarian extends User implements Parcelable
                                                 ,AnimalCallbacks.visitCallback{
     private ArrayList<Visit> visitList;
     private ArrayList<Animal> animalList;
+
+    private float distance;
 
     public ArrayList<Visit> getVisitList() {
         return visitList;
@@ -37,8 +37,16 @@ public class Veterinarian extends User implements Parcelable
         this.animalList = animalList;
     }
 
-    public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite) {
-        super(id, name, email, password, phone, photo, legalSite);
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
+    }
+
+    public Veterinarian(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint location) {
+        super(id, name, email, password, phone, photo, location);
         this.visitList=new ArrayList<>();
         this.animalList=new ArrayList<>();
     }
@@ -56,7 +64,7 @@ public class Veterinarian extends User implements Parcelable
         private long bPhone;
         private Bitmap bPhoto;
 
-        private GeoPoint bLegalSite;
+        private GeoPoint bLocation;
 
         private Builder(final String id, final String name, final String email) {
             this.bID = id;
@@ -93,13 +101,13 @@ public class Veterinarian extends User implements Parcelable
             return this;
         }
 
-        public Builder setLegalSite(final GeoPoint legalSite) {
-            this.bLegalSite = legalSite;
+        public Builder setLocation(final GeoPoint location) {
+            this.bLocation = location;
             return this;
         }
 
         public Veterinarian build() {
-            return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite);
+            return new Veterinarian(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLocation);
         }
     }
 
@@ -212,6 +220,8 @@ public class Veterinarian extends User implements Parcelable
         veterinarianDao.updateVeterinarian(this, new UserCallback.UserUpdateCallback() {
             @Override
             public void notifyUpdateSuccesfull() {
+                if (isPhotoChanged)
+                    veterinarianDao.updatePhoto(getFirebaseID());
             }
 
             @Override

@@ -4,25 +4,22 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
+import com.google.firebase.firestore.GeoPoint;
 
+import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
+import it.uniba.dib.sms222334.Utils.LocationTracker;
 
 public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG="VeterinarianAuthoritiesViewHolder";
@@ -33,6 +30,8 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         double latidute,longitude;
 
         Context context;
+
+        private Document pubVetDocument;
 
         public interface OnItemClickListener{
             void OnItemClick(int position);
@@ -59,11 +58,13 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
         }
 
         public void bind(Veterinarian veterinarian){
+            this.pubVetDocument = veterinarian;
+
             this.latidute=veterinarian.getLocation().getLatitude();
             this.longitude=veterinarian.getLocation().getLongitude();
             this.companyName.setText(veterinarian.getName());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLocation()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLocation(), true));
 
             Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
@@ -75,16 +76,20 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
 
             this.profileType.setImageDrawable(context.getDrawable(R.drawable.health));
             this.profileType.setColorFilter(context.getResources().getColor(R.color.main_green,null), PorterDuff.Mode.SRC_ATOP);
+
+            setDistance();
         }
 
         @SuppressLint("ResourceAsColor")
         public void bind(PublicAuthority publicAuthority){
+            this.pubVetDocument = publicAuthority;
+
             this.latidute=publicAuthority.getLocation().getLatitude();
             this.longitude=publicAuthority.getLocation().getLongitude();
             this.companyName.setText(publicAuthority.getName());
             this.legalSite.setText(publicAuthority.getLocation().toString());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLocation()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLocation(), true));
 
             Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){
@@ -94,21 +99,48 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
                 this.profilePhoto.setImageBitmap(publicAuthority.getPhoto());
             }
 
-            this.profileType.setImageDrawable(context.getDrawable(R.drawable.paw));
+            this.profileType.setImageDrawable(context.getDrawable(R.drawable.paw_icon));
             this.profileType.setColorFilter(context.getResources().getColor(R.color.main_green,null), PorterDuff.Mode.SRC_ATOP);
+
+            setDistance();
         }
 
-        public void setDistance(Location devicePosition) {
-            if(devicePosition!=null){
-                this.distance.setText(CoordinateUtilities.calculateDistance(this.latidute
-                        ,devicePosition.getLatitude()
-                        ,this.longitude
-                        ,devicePosition.getLongitude(),CoordinateUtilities.WITH_METRICS));
-            }
+    private void setDistance() {
+        LocationTracker.LocationState state = LocationTracker.getInstance(context).checkLocationState();
+        switch (state) {
+            case PERMISSION_NOT_GRANTED:
+            case PROVIDER_DISABLED:
+                this.distance.setText("0 km");
+                break;
+
+            case LOCATION_IS_NOT_TRACKING:
+                LocationTracker.getInstance(context).startLocationTracking();
+                this.distance.setText("... km");
+                break;
+
+            case LOCATION_IS_TRACKING_AND_NOT_AVAILABLE:
+            case LOCATION_IS_TRACKING_AND_AVAILABLE:
+                Location devicePosition = LocationTracker.getInstance(context).getLocation(false);
+                if (devicePosition != null) {
+
+                    float distance;
+                    if (pubVetDocument instanceof PublicAuthority) {
+                        distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((PublicAuthority) pubVetDocument).getLocation());
+                        ((PublicAuthority) pubVetDocument).setDistance(distance);
+                    } else {
+                        distance = CoordinateUtilities.calculateDistance(new GeoPoint(devicePosition.getLatitude(), devicePosition.getLongitude()), ((Veterinarian) pubVetDocument).getLocation());
+                        ((Veterinarian) pubVetDocument).setDistance(distance);
+                    }
+
+                    this.distance.setText(CoordinateUtilities.formatDistance(distance));
+                } else {
+                    this.distance.setText("... km");
+                }
+                break;
         }
+    }
 
-
-        @Override
+    @Override
         public void onClick(View view) {
             if(this.onItemClickListener!=null){
                 this.onItemClickListener.OnItemClick(getLayoutPosition());
