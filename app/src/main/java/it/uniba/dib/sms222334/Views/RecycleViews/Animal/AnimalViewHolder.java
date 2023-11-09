@@ -59,6 +59,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
              }
              else{
                  this.visitNumber.setText(animal.getVisitNumber()+"");
+                 this.pathologiesIcon.setVisibility(View.VISIBLE);
              }
 
              if(animal.getPathologiesNumber()==0){
@@ -67,6 +68,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
              }
              else{
                  this.pathologiesNumber.setText(animal.getPathologiesNumber()+"");
+                 this.pathologiesIcon.setVisibility(View.VISIBLE);
              }
 
              Bitmap animalPhoto=animal.getPhoto();

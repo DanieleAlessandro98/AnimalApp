@@ -887,18 +887,15 @@ public class ListFragment extends Fragment{
 
     public void setRelationList(){
         RelationPresenter presenter = new RelationPresenter();
-        presenter.action_getRelation(animal.getFirebaseID(), new RelationDao.OnAnimalRelationListListener() {
-            @Override
-            public void onAnimalRelationListListener(ArrayList<Relation> relationListGet) {
-                relationList=new ArrayList<>();
-                relationList.addAll(relationListGet);
-                final Calendar c = Calendar.getInstance();
-                c.add(Calendar.DAY_OF_MONTH,-1600);
-                relationAdapter=new RelationAdapter(relationList,getContext());
-                addButton.setOnClickListener(v -> launchAddDialog());
+        presenter.action_getRelation(animal.getFirebaseID(), relationListGet -> {
+            relationList=new ArrayList<>();
+            relationList.addAll(relationListGet);
+            final Calendar c = Calendar.getInstance();
+            c.add(Calendar.DAY_OF_MONTH,-1600);
+            relationAdapter=new RelationAdapter(relationList,getContext());
+            addButton.setOnClickListener(v -> launchAddDialog());
 
-                recyclerView.setAdapter(relationAdapter);
-            }
+            recyclerView.setAdapter(relationAdapter);
         });
 
         SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {

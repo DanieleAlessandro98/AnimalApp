@@ -225,7 +225,8 @@ public class MediaPageFragment extends Fragment implements MediaDao.MediaDeleteL
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
                 try {
-                    latch.get().await();
+                    if(latch.get()!=null)
+                        latch.get().await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

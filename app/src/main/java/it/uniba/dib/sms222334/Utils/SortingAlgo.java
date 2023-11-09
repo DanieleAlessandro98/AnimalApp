@@ -10,7 +10,7 @@ public final class SortingAlgo {
     }
 
     private static <T extends Comparable<T>> int partition(List<T> arr, int low, int high) {
-        T pivot = arr.get(arr.size()-1);
+        T pivot = arr.get(high);
 
         int i = (low - 1);
 

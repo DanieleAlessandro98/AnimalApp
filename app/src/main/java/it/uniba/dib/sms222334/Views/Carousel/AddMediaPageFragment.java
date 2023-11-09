@@ -93,7 +93,7 @@ public class AddMediaPageFragment extends Fragment {
                         try {
                             Bitmap selectedImage=MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), result.getData().getData());
 
-                            String newPhotoName=adapter.animal.getFirebaseID()+"_"+(adapter.mediaList.size()+1+".jpg");
+                            String newPhotoName=adapter.animal.getFirebaseID()+"_"+(adapter.mediaList.size()+Timestamp.now().hashCode()+".jpg");
                             new MediaDao().uploadPhoto(selectedImage, Animal.PHOTO_PATH, newPhotoName, new MediaDao.PhotoUploadListener() {
                                 @Override
                                 public void onPhotoUploaded() {
@@ -145,7 +145,7 @@ public class AddMediaPageFragment extends Fragment {
 
                         progressBar.setVisibility(View.VISIBLE);
 
-                        String newVideoName=adapter.animal.getFirebaseID()+"_"+(adapter.mediaList.size()+1+".mp4");
+                        String newVideoName=adapter.animal.getFirebaseID()+"_"+(adapter.mediaList.size()+Timestamp.now().hashCode()+".mp4");
 
                         new MediaDao().uploadVideo(videoUri, newVideoName, new MediaDao.VideoUploadListener() {
                             @Override
