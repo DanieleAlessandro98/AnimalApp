@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 
 import it.uniba.dib.sms222334.Fragmets.ProfileFragment;
 import it.uniba.dib.sms222334.Fragmets.SearchFragment;
@@ -26,8 +28,10 @@ import it.uniba.dib.sms222334.R;
 
 public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<VeterinarianAuthoritiesViewHolder> implements VeterinarianAuthoritiesViewHolder.OnItemClickListener{
 
-    ArrayList<User>  veterinarianAuthoritiesList;
-    Context context;
+    private ArrayList<User>  veterinarianAuthoritiesList;
+    private ArrayList<User> arraylist;
+
+    private Context context;
 
     public interface OnProfileClicked{
         void OnProfileClicked(User profile);
@@ -43,8 +47,19 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
 
 
     public VeterinarianAuthoritiesAdapter(ArrayList<User> mModel,Context context){
-        this. veterinarianAuthoritiesList = mModel;
+        this.veterinarianAuthoritiesList = mModel;
+        this.arraylist = new ArrayList<>();
+
         this.context=context;
+    }
+
+    public void addUser(User user) {
+        arraylist.add(user);
+    }
+
+    public void removeUser(int position) {
+        if (position >= 0 && position < arraylist.size())
+            arraylist.remove(position);
     }
 
     public void sortByDistance() {
@@ -60,6 +75,38 @@ public class VeterinarianAuthoritiesAdapter extends RecyclerView.Adapter<Veterin
 
         Collections.sort(veterinarianAuthoritiesList, distanceComparator);
         notifyDataSetChanged();
+    }
+
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String filterPattern = charSequence.toString().toLowerCase().trim();
+
+                ArrayList<User> filteredList = new ArrayList<>();
+                for (User user : arraylist) {
+                    String companyName = user.getName().toLowerCase();
+                    if (companyName.contains(filterPattern))
+                        filteredList.add(user);
+                }
+
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                veterinarianAuthoritiesList.clear();
+
+                if (charSequence.length() == 0)
+                    veterinarianAuthoritiesList.addAll(arraylist);
+                else
+                    veterinarianAuthoritiesList.addAll((ArrayList<User>) filterResults.values);
+
+                notifyDataSetChanged();
+            }
+        };
     }
 
     @NonNull

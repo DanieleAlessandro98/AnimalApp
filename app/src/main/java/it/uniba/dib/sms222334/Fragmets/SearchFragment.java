@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -53,6 +54,8 @@ public class SearchFragment extends Fragment implements PermissionInterface<Andr
 
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
+    private SearchView searchView;
+
     public SearchFragment() {}
 
     @Nullable
@@ -79,6 +82,20 @@ public class SearchFragment extends Fragment implements PermissionInterface<Andr
             }
         });
 
+        searchView = layout.findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+
         LocationTracker.getInstance(getContext()).setNotifyLocationChangedListener(new LocationTracker.NotifyLocationChanged() {
             @Override
             public void locationChanged() {
@@ -97,6 +114,7 @@ public class SearchFragment extends Fragment implements PermissionInterface<Andr
                 @Override
                 public void onUserFound(User user) {
                     profileList.add(profileList.size()-1, user);
+                    adapter.addUser(user);
                     adapter.notifyItemInserted(profileList.size()-1);
                 }
 
@@ -104,6 +122,7 @@ public class SearchFragment extends Fragment implements PermissionInterface<Andr
                 public void onLastUserFound() {
                     int lastIndex=profileList.size()-1;
                     profileList.remove(lastIndex);
+                    adapter.removeUser(lastIndex);
                     adapter.notifyItemRemoved(lastIndex);
                 }
 
