@@ -157,16 +157,19 @@
                     android:layout_height="wrap_content">
                 </FrameLayout>
 
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/rounded_container_shape"
+                    android:layout_weight="1">
 
                     <com.google.android.gms.maps.MapView
                         android:id="@+id/mapview"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" />
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
+
 
             </LinearLayout>
         </RelativeLayout>

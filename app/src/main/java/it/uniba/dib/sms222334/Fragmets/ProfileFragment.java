@@ -48,6 +48,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
 
@@ -438,7 +440,10 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(profile.getLocation().getLatitude(), profile.getLocation().getLongitude())));
+        LatLng latLng = new LatLng(profile.getLocation().getLatitude(), profile.getLocation().getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        if (map != null)
+            map.addMarker(new MarkerOptions().position(latLng));
     }
 
     public Visit.visitType visitType;
