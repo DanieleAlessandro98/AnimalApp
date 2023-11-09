@@ -66,7 +66,7 @@ public class AnimalViewHolder extends RecyclerView.ViewHolder implements View.On
                  this.pathologiesIcon.setVisibility(View.GONE);
              }
              else{
-                 this.pathologiesNumber.setText(animal.getPathologiesNumber());
+                 this.pathologiesNumber.setText(animal.getPathologiesNumber()+"");
              }
 
              Bitmap animalPhoto=animal.getPhoto();

@@ -18,26 +18,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Models.Pathology;
 
 public class PathologyDao {
     private final String TAG="PathologyDao";
-    final private CollectionReference collectionPathology = FirebaseFirestore.getInstance().collection(AnimalAppDB.Pathology.TABLE_NAME);
+    public final static CollectionReference collectionPathology = FirebaseFirestore.getInstance().collection(AnimalAppDB.Pathology.TABLE_NAME);
 
-    public void deletePathology(Pathology pathology){
+    public void deletePathology(Pathology pathology, AnimalCallbacks.eliminationCallback callback){
         collectionPathology.document(pathology.getFirebaseID())
                 .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
+                .addOnSuccessListener(command -> {
+                    if(callback!=null)
+                        callback.eliminatedSuccesfully();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
+                .addOnFailureListener(e -> {
+                    if(callback!=null)
+                        callback.failedElimination();
                 });
     }
 
@@ -54,35 +51,9 @@ public class PathologyDao {
             listener.onFailureReady();
         });
     }
-    private static ArrayList <Pathology> listPathology ;
 
-    public void getListPathology(String idAnimal, final OnPathologyListListener listener){
-        listPathology = new ArrayList<>();
-        collectionPathology.whereEqualTo("ID animal",idAnimal).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                            String pathologyData = document.getString("Type pathology");
-                            listPathology.add(Pathology.Builder.create(document.getId(),document.getString("ID animal"),pathologyData).build());
-                        }
-                        listener.onPathologyListReady(listPathology);
-                    } else {
-                        Log.w("W","Nessun dato trovato");
-                        listener.onPathologyListReady(new ArrayList<>());
-                    }
-                } else {
-                    Log.w("W","La query non ha funzionato");
-                    listener.onPathologyListReady(new ArrayList<>());
-                }
-            }
-        });
-    }
-
-    public interface OnPathologyListListener {
-        void onPathologyListReady(ArrayList<Pathology> listPathology);
+    public interface PathologyListener {
+        void onPathologyFound(Pathology pathology);
     }
 
     public interface OnPathologyCreateListener{

@@ -140,8 +140,8 @@ public class AnimalAppDB {
     public static class Pathology implements BaseColumns {
         public static final String TABLE_NAME = "Pathology";
 
-        public static final String COLUMN_NAME_NAME = "name";
-        public static final String COLUMN_NAME_ANIMAL = "animalID";
+        public static final String COLUMN_NAME_NAME = "Type pathology";
+        public static final String COLUMN_NAME_ANIMAL = "ID animal";
     }
 
     public static class Relation implements BaseColumns{

@@ -150,7 +150,7 @@ public class RequestDao {
 
                     callback.onDataRetrieved(request);
                 } else {
-                    animalDao.getAnimalByReference(animalRef, "", new DatabaseCallbackResult<Animal>() {
+                    animalDao.getAnimalByReference(animalRef, new DatabaseCallbackResult<Animal>() {
                         @Override
                         public void onDataRetrieved(Animal result) {
                             Request request = Request.Builder.create(document.getId(),

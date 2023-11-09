@@ -266,7 +266,7 @@ public class Visit extends Document implements Parcelable {
 
 
         //TODO temporary bad solution
-        new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(in.readString()), IDowner, new DatabaseCallbackResult<Animal>() {
+        new AnimalDao().getAnimalByReference(AnimalDao.collectionAnimal.document(in.readString()), new DatabaseCallbackResult<Animal>() {
             @Override
             public void onDataRetrieved(Animal result) {
                 animal=result;

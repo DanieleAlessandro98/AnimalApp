@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Database.Dao.Animal;
 
 import javax.annotation.Nullable;
 
+import it.uniba.dib.sms222334.Models.Animal;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
 
@@ -33,6 +34,10 @@ public final class AnimalCallbacks {
         void failedUpdate();
     }
 
+    public interface changeDataCallback{
+        void onDataChanged(Animal animal);
+    }
+
     public interface eliminationCallback{
         void eliminatedSuccesfully();
 
@@ -49,6 +54,12 @@ public final class AnimalCallbacks {
         void notifyVisitLoaded();
 
         void notifyVisitRemoved(int position);
+    }
+
+    public interface pathologyCallback{
+        void notifyPathologyLoaded();
+
+        void notifyPathologyRemoved(int position);
     }
 
     public interface expensesCallback{

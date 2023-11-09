@@ -44,19 +44,20 @@ public class PublicAuthorityDao {
     public void findPublicAuthority(DocumentSnapshot document, PublicAuthorityCallback callback) {
         MediaDao mediaDao= new MediaDao();
 
+        PublicAuthority.Builder public_authority_requested_builder=PublicAuthority.Builder.
+                create(
+                        document.getId(),
+                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
+                        document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))
+                .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
+                .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
+                .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
+
         mediaDao.downloadPhoto(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_LOGO), new MediaDao.PhotoDownloadListener() {
             @Override
             public void onPhotoDownloaded(Bitmap bitmap) {
-                PublicAuthority.Builder public_authority_requested_builder=PublicAuthority.Builder.
-                        create(
-                                document.getId(),
-                                document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_COMPANY_NAME),
-                                document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_EMAIL))
-                        .setPhoto(bitmap)
-                        .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
-                        .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
-                        .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
-                        .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
+                public_authority_requested_builder.setPhoto(bitmap);
 
                 PublicAuthority resultPublicAuthority=public_authority_requested_builder.build();
 
@@ -66,7 +67,11 @@ public class PublicAuthorityDao {
 
             @Override
             public void onPhotoDownloadFailed(Exception exception) {
-                callback.onPublicAuthorityFindFailed(exception);
+                public_authority_requested_builder.setPhoto(null);
+
+                PublicAuthority resultPublicAuthority=public_authority_requested_builder.build();
+
+                callback.onPublicAuthorityFound(resultPublicAuthority);
             }
         });
 
@@ -107,7 +112,7 @@ public class PublicAuthorityDao {
                 }
             };
 
-            animalDao.getAnimalByReference(animalRef, resultPublicAuthority.getFirebaseID(), animalListener);
+            animalDao.getAnimalByReference(animalRef, resultPublicAuthority, animalListener);
         }
     }
 

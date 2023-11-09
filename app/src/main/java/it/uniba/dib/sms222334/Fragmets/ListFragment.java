@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.RelationDao;
@@ -169,7 +170,7 @@ public class ListFragment extends Fragment{
                 setRelationList();
                 break;
             case HEALTH:
-                PathologyPresenter.action_getPathology(animal.getFirebaseID(), this::setHealtList);
+                setHealtList();
                 break;
             case FOOD:
                 setFoodList();
@@ -490,9 +491,7 @@ public class ListFragment extends Fragment{
                             @Override
                             public void onCreatedReady(Pathology pathology) {
                                 addDialog.cancel();
-                                Log.i("I","Pathology is created");
-                                pathologyList.add(pathology);
-                                recyclerView.setAdapter(pathologyAdapter);
+                                animal.addPathology(pathology);
                             }
 
                             @Override
@@ -928,13 +927,9 @@ public class ListFragment extends Fragment{
     }
 
 
-    private SimpleTextAdapter<Pathology> pathologyAdapter;
-    private ArrayList<Pathology> pathologyList = new ArrayList<>();
-
-    public void setHealtList(ArrayList<Pathology> listPathology){
-
-        pathologyList = new ArrayList<>();
-        pathologyList.addAll(listPathology);
+    public void setHealtList(){
+        SimpleTextAdapter<Pathology> pathologyAdapter;
+        ArrayList<Pathology> pathologyList=this.animal.getPathologies();
 
         pathologyAdapter=new SimpleTextAdapter<>(pathologyList);
 
@@ -943,6 +938,18 @@ public class ListFragment extends Fragment{
         if((profileType == ProfileFragment.Type.ANIMAL) && (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)) {
             addButton.setVisibility(View.GONE);
         }
+
+        this.animal.setPathologyCallback(new AnimalCallbacks.pathologyCallback() {
+            @Override
+            public void notifyPathologyLoaded() {
+                pathologyAdapter.notifyItemInserted(0);
+            }
+
+            @Override
+            public void notifyPathologyRemoved(int position) {
+                pathologyAdapter.notifyItemRemoved(position);
+            }
+        });
 
         recyclerView.setAdapter(pathologyAdapter);
 
@@ -958,9 +965,18 @@ public class ListFragment extends Fragment{
                         Color.parseColor("#CD4C51"),
                         pos -> {
                             AnimalAppDialog.launchConfirmDialog(() -> {
-                                PathologyPresenter pathology = new PathologyPresenter();
-                                pathology.action_delete(pathologyAdapter.simpleItemList.get(pos));
-                                pathologyAdapter.removeSimpleElement(pos);
+                                Pathology deletePathology=pathologyList.get(pos);
+                                deletePathology.delete(new AnimalCallbacks.eliminationCallback() {
+                                    @Override
+                                    public void eliminatedSuccesfully() {
+                                        animal.removePathology(deletePathology);
+                                    }
+
+                                    @Override
+                                    public void failedElimination() {
+
+                                    }
+                                });
                                 return null;
                             },getContext());
                         }

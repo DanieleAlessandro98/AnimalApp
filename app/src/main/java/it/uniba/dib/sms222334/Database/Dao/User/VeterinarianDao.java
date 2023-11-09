@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Database.Dao.User;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.telephony.TelephonyScanManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ import it.uniba.dib.sms222334.Models.PublicAuthority;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.Models.Visit;
+import it.uniba.dib.sms222334.R;
 import it.uniba.dib.sms222334.Utils.Media;
 
 public class VeterinarianDao {
@@ -53,18 +55,19 @@ public class VeterinarianDao {
     public void findVeterinarian(DocumentSnapshot document, VeterinarianCallback callback) {
         MediaDao mediaDao= new MediaDao();
 
+        Veterinarian.Builder veterinarian_requested_builder = Veterinarian.Builder.
+                create(
+                        document.getId(),
+                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
+                        document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))
+                .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
+                .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER));
+
         mediaDao.downloadPhoto(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_LOGO), new MediaDao.PhotoDownloadListener() {
             @Override
             public void onPhotoDownloaded(Bitmap bitmap) {
-                Veterinarian.Builder veterinarian_requested_builder = Veterinarian.Builder.
-                        create(
-                                document.getId(),
-                                document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
-                                document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))
-                        .setPhoto(bitmap)
-                        .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
-                        .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
-                        .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER));
+                veterinarian_requested_builder.setPhoto(bitmap);
 
 
                 Veterinarian veterinarian= veterinarian_requested_builder.build();
@@ -74,7 +77,12 @@ public class VeterinarianDao {
 
             @Override
             public void onPhotoDownloadFailed(Exception exception) {
-                callback.onVeterinarianFindFailed(exception);
+                veterinarian_requested_builder.setPhoto(null);
+
+
+                Veterinarian veterinarian= veterinarian_requested_builder.build();
+
+                callback.onVeterinarianFound(veterinarian);
             }
         });
 

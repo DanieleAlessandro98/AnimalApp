@@ -7,6 +7,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import it.uniba.dib.sms222334.Database.Dao.Animal.AnimalCallbacks;
 import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 
 public class Pathology extends Document implements Parcelable{
@@ -22,16 +25,6 @@ public class Pathology extends Document implements Parcelable{
     public void createPathology (Pathology pathology, String name, PathologyDao.OnPathologyCreateListener listener){
         PathologyDao dao = new PathologyDao();
         dao.createPathology(pathology,name,listener);
-    }
-
-    public static void getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
-        PathologyDao dao = new PathologyDao();
-        dao.getListPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
-            @Override
-            public void onPathologyListReady(ArrayList<Pathology> listPathology) {
-                listener.onPathologyListReady(listPathology);
-            }
-        });
     }
 
     public String getName() {
@@ -112,8 +105,8 @@ public class Pathology extends Document implements Parcelable{
         }
     };
 
-    public void delete() {
+    public void delete(@Nullable AnimalCallbacks.eliminationCallback callback) {
         PathologyDao pathologyDao = new PathologyDao();
-        pathologyDao.deletePathology(this);
+        pathologyDao.deletePathology(this,callback);
     }
 }

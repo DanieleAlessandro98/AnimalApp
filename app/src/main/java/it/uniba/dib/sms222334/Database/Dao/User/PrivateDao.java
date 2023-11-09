@@ -109,21 +109,23 @@ public final class PrivateDao {
 
     public void findPrivate(DocumentSnapshot document, PrivateCallback callback) {
         MediaDao mediaDao = new MediaDao();
+
+        Private.Builder private_requested_builder = Private.Builder.
+                create(
+                        document.getId(),
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
+                        document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
+                .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
+                .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
+                .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
+                .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
+                .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID))
+                .setLocation(new GeoPoint(10f, 10f));
+
         mediaDao.downloadPhoto(document.getString(AnimalAppDB.Private.COLUMN_NAME_PHOTO), new MediaDao.PhotoDownloadListener() {
             @Override
             public void onPhotoDownloaded(Bitmap bitmap) {
-                Private.Builder private_requested_builder = Private.Builder.
-                        create(
-                                document.getId(),
-                                document.getString(AnimalAppDB.Private.COLUMN_NAME_NAME),
-                                document.getString(AnimalAppDB.Private.COLUMN_NAME_EMAIL))
-                        .setPassword(document.getString(AnimalAppDB.Private.COLUMN_NAME_PASSWORD))
-                        .setPhone(document.getLong(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER))
-                        .setPhoto(bitmap)
-                        .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
-                        .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
-                        .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID))
-                        .setLocation(new GeoPoint(10f, 10f));
+                private_requested_builder.setPhoto(bitmap);
 
                 Private resultPrivate = private_requested_builder.build();
                 callback.onPrivateFound(resultPrivate);
@@ -131,7 +133,10 @@ public final class PrivateDao {
 
             @Override
             public void onPhotoDownloadFailed(Exception exception) {
-                callback.onPrivateFindFailed(exception);
+                private_requested_builder.setPhoto(null);
+
+                Private resultPrivate = private_requested_builder.build();
+                callback.onPrivateFound(resultPrivate);
             }
         });
     }
@@ -178,7 +183,7 @@ public final class PrivateDao {
                 }
             };
 
-            animalDao.getAnimalByReference(animalRef, resultPrivate.getFirebaseID(), animalListener);
+            animalDao.getAnimalByReference(animalRef, resultPrivate, animalListener);
         }
     }
 

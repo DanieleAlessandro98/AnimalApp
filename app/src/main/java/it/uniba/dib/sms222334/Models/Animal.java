@@ -27,7 +27,9 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 public class Animal extends Document implements Parcelable
         ,AnimalCallbacks.foodCallback
         ,AnimalCallbacks.expensesCallback
-        ,AnimalCallbacks.visitCallback{
+        ,AnimalCallbacks.visitCallback
+        ,AnimalCallbacks.pathologyCallback
+        ,AnimalCallbacks.changeDataCallback{
 
     public final static String PHOTO_PATH="/images/profiles/animals/";
 
@@ -259,6 +261,14 @@ public class Animal extends Document implements Parcelable
 
     AnimalCallbacks.visitCallback visitCallback=null;
 
+    AnimalCallbacks.pathologyCallback pathologyCallback=null;
+
+    AnimalCallbacks.changeDataCallback changeDataCallback=null;
+
+    public void setChangeDataCallback(AnimalCallbacks.changeDataCallback callBack){
+        this.changeDataCallback=callBack;
+    }
+
     public void setFoodCallback(AnimalCallbacks.foodCallback foodCallback){
         this.foodCallback= foodCallback;
     }
@@ -269,6 +279,10 @@ public class Animal extends Document implements Parcelable
 
     public void setVisitCallback(AnimalCallbacks.visitCallback visitCallback){
         this.visitCallback=visitCallback;
+    }
+
+    public void setPathologyCallback(AnimalCallbacks.pathologyCallback pathologyCallback){
+        this.pathologyCallback=pathologyCallback;
     }
 
     @Override
@@ -305,6 +319,24 @@ public class Animal extends Document implements Parcelable
     public void notifyVisitRemoved(int position) {
         if(visitCallback!=null)
             visitCallback.notifyVisitRemoved(position);
+    }
+
+    @Override
+    public void notifyPathologyLoaded() {
+        if(pathologyCallback!=null)
+            pathologyCallback.notifyPathologyLoaded();
+    }
+
+    @Override
+    public void notifyPathologyRemoved(int position) {
+        if(pathologyCallback!=null)
+            pathologyCallback.notifyPathologyRemoved(position);
+    }
+
+    @Override
+    public void onDataChanged(Animal animal) {
+        if(changeDataCallback!=null)
+            changeDataCallback.onDataChanged(animal);
     }
 
     public static class Builder{
@@ -404,12 +436,14 @@ public class Animal extends Document implements Parcelable
     public void addVisit(Visit visit){
         visits.add(0,visit);
         notifyVisitLoaded();
+        onDataChanged(this);
     }
 
     public void removeVisit(Visit visit){
         final int index=visits.indexOf(visit);
         visits.remove(visit);
         notifyVisitRemoved(index);
+        onDataChanged(this);
     }
 
     public void addExpense(Expense expense) {
@@ -427,6 +461,19 @@ public class Animal extends Document implements Parcelable
         final int index=expenses.indexOf(expense);
         expenses.remove(expense);
         notifyExpensesRemoved(index);
+    }
+
+    public void addPathology(Pathology pathology) {
+        pathologies.add(0,pathology);
+        notifyPathologyLoaded();
+        onDataChanged(this);
+    }
+
+    public void removePathology(Pathology pathology){
+        final int index=pathologies.indexOf(pathology);
+        pathologies.remove(pathology);
+        notifyPathologyRemoved(index);
+        onDataChanged(this);
     }
 
     @Override
@@ -495,7 +542,7 @@ public class Animal extends Document implements Parcelable
         }
 
         for (Pathology pathology : pathologies) {
-            pathology.delete();
+            pathology.delete(null);
         }
 
         for (Food food : foods) {

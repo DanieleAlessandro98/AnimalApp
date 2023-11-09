@@ -29,26 +29,6 @@ public class PathologyPresenter {
         }
     }
 
-    // this is che method that check if exist the pathology, if exist then call the delete method
-    public void action_delete(Pathology pathology){
-        if (pathology != null){
-            pathology.delete();
-        }else{
-            System.out.println("the Pathology is not Exist");
-        }
-    }
-
-    public static void action_getPathology(String idAnimal,final PathologyDao.OnPathologyListListener listener){
-        if (idAnimal != null){
-            Pathology.getPathology(idAnimal, new PathologyDao.OnPathologyListListener() {
-                @Override
-                public void onPathologyListReady(ArrayList<Pathology> listPathology) {
-                    listener.onPathologyListReady(listPathology);
-                }
-            });
-        }
-    }
-
     public static boolean isAlphaNumeric(String s) {
         return s != null && s.matches("^[a-zA-Z0-9]*$");
     }

@@ -2,6 +2,7 @@ package it.uniba.dib.sms222334.Fragmets;
 
 import android.os.Bundle;
 import android.os.Parcel;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,10 +42,7 @@ public class SearchFragment extends Fragment {
 
     User userClicked;
 
-    public static ArrayList<User> profileList=new ArrayList<>();
-
-    static boolean firstLoad=true;
-
+    private ArrayList<User> profileList=new ArrayList<>();
 
     public SearchFragment() {}
 
@@ -93,22 +91,21 @@ public class SearchFragment extends Fragment {
             }
         });
 
-
-        if(firstLoad){
-            profileList.add(0,Private.Builder.create("","","").build()); //progress bar
+        if(this.profileList.isEmpty()) {
+            profileList.add(0, Private.Builder.create("", "", "").build()); //progress bar
             adapter.notifyItemInserted(0);
 
             VeterinarianPresenter presenter = new VeterinarianPresenter();
             presenter.action_getVeterinarian(new UserCallback.UserFindCallback() {
                 @Override
                 public void onUserFound(User user) {
-                    profileList.add(profileList.size()-1, user);
-                    adapter.notifyItemInserted(profileList.size()-1);
+                    profileList.add(profileList.size() - 1, user);
+                    adapter.notifyItemInserted(profileList.size() - 1);
                 }
 
                 @Override
                 public void onLastUserFound() {
-                    int lastIndex=profileList.size()-1;
+                    int lastIndex = profileList.size() - 1;
                     profileList.remove(lastIndex);
                     adapter.notifyItemRemoved(lastIndex);
                 }
@@ -119,17 +116,22 @@ public class SearchFragment extends Fragment {
                 }
             });
 
-            firstLoad=false;
-        }
+            if (savedInstanceState != null) {
+                User user = savedInstanceState.getParcelable("profileClicked");
 
-        if(savedInstanceState!=null){
-            User user=savedInstanceState.getParcelable("profileClicked");
-
-            if(user!=null)
-                openProfile(user);
+                if (user != null)
+                    openProfile(user);
+            }
         }
 
         return layout;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        this.profileList.clear();
     }
 
     private void openProfile(User profile){

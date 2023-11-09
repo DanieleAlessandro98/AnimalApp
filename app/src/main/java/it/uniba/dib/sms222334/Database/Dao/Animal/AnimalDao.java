@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 
 import it.uniba.dib.sms222334.Database.AnimalAppDB;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
+import it.uniba.dib.sms222334.Database.Dao.PathologyDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
@@ -42,6 +43,7 @@ import it.uniba.dib.sms222334.Models.Document;
 import it.uniba.dib.sms222334.Models.Expense;
 import it.uniba.dib.sms222334.Models.Food;
 import it.uniba.dib.sms222334.Models.Owner;
+import it.uniba.dib.sms222334.Models.Pathology;
 import it.uniba.dib.sms222334.Models.Photo;
 import it.uniba.dib.sms222334.Models.Private;
 import it.uniba.dib.sms222334.Models.PublicAuthority;
@@ -342,14 +344,17 @@ public class AnimalDao {
         }
     }
 
-    public void getAnimalByReference(@NonNull DocumentReference animalRef, final String resultPrivateReference, final DatabaseCallbackResult<Animal> listener) {
+    public void getAnimalByReference(@NonNull DocumentReference animalRef, final Owner owner, final DatabaseCallbackResult<Animal> listener) {
 
         animalRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
 
-                    Animal resultAnimal = findAnimal(document, resultPrivateReference);
+                    Animal resultAnimal = findAnimal(document);
+
+
+                    resultAnimal.setChangeDataCallback(animal -> owner.updateAnimal(animal,false));
 
                     //TODO togliere da qui
                     final long MAX_SIZE = 4096 * 4096; //dimensione massima dell'immagine in byte
@@ -369,6 +374,7 @@ public class AnimalDao {
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
                         findAnimalVisits(resultAnimal);
+                        findAnimalPathology(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     }).addOnFailureListener(exception -> {
@@ -379,6 +385,7 @@ public class AnimalDao {
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
                         findAnimalVisits(resultAnimal);
+                        findAnimalPathology(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     });
@@ -418,6 +425,7 @@ public class AnimalDao {
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
                         findAnimalVisits(resultAnimal);
+                        findAnimalPathology(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     }).addOnFailureListener(exception -> {
@@ -428,6 +436,7 @@ public class AnimalDao {
                         findAnimalImages(document, resultAnimal);
                         findAnimalVideos(document, resultAnimal);
                         findAnimalVisits(resultAnimal);
+                        findAnimalPathology(resultAnimal);
                         findAnimalFoods(resultAnimal);
                         findAnimalExpences(resultAnimal);
                     });
@@ -468,6 +477,22 @@ public class AnimalDao {
                         animal.addVisit(visit);
                     }
                 });
+    }
+
+    private void findAnimalPathology(Animal resultAnimal){
+        PathologyDao.collectionPathology.whereEqualTo(AnimalAppDB.Pathology.COLUMN_NAME_ANIMAL,resultAnimal.getFirebaseID())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> snapshotList=queryDocumentSnapshots.getDocuments();
+
+                    for (DocumentSnapshot snapshot: snapshotList){
+                        resultAnimal.addPathology(Pathology.Builder.create(snapshot.getId()
+                                ,snapshot.getString(AnimalAppDB.Pathology.COLUMN_NAME_ANIMAL)
+                                ,snapshot.getString(AnimalAppDB.Pathology.COLUMN_NAME_NAME))
+                                .build());
+                    }
+                })
+                .addOnFailureListener(e -> {});
     }
 
     private void findAnimalExpences(Animal resultAnimal) {
