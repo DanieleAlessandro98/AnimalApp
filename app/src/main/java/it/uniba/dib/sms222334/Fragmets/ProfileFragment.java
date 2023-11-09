@@ -89,6 +89,7 @@ public class ProfileFragment extends Fragment {
     private ProfileFragment.Type profileType;
 
     Button editButton,addVisitButton;
+    ImageButton callButton;
 
     boolean editOpen,visitOpen;
     TabLayout tabLayout;
@@ -125,6 +126,8 @@ public class ProfileFragment extends Fragment {
 
     private ListFragment fragment;
     private VisitPresenter visitPresenter;
+
+    private boolean tabEnabled;
 
     public ProfileFragment(){}
 
@@ -163,6 +166,8 @@ public class ProfileFragment extends Fragment {
 
         this.previousTab=new Tab();
 
+        tabEnabled=true;
+
         this.previousTab.tabPosition=TabPosition.RELATION; //i want the initial tab is different everytime
 
 
@@ -186,8 +191,11 @@ public class ProfileFragment extends Fragment {
         if(this.role==UserRole.VETERINARIAN){
             inflatedLayout =R.layout.veterinarian_profile_fragment;
         }
-        else{
+        else if(SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(profile.getFirebaseID()) == 0 ){
             inflatedLayout =R.layout.owner_profile_fragment;
+        }
+        else{
+            inflatedLayout =R.layout.stranger_owner_profile_fragment;
         }
 
         final View layout= inflater.inflate(inflatedLayout,container,false);
@@ -195,6 +203,8 @@ public class ProfileFragment extends Fragment {
         nameView = layout.findViewById(R.id.name);
         emailView = layout.findViewById(R.id.email);
         profilePhoto = layout.findViewById(R.id.profile_picture);
+        tabLayout=layout.findViewById(R.id.tab_layout);
+        editButton=layout.findViewById(R.id.edit_button);
 
         refresh(this.profile);
 
@@ -214,20 +224,31 @@ public class ProfileFragment extends Fragment {
             }
             else{
                 this.addVisitButton.setVisibility(View.INVISIBLE);
+                this.callButton.setVisibility(View.INVISIBLE);
             }
 
+            if(SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0){
+                tabLayout.setVisibility(View.GONE);
+                tabEnabled=false;
+            }
+
+        }
+
+        if((this.role == UserRole.VETERINARIAN) || (SessionManager.getInstance().getCurrentUser().getFirebaseID().compareTo(this.profile.getFirebaseID()) != 0)){
+            this.callButton=layout.findViewById(R.id.call_button);
+
+            this.callButton.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + this.profile.getPhone()));
+                startActivity(intent);
+            });
         }
 
 
         userPresenter = new UserPresenter(this);
 
-
-        editButton=layout.findViewById(R.id.edit_button);
-
         if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
             editButton.setVisibility(View.INVISIBLE);
 
-        tabLayout=layout.findViewById(R.id.tab_layout);
 
         this.photoPickerResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -269,31 +290,31 @@ public class ProfileFragment extends Fragment {
         if(editOpen)
             launchEditDialog();
 
+        if(tabEnabled) {
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    clickedTab = TabPosition.values()[tab.getPosition()];
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                clickedTab=TabPosition.values()[tab.getPosition()];
+                    changeTab(clickedTab, true);
+                }
 
-                changeTab(clickedTab,true);
-            }
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+                }
 
-            }
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                }
+            });
 
-            }
-        });
+            tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()));
 
-        tabLayout.selectTab(tabLayout.getTabAt(this.clickedTab.ordinal()));
-
-        if(getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG)==null)
-            changeTab(this.clickedTab,false);
-
+            if (getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null)
+                changeTab(this.clickedTab, false);
+        }
     }
 
     @Override

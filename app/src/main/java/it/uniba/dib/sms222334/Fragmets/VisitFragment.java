@@ -75,7 +75,6 @@ public class VisitFragment extends Fragment {
 
         if(this.userRole== UserRole.VETERINARIAN){
             editButton = layout.findViewById(R.id.edit_button);
-            System.out.println("visit in createview: "+this.visit.getFirebaseID()+" "+this.visit.getAnimal().getFirebaseID()+" "+this.visit.getName());
             editButton.setOnClickListener(v -> launchEditDialogForVeterinarian());
             editButton.setVisibility(View.VISIBLE);
         }

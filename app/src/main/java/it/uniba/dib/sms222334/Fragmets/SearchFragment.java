@@ -130,8 +130,6 @@ public class SearchFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        this.profileList.clear();
     }
 
     private void openProfile(User profile){

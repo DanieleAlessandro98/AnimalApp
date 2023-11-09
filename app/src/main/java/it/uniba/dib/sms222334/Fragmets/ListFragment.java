@@ -898,6 +898,13 @@ public class ListFragment extends Fragment{
             recyclerView.setAdapter(relationAdapter);
         });
 
+        if((profileType == ProfileFragment.Type.ANIMAL) && (SessionManager.getInstance().getCurrentUser().getRole() == UserRole.VETERINARIAN)) {
+            addButton.setVisibility(View.GONE);
+        }
+
+        if(!AnimalPresenter.checkAnimalProperty(this.animal))
+            return;
+
         SwipeHelper RelationSwipeHelper = new SwipeHelper(getContext(), recyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
