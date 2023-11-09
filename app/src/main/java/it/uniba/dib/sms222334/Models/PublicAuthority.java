@@ -4,14 +4,10 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.ArrayList;
 
-import it.uniba.dib.sms222334.Database.Dao.User.PrivateDao;
 import it.uniba.dib.sms222334.Database.Dao.User.PublicAuthorityDao;
 import it.uniba.dib.sms222334.Database.Dao.User.UserCallback;
 import it.uniba.dib.sms222334.Utils.UserRole;
@@ -24,9 +20,8 @@ public class PublicAuthority extends User implements Owner, Parcelable {
 
     private float distance;
 
-
-    public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint legalSite, Integer nBeds) {
-        super(id, name, email, password, phone, photo, legalSite);
+    public PublicAuthority(String id, String name, String email, String password, long phone, Bitmap photo, GeoPoint location, Integer nBeds) {
+        super(id, name, email, password, phone, photo, location);
 
         this.NBeds = nBeds;
 
@@ -46,7 +41,7 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         private long bPhone;
         private Bitmap bPhoto;
 
-        private GeoPoint bLegalSite;
+        private GeoPoint bLocation;
         private Integer bNBeds;
 
         private Builder(final String id, final String name, final String email) {
@@ -84,8 +79,8 @@ public class PublicAuthority extends User implements Owner, Parcelable {
             return this;
         }
 
-        public Builder setLegalSite(final GeoPoint legalSite) {
-            this.bLegalSite = legalSite;
+        public Builder setLocation(final GeoPoint location) {
+            this.bLocation = location;
             return this;
         }
 
@@ -95,7 +90,7 @@ public class PublicAuthority extends User implements Owner, Parcelable {
         }
 
         public PublicAuthority build() {
-            return new PublicAuthority(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLegalSite, bNBeds);
+            return new PublicAuthority(bID, bName, bEmail, bPassword, bPhone, bPhoto, bLocation, bNBeds);
         }
     }
 

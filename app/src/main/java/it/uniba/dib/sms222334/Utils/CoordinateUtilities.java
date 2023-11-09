@@ -53,7 +53,7 @@ public final class CoordinateUtilities {
         }
     }
 
-    public static String getAddressFromLatLng(Context context, GeoPoint location) {
+    public static String getAddressFromLatLng(Context context, GeoPoint location, boolean onlyLocality) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         String address = "";
 
@@ -63,7 +63,10 @@ public final class CoordinateUtilities {
 
             if (addresses != null && addresses.size() > 0) {
                 Address fetchedAddress = addresses.get(0);
-                address = fetchedAddress.getLocality();
+                if (onlyLocality)
+                    address = fetchedAddress.getLocality();
+                else
+                    address = fetchedAddress.getAddressLine(0);
             }
         } catch (IOException e) {
             e.printStackTrace();

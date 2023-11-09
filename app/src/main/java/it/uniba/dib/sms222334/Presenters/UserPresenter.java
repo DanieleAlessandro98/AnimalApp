@@ -58,7 +58,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         }
     }
 
-    public void mailcheckUpdateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String site, String companyname ) {
+    public void mailcheckUpdateProfile(String name, String surname, Date birthDate, String taxID, String phone, String email, String password, String location, String companyname ) {
         if (!Validations.isValidEmail(email)) {
             profileView.showInvalidInput(4);
             return;
@@ -71,12 +71,12 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
                 if (result==true){
                     profileView.showInvalidInput(6);
                 }else{
-                    updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                    updateProfile(name, surname, birthDate, taxID, phone, email, password, location, companyname);
                 }
             });
         }
         else{
-            updateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+            updateProfile(name, surname, birthDate, taxID, phone, email, password, location, companyname);
         }
     }
 
@@ -138,7 +138,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
         profileModel.setEmail(email);
         profileModel.setPassword(password);
         profileModel.setPhone(Long.parseLong(phone));
-        profileModel.setLocation(new GeoPoint(locationValue.getLatitude(), locationValue.getLongitude()));
+        profileModel.setLocation(locationValue);
 
         Authentication authentication = new Authentication(new AuthenticationCallbackResult.UpdateAuthentication() {
             @Override

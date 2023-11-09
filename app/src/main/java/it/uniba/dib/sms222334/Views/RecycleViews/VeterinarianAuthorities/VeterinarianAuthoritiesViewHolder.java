@@ -64,7 +64,7 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
             this.longitude=veterinarian.getLocation().getLongitude();
             this.companyName.setText(veterinarian.getName());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLocation()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,veterinarian.getLocation(), true));
 
             Bitmap logo=veterinarian.getPhoto();
             if(logo==null){
@@ -89,7 +89,7 @@ public class VeterinarianAuthoritiesViewHolder extends RecyclerView.ViewHolder i
             this.companyName.setText(publicAuthority.getName());
             this.legalSite.setText(publicAuthority.getLocation().toString());
 
-            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLocation()));
+            this.legalSite.setText(CoordinateUtilities.getAddressFromLatLng(context,publicAuthority.getLocation(), true));
 
             Bitmap logo=publicAuthority.getPhoto();
             if(logo==null){

@@ -1,11 +1,14 @@
 package it.uniba.dib.sms222334.Fragmets;
 
 import android.app.DatePickerDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -17,10 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import it.uniba.dib.sms222334.Activity.RegisterActivity;
 import it.uniba.dib.sms222334.Database.Dao.Authentication.AuthenticationDao;
@@ -30,6 +35,7 @@ import it.uniba.dib.sms222334.Utils.UserRole;
 
 public class RegisterFragment extends Fragment{
     private final String TAG="RegisterFragment";
+
     public enum Type{PRIVATE,PUBLIC_AUTHORITY,VETERINARIAN}
 
     private int inflatedLayout;
@@ -40,9 +46,11 @@ public class RegisterFragment extends Fragment{
     private EditText phoneNumberEditText;
     private TextView dateTextView;
     private EditText taxIDCodeEditText;
-
     private EditText companyNameEditText;
-    private EditText siteEditText;
+
+    private AutoCompleteTextView locationEditText;
+    private ImageButton searchLocationButton;
+
     private UserRole role;
     private RegisterActivity registerActivity;
     private RegisterPresenter registerPresenter;
@@ -133,6 +141,38 @@ public class RegisterFragment extends Fragment{
         prefixAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         prefixSpinner.setAdapter(prefixAdapter);
 
+        locationEditText = layout.findViewById(R.id.location_edit_text);
+        searchLocationButton = layout.findViewById(R.id.search_location_button);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        locationEditText.setAdapter(adapter);
+
+        searchLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String locationName = locationEditText.getText().toString();
+
+                Geocoder geocoder = new Geocoder(getActivity());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(locationName, 5);
+
+                    adapter.clear();
+                    for (Address address : addresses) {
+                        String addressText = address.getAddressLine(0);
+                        adapter.add(addressText);
+                    }
+
+                    adapter.notifyDataSetChanged();
+
+                    locationEditText.setText(locationName);
+                    locationEditText.setSelection(locationName.length());
+                    locationEditText.showDropDown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         return layout;
     }
 
@@ -140,7 +180,7 @@ public class RegisterFragment extends Fragment{
         View layout = getView();
         String email;
         String companyName;
-        String site;
+        String location;
         String prefix;
         Long phone;
 
@@ -165,6 +205,7 @@ public class RegisterFragment extends Fragment{
                 String taxIDCode = taxIDCodeEditText.getText().toString();
                 prefix = prefixSpinner.getSelectedItem().toString();//Telefono
                 phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
+                location = locationEditText.getText().toString();
                 email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
@@ -182,7 +223,7 @@ public class RegisterFragment extends Fragment{
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }//FINE Data di nascita Check
-                            registerPresenter.checkPrivateRegistration(name, surname, email, password, phone, birthDate, taxIDCode);
+                            registerPresenter.checkPrivateRegistration(name, surname, email, password, phone, birthDate, taxIDCode, location);
                         }
                     }
                 });
@@ -190,7 +231,6 @@ public class RegisterFragment extends Fragment{
 
             case R.layout.public_authority_register:
                 companyNameEditText = layout.findViewById(R.id.nameEditText);
-                siteEditText = layout.findViewById(R.id.surnameEditText);
                 prefixSpinner = layout.findViewById(R.id.prefix_spinner);
                 phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
                 emailEditText = layout.findViewById(R.id.emailEditText);
@@ -198,7 +238,7 @@ public class RegisterFragment extends Fragment{
 
                 // Recupera i dati dal layout public_authority_register
                 companyName = companyNameEditText.getText().toString();
-                site = siteEditText.getText().toString();
+                location = locationEditText.getText().toString();
                 prefix = prefixSpinner.getSelectedItem().toString();//Telefono
                 phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
                 email = emailEditText.getText().toString();
@@ -212,7 +252,7 @@ public class RegisterFragment extends Fragment{
                         if (result==true){
                             showUsedEmail();
                         }else{
-                            registerPresenter.checkAuthorityRegistration(companyName, email, password, phone, site);
+                            registerPresenter.checkAuthorityRegistration(companyName, email, password, phone, location);
                         }
                     }
                 });
@@ -220,7 +260,6 @@ public class RegisterFragment extends Fragment{
 
             case R.layout.veterinarian_register:
                 companyNameEditText = layout.findViewById(R.id.nameEditText);
-                siteEditText = layout.findViewById(R.id.surnameEditText);
                 prefixSpinner = layout.findViewById(R.id.prefix_spinner);
                 phoneNumberEditText = layout.findViewById(R.id.phoneNumberEditText);
                 emailEditText = layout.findViewById(R.id.emailEditText);
@@ -228,7 +267,7 @@ public class RegisterFragment extends Fragment{
 
                 // Recupera i dati dal layout veterinarian_register
                 companyName = companyNameEditText.getText().toString();
-                site = siteEditText.getText().toString();
+                location = locationEditText.getText().toString();
                 prefix = prefixSpinner.getSelectedItem().toString();//Telefono
                 phone = Long.valueOf(prefix + phoneNumberEditText.getText().toString());//Telefono
                 email = emailEditText.getText().toString();
@@ -242,7 +281,7 @@ public class RegisterFragment extends Fragment{
                         if (result==true){
                             showUsedEmail();
                         }else{
-                            registerPresenter.checkVeterinarianRegistration(companyName, email, password, phone, site);
+                            registerPresenter.checkVeterinarianRegistration(companyName, email, password, phone, location);
                         }
                     }
                 });
@@ -280,6 +319,10 @@ public class RegisterFragment extends Fragment{
         phoneNumberEditText.setError(this.getString(R.string.invalid_user_phonenumber));
     }
     public void showInvalidCompanyName() {
-        nameEditText.setError(this.getString(R.string.invalid_user_companyname));
+        companyNameEditText.setError(this.getString(R.string.invalid_user_companyname));
+    }
+
+    public void showInvalidLocation() {
+        locationEditText.setError(this.getString(R.string.invalid_user_location));
     }
 }

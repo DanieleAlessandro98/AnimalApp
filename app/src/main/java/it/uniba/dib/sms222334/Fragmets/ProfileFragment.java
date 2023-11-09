@@ -1,5 +1,6 @@
 package it.uniba.dib.sms222334.Fragmets;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 
@@ -64,6 +65,7 @@ import it.uniba.dib.sms222334.Models.SessionManager;
 import it.uniba.dib.sms222334.Models.User;
 import it.uniba.dib.sms222334.Models.Veterinarian;
 import it.uniba.dib.sms222334.R;
+import it.uniba.dib.sms222334.Utils.CoordinateUtilities;
 import it.uniba.dib.sms222334.Utils.UserRole;
 import it.uniba.dib.sms222334.Presenters.UserPresenter;
 import it.uniba.dib.sms222334.Presenters.VisitPresenter;
@@ -104,7 +106,6 @@ public class ProfileFragment extends Fragment {
     private EditText phoneEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
-    private EditText siteEditText;
     private AutoCompleteTextView locationEditText;
     private UserPresenter userPresenter;
 
@@ -156,6 +157,7 @@ public class ProfileFragment extends Fragment {
         Log.d(TAG,"onAttach()");
     }
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -474,7 +476,7 @@ public class ProfileFragment extends Fragment {
 
                 editPhotoImageView = dialog.findViewById(R.id.profile_picture);
                 companyNameEditText = dialog.findViewById(R.id.nameEditText);
-                siteEditText = dialog.findViewById(R.id.surnameEditText);
+                locationEditText = dialog.findViewById(R.id.location_edit_text);
                 Spinner prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
@@ -486,9 +488,9 @@ public class ProfileFragment extends Fragment {
 
                 editPhotoImageView = dialog.findViewById(R.id.profile_picture);
                 companyNameEditText = dialog.findViewById(R.id.nameEditText);
-                siteEditText = dialog.findViewById(R.id.surnameEditText);
                 prefixSpinner = dialog.findViewById(R.id.prefix_spinner);
                 phoneEditText = dialog.findViewById(R.id.phoneNumberEditText);
+                locationEditText = dialog.findViewById(R.id.location_edit_text);
                 emailEditText = dialog.findViewById(R.id.emailEditText);
                 passwordEditText = dialog.findViewById(R.id.passwordEditText);
                 break;
@@ -517,9 +519,9 @@ public class ProfileFragment extends Fragment {
                         String email = emailEditText.getText().toString();
                         String password = passwordEditText.getText().toString();
 
-                        String site = locationEditText.getText().toString();
+                        String location = locationEditText.getText().toString();
                         String companyname = null;
-                        userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, site, companyname);
+                        userPresenter.mailcheckUpdateProfile(name, surname, birthDate, taxID, phone, email, password, location, companyname);
 
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -528,7 +530,7 @@ public class ProfileFragment extends Fragment {
 
                     case VETERINARIAN:
                             String companyname = companyNameEditText.getText().toString();
-                            String site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            String site = locationEditText.getText().toString();
                             String phone = phoneEditText.getText().toString();
                             String email = emailEditText.getText().toString();
                             String password = passwordEditText.getText().toString();
@@ -541,7 +543,7 @@ public class ProfileFragment extends Fragment {
 
                     case PUBLIC_AUTHORITY:
                             companyname = companyNameEditText.getText().toString();
-                            site = "N/D";/*siteEditText.getText().toString(); */ //TODO= Aggiungere parametro alla funzione
+                            site = locationEditText.getText().toString();
                             phone = phoneEditText.getText().toString();
                             email = emailEditText.getText().toString();
                             password = passwordEditText.getText().toString();
@@ -696,6 +698,7 @@ public class ProfileFragment extends Fragment {
 
         taxIDEditText.setText(userPrivate.getTaxIDCode());
         phoneEditText.setText(Long.toString(userPrivate.getPhone()));
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userPrivate.getLocation(), false));
         emailEditText.setText(userPrivate.getEmail());
         passwordEditText.setText(userPrivate.getPassword());
         editPhotoImageView.setImageBitmap(userPrivate.getPhoto());
@@ -703,7 +706,7 @@ public class ProfileFragment extends Fragment {
 
     public void onInitAuthorityData(PublicAuthority userAuthority) {
         companyNameEditText.setText(userAuthority.getName());
-        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userAuthority.getLocation(), false));
 
         phoneEditText.setText(Long.toString(userAuthority.getPhone()));
         emailEditText.setText(userAuthority.getEmail());
@@ -713,7 +716,7 @@ public class ProfileFragment extends Fragment {
 
     public void onInitVeterinarianData(Veterinarian userVeterinarian) {
         companyNameEditText.setText(userVeterinarian.getName());
-        siteEditText.setText("N/D"); //TODO: Verificare il legal site
+        locationEditText.setText(CoordinateUtilities.getAddressFromLatLng(getContext(), userVeterinarian.getLocation(), false));
 
         phoneEditText.setText(Long.toString(userVeterinarian.getPhone()));
         emailEditText.setText(userVeterinarian.getEmail());

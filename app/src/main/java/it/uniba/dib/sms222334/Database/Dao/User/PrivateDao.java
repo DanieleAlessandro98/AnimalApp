@@ -123,7 +123,7 @@ public final class PrivateDao {
                         .setSurname(document.getString(AnimalAppDB.Private.COLUMN_NAME_SURNAME))
                         .setBirthDate(document.getDate(AnimalAppDB.Private.COLUMN_NAME_BIRTH_DATE))
                         .setTaxIdCode(document.getString(AnimalAppDB.Private.COLUMN_NAME_TAX_ID))
-                        .setLocation(new GeoPoint(10f, 10f));
+                        .setLocation(document.getGeoPoint(AnimalAppDB.Private.COLUMN_NAME_LOCATION));
 
                 Private resultPrivate = private_requested_builder.build();
                 callback.onPrivateFound(resultPrivate);
@@ -194,6 +194,7 @@ public final class PrivateDao {
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, Private.getEmail());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, Private.getPassword());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, Private.getPhone());
+        new_private.put(AnimalAppDB.Private.COLUMN_NAME_LOCATION, Private.getLocation());
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, "/images/profiles/users/default.jpg");
         new_private.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, Private.getTaxIDCode());
 
@@ -235,6 +236,7 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_LOCATION, updatePrivate.getLocation());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHOTO, updatePrivate.getPhotoPath());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
@@ -276,6 +278,7 @@ public final class PrivateDao {
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_EMAIL, updatePrivate.getEmail());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PASSWORD, updatePrivate.getPassword());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_PHONE_NUMBER, updatePrivate.getPhone());
+        newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_LOCATION, updatePrivate.getLocation());
         newPrivateData.put(AnimalAppDB.Private.COLUMN_NAME_TAX_ID, updatePrivate.getTaxIDCode());
 
         collectionPrivate.document(updatePrivate.getFirebaseID())

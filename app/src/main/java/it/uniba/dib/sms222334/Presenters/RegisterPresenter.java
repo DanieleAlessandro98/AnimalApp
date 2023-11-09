@@ -30,7 +30,7 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
     }
 
     //Prendo i dati dal fragment e li Controllo
-    public void checkPrivateRegistration(String name, String surname, String email, String password, Long phone, Date birthDate, String taxIDCode){
+    public void checkPrivateRegistration(String name, String surname, String email, String password, Long phone, Date birthDate, String taxIDCode, String location){
 
         //Richiama il metodo isValidName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidName(name)) {
@@ -69,6 +69,12 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
             return;
         }
 
+        GeoPoint locationValue = Validations.isValidLocation(location, registerFragment.getContext());
+        if (locationValue == null) {
+            registerFragment.showInvalidLocation();
+            return;
+        }
+
         // Crea un'istanza di Private utilizzando il Builder
         Private privateUser = Private.Builder.create("", name, email)
                 .setSurname(surname)
@@ -76,13 +82,14 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
                 .setPhone(phone)
                 .setBirthDate(birthDate)
                 .setTaxIdCode(taxIDCode)
+                .setLocation(locationValue)
                 .build();
 
         // Tutti i dati sono validi, procedi con la registrazione
         privateUser.registerPrivate( this);
         }
 
-    public void checkAuthorityRegistration(String companyName, String email, String password, Long phone, String site){
+    public void checkAuthorityRegistration(String companyName, String email, String password, Long phone, String location){
         //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidCompanyName(companyName)) {
             registerFragment.showInvalidCompanyName();
@@ -108,21 +115,24 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
             return;
         }
 
-        //Variabile di test per la geolocalizzazione
-        GeoPoint TEST = new GeoPoint(-90,90);
+        GeoPoint locationValue = Validations.isValidLocation(location, registerFragment.getContext());
+        if (locationValue == null) {
+            registerFragment.showInvalidLocation();
+            return;
+        }
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
         PublicAuthority authorityUser = PublicAuthority.Builder.create("", companyName, email)
                 .setPassword(password)
                 .setPhone(phone)
-                .setLegalSite(TEST)
+                .setLocation(locationValue)
                 .build();
 
         // Tutti i dati sono validi, procedi con la registrazione
         authorityUser.registerAuthority(this);
     }
 
-    public void checkVeterinarianRegistration(String companyName, String email, String password, Long phoneB, String site){
+    public void checkVeterinarianRegistration(String companyName, String email, String password, Long phoneB, String location){
         //Richiama il metodo isValidCompanyName e in se il controllo non va a buon fine richiama il messaggio di errore creato nel registerFragment
         if (!Validations.isValidCompanyName(companyName)) {
             registerFragment.showInvalidCompanyName();
@@ -148,14 +158,17 @@ public class RegisterPresenter implements UserCallback.UserRegisterCallback{
             return;
         }
 
-        //Variabile di test per la geolocalizzazione
-        GeoPoint TEST = new GeoPoint(-90,90);
+        GeoPoint locationValue = Validations.isValidLocation(location, registerFragment.getContext());
+        if (locationValue == null) {
+            registerFragment.showInvalidLocation();
+            return;
+        }
 
         // Crea un'istanza di PublicAuthority utilizzando il Builder
         Veterinarian authorityUser = Veterinarian.Builder.create("", companyName, email)
                 .setPassword(password)
                 .setPhone(phoneB)
-                .setLegalSite(TEST)
+                .setLocation(locationValue)
                 .build();
 
         // Tutti i dati sono validi, procedi con la registrazione

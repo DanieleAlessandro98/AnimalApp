@@ -62,7 +62,7 @@ public class VeterinarianDao {
                                 document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_COMPANY_NAME),
                                 document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_EMAIL))
                         .setPhoto(bitmap)
-                        .setLegalSite(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
+                        .setLocation(document.getGeoPoint(AnimalAppDB.Veterinarian.COLUMN_NAME_SITE))
                         .setPassword(document.getString(AnimalAppDB.Veterinarian.COLUMN_NAME_PASSWORD))
                         .setPhone(document.getLong(AnimalAppDB.Veterinarian.COLUMN_NAME_PHONE_NUMBER));
 

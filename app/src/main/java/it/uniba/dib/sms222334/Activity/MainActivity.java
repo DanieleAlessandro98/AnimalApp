@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         initRegisterActivity();
 
         if(getSupportFragmentManager().findFragmentByTag("tab_fragment")==null)
-            changeTab(TabPosition.HOME);
+            changeTab(TabPosition.SEARCH);
     }
 
     @Override

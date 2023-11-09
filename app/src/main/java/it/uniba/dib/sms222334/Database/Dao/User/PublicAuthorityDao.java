@@ -55,7 +55,7 @@ public class PublicAuthorityDao {
                         .setPhoto(bitmap)
                         .setPassword(document.getString(AnimalAppDB.PublicAuthority.COLUMN_NAME_PASSWORD))
                         .setPhone(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_PHONE_NUMBER))
-                        .setLegalSite(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
+                        .setLocation(document.getGeoPoint(AnimalAppDB.PublicAuthority.COLUMN_NAME_SITE))
                         .setNBeds(document.getLong(AnimalAppDB.PublicAuthority.COLUMN_NAME_BEDS_NUMBER).intValue());
 
                 PublicAuthority resultPublicAuthority=public_authority_requested_builder.build();
