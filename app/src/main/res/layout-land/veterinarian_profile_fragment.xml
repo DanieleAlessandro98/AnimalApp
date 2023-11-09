@@ -26,15 +26,34 @@
             app:shapeAppearanceOverlay="@style/right_rounded"
             android:scaleType="centerCrop"/>
 
-        <Button
-            android:id="@+id/edit_button"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="20dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/baseline_edit_24"
-            android:backgroundTint="@color/light_main_green"/>
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/edit_button"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/baseline_edit_24"
+                android:backgroundTint="@color/light_main_green"/>
+
+            <Button
+                android:id="@+id/logout_button"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/baseline_logout_24"
+                android:backgroundTint="@color/light_main_green"/>
+        </LinearLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"

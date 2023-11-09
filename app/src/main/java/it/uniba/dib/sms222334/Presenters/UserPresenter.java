@@ -202,7 +202,7 @@ public class UserPresenter implements AuthenticationCallbackResult.LogoutComplet
     public void onLogoutCompleted(boolean isSuccessful) {
         if (isSuccessful) {
             profileModel.deleteProfile();
-            profileView.showLogoutSuccessful();
+            profileView.showLogoutSuccessful(true);
         } else {
             profileView.showLogoutError();
         }

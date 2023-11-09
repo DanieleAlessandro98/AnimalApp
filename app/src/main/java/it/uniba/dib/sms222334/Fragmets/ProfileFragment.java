@@ -90,7 +90,7 @@ public class ProfileFragment extends Fragment {
     
     private ProfileFragment.Type profileType;
 
-    Button editButton,addVisitButton;
+    Button editButton,addVisitButton, logoutButton;
 
     boolean editOpen,visitOpen;
     TabLayout tabLayout;
@@ -225,9 +225,12 @@ public class ProfileFragment extends Fragment {
 
 
         editButton=layout.findViewById(R.id.edit_button);
+        logoutButton=layout.findViewById(R.id.logout_button);
 
-        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0)
+        if(profile.getFirebaseID().compareTo(SessionManager.getInstance().getCurrentUser().getFirebaseID())!=0) {
             editButton.setVisibility(View.INVISIBLE);
+            logoutButton.setVisibility(View.INVISIBLE);
+        }
 
         tabLayout=layout.findViewById(R.id.tab_layout);
 
@@ -271,6 +274,19 @@ public class ProfileFragment extends Fragment {
         if(editOpen)
             launchEditDialog();
 
+        logoutButton.setOnClickListener(v -> {
+            final AnimalAppDialog logoutDialog=new AnimalAppDialog(getContext());
+
+            logoutDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
+            logoutDialog.setConfirmAction(t -> {
+                SessionManager.getInstance().logoutUser();
+                logoutDialog.cancel();
+                showLogoutSuccessful(false);
+            });
+
+            logoutDialog.setUndoAction(t -> logoutDialog.cancel());
+            logoutDialog.show();
+        });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -499,7 +515,6 @@ public class ProfileFragment extends Fragment {
         Button saveButton = dialog.findViewById(R.id.save_button);
         Button deleteButton = dialog.findViewById(R.id.delete_button);
         Button editPhotoButton = dialog.findViewById(R.id.edit_button);
-        Button logoutButton = dialog.findViewById(R.id.logout_button);
         searchLocationButton = dialog.findViewById(R.id.search_location_button);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line);
@@ -559,20 +574,6 @@ public class ProfileFragment extends Fragment {
         });
 
         deleteButton.setOnClickListener(v -> showDeleteConfirm());
-
-        logoutButton.setOnClickListener(v -> {
-            final AnimalAppDialog logoutDialog=new AnimalAppDialog(getContext());
-
-            logoutDialog.setContentView(getContext().getString(R.string.confirm_logout), AnimalAppDialog.DialogType.INFO);
-
-            logoutDialog.setConfirmAction(t -> {
-                //TODO qui fai il callback per il logout
-            });
-
-            logoutDialog.setUndoAction(t -> logoutDialog.cancel());
-
-            logoutDialog.show();
-        });
 
         editPhotoButton.setOnClickListener(v -> {
             Intent photoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -780,12 +781,15 @@ public class ProfileFragment extends Fragment {
         dialog.show();
     }
 
-    public void showLogoutSuccessful() {
+    public void showLogoutSuccessful(boolean deletedAccount) {
 
-        Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+        if (deletedAccount)
+            Toast.makeText(requireContext(), this.getString(R.string.profile_delete_successful), Toast.LENGTH_SHORT).show();
+
+        if (dialog != null)
+            dialog.cancel();
 
         ((MainActivity)getActivity()).changeTab(MainActivity.TabPosition.HOME);
-        dialog.cancel();
         this.editOpen=false;
     }
 
