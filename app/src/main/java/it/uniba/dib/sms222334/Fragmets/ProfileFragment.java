@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -264,12 +265,15 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
                 mapViewBundle=savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
 
             mapView=(MapView) layout.findViewById(R.id.mapview);
+
+            LinearLayout linearLayout =layout.findViewById(R.id.map_container);
+            
             mapView.onCreate(mapViewBundle);
             mapView.getMapAsync(this);
 
             mapEnable = true;
 
-            mapView.setVisibility(View.VISIBLE);
+            linearLayout.setVisibility(View.VISIBLE);
 
             editButton.setVisibility(View.INVISIBLE);
             logoutButton.setVisibility(View.INVISIBLE);
