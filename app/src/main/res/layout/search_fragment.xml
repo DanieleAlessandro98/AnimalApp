@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
     <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/edged_container_shape"
+        android:layout_height="0dp"
+        android:background="@drawable/start_end_faded_shape"
         android:orientation="vertical">
 
         <SearchView
@@ -19,8 +18,9 @@
             android:background="@drawable/rounded_container_shape"/>
 
         <LinearLayout
+            android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="80dp"
             android:background="@drawable/rounded_container_shape"

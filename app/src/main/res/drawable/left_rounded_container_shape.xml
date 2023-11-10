@@ -6,7 +6,7 @@
                 android:bottomLeftRadius="15dp"/>
             <gradient android:startColor="?attr/colorPrimary"
                 android:endColor="?attr/colorOnPrimary"
-                android:angle="90"/>
+                android:angle="300"/>
         </shape>
     </item>
 </selector>

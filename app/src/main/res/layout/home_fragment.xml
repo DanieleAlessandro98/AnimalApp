@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/edged_container_shape"
+        android:background="@drawable/start_end_faded_shape"
         android:orientation="vertical">
 
         <SearchView
