@@ -5,7 +5,7 @@
 ### Descrizione
 AnimalApp è un sistema progettato per semplificare la gestione quotidiana degli animali domestici e facilitare la risoluzione di problemi sociali legati agli animali, come l'identificazione degli animali smarriti, l'adozione facilitata e l'accesso ai servizi veterinari e agli enti di assistenza.
 
-### Design pattern utilizzati:
+### Design pattern utilizzati
 - **Model View Presenter (MVP)**
 - **Data Access Object (DAO)**
 
